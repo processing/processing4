@@ -101,3 +101,5 @@ processing-examples
 .gradle
 core/build/
 build/publish/
+/app/build
+/java/build

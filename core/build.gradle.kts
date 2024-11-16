@@ -15,7 +15,7 @@ repositories {
 sourceSets{
     main{
         java{
-            srcDirs("src/processing")
+            srcDirs("src")
         }
         resources{
             srcDirs("src")
