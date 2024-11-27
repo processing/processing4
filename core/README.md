@@ -1,3 +1,17 @@
+# Processing Core
+
+Welcome to the Core of Processing, this is the code that will be inlcuded in your sketches and is responsible for methods like `ellipse()` and `background()`.
+
+
+
+## Developing Core
+
+Since processing 4.3.1 we have started moving to a gradle build system for core. 
+
+### Building and Debugging core
+Open the project in IntelliJ IDEA. Then you can go into the `src/processing/sketches` folder and run any of the sketches to test the core. This only supported in the  IntelliJ editor for now, we will add support for other editors and command line at a later date.
+
+
 ## There are significant changes to `core` in Processing 3.
 
 
