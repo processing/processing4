@@ -104,6 +104,7 @@ jobs:
       - name: Build Release
         run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ needs.version.outputs.version }}"
         env:
+          PROCESSING_APP_SIGNING: true
           PROCESSING_APP_PASSWORD: ${{ secrets.PROCESSING_APP_PASSWORD }}
           PROCESSING_APPLE_ID: ${{ secrets.PROCESSING_APPLE_ID }}
           PROCESSING_TEAM_ID: ${{ secrets.PROCESSING_TEAM_ID }}

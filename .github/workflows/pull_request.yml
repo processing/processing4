@@ -51,8 +51,16 @@ jobs:
           architecture: ${{ matrix.arch }}
       - name: Setup Ant
         uses: cedx/setup-ant@v3
+      - name: Install Certificates for Code Signing
+        if: ${{ matrix.os_prefix == 'macos' }}
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       - name: Build Release
         run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ github.sha }}"
+        env:
+          PROCESSING_APP_SIGNING: true
       - name: Add artifact
         uses: actions/upload-artifact@v3
         id: upload
