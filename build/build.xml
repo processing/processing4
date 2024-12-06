@@ -9,21 +9,30 @@
     </classpath>
   </taskdef>
 
-  <!-- Sets properties for macos/windows/linux depending on current system -->
+  <!-- Only do OS detection if platform isn't already set by override -->
   <condition property="platform" value="macos">
-    <os family="mac" />
+    <and>
+      <not><isset property="platform"/></not>
+      <os family="mac" />
+    </and>
   </condition>
 
   <condition property="platform" value="windows">
-    <os family="windows" />
+    <and>
+      <not><isset property="platform"/></not>
+      <os family="windows" />
+    </and>
   </condition>
 
   <condition property="platform" value="linux">
     <and>
-      <os family="unix" />
-      <not>
-        <os family="mac" />
-      </not>
+      <not><isset property="platform"/></not>
+      <and>
+        <os family="unix" />
+        <not>
+          <os family="mac" />
+        </not>
+      </and>
     </and>
   </condition>
 
@@ -114,7 +123,7 @@
 
     <!-- ${platform} ok for Windows/Linux, but 'macos' needs to be 'mac' -->
     <condition property="jdk.download.os" value="mac" else="${platform}">
-      <os family="mac" />
+      <equals arg1="${platform}" arg2="macos"/>
     </condition>
 
     <!-- amd64 or x86_64 use x64, others use os.arch -->

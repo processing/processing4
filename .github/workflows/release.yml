@@ -55,6 +55,7 @@ jobs:
     permissions:
       contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           # compiling for arm32 needs a self-hosted runner on Raspi OS (32-bit)
@@ -102,7 +103,7 @@ jobs:
           p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
           p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       - name: Build Release
-        run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ needs.version.outputs.version }}"
+        run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ needs.version.outputs.version }}" -Dplatform=${{ matrix.os_prefix }}
         env:
           PROCESSING_APP_PASSWORD: ${{ secrets.PROCESSING_APP_PASSWORD }}
           PROCESSING_APPLE_ID: ${{ secrets.PROCESSING_APPLE_ID }}
