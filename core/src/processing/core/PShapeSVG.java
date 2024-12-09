@@ -514,53 +514,86 @@ public class PShapeSVG extends PShape {
     char[] pathDataChars = pathData.toCharArray();
 
     StringBuilder pathBuffer = new StringBuilder();
-    boolean lastSeparate = false;
-    boolean isOnDecimal = false;
+
+    /*
+     * The state of the lexer:
+     * -1: just after the command (i.e. a single alphabet)
+     * 0: neutral state
+     * 1: on a digit sequence for integer representation
+     * 2: on a decimal
+     * 3: on a digit or a sign in exponent in scientific notation, e.g. 3.14e-2)
+     * 4: on a digit sequence in exponent
+     */
+    int lexState = 0;
 
     for (int i = 0; i < pathDataChars.length; i++) {
       char c = pathDataChars[i];
-      boolean separate = false;
 
-      if (c == 'M' || c == 'm' ||
-          c == 'L' || c == 'l' ||
-          c == 'H' || c == 'h' ||
-          c == 'V' || c == 'v' ||
-          c == 'C' || c == 'c' ||  // beziers
-          c == 'S' || c == 's' ||
-          c == 'Q' || c == 'q' ||  // quadratic beziers
-          c == 'T' || c == 't' ||
-          c == 'A' || c == 'a' ||  // elliptical arc
-          c == 'Z' || c == 'z' ||  // closepath
-          c == ',') {
-        separate = true;
-        if (i != 0) {
-          pathBuffer.append("|");
-        }
-      }
-      if (c == 'Z' || c == 'z') {
-        separate = false;
-      }
-      if (c == '.' && !isOnDecimal) {
-        isOnDecimal = true;
-      }
-      else if (isOnDecimal && (c < '0' || c > '9')) {
+      // Put a separator after a command.
+      if (lexState == -1) {
         pathBuffer.append("|");
-        isOnDecimal = c == '.';
+        lexState = 0;
       }
-      if (c == '-' && !lastSeparate) {
-        // allow for 'e' notation in numbers, e.g. 2.10e-9
-        // https://download.processing.org/bugzilla/1408.html
-        if (i == 0 || pathDataChars[i-1] != 'e') {
+
+      if (c >= '0' && c <= '9') {
+        if (lexState == 0 || lexState == 3) {
+          // If it is a head of a number representation, enter the 'inside' of the digit sequence.
+          ++lexState;
+        }
+        pathBuffer.append(c);
+        continue;
+      }
+
+      if (c == '-') {
+        if (lexState == 0) {
+          // In neutral state, enter 'digit sequence'.
+          lexState = 1;
+        }
+        else if (lexState == 3) {
+          // In the begining of an exponent, enter 'exponent digit sequence'.
+          lexState = 4;
+        }
+        else {
+          // Otherwise, begin a new number representation.
+          pathBuffer.append("|");
+          lexState = 1;
+        }
+        pathBuffer.append("-");
+        continue;
+      }
+
+      if (c == '.') {
+        if (lexState >= 2) {
+          // Begin a new decimal number unless it is in a neutral state or after a digit sequence
           pathBuffer.append("|");
         }
+        pathBuffer.append(".");
+        lexState = 2;
+        continue;
       }
+
+      if (c == 'e' || c == 'E') {
+        // Found 'e' or 'E', enter the 'exponent' state immediately.
+        pathBuffer.append("e");
+        lexState = 3;
+        continue;
+      }
+
+      // The following are executed for non-numeral elements
+
+      if (lexState != 0) {
+        pathBuffer.append("|");
+        lexState = 0;
+      }
+
       if (c != ',') {
-        pathBuffer.append(c); //"" + pathDataBuffer.charAt(i));
+        pathBuffer.append(c);
       }
-      if (separate && c != ',' && c != '-') {
-        pathBuffer.append("|");
+
+      if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+        // Every alphabet character except for 'e' and 'E' are considered as a command.
+        lexState = -1;
       }
-      lastSeparate = separate;
     }
 
     // use whitespace constant to get rid of extra spaces and CR or LF
