@@ -952,6 +952,11 @@ public class Runner implements MessageConsumer {
 //      System.err.println("message " + s.length() + ":" + s);
 //    }
 
+    // Ignore the warnings on macOS Sequoia to prevent confusion: https://github.com/processing/processing4/issues/864
+    if(s.contains("+[IMKClient subclass]:") || s.contains("+[IMKInputSession subclass]:")){
+      return;
+    }
+    
     // always shove out the message, since it might not fall under
     // the same setup as we're expecting
     sketchErr.print(s);
