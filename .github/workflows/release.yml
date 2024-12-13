@@ -93,7 +93,7 @@ jobs:
           architecture: ${{ matrix.arch }}
       - name: Setup Ant
         uses: cedx/setup-ant@v3
-      - name: Write to `todo.txt` and update `Base.java`
+      - name: Write build_number and revision to todo.txt and Base.java
         run: |
           echo "${{ needs.version.outputs.build_number }} (${{ needs.version.outputs.version }})" > todo.txt
           perl -pi -e 's/static private final int REVISION = \d+;/static private final int REVISION = ${{ needs.version.outputs.build_number }};/g; s/static private String VERSION_NAME = "\d+";\s*\/\/\$NON-NLS-1\$/static private String VERSION_NAME = "${{ needs.version.outputs.build_number }}"; \/\/\$NON-NLS-1\$/g' app/src/processing/app/Base.java
