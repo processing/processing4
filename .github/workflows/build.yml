@@ -29,6 +29,7 @@ jobs:
     permissions:
       contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           # compiling for arm32 needs a self-hosted runner on Raspi OS (32-bit)

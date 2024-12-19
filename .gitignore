@@ -101,3 +101,11 @@ processing-examples
 .gradle
 core/build/
 build/publish/
+app/build
+java/build/
+/build/reports
+/java/bin
+/java/libraries/svg/bin
+/java/preprocessor/build
+/java/lsp/build
+/.kotlin/sessions

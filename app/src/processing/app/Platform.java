@@ -28,10 +28,10 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.*;
 
 import com.sun.jna.platform.FileUtils;
 
@@ -331,9 +331,18 @@ public class Platform {
    * Get reference to a file adjacent to the executable on Windows and Linux,
    * or inside Contents/Resources/Java on Mac OS X. This will return the local
    * JRE location, *whether or not it is the active JRE*.
+   * @deprecated start using the build in JAR Resources system instead.
    */
+  @Deprecated
   static public File getContentFile(String name) {
     if (processingRoot == null) {
+      var resourcesDir = System.getProperty("compose.application.resources.dir");
+      if(resourcesDir != null) {
+        var directory = new File(resourcesDir);
+        if(directory.exists()){
+          return new File(directory, name);
+        }
+      }
       // Get the path to the .jar file that contains Base.class
       URL pathURL =
           Base.class.getProtectionDomain().getCodeSource().getLocation();
@@ -382,8 +391,37 @@ public class Platform {
     return new File(processingRoot, name);
   }
 
-
   static public File getJavaHome() {
+    var resourcesDir = System.getProperty("compose.application.resources.dir");
+    if(resourcesDir != null) {
+      // find the jdk folder starting with jdk-17
+        var jdkFolder = Arrays.stream(new File(resourcesDir).listFiles((dir, name) -> dir.isDirectory() && name.startsWith("jdk-17")))
+                .findFirst()
+                .orElse(null);
+        if(Platform.isMacOS()){
+            return new File(jdkFolder, "Contents/Home");
+        }
+        return jdkFolder;
+    }
+
+    var home = System.getProperty("java.home");
+    if(home != null){
+      if(new File(home, "bin/java").exists()){
+        return new File(home);
+      }else{
+        String os = System.getProperty("os.name").toLowerCase();
+        // Default installation paths for different operating systems
+        if (os.contains("windows")) {
+          var programFiles = new File(System.getenv("ProgramFiles"));
+          return new File(programFiles, "Eclipse Adoptium/jdk-17.0.10+7-hotspot");
+        } else if (os.contains("mac")) {
+          return new File("/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home");
+        } else {
+          // Linux and others
+          return new File("/usr/lib/jvm/temurin-17-jdk");
+        }
+      }
+    }
     if (Platform.isMacOS()) {
       //return "Contents/PlugIns/jdk1.7.0_40.jdk/Contents/Home/jre/bin/java";
       File[] plugins = getContentFile("../PlugIns").listFiles((dir, name) -> dir.isDirectory() &&
@@ -393,7 +431,6 @@ public class Platform {
     // On all other platforms, it's the 'java' folder adjacent to Processing
     return getContentFile("java");
   }
-
 
   /** Get the path to the embedded Java executable. */
   static public String getJavaPath() {
