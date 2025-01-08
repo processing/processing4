@@ -2005,12 +2005,12 @@ public class PShapeOpenGL extends PShape {
     }
 
     if (image == null) {
-      if (root.tessUpdate) {
+      inGeo.colors[index] = PGL.javaToNativeARGB(fill);
+      if (shapeCreated && tessellated && hasPolys) {
         int tessIdx = firstPolyVertex + index;
         tessGeo.polyColors[tessIdx] = PGL.javaToNativeARGB(fill);
         root.setModifiedPolyColors(tessIdx, tessIdx);
       } else {
-        inGeo.colors[index] = PGL.javaToNativeARGB(fill);
         markForTessellation();
       }
     }
@@ -2101,12 +2101,12 @@ public class PShapeOpenGL extends PShape {
     }
 
     if (image != null) {
-      if (root.tessUpdate) {
+      inGeo.colors[index] = PGL.javaToNativeARGB(tint);
+      if (shapeCreated && tessellated && hasPolys) {
         int tessIdx = firstPolyVertex + index;
         tessGeo.polyColors[tessIdx] = PGL.javaToNativeARGB(tint);
         root.setModifiedPolyColors(tessIdx, tessIdx);
       } else {
-        inGeo.colors[index] = PGL.javaToNativeARGB(tint);
         markForTessellation();
       }
     }
