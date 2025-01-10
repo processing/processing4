@@ -44,7 +44,7 @@ public class ContributionListing {
    * Stable URL that will redirect to wherever the file is hosted.
    * Changed to use https in 4.0 beta 8 (returns same data).
    */
-  static final String LISTING_URL = "https://contributions.processing.org/contribs.txt";
+  static final String LISTING_URL = "https://contributions.processing.org/contribs";
   static final String LOCAL_FILENAME = "contribs.txt";
 
   /** Location of the listing file on disk, will be read and written. */
