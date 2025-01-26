@@ -165,6 +165,7 @@ public class Splash extends JFrame {
   static public void main(String[] args) {
     // Has to be done before AWT is initialized, so the hack lives here
     // instead of Base or anywhere else that might make more sense.
+    System.setProperty("sun.java2d.uiScale", "2");
     if (getDisableHiDPI()) {
       System.setProperty("sun.java2d.uiScale.enabled", "false");
     }
