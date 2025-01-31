@@ -1,11 +1,16 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins{
-    id("java")
-    id("com.vanniktech.maven.publish") version "0.30.0"
+    java
+    application
+
+    alias(libs.plugins.mavenPublish)
 }
 
-group = "org.processing"
+application{
+    mainClass = "processing.mode.java.lsp.PdeLanguageServer"
+    applicationDefaultJvmArgs = listOf("-Djna.nosys=true","-Djava.awt.headless=true")
+}
 
 repositories{
     mavenCentral()
@@ -24,13 +29,13 @@ sourceSets{
 
 dependencies{
     implementation(project(":core"))
+    implementation(project(":app"))
+    implementation(project(":java"))
     implementation(project(":java:preprocessor"))
 
-    implementation("org.eclipse.lsp4j:org.eclipse.lsp4j:0.22.0")
-    implementation("org.jsoup:jsoup:1.17.2")
-    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.40.0")
-
-    implementation("org.processing:core:${version}")
+    implementation(libs.lsp4j)
+    implementation(libs.jsoup)
+    implementation(libs.eclipseJDT)
 }
 
 mavenPublishing{
@@ -63,4 +68,10 @@ mavenPublishing{
             developerConnection.set("scm:git:ssh://git@github.com/processing/processing4.git")
         }
     }
+}
+tasks.installDist {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+tasks.withType<Copy> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }

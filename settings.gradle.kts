@@ -5,6 +5,7 @@ include(
     "app",
     "java",
     "java:preprocessor",
+    "java:lsp",
     "java:libraries:dxf",
     "java:libraries:io",
     "java:libraries:net",
