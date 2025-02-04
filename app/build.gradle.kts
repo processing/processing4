@@ -32,11 +32,9 @@ sourceSets{
     main{
         java{
             srcDirs("src")
-            exclude("**/*Kt.java")
         }
         kotlin{
             srcDirs("src")
-            exclude("**/*Kt.java")
         }
     }
 }
