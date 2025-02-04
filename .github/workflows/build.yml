@@ -29,6 +29,7 @@ jobs:
     permissions:
       contents: write
     strategy:
+      fail-fast: false
       matrix:
         include:
           # compiling for arm32 needs a self-hosted runner on Raspi OS (32-bit)
@@ -71,6 +72,6 @@ jobs:
       - name: Add artifact
         uses: actions/upload-artifact@v4
         with:
-          name: processing-${{github.sha}}${{ matrix.os_prefix }}-${{ matrix.arch }}
+          name: processing-${{ github.ref_name }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-ant
           path:  ./build/${{ matrix.os_prefix }}/processing-${{github.sha}}-${{ matrix.os_prefix}}-*
           retention-days: 1
