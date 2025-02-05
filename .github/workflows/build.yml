@@ -72,6 +72,6 @@ jobs:
       - name: Add artifact
         uses: actions/upload-artifact@v4
         with:
-          name: processing-${{ replace(github.ref_name, '/', '-') }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-ant
+          name: processing-${{ github.ref_name }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-ant
           path:  ./build/${{ matrix.os_prefix }}/processing-${{github.sha}}-${{ matrix.os_prefix}}-*
           retention-days: 1
