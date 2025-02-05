@@ -770,7 +770,6 @@ public class JavaBuild {
         }
 
       }
-      // TODO: Handle the java embed and Icon with the new build system
 
     } else if (exportPlatform == PConstants.LINUX) {
       if (embedJava) {

@@ -56,7 +56,7 @@ import processing.core.PApplet;
 public class UpdateCheck {
   private final Base base;
 
-  static private final String DOWNLOAD_URL =  System.getProperty("processing.download.page","https://processing.org/download/");
+  static private final String DOWNLOAD_URL = System.getProperty("processing.download.page","https://processing.org/download/");
   static private final String LATEST_URL = System.getProperty("processing.download.latest","https://processing.org/download/latest.txt");
 
   static private final long ONE_DAY = 24 * 60 * 60 * 1000;
