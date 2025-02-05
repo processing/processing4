@@ -1,4 +1,4 @@
-package org.processing.gradle
+package org.processing.java.gradle
 
 import org.gradle.api.file.*
 import org.gradle.api.tasks.*
