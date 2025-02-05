@@ -9,7 +9,9 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.jetbrains.compose.ComposeExtension
+import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.compose.desktop.DesktopExtension
+import org.jetbrains.kotlin.konan.properties.saveToFile
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -23,8 +25,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
 
         project.plugins.apply("org.jetbrains.compose")
         project.plugins.apply("org.jetbrains.kotlin.jvm")
+        project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
 
-        project.dependencies.add("implementation", "org.processing:core:4.3.1")
+        project.dependencies.add("implementation", "org.processing:core:4.4.0")
         project.dependencies.add("implementation", project.fileTree("src").apply { include("**/code/*.jar") })
 
         // Base JOGL and Gluegen dependencies
@@ -53,6 +56,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
 
         project.repositories.add(project.repositories.maven { it.setUrl("https://jogamp.org/deployment/maven") })
         project.repositories.add(project.repositories.mavenCentral())
+        project.repositories.add(project.repositories.mavenLocal())
 
         project.extensions.configure(ComposeExtension::class.java) { extension ->
             extension.extensions.getByType(DesktopExtension::class.java).application { application ->
@@ -72,7 +76,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             dependsOn("run")
         }
         project.tasks.create("present").apply {
-            // TODO: Implement dynamic fullscreen by setting the properties and recompiling the sketch every run
+            // TODO: Implement dynamic fullscreen by adding an argument to the task. This will require a change to core
             group = "processing"
             description = "Presents the Processing sketch"
             dependsOn("run")
@@ -80,7 +84,14 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         project.tasks.create("export").apply {
             group = "processing"
             description = "Creates a distributable version of the Processing sketch"
+
             dependsOn("createDistributable")
+            doLast{
+                project.copy {
+                    it.from(project.tasks.named("createDistributable").get().outputs.files)
+                    it.into(project.layout.projectDirectory)
+                }
+            }
         }
 
         project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.all { sourceSet ->
@@ -127,6 +138,10 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val preferences = File(settingsFolder, "preferences.txt")
         val prefs = Properties()
         prefs.load(preferences.inputStream())
+        prefs.setProperty("export.application.fullscreen", "false")
+        prefs.setProperty("export.application.present", "false")
+        prefs.setProperty("export.application.stop", "false")
+        prefs.store(preferences.outputStream(), null)
 
         val sketchbook = prefs.getProperty("sketchbook.path.four")
 

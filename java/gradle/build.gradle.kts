@@ -16,6 +16,7 @@ dependencies{
 
     implementation(libs.composeGradlePlugin)
     implementation(libs.kotlinGradlePlugin)
+    implementation(libs.kotlinComposePlugin)
 }
 
 gradlePlugin{
