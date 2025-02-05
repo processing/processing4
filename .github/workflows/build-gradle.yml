@@ -50,7 +50,7 @@ jobs:
       - name: Add artifact
         uses: actions/upload-artifact@v4
         with:
-          name: processing-${{ github.ref_name }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-gradle
+          name: processing-${{ replace(github.ref_name, '/', '-') }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-gradle
           path:  |
             ./app/build/compose/binaries/main/dmg/Processing-*.dmg
             ./app/build/compose/binaries/main/dmg/INSTRUCTIONS_FOR_TESTING.txt

@@ -32,11 +32,9 @@ sourceSets{
     main{
         java{
             srcDirs("src")
-            exclude("**/*Kt.java")
         }
         kotlin{
             srcDirs("src")
-            exclude("**/*Kt.java")
         }
     }
 }
@@ -59,8 +57,6 @@ compose.desktop {
                 }
                 entitlementsFile.set(project.file("entitlements.plist"))
                 runtimeEntitlementsFile.set(project.file("entitlements.plist"))
-                // Allow swing to use the system look and feel
-                jvmArgs("-Dapple.awt.application.appearance=system")
             }
             windows{
                 iconFile = project.file("../build/windows/processing.ico")
