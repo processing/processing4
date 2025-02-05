@@ -21,7 +21,7 @@ output.json
 
 # IntelliJ
 *.iml
-.idea/
+.idea/*
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
@@ -55,7 +55,6 @@ gen-external-apklibs
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -95,8 +94,12 @@ gradle-app.setting
 
 # End of https://www.toptal.com/developers/gitignore/api/android,gradle,java
 .DS_Store
-bin/
+bin/*
 .build/
 .processing/
-library/
+library/*
 generated/
+!/build/
+!.idea/runConfigurations/
+!/java/application/launch4j/bin/*
+!java/libraries/io/library/**/*.so
