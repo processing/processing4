@@ -8,6 +8,7 @@ import org.gradle.api.internal.tasks.TaskDependencyFactory
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.JavaExec
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.compose.desktop.DesktopExtension
@@ -76,10 +77,14 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             dependsOn("run")
         }
         project.tasks.create("present").apply {
-            // TODO: Implement dynamic fullscreen by adding an argument to the task. This will require a change to core
             group = "processing"
             description = "Presents the Processing sketch"
-            dependsOn("run")
+            doFirst{
+                project.tasks.withType(JavaExec::class.java).configureEach{ task ->
+                    task.systemProperty("processing.fullscreen", "true")
+                }
+            }
+            finalizedBy("run")
         }
         project.tasks.create("export").apply {
             group = "processing"
