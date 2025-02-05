@@ -99,16 +99,40 @@ processing-examples
 
 # Maven ignores
 .gradle
-core/build/
-build/publish/
-app/build
-java/build/
+/core/build/
+/build/publish/
+/app/build
+/app/lib
+/java/build/
 /build/reports
-/java/bin
-/java/libraries/svg/bin
+/java/preprocessor/bin
 /java/preprocessor/build
 /java/lsp/build
 /.kotlin/sessions
 /core/examples/build
+/.build/
 
-.build/
+/app/bin
+/app/pde.jar
+/build/javadoc
+/core/bin
+/core/bin-test
+/core/library/gluegen-rt*.jar
+/core/library/jogl-all*.jar
+/core/core-sources.jar
+/core/different/build
+
+/java/reference.zip
+/java/bin
+/java/bin-test
+/java/generated
+
+/java/libraries/dxf/bin
+/java/libraries/io/bin
+/java/libraries/net/bin
+/java/libraries/pdf/bin
+/java/libraries/serial/bin
+/java/libraries/svg/bin
+/core/examples/bin
+/core/methods/bin
+/java/gradle/example/.processing
