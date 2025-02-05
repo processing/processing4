@@ -98,7 +98,9 @@ bin-test
 processing-examples
 
 # Maven ignores
+/.kotlin/sessions
 .gradle
+.build/
 core/build/
 build/publish/
 app/build
@@ -108,7 +110,5 @@ java/build/
 /java/libraries/svg/bin
 /java/preprocessor/build
 /java/lsp/build
-/.kotlin/sessions
 /core/examples/build
-
-.build/
+/java/gradle/build
