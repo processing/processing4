@@ -13,6 +13,8 @@
   <property name="ant.url"
             value="https://dlcdn.apache.org//ant/binaries/${ant.zip}" />
 
+  <mkdir dir="lib" />
+
   <fileset id="ant.files" dir="lib">
     <include name="ant.jar" />
     <include name="ant-launcher.jar" />
