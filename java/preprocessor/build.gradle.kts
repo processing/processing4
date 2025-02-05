@@ -23,8 +23,6 @@ sourceSets{
 }
 
 dependencies{
-    implementation(project(":core"))
-
     implementation(libs.antlr)
     implementation(libs.eclipseJDT)
 
