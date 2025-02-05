@@ -1,138 +1,102 @@
-.DS_Store
-.AppleDouble
-._*
-*~
-/build/shared/reference.zip
+# Created by https://www.toptal.com/developers/gitignore/api/android,gradle,java
+# Edit at https://www.toptal.com/developers/gitignore?templates=android,gradle,java
 
-*.x
+### Android ###
+# Gradle files
+.gradle/
+build/
 
-#*.iml
-#/.idea
+# Local configuration file (sdk path, etc)
+local.properties
 
-# may need to bring this back later
-/.idea/codeStyles
+# Log/OS Files
+*.log
 
-# via https://github.com/github/gitignore/blob/master/Global/JetBrains.gitignore
-# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
-# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-
-# Generated files
-.idea/**/contentModel.xml
-
-# Sensitive or high-churn files
-.idea/**/dataSources/
-.idea/**/dataSources.ids
-.idea/**/dataSources.local.xml
-.idea/**/sqlDataSources.xml
-.idea/**/dynamic.xml
-.idea/**/uiDesigner.xml
-.idea/**/dbnavigator.xml
-
-# Gradle
-.idea/**/gradle.xml
-.idea/**/libraries
-
-# Gradle and Maven with auto-import
-# When using Gradle or Maven with auto-import, you should exclude module files,
-# since they will be recreated, and may cause churn.  Uncomment if using
-# auto-import.
-# .idea/modules.xml
-# .idea/*.iml
-# .idea/modules
-
-# CMake
-cmake-build-*/
-
-# Mongo Explorer plugin
-.idea/**/mongoSettings.xml
-
-# File-based project format
-*.iws
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
 
 # IntelliJ
-out/
+*.iml
+.idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
 
-# mpeltonen/sbt-idea plugin
-.idea_modules/
+# Keystore files
+*.jks
+*.keystore
 
-# JIRA plugin
-atlassian-ide-plugin.xml
+# Google Services (e.g. APIs or Firebase)
+google-services.json
 
-# Cursive Clojure plugin
-.idea/replstate.xml
+# Android Profiling
+*.hprof
 
-# Crashlytics plugin (for Android Studio and IntelliJ)
-com_crashlytics_export_strings.xml
-crashlytics.properties
-crashlytics-build.properties
-fabric.properties
+### Android Patch ###
+gen-external-apklibs
 
-# Editor-based Rest Client
-.idea/httpRequests
+# Replacement of .externalNativeBuild directories introduced
+# with Android Studio 3.5.
 
-# Android studio 3.1+ serialized cache file
-.idea/caches/build_file_checksums.ser
+### Java ###
+# Compiled class file
+*.class
 
-# temporarily ignore IntelliJ bits
-*.eml
+# Log file
 
-# testing boogers
-bin-test
+# BlueJ files
+*.ctxt
 
-# dated folders
-/19*
-/20*
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
-# VS Code Java project files
-.project
-.vscode/
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Processing examples
-processing-examples
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+replay_pid*
 
-# Maven ignores
+### Gradle ###
 .gradle
-/core/build/
-/build/publish/
-/app/build
-/app/lib
-/java/build/
-/build/reports
-/java/preprocessor/bin
-/java/preprocessor/build
-/java/lsp/build
-/.kotlin/sessions
-/core/examples/build
-/.build/
+**/build/
+!src/**/build/
 
-/app/bin
-/app/pde.jar
-/build/javadoc
-/core/bin
-/core/bin-test
-/core/library/gluegen-rt*.jar
-/core/library/jogl-all*.jar
-/core/core-sources.jar
-/core/different/build
+# Ignore Gradle GUI config
+gradle-app.setting
 
-/java/reference.zip
-/java/bin
-/java/bin-test
-/java/generated
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
 
-/java/libraries/dxf/bin
-/java/libraries/io/bin
-/java/libraries/net/bin
-/java/libraries/pdf/bin
-/java/libraries/serial/bin
-/java/libraries/svg/bin
-/core/examples/bin
-/core/methods/bin
-/java/gradle/example/.processing
+# Avoid ignore Gradle wrappper properties
+!gradle-wrapper.properties
+
+# Cache of project
+.gradletasknamecache
+
+# Eclipse Gradle plugin generated files
+# Eclipse Core
+.project
+# JDT-specific (Eclipse Java Development Tools)
+.classpath
+
+### Gradle Patch ###
+# Java heap dump
+
+# End of https://www.toptal.com/developers/gitignore/api/android,gradle,java
+.DS_Store
+bin/
+.build/
+.processing/
+library/
+generated/
