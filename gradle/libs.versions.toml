@@ -24,6 +24,8 @@ lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version = "0.22.0" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.17.2" }
 antlr4 = { module = "org.antlr:antlr4", version.ref = "antlr" }
 antlr4Runtime = { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
+composeGradlePlugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-plugin" }
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

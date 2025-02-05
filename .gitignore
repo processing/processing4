@@ -112,3 +112,4 @@ java/build/
 /java/lsp/build
 /core/examples/build
 /java/gradle/build
+/java/gradle/example/.processing

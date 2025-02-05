@@ -6,7 +6,7 @@ plugins{
     alias(libs.plugins.mavenPublish)
 }
 
-
+version = rootProject.version
 
 repositories{
     mavenCentral()
@@ -21,7 +21,12 @@ sourceSets{
             include("processing/mode/java/preproc/**/*", "processing/app/**/*")
         }
     }
-
+}
+afterEvaluate{
+    tasks.withType(Jar::class.java){
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        dependsOn(tasks.generateGrammarSource)
+    }
 }
 
 dependencies{

@@ -130,8 +130,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
 
         val sketchbook = prefs.getProperty("sketchbook.path.four")
 
-        File(sketchbook, "libraries").listFiles { file -> file.isDirectory
-        }?.forEach{
+        File(sketchbook, "libraries").listFiles { file -> file.isDirectory }?.forEach{
             project.dependencies.add("implementation", project.fileTree(it).apply { include("**/*.jar") })
         }
     }
