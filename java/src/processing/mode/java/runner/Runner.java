@@ -32,7 +32,6 @@ import processing.mode.java.JavaEditor;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.InetAddress;
@@ -44,6 +43,7 @@ import com.sun.jdi.connect.*;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
+import processing.mode.java.preproc.SketchException;
 
 
 /**
