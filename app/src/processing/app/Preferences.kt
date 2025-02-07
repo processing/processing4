@@ -27,8 +27,18 @@ fun loadPreferences(): Properties{
         preferencesFile.createNewFile()
     }
     watchFile(preferencesFile)
+    var update by remember { mutableStateOf(System.currentTimeMillis()) }
 
-    return Properties().apply {
+    // TODO: Make observable when preferences change
+    // TODO: Save to file when preferences change
+    class ObservableProperties : Properties() {
+        override fun setProperty(key: String, value: String): Any? {
+            update = System.currentTimeMillis()
+            return super.setProperty(key, value)
+        }
+    }
+
+    return ObservableProperties().apply {
         load(ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME) ?: InputStream.nullInputStream())
         load(preferencesFile.inputStream())
     }
