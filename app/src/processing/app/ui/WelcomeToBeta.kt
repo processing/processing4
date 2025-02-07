@@ -103,21 +103,8 @@ class WelcomeToBeta {
 
         @JvmStatic
         fun main(args: Array<String>) {
-            application {
-                val windowState = rememberWindowState(
-                    size = DpSize.Unspecified,
-                    position = WindowPosition(Alignment.Center)
-                )
-
-                Window(onCloseRequest = ::exitApplication, state = windowState, title = Locale()["beta.window.title"]) {
-                    ProcessingTheme {
-                        Surface(color = colors.background) {
-                            welcomeToBeta {
-                                exitApplication()
-                            }
-                        }
-                    }
-                }
+            pdeapplication("beta.window.title") {
+                welcomeToBeta()
             }
         }
     }
