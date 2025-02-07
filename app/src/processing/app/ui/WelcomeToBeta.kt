@@ -29,10 +29,7 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
-import processing.app.ui.theme.LocalLocale
-import processing.app.ui.theme.LocalTheme
-import processing.app.ui.theme.Locale
-import processing.app.ui.theme.ProcessingTheme
+import processing.app.ui.theme.*
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
@@ -46,38 +43,12 @@ import javax.swing.SwingUtilities
 class WelcomeToBeta {
     companion object{
         val windowSize = Dimension(400, 200)
-        val windowTitle = Locale()["beta.window.title"]
 
         @JvmStatic
         fun showWelcomeToBeta() {
-            val mac = SystemInfo.isMacFullWindowContentSupported
             SwingUtilities.invokeLater {
-                JFrame(windowTitle).apply {
-                    val close = { dispose() }
-                    rootPane.putClientProperty("apple.awt.transparentTitleBar", mac)
-                    rootPane.putClientProperty("apple.awt.fullWindowContent", mac)
-                    defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
-                    contentPane.add(ComposePanel().apply {
-                        size = windowSize
-                        setContent {
-                            ProcessingTheme {
-                                Box(modifier = Modifier.padding(top = if (mac) 22.dp else 0.dp)) {
-                                    welcomeToBeta(close)
-                                }
-                            }
-                        }
-                    })
-                    pack()
-                    background = java.awt.Color.white
-                    setLocationRelativeTo(null)
-                    addKeyListener(object : KeyAdapter() {
-                        override fun keyPressed(e: KeyEvent) {
-                            if (e.keyCode == KeyEvent.VK_ESCAPE) close()
-                        }
-                    })
-                    isResizable = false
-                    isVisible = true
-                    requestFocus()
+                PDEWindow("beta.window.title") {
+                    welcomeToBeta()
                 }
             }
         }
@@ -129,48 +100,6 @@ class WelcomeToBeta {
                 }
             }
         }
-        @OptIn(ExperimentalComposeUiApi::class)
-        @Composable
-        fun PDEButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
-            val theme = LocalTheme.current
-
-            var hover by remember { mutableStateOf(false) }
-            var clicked by remember { mutableStateOf(false) }
-            val offset by animateFloatAsState(if (hover) -5f else 5f)
-            val color by animateColorAsState(if(clicked) colors.primaryVariant else colors.primary)
-
-            Box(modifier = Modifier.padding(end = 5.dp, top = 5.dp)) {
-                Box(
-                    modifier = Modifier
-                        .offset((-offset).dp, (offset).dp)
-                        .background(theme.getColor("toolbar.button.pressed.field"))
-                        .matchParentSize()
-                )
-                Box(
-                    modifier = Modifier
-                        .onPointerEvent(PointerEventType.Press) {
-                            clicked = true
-                        }
-                        .onPointerEvent(PointerEventType.Release) {
-                            clicked = false
-                            onClick()
-                        }
-                        .onPointerEvent(PointerEventType.Enter) {
-                            hover = true
-                        }
-                        .onPointerEvent(PointerEventType.Exit) {
-                            hover = false
-                        }
-                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
-                        .background(color)
-                        .padding(10.dp)
-                        .sizeIn(minWidth = 100.dp),
-                    contentAlignment = Alignment.Center,
-                    content = content
-                )
-            }
-        }
-
 
         @JvmStatic
         fun main(args: Array<String>) {
@@ -180,7 +109,7 @@ class WelcomeToBeta {
                     position = WindowPosition(Alignment.Center)
                 )
 
-                Window(onCloseRequest = ::exitApplication, state = windowState, title = windowTitle) {
+                Window(onCloseRequest = ::exitApplication, state = windowState, title = Locale()["beta.window.title"]) {
                     ProcessingTheme {
                         Surface(color = colors.background) {
                             welcomeToBeta {
