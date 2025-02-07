@@ -16,7 +16,7 @@ import java.util.Properties
 class Theme(themeFile: String? = "") : Properties() {
     init {
         load(ClassLoader.getSystemResourceAsStream("theme.txt"))
-        load(ClassLoader.getSystemResourceAsStream(themeFile) ?: InputStream.nullInputStream())
+        load(ClassLoader.getSystemResourceAsStream(themeFile ?: "") ?: InputStream.nullInputStream())
     }
     fun getColor(key: String): Color {
         return Color(getProperty(key).toColorInt())
