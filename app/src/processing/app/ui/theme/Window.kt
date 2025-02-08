@@ -1,5 +1,6 @@
 package processing.app.ui.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme.colors
@@ -8,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -22,7 +26,7 @@ import java.awt.event.KeyEvent
 import javax.swing.JFrame
 
 
-class PDEWindow(titleKey: String = "", content: @Composable () -> Unit): JFrame(){
+class PDEWindow(titleKey: String = "", fullWindowContent: Boolean = false, content: @Composable () -> Unit): JFrame(){
     init{
         val mac = SystemInfo.isMacFullWindowContentSupported
 
@@ -38,8 +42,11 @@ class PDEWindow(titleKey: String = "", content: @Composable () -> Unit): JFrame(
                     val locale = LocalLocale.current
                     this@PDEWindow.title = locale[titleKey]
 
-                    Box(modifier = Modifier.padding(top = if (mac) 22.dp else 0.dp)) {
+                    Box(modifier = Modifier
+                        .padding(top = if (mac && !fullWindowContent) 22.dp else 0.dp)
+                    ) {
                         content()
+
                     }
                 }
             }
@@ -60,7 +67,7 @@ class PDEWindow(titleKey: String = "", content: @Composable () -> Unit): JFrame(
     }
 }
 
-fun pdeapplication(titleKey: String = "",content: @Composable () -> Unit){
+fun pdeapplication(titleKey: String = "", fullWindowContent: Boolean = false,content: @Composable () -> Unit){
     application {
         val windowState = rememberWindowState(
             size = DpSize.Unspecified,
@@ -75,7 +82,9 @@ fun pdeapplication(titleKey: String = "",content: @Composable () -> Unit){
                     putClientProperty("apple.awt.transparentTitleBar", mac)
                 }
                 Surface(color = colors.background) {
-                    Box(modifier = Modifier.padding(top = if (mac) 22.dp else 0.dp)) {
+                    Box(modifier = Modifier
+                        .padding(top = if (mac && !fullWindowContent) 22.dp else 0.dp)
+                    ) {
                         content()
                     }
                 }
