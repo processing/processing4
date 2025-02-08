@@ -2,135 +2,90 @@ package processing.app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Checkbox
+import androidx.compose.material.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.MaterialTheme.typography
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
-import androidx.compose.ui.res.loadImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.formdev.flatlaf.util.SystemInfo
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.jetbrains.compose.resources.ExperimentalResourceApi
-import org.jetbrains.compose.resources.decodeToImageBitmap
-import processing.app.Base
-import processing.app.LocalPreferences
-import processing.app.Messages
-import processing.app.Platform
+import processing.app.*
+import processing.app.ui.components.LanguageChip
+import processing.app.ui.components.examples.examples
 import processing.app.ui.theme.*
-import java.awt.Cursor
-import java.io.File
+import java.awt.Desktop
 import java.io.IOException
+import java.net.URI
 import java.nio.file.*
-import java.nio.file.attribute.BasicFileAttributes
+import java.util.*
 import javax.swing.SwingUtilities
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
-import kotlin.io.path.isDirectory
+
 
 class Welcome @Throws(IOException::class) constructor(base: Base) {
     init {
         SwingUtilities.invokeLater {
             PDEWindow("menu.help.welcome", fullWindowContent = true) {
-                welcome()
+                CompositionLocalProvider(LocalBase provides base) {
+                    welcome()
+                }
             }
         }
     }
+
     companion object {
+        val LocalBase = compositionLocalOf<Base?> { null }
         @Composable
         fun welcome() {
-            Row(
+            Column (
                 modifier = Modifier
                     .background(
                         Brush.linearGradient(
                             colorStops = arrayOf(0f to Color.Transparent, 1f to Color("#C0D7FF".toColorInt())),
                             start = Offset(815f, 0f),
-                            end = Offset(815f* 2, 450f)
+                            end = Offset(815f * 2, 450f)
                         )
                     )
-                    .size(815.dp, 500.dp)
-                    .padding(32.dp)
-                    .padding(top = if(SystemInfo.isMacFullWindowContentSupported) 22.dp else 0.dp),
-                horizontalArrangement = Arrangement.spacedBy(32.dp)
+                    .padding(horizontal = 32.dp)
+                    .padding(bottom = 32.dp)
+                    .padding(top = if (SystemInfo.isMacFullWindowContentSupported) 22.dp else 0.dp),
             ){
-                Box(modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                ){
-                    intro()
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier
+                        .align(Alignment.End)
+                ) {
+                    LanguageChip()
                 }
-                Column(modifier = Modifier
-                    .weight(1.25f)
-                    .fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ){
-                    examples()
-                    val locale = LocalLocale.current
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(32.dp),
+                    modifier = Modifier
+                        .size(815.dp, 450.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
                     ) {
-                        chip {
-                            Text(
-                                text = locale["welcome.action.examples"],
-                            )
-                        }
-                        chip {
-                            Text(
-                                text = locale["welcome.action.tutorials"],
-                            )
-                        }
+                        intro()
                     }
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
+                    Column(
+                        modifier = Modifier
+                            .weight(1.25f)
+                            .fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .offset (-32.dp)
-
-                        ) {
-                            val preferences = LocalPreferences.current
-                            Checkbox(
-                                checked = preferences["welcome.four.show"]?.equals("true") ?: false,
-                                onCheckedChange = {
-                                    preferences.setProperty("welcome.four.show",it.toString())
-                                },
-                                modifier = Modifier
-                                    .size(24.dp)
-                            )
-                            Text(
-                                text = locale["welcome.action.startup"],
-                            )
-                        }
-                        PDEButton(onClick = { println("Open") }) {
-                            val locale = LocalLocale.current
-                            Text(locale["welcome.action.go"])
-                        }
+                        examples()
+                        actions()
                     }
                 }
             }
@@ -193,146 +148,82 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
             }
         }
 
-        data class Example(
-            val folder: Path,
-            val library: Path,
-            val path: String = library.resolve("examples").relativize(folder).toString(),
-            val title: String = folder.fileName.toString(),
-            val image: Path = folder.resolve("$title.png")
-        )
-
         @Composable
-        fun loadExamples(): List<Example> {
-            val sketchbook = rememberSketchbookPath()
-            val resources = File(System.getProperty("compose.application.resources.dir") ?: "")
-            var examples by remember { mutableStateOf(emptyList<Example>()) }
-
-            val settingsFolder = Platform.getSettingsFolder()
-            val examplesCache = settingsFolder.resolve("examples.cache")
-            LaunchedEffect(sketchbook, resources){
-                if (!examplesCache.exists()) return@LaunchedEffect
-                withContext(Dispatchers.IO) {
-                    examples = examplesCache.readText().lines().map {
-                        val (library, folder) = it.split(",")
-                        Example(
-                            folder = File(folder).toPath(),
-                            library = File(library).toPath()
-                        )
-                    }
-                }
-            }
-
-            LaunchedEffect(sketchbook, resources){
-                withContext(Dispatchers.IO) {
-                    // TODO: Optimize
-                    Messages.log("Start scanning for examples in $sketchbook and $resources")
-                    //                  Folders that can contain contributions with examples
-                    val scanned = listOf("libraries", "examples", "modes")
-                        .flatMap { listOf(sketchbook.resolve(it), resources.resolve(it)) }
-                        .filter { it.exists() && it.isDirectory() }
-                        // Find contributions within those folders
-                        .flatMap { Files.list(it.toPath()).toList() }
-                        .filter { Files.isDirectory(it) }
-                        // Find examples within those contributions
-                        .flatMap { library ->
-                            val fs = FileSystems.getDefault()
-                            val matcher = fs.getPathMatcher("glob:**/*.pde")
-                            val exampleFolders = mutableListOf<Path>()
-                            val examples = library.resolve("examples")
-                            if (!Files.exists(examples) || !examples.isDirectory()) return@flatMap emptyList()
-
-                            Files.walkFileTree(library, object : SimpleFileVisitor<Path>() {
-                                override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-                                    if (matcher.matches(file)) {
-                                        exampleFolders.add(file.parent)
-                                    }
-                                    return FileVisitResult.CONTINUE
-                                }
-                            })
-                            return@flatMap exampleFolders.map { folder ->
-                                Example(
-                                    folder,
-                                    library,
-                                )
-                            }
-                        }
-                        .filter { it.image.exists() }
-                    Messages.log("Done scanning for examples in $sketchbook and $resources")
-                    if(scanned.isEmpty()) return@withContext
-                    examples = scanned
-                    examplesCache.writeText(examples.joinToString("\n") { "${it.library},${it.folder}" })
-                }
-            }
-
-            return examples
-
-        }
-
-        @Composable
-        fun rememberSketchbookPath(): File {
-            val preferences = LocalPreferences.current
-            val sketchbookPath = remember(preferences["sketchbook.path.four"]) {
-                preferences["sketchbook.path.four"] ?: Platform.getDefaultSketchbookFolder().toString()
-            }
-            return File(sketchbookPath)
-        }
-
-
-        @OptIn(ExperimentalResourceApi::class, ExperimentalComposeUiApi::class)
-        @Composable
-        fun examples(){
-            val examples = loadExamples()
-            // grab 4 random ones
-            val randoms = examples.shuffled().take(4)
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ){
-                items(randoms){ example ->
-                    Column(
+        fun actions(){
+            val locale = LocalLocale.current
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val base = LocalBase.current
+                PDEChip(onClick = {
+                    base?.defaultMode?.showExamplesFrame()
+                }) {
+                    Text(
+                        text = locale["welcome.action.examples"],
+                    )
+                    Image(
+                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                        contentDescription = locale["welcome.action.tutorials"],
                         modifier = Modifier
-                            .onPointerEvent(PointerEventType.Press) {
-                            }
-                            .onPointerEvent(PointerEventType.Release) {
-                            }
-                            .onPointerEvent(PointerEventType.Enter) {
-                            }
-                            .onPointerEvent(PointerEventType.Exit) {
-                            }
-                            .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
-                    ) {
-                        val imageBitmap: ImageBitmap = remember(example.image) {
-                            example.image.inputStream().readAllBytes().decodeToImageBitmap()
-                        }
-                        Image(
-                            painter = BitmapPainter(imageBitmap),
-                            contentDescription = example.title,
-                            modifier = Modifier
-                                .background(colors.primary)
-                                .width(185.dp)
-                                .aspectRatio(16f / 9f)
-                        )
-                        Text(example.title)
-                    }
+                            .padding(start = 8.dp)
+                            .size(typography.body1.fontSize.value.dp)
+                    )
                 }
+                PDEChip(onClick = {
+                    if (!Desktop.isDesktopSupported()) return@PDEChip
+                    val desktop = Desktop.getDesktop()
+                    if(!desktop.isSupported(Desktop.Action.BROWSE)) return@PDEChip
+                    try {
+                        desktop.browse(URI(System.getProperty("processing.tutorials")))
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }) {
+                    Text(
+                        text = locale["welcome.action.tutorials"],
+                    )
+                    Image(
+                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                        contentDescription = locale["welcome.action.tutorials"],
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .size(typography.body1.fontSize.value.dp)
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .offset(-32.dp)
 
+                ) {
+                    val preferences = LocalPreferences.current
+                    Checkbox(
+                        checked = preferences["welcome.four.show"]?.equals("true") ?: false,
+                        onCheckedChange = {
+                            preferences.setProperty("welcome.four.show", it.toString())
+                        },
+                        modifier = Modifier
+                            .size(24.dp)
+                    )
+                    Text(
+                        text = locale["welcome.action.startup"],
+                    )
+                }
+                PDEButton(onClick = { println("Open") }) {
+                    val locale = LocalLocale.current
+                    Text(locale["welcome.action.go"])
+                }
             }
         }
 
-        @Composable
-        fun chip(content: @Composable () -> Unit){
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(colors.surface)
-                    .border(1.dp, colors.primary, RoundedCornerShape(12.dp))
-                    .padding(vertical = 4.dp, horizontal = 12.dp)
-            ){
-                content()
-            }
-        }
+
 
         @JvmStatic
         fun main(args: Array<String>) {

@@ -21,6 +21,7 @@ tasks.withType<JavaExec> {
     systemProperty("processing.contributions.source", "https://contributions-preview.processing.org/contribs.txt")
     systemProperty("processing.download.page", "https://processing.org/download/")
     systemProperty("processing.download.latest", "https://processing.org/download/latest.txt")
+    systemProperty("processing.tutorials", "https://processing.org/tutorials/")
 }
 
 
@@ -95,6 +96,7 @@ dependencies {
     implementation(compose.ui)
     implementation(compose.components.resources)
     implementation(compose.components.uiToolingPreview)
+    implementation(compose.materialIconsExtended)
 
     implementation(compose.desktop.currentOs)
 

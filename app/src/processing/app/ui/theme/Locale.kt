@@ -1,8 +1,8 @@
 package processing.app.ui.theme
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import processing.app.LocalPreferences
 import processing.app.Messages
 import processing.app.Platform
@@ -12,13 +12,20 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
-class Locale(language: String = "") : Properties() {
+class Locale(language: String = "", val setLocale: (java.util.Locale) -> Unit) : Properties() {
+    var locale: java.util.Locale = java.util.Locale.getDefault()
+
     init {
-        val locale = java.util.Locale.getDefault()
-        load(ClassLoader.getSystemResourceAsStream("PDE.properties"))
-        load(ClassLoader.getSystemResourceAsStream("PDE_${locale.language}.properties") ?: InputStream.nullInputStream())
-        load(ClassLoader.getSystemResourceAsStream("PDE_${locale.toLanguageTag()}.properties") ?: InputStream.nullInputStream())
-        load(ClassLoader.getSystemResourceAsStream("PDE_${language}.properties") ?: InputStream.nullInputStream())
+        fun loadResourceUTF8(path: String) {
+            val stream = ClassLoader.getSystemResourceAsStream(path)
+            stream?.reader(charset = Charsets.UTF_8)?.use { reader ->
+                load(reader)
+            }
+        }
+        loadResourceUTF8("PDE.properties")
+        loadResourceUTF8("PDE_${locale.language}.properties")
+        loadResourceUTF8("PDE_${locale.toLanguageTag()}.properties")
+        loadResourceUTF8("PDE_${language}.properties")
     }
 
     @Deprecated("Use get instead", ReplaceWith("get(key)"))
@@ -28,8 +35,11 @@ class Locale(language: String = "") : Properties() {
         return value
     }
     operator fun get(key: String): String = getProperty(key, key)
+    fun set(locale: java.util.Locale) {
+        setLocale(locale)
+    }
 }
-val LocalLocale = compositionLocalOf { Locale() }
+val LocalLocale = compositionLocalOf<Locale> { error("No Locale Set") }
 @Composable
 fun LocaleProvider(content: @Composable () -> Unit) {
     PlatformStart()
@@ -37,9 +47,25 @@ fun LocaleProvider(content: @Composable () -> Unit) {
     val settingsFolder = Platform.getSettingsFolder()
     val languageFile = File(settingsFolder, "language.txt")
     watchFile(languageFile)
+    var code by remember{ mutableStateOf(languageFile.readText().substring(0, 2)) }
 
-    val locale = Locale(languageFile.readText().substring(0, 2))
-    CompositionLocalProvider(LocalLocale provides locale) {
-        content()
+    fun setLocale(locale: java.util.Locale) {
+        java.util.Locale.setDefault(locale)
+        languageFile.writeText(locale.language)
+        code = locale.language
+    }
+
+
+    val locale = Locale(code, ::setLocale)
+    Messages.log("Locale: $code")
+    val dir = when(locale["locale.direction"]) {
+        "rtl" -> LayoutDirection.Rtl
+        else -> LayoutDirection.Ltr
+    }
+
+    CompositionLocalProvider(LocalLayoutDirection provides dir) {
+        CompositionLocalProvider(LocalLocale provides locale) {
+            content()
+        }
     }
 }
