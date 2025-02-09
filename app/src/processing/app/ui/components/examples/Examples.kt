@@ -135,7 +135,7 @@ fun examples(){
         randoms = randoms + List(4 - randoms.size) { Example(
             folder = Paths.get(""),
             library = Paths.get(""),
-            title = "Test",
+            title = "Example",
             image = ClassLoader.getSystemResource("default.png")?.toURI()?.let { Paths.get(it) } ?: Paths.get(""),
         ) }
     }
@@ -154,7 +154,7 @@ fun examples(){
         }
     }
 }
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun Example(example: Example){
     val base = LocalBase.current

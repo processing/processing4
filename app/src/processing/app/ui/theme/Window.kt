@@ -6,6 +6,7 @@ import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
@@ -41,6 +42,10 @@ class PDEWindow(titleKey: String = "", fullWindowContent: Boolean = false, conte
                 ProcessingTheme {
                     val locale = LocalLocale.current
                     this@PDEWindow.title = locale[titleKey]
+                    LaunchedEffect(locale){
+                        this@PDEWindow.pack()
+                        this@PDEWindow.setLocationRelativeTo(null)
+                    }
 
                     Box(modifier = Modifier
                         .padding(top = if (mac && !fullWindowContent) 22.dp else 0.dp)
@@ -81,6 +86,10 @@ fun pdeapplication(titleKey: String = "", fullWindowContent: Boolean = false,con
                     putClientProperty("apple.awt.fullWindowContent", mac)
                     putClientProperty("apple.awt.transparentTitleBar", mac)
                 }
+                LaunchedEffect(locale){
+                    window.pack()
+                    window.setLocationRelativeTo(null)
+                }
                 Surface(color = colors.background) {
                     Box(modifier = Modifier
                         .padding(top = if (mac && !fullWindowContent) 22.dp else 0.dp)
@@ -89,35 +98,6 @@ fun pdeapplication(titleKey: String = "", fullWindowContent: Boolean = false,con
                     }
                 }
             }
-        }
-    }
-}
-
-
-fun main(){
-    application {
-        val windowState = rememberWindowState(
-            size = DpSize.Unspecified,
-            position = WindowPosition(Alignment.Center)
-        )
-        Window(onCloseRequest = ::exitApplication, title = "Welcome to Processing", state = windowState) {
-            Row{
-                Text("Hello, Processing!")
-                Column(
-                    modifier = Modifier
-//                        .wrapContentSize()
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Red)
-                            .sizeIn(minHeight = 100.dp)
-                    ) {
-
-                    }
-                    Text("Hello, Processing!")
-                }
-            }
-
         }
     }
 }

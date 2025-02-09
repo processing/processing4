@@ -14,11 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import com.formdev.flatlaf.util.SystemInfo
@@ -90,6 +93,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                                 .height(200.dp)
                                 .offset (32.dp)
                                 .align(Alignment.BottomEnd)
+                                .scale(when(LocalLayoutDirection.current) {
+                                    LayoutDirection.Rtl -> -1f
+                                    else -> 1f
+                                }, 1f)
                         )
                     }
                 }
@@ -139,7 +146,12 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                         painter = painterResource("welcome/intro/bubble.svg"),
                         contentDescription = locale["welcome.intro.long"],
                         modifier = Modifier
-                            .align{ _, space, _ -> space / 4 }
+                            .align(Alignment.Start)
+                            .scale(when(LocalLayoutDirection.current) {
+                                LayoutDirection.Rtl -> -1f
+                                else -> 1f
+                            }, 1f)
+                            .padding(start = 64.dp)
                     )
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -151,6 +163,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                             contentDescription = locale["welcome.intro.long"],
                             modifier = Modifier
                                 .offset(x = -32.dp)
+                                .scale(when(LocalLayoutDirection.current) {
+                                    LayoutDirection.Rtl -> -1f
+                                    else -> 1f
+                                }, 1f)
                         )
                         Image(
                             painter = painterResource("welcome/intro/short.svg"),
@@ -158,6 +174,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                             modifier = Modifier
                                 .align(Alignment.Bottom)
                                 .offset(x = 16.dp, y = -16.dp)
+                                .scale(when(LocalLayoutDirection.current) {
+                                    LayoutDirection.Rtl -> -1f
+                                    else -> 1f
+                                }, 1f)
                         )
                     }
                 }

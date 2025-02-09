@@ -184,6 +184,7 @@ public class Language {
   }
 
   static public void reload(){
+    if(instance == null) return;
     synchronized (Language.class) {
       instance = new Language();
     }

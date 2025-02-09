@@ -21,6 +21,7 @@ import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.PDEChip
 import processing.app.watchFile
 import java.io.File
+import java.nio.file.FileSystem
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -34,6 +35,8 @@ data class Language(
     val properties: Properties
 )
 
+var jarFs: FileSystem? = null
+
 @Composable
 fun LanguageChip(){
     var expanded by remember { mutableStateOf(false) }
@@ -44,9 +47,6 @@ fun LanguageChip(){
 
     val main = ClassLoader.getSystemResource("PDE.properties")?: return
 
-
-
-
     val languages = remember {
         val list = when(main.protocol){
             "file" -> {
@@ -55,8 +55,8 @@ fun LanguageChip(){
             }
             "jar" -> {
                 val uri = main.toURI()
-                val fs = FileSystems.newFileSystem(uri, emptyMap<String, Any>())
-                Files.list(fs.getPath("/"))
+                jarFs = jarFs ?: FileSystems.newFileSystem(uri, emptyMap<String, Any>()) ?: return@remember null
+                Files.list(jarFs!!.getPath("/"))
             }
             else -> null
         } ?: return@remember null
@@ -81,6 +81,7 @@ fun LanguageChip(){
                     )
                 }
             }
+            .sortedBy { it.name.lowercase() }
     } ?: return
 
     val current = languageFile.readText(Charsets.UTF_8).substring(0, 2)
