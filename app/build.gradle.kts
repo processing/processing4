@@ -50,7 +50,7 @@ compose.desktop {
         mainClass = "processing.app.ui.Start"
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler")
+            modules("jdk.jdi", "java.compiler", "jdk.zipfs")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
             packageVersion = rootProject.version.toString()
