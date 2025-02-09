@@ -1,7 +1,6 @@
 package processing.app.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,43 +32,31 @@ fun ProcessingTheme(
     PreferencesProvider {
         val preferences = LocalPreferences.current
         val theme = Theme(preferences.getProperty("theme"))
-        val colors = Colors(
-            primary = theme.getColor("editor.gradient.top"),
-            primaryVariant = theme.getColor("toolbar.button.pressed.field"),
-            secondary = theme.getColor("editor.gradient.bottom"),
-            secondaryVariant = theme.getColor("editor.scrollbar.thumb.pressed.color"),
-            background = theme.getColor("editor.bgcolor"),
-            surface = theme.getColor("editor.bgcolor"),
-            error = theme.getColor("status.error.bgcolor"),
-            onPrimary = theme.getColor("toolbar.button.enabled.field"),
-            onSecondary = theme.getColor("toolbar.button.enabled.field"),
-            onBackground = theme.getColor("editor.fgcolor"),
-            onSurface = theme.getColor("editor.fgcolor"),
-            onError = theme.getColor("status.error.fgcolor"),
-            isLight = theme.getProperty("laf.mode").equals("light")
-        )
+//        val colors = Colors(
+//            primary = theme.getColor("editor.gradient.top"),
+//            primaryVariant = theme.getColor("toolbar.button.pressed.field"),
+//            secondary = theme.getColor("editor.gradient.bottom"),
+//            secondaryVariant = theme.getColor("editor.scrollbar.thumb.pressed.color"),
+//            background = theme.getColor("editor.bgcolor"),
+//            surface = theme.getColor("editor.bgcolor"),
+//            error = theme.getColor("status.error.bgcolor"),
+//            onPrimary = theme.getColor("toolbar.button.enabled.field"),
+//            onSecondary = theme.getColor("toolbar.button.enabled.field"),
+//            onBackground = theme.getColor("editor.fgcolor"),
+//            onSurface = theme.getColor("editor.fgcolor"),
+//            onError = theme.getColor("status.error.fgcolor"),
+//            isLight = theme.getProperty("laf.mode").equals("light")
+//        )
+
 
         CompositionLocalProvider(LocalTheme provides theme) {
             LocaleProvider {
                 MaterialTheme(
-                    colors = colors,
+                    colors = if(darkTheme) PDELightColors else PDELightColors,
                     typography = Typography,
                     content = content
                 )
             }
         }
     }
-}
-
-fun String.toColorInt(): Int {
-    if (this[0] == '#') {
-        var color = substring(1).toLong(16)
-        if (length == 7) {
-            color = color or 0x00000000ff000000L
-        } else if (length != 9) {
-            throw IllegalArgumentException("Unknown color")
-        }
-        return color.toInt()
-    }
-    throw IllegalArgumentException("Unknown color")
 }

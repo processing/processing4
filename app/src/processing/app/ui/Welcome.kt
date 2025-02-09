@@ -2,6 +2,7 @@ package processing.app.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -16,8 +17,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import com.formdev.flatlaf.util.SystemInfo
 import processing.app.*
 import processing.app.ui.components.LanguageChip
@@ -46,7 +49,7 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
         val LocalBase = compositionLocalOf<Base?> { null }
         @Composable
         fun welcome() {
-            Column (
+            Column(
                 modifier = Modifier
                     .background(
                         Brush.linearGradient(
@@ -57,8 +60,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                     )
                     .padding(horizontal = 32.dp)
                     .padding(bottom = 32.dp)
-                    .padding(top = if (SystemInfo.isMacFullWindowContentSupported) 22.dp else 0.dp),
-            ){
+                    .padding(top = if (SystemInfo.isMacFullWindowContentSupported) 22.dp else 0.dp)
+                    .height(IntrinsicSize.Max)
+                    .width(IntrinsicSize.Max)
+            ) {
                 Column(
                     horizontalAlignment = Alignment.End,
                     modifier = Modifier
@@ -67,25 +72,25 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                     LanguageChip()
                 }
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(32.dp),
-                    modifier = Modifier
-                        .size(815.dp, 450.dp)
+                    horizontalArrangement = Arrangement.spacedBy(48.dp),
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
+                    Column {
                         intro()
                     }
-                    Column(
-                        modifier = Modifier
-                            .weight(1.25f)
-                            .fillMaxHeight(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        examples()
-                        actions()
+                    Box{
+                        Column {
+                            examples()
+                            actions()
+                        }
+                        val locale = LocalLocale.current
+                        Image(
+                            painter = painterResource("welcome/intro/wavy.svg"),
+                            contentDescription = locale["welcome.intro.long"],
+                            modifier = Modifier
+                                .height(200.dp)
+                                .offset (32.dp)
+                                .align(Alignment.BottomEnd)
+                        )
                     }
                 }
             }
@@ -95,30 +100,40 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
         fun intro(){
             val locale = LocalLocale.current
             Column(
+                verticalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween) {
+                    .fillMaxHeight()
+                    .width(IntrinsicSize.Max)
+            ) {
                 Column {
                     Text(
                         text = locale["welcome.intro.title"],
                         style = typography.h4,
+                        modifier = Modifier
+                            .sizeIn(maxWidth = 305.dp)
                     )
                     Text(
                         text = locale["welcome.intro.message"],
                         style = typography.body1,
+                        modifier = Modifier
+                            .sizeIn(maxWidth = 305.dp)
                     )
                 }
-                Column {
+                Column(
+                    modifier = Modifier
+                        .offset(y = 32.dp)
+                ){
                     Text(
                         text = locale["welcome.intro.suggestion"],
                         style = typography.body1,
+                        color = colors.onPrimary,
                         modifier = Modifier
                             .padding(top = 16.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(colors.primary)
-                            .padding(16.dp)
+                            .padding(horizontal = 24.dp)
+                            .padding(top = 16.dp, bottom = 24.dp)
                             .sizeIn(maxWidth = 200.dp)
-
                     )
                     Image(
                         painter = painterResource("welcome/intro/bubble.svg"),
@@ -127,9 +142,9 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                             .align{ _, space, _ -> space / 4 }
                     )
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.
+                            fillMaxWidth()
                     ) {
                         Image(
                             painter = painterResource("welcome/intro/long.svg"),
@@ -142,6 +157,7 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                             contentDescription = locale["welcome.intro.short"],
                             modifier = Modifier
                                 .align(Alignment.Bottom)
+                                .offset(x = 16.dp, y = -16.dp)
                         )
                     }
                 }
@@ -151,57 +167,55 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
         @Composable
         fun actions(){
             val locale = LocalLocale.current
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                val base = LocalBase.current
-                PDEChip(onClick = {
-                    base?.defaultMode?.showExamplesFrame()
-                }) {
-                    Text(
-                        text = locale["welcome.action.examples"],
-                    )
-                    Image(
-                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                        contentDescription = locale["welcome.action.tutorials"],
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(typography.body1.fontSize.value.dp)
-                    )
+            val base = LocalBase.current
+            PDEChip(onClick = {
+                base?.defaultMode?.showExamplesFrame()
+            }) {
+                Text(
+                    text = locale["welcome.action.examples"],
+                )
+                Image(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = locale["welcome.action.tutorials"],
+                    colorFilter = ColorFilter.tint(color = LocalContentColor.current),
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(typography.body1.fontSize.value.dp)
+                )
+            }
+            PDEChip(onClick = {
+                if (!Desktop.isDesktopSupported()) return@PDEChip
+                val desktop = Desktop.getDesktop()
+                if(!desktop.isSupported(Desktop.Action.BROWSE)) return@PDEChip
+                try {
+                    desktop.browse(URI(System.getProperty("processing.tutorials")))
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
-                PDEChip(onClick = {
-                    if (!Desktop.isDesktopSupported()) return@PDEChip
-                    val desktop = Desktop.getDesktop()
-                    if(!desktop.isSupported(Desktop.Action.BROWSE)) return@PDEChip
-                    try {
-                        desktop.browse(URI(System.getProperty("processing.tutorials")))
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }) {
-                    Text(
-                        text = locale["welcome.action.tutorials"],
-                    )
-                    Image(
-                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                        contentDescription = locale["welcome.action.tutorials"],
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(typography.body1.fontSize.value.dp)
-                    )
-                }
+            }) {
+                Text(
+                    text = locale["welcome.action.tutorials"],
+                )
+                Image(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = locale["welcome.action.tutorials"],
+                    colorFilter = ColorFilter.tint(color = LocalContentColor.current),
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(typography.body1.fontSize.value.dp)
+                )
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .offset(-32.dp)
-
                 ) {
                     val preferences = LocalPreferences.current
                     Checkbox(
@@ -217,8 +231,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                     )
                 }
                 PDEButton(onClick = { println("Open") }) {
-                    val locale = LocalLocale.current
-                    Text(locale["welcome.action.go"])
+                    Text(
+                        text = locale["welcome.action.go"],
+                        modifier = Modifier
+                    )
                 }
             }
         }

@@ -5,12 +5,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import processing.app.Platform
 import processing.app.ui.theme.LocalLocale
@@ -88,12 +92,20 @@ fun LanguageChip(){
         Image(
             imageVector = Icons.Outlined.Language,
             contentDescription = "Language",
+            colorFilter = ColorFilter.tint(color = LocalContentColor.current),
             modifier = Modifier
                 .padding(start = 8.dp)
                 .size(typography.body1.fontSize.value.dp)
         )
     }) {
         Text(currentLanguage.name)
+        Image(
+            imageVector = Icons.Default.ArrowDropDown,
+            contentDescription = locale["welcome.action.tutorials"],
+            colorFilter = ColorFilter.tint(color = LocalContentColor.current),
+            modifier = Modifier
+                .size(typography.body1.fontSize.value.dp)
+        )
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = {

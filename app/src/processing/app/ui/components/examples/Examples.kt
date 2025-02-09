@@ -2,19 +2,21 @@ package processing.app.ui.components.examples
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -28,6 +30,7 @@ import org.jetbrains.compose.resources.decodeToImageBitmap
 import processing.app.LocalPreferences
 import processing.app.Messages
 import processing.app.Platform
+import processing.app.ui.Welcome.Companion.LocalBase
 import java.awt.Cursor
 import java.io.File
 import java.nio.file.*
@@ -121,46 +124,71 @@ fun rememberSketchbookPath(): File {
 }
 
 
-@OptIn(ExperimentalResourceApi::class, ExperimentalComposeUiApi::class)
+
 @Composable
 fun examples(){
     val examples = loadExamples()
-    // grab 4 random ones
-    val randoms = examples.shuffled().take(4)
 
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(2),
+
+    var randoms = examples.shuffled().take(4)
+    if(randoms.size < 4){
+        randoms = randoms + List(4 - randoms.size) { Example(
+            folder = Paths.get(""),
+            library = Paths.get(""),
+            title = "Test",
+            image = ClassLoader.getSystemResource("default.png")?.toURI()?.let { Paths.get(it) } ?: Paths.get(""),
+        ) }
+    }
+
+    Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-    ){
-        items(randoms){ example ->
-            Column(
-                modifier = Modifier
-                    .onPointerEvent(PointerEventType.Press) {
-                    }
-                    .onPointerEvent(PointerEventType.Release) {
-                    }
-                    .onPointerEvent(PointerEventType.Enter) {
-                    }
-                    .onPointerEvent(PointerEventType.Exit) {
-                    }
-                    .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
-            ) {
-                val imageBitmap: ImageBitmap = remember(example.image) {
-                    example.image.inputStream().readAllBytes().decodeToImageBitmap()
+    ) {
+        randoms.chunked(2).forEach { row ->
+            Row (
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ){
+                row.forEach { example ->
+                    Example(example)
                 }
-                Image(
-                    painter = BitmapPainter(imageBitmap),
-                    contentDescription = example.title,
-                    modifier = Modifier
-                        .background(colors.primary)
-                        .width(185.dp)
-                        .aspectRatio(16f / 9f)
-                )
-                Text(example.title)
             }
         }
-
     }
 }
-
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalResourceApi::class)
+@Composable
+fun Example(example: Example){
+    val base = LocalBase.current
+    Button(
+        onClick = {
+            base?.handleOpenExample("${example.folder}/${example.title}.pde", base.defaultMode)
+        },
+        contentPadding = PaddingValues(0.dp),
+        elevation = null,
+        shape = RectangleShape,
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent,
+            contentColor = colors.onBackground
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .width(185.dp)
+        ) {
+            val imageBitmap: ImageBitmap = remember(example.image) {
+                example.image.inputStream().readAllBytes().decodeToImageBitmap()
+            }
+            Image(
+                painter = BitmapPainter(imageBitmap),
+                contentDescription = example.title,
+                modifier = Modifier
+                    .background(colors.primary)
+                    .aspectRatio(16f / 9f)
+            )
+            Text(
+                example.title,
+                style = typography.body1,
+                maxLines = 1
+            )
+        }
+    }
+}

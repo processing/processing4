@@ -183,6 +183,11 @@ public class Language {
     return instance;
   }
 
+  static public void reload(){
+    synchronized (Language.class) {
+      instance = new Language();
+    }
+  }
 
   static private String get(String key) {
     LanguageBundle bundle = init().bundle;

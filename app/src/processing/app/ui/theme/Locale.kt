@@ -3,11 +3,7 @@ package processing.app.ui.theme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
-import processing.app.LocalPreferences
-import processing.app.Messages
-import processing.app.Platform
-import processing.app.PlatformStart
-import processing.app.watchFile
+import processing.app.*
 import java.io.File
 import java.io.InputStream
 import java.util.*
@@ -53,6 +49,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
         java.util.Locale.setDefault(locale)
         languageFile.writeText(locale.language)
         code = locale.language
+        Language.reload()
     }
 
 

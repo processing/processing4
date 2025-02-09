@@ -1,10 +1,10 @@
 package processing.app.ui.theme
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,6 +89,35 @@ fun pdeapplication(titleKey: String = "", fullWindowContent: Boolean = false,con
                     }
                 }
             }
+        }
+    }
+}
+
+
+fun main(){
+    application {
+        val windowState = rememberWindowState(
+            size = DpSize.Unspecified,
+            position = WindowPosition(Alignment.Center)
+        )
+        Window(onCloseRequest = ::exitApplication, title = "Welcome to Processing", state = windowState) {
+            Row{
+                Text("Hello, Processing!")
+                Column(
+                    modifier = Modifier
+//                        .wrapContentSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Red)
+                            .sizeIn(minHeight = 100.dp)
+                    ) {
+
+                    }
+                    Text("Hello, Processing!")
+                }
+            }
+
         }
     }
 }
