@@ -54,7 +54,7 @@ class WelcomeToBeta {
         }
 
         @Composable
-        fun welcomeToBeta(close: () -> Unit = {}) {
+        fun welcomeToBeta() {
             Row(
                 modifier = Modifier
                     .padding(20.dp, 10.dp)
@@ -87,9 +87,10 @@ class WelcomeToBeta {
                         text = locale["beta.message"]
                     )
                     Row {
+                        val window = LocalWindow.current
                         Spacer(modifier = Modifier.weight(1f))
                         PDEButton(onClick = {
-                            close()
+                            window.dispose()
                         }) {
                             Text(
                                 text = locale["beta.button"],

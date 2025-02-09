@@ -250,7 +250,10 @@ class Welcome @Throws(IOException::class) constructor(base: Base) {
                         text = locale["welcome.action.startup"],
                     )
                 }
-                PDEButton(onClick = { println("Open") }) {
+                val window = LocalWindow.current
+                PDEButton(onClick = {
+                    window.dispose()
+                }) {
                     Text(
                         text = locale["welcome.action.go"],
                         modifier = Modifier
