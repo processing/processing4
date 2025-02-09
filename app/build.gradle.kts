@@ -15,15 +15,7 @@ plugins{
 }
 
 group = rootProject.group
-tasks.withType<JavaExec> {
-    systemProperty("processing.version", version)
-    systemProperty("processing.revision", "1300")
-    systemProperty("processing.contributions.source", "https://contributions-preview.processing.org/contribs.txt")
-    systemProperty("processing.download.page", "https://processing.org/download/")
-    systemProperty("processing.download.latest", "https://processing.org/download/latest.txt")
-    systemProperty("processing.tutorials", "https://processing.org/tutorials/")
-}
-
+version = rootProject.version
 
 repositories{
     mavenCentral()
@@ -49,17 +41,25 @@ compose.desktop {
     application {
         mainClass = "processing.app.ui.Start"
 
+        jvmArgs(*listOf(
+            Pair("processing.version", version),
+            Pair("processing.revision", "1300"),
+            Pair("processing.contributions.source", "https://contributions-preview.processing.org/contribs.txt"),
+            Pair("processing.download.page", "https://processing.org/download/"),
+            Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
+            Pair("processing.tutorials", "https://processing.org/tutorials/"),
+        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.zipfs")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
-            packageVersion = rootProject.version.toString()
 
             macOS{
                 bundleID = "org.processing.app"
                 iconFile = project.file("../build/macos/processing.icns")
                 infoPlist{
-                    extraKeysRawXml = plistStrings
+                    extraKeysRawXml = layout.projectDirectory.file("info.plist").asFile.readText()
                 }
                 entitlementsFile.set(project.file("entitlements.plist"))
                 runtimeEntitlementsFile.set(project.file("entitlements.plist"))
@@ -75,9 +75,12 @@ compose.desktop {
                 iconFile = project.file("../build/linux/processing.png")
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
-            }
 
-            appResourcesRootDir.set(layout.buildDirectory.dir("resources-bundled"))
+                fileAssociation("pde", "Processing Source Code", "application/x-processing")
+                fileAssociation("pyde", "Processing Python Source Code", "application/x-processing")
+                fileAssociation("pdez", "Processing Sketch Bundle", "application/x-processing")
+                fileAssociation("pdex", "Processing Contribution Bundle", "application/x-processing")
+            }
         }
     }
 }
@@ -104,34 +107,38 @@ dependencies {
     implementation(libs.kaml)
 }
 
+tasks.compileJava{
+    options.encoding = "UTF-8"
+}
+
+
 // LEGACY TASKS
 // Most of these are shims to be compatible with the old build system
 // They should be removed in the future, as we work towards making things more Gradle-native
-tasks.register<Copy>("copyCore"){
-    val project = project(":core")
-    dependsOn(project.tasks.jar)
-    from(project.layout.buildDirectory.dir("libs"))
-    from(project.configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("resources-bundled/common/core/library"))
+val composeResources = { subPath: String -> layout.buildDirectory.dir("resources-bundled/common/$subPath") }
+compose.desktop.application.nativeDistributions.appResourcesRootDir.set(composeResources("../"))
+
+tasks.register<Copy>("includeCore"){
+    val core = project(":core")
+    dependsOn(core.tasks.jar)
+    from(core.layout.buildDirectory.dir("libs"))
+    from(core.configurations.runtimeClasspath)
+    into(composeResources("core/library"))
 }
-tasks.register<Copy>("copyJava"){
-    val project = project(":java")
-    dependsOn(project.tasks.jar)
-    from(project.layout.buildDirectory.dir("libs"))
-    from(project.configurations.runtimeClasspath)
-    into(layout.buildDirectory.dir("resources-bundled/common/modes/java/mode"))
+tasks.register<Copy>("includeJavaMode") {
+    val java = project(":java")
+    dependsOn(java.tasks.jar)
+    from(java.layout.buildDirectory.dir("libs"))
+    from(java.configurations.runtimeClasspath)
+    into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-tasks.register<Download>("downloadJDK") {
-    val os: OperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
-    val arch: String = System.getProperty("os.arch").let { originalArch ->
-        when (originalArch) {
-            "amd64" -> "x64"
-            "x86_64" -> "x64"
-            else -> originalArch
-        }
+tasks.register<Download>("includeJdk") {
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    val arch = when (System.getProperty("os.arch")) {
+        "amd64", "x86_64" -> "x64"
+        else -> System.getProperty("os.arch")
     }
-
     val platform = when {
         os.isWindows -> "windows"
         os.isMacOsX -> "mac"
@@ -149,73 +156,65 @@ tasks.register<Download>("downloadJDK") {
             "hotspot/normal/eclipse?project=jdk")
 
     val extension = if (os.isWindows) "zip" else "tar.gz"
-    dest(layout.buildDirectory.file("jdk-$platform-$arch.$extension"))
+    val jdk = layout.buildDirectory.file("tmp/jdk-$platform-$arch.$extension")
+    dest(jdk)
     overwrite(false)
-}
-tasks.register<Copy>("unzipJDK") {
-    val dl = tasks.findByPath("downloadJDK") as Download
-    dependsOn(dl)
-
-    val os = DefaultNativePlatform.getCurrentOperatingSystem()
-    val archive = if (os.isWindows) {
-        zipTree(dl.dest)
-    } else {
-        tarTree(dl.dest)
-    }
-
-    from(archive){ eachFile{ permissions{  unix("755") } } }
-    into(layout.buildDirectory.dir("resources-bundled/common"))
-}
-tasks.register<Copy>("copyShared"){
-    from("../build/shared/")
-    into(layout.buildDirectory.dir("resources-bundled/common"))
-}
-tasks.register<Download>("downloadProcessingExamples") {
-    src("https://github.com/processing/processing-examples/archive/refs/heads/main.zip")
-    dest(layout.buildDirectory.file("tmp/processing-examples.zip"))
-    overwrite(false)
-}
-tasks.register<Copy>("unzipExamples") {
-    val dl = tasks.findByPath("downloadProcessingExamples") as Download
-    dependsOn(dl)
-    from(zipTree(dl.dest)){ // remove top level directory
-        exclude("processing-examples-main/README.md")
-        exclude("processing-examples-main/.github/**")
-        eachFile { relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray()) }
-        includeEmptyDirs = false
-    }
-    into(layout.buildDirectory.dir("resources-bundled/common/modes/java/examples"))
-}
-tasks.register<Download>("downloadProcessingWebsiteExamples") {
-    src("https://github.com/processing/processing-website/archive/refs/heads/main.zip")
-    dest(layout.buildDirectory.file("tmp/processing-website.zip"))
-    overwrite(false)
-}
-tasks.register<Copy>("unzipWebsiteExamples") {
-    val dl = tasks.findByPath("downloadProcessingWebsiteExamples") as Download
-    dependsOn(dl)
-    dependsOn("unzipExamples")
-    print(dl.dest)
-    from(zipTree(dl.dest)){
-        include("processing-website-main/content/examples/**")
-        eachFile { relativePath = RelativePath(true, *relativePath.segments.drop(3).toTypedArray()) }
-        includeEmptyDirs = false
-        exclude {
-            it.name.contains(".es.") || it.name == "liveSketch.js"
+    doLast {
+        copy {
+            val archive = if (os.isWindows) { zipTree(jdk) } else { tarTree(jdk) }
+            from(archive){ eachFile{ permissions{ unix("755") } } }
+            into(composeResources(""))
         }
     }
-    into(layout.buildDirectory.dir("resources-bundled/common/modes/java/examples"))
 }
-tasks.register<Copy>("copyJavaMode"){
-    dependsOn("unzipExamples","unzipWebsiteExamples")
-    dependsOn(project(":java").tasks.named("extraResources"))
-    from(project(":java").layout.buildDirectory.dir("resources-bundled"))
-    into(layout.buildDirectory.dir("resources-bundled"))
+tasks.register<Copy>("includeSharedAssets"){
+    from("../build/shared/")
+    into(composeResources(""))
+}
+tasks.register<Download>("includeProcessingExamples") {
+    val examples = layout.buildDirectory.file("tmp/processing-examples.zip")
+    src("https://github.com/processing/processing-examples/archive/refs/heads/main.zip")
+    dest(examples)
+    overwrite(false)
+    doLast{
+        copy{
+            from(zipTree(examples)){ // remove top level directory
+                exclude("processing-examples-main/README.md")
+                exclude("processing-examples-main/.github/**")
+                eachFile { relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray()) }
+                includeEmptyDirs = false
+            }
+            into(composeResources("/modes/java/examples"))
+        }
+    }
+}
+tasks.register<Download>("includeProcessingWebsiteExamples") {
+    val examples = layout.buildDirectory.file("tmp/processing-website.zip")
+    src("https://github.com/processing/processing-website/archive/refs/heads/main.zip")
+    dest(examples)
+    overwrite(false)
+    doLast{
+        copy{
+            from(zipTree(examples)){
+                include("processing-website-main/content/examples/**")
+                eachFile { relativePath = RelativePath(true, *relativePath.segments.drop(3).toTypedArray()) }
+                includeEmptyDirs = false
+                exclude { it.name.contains(".es.") || it.name == "liveSketch.js" }
+            }
+            into(composeResources("modes/java/examples"))
+        }
+    }
+}
+tasks.register<Copy>("includeJavaModeResources") {
+    val java = project(":java")
+    dependsOn(java.tasks.named("extraResources"))
+    from(java.layout.buildDirectory.dir("resources-bundled"))
+    into(composeResources("../"))
 }
 tasks.register<Copy>("renameWindres") {
-    dependsOn("copyJavaMode", "copyShared", "unzipJDK")
-    val dir = layout.buildDirectory.dir("resources-bundled/common/modes/java/application/launch4j/bin/")
-    val os: OperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
+    dependsOn("includeSharedAssets","includeJavaModeResources")
+    val dir = composeResources("modes/java/application/launch4j/bin/")
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
     val platform = when {
         os.isWindows -> "windows"
         os.isMacOsX -> "macos"
@@ -229,103 +228,16 @@ tasks.register<Copy>("renameWindres") {
     into(dir)
 }
 afterEvaluate {
-    tasks.findByName("prepareAppResources")?.dependsOn("unzipJDK","copyShared", "copyCore", "copyJava", "unzipExamples","renameWindres", "copyJavaMode")
-    tasks.register("setExecutablePermissions") {
-        description = "Sets executable permissions on binaries in Processing.app resources"
-        group = "compose desktop"
-
-        doLast {
-            val resourcesPath = layout.buildDirectory.dir("compose/binaries")
-            fileTree(resourcesPath) {
-                include("**/resources/**/bin/**")
-                include("**/resources/**/*.sh")
-                include("**/resources/**/*.dylib")
-                include("**/resources/**/*.so")
-                include("**/resources/**/*.exe")
-            }.forEach { file ->
-                if (file.isFile) {
-                    file.setExecutable(true, false)
-                }
-            }
-        }
+    tasks.named("prepareAppResources").configure {
+        dependsOn(
+            "includeCore",
+            "includeJavaMode",
+            "includeJdk",
+            "includeSharedAssets",
+            "includeProcessingExamples",
+            "includeProcessingWebsiteExamples",
+            "includeJavaModeResources",
+            "renameWindres"
+        )
     }
-    tasks.findByName("createDistributable")?.finalizedBy("setExecutablePermissions")
 }
-
-val plistStrings: String
-    get() = """
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLName</key>
-            <string>org.processing.app</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>pde</string>
-            </array>
-        </dict>
-    </array>
-    <key>CFBundleDocumentTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
-            <array>
-                <string>pde</string>
-            </array>
-            <key>LSTypeIsPackage</key>
-            <false/>
-            <key>CFBundleTypeIconFile</key>
-            <string>macos/pde.icns</string>
-            <key>CFBundleTypeName</key>
-            <string>Processing Source Code</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-        </dict>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
-            <array>
-                <string>pyde</string>
-            </array>
-            <key>LSTypeIsPackage</key>
-            <false/>
-            <key>CFBundleTypeIconFile</key>
-            <string>macos/pde.icns</string>
-            <key>CFBundleTypeName</key>
-            <string>Processing Python Source Code</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-        </dict>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
-            <array>
-                <string>pdez</string>
-            </array>
-            <key>LSTypeIsPackage</key>
-            <false/>
-            <key>CFBundleTypeIconFile</key>
-            <string>macos/pdez.icns</string>
-            <key>CFBundleTypeName</key>
-            <string>Processing Sketch Bundle</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-        </dict>
-        <dict>
-            <key>CFBundleTypeExtensions</key>
-            <array>
-                <string>pdex</string>
-            </array>
-            <key>LSTypeIsPackage</key>
-            <false/>
-            <key>CFBundleTypeIconFile</key>
-            <string>macos/pdex.icns</string>
-            <key>CFBundleTypeName</key>
-            <string>Processing Contribution Bundle</string>
-            <key>CFBundleTypeRole</key>
-            <string>Viewer</string>
-        </dict>
-    </array>
-    <key>NSCameraUsageDescription</key>
-    <string>The sketch you're running needs access to your video camera.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>The sketch you're running needs access to your microphone.</string>
-"""
