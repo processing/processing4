@@ -330,6 +330,7 @@ public class Library extends LocalContribution {
    * imports to specific libraries.
    * @param importToLibraryTable mapping from package names to Library objects
    */
+  static boolean instruced = false;
 //  public void addPackageList(HashMap<String,Library> importToLibraryTable) {
   public void addPackageList(Map<String, List<Library>> importToLibraryTable) {
 //    PApplet.println(packages);
@@ -342,18 +343,20 @@ public class Library extends LocalContribution {
         libraries = new ArrayList<>();
         importToLibraryTable.put(pkg, libraries);
       } else {
-        if (Base.DEBUG) {
-          System.err.println("The library found in");
-          System.err.println(getPath());
-          System.err.println("conflicts with");
+        if(!instruced) {
+          instruced = true;
+          Messages.err("The library found in");
+          Messages.err(getPath());
+          Messages.err("conflicts with");
           for (Library library : libraries) {
-            System.err.println(library.getPath());
+            Messages.err(library.getPath());
           }
-          System.err.println("which already define(s) the package " + pkg);
-          System.err.println("If you have a line in your sketch that reads");
-          System.err.println("import " + pkg + ".*;");
-          System.err.println("Then you'll need to first remove one of those libraries.");
-          System.err.println();
+          Messages.err("which already define(s) the package " + pkg);
+          Messages.err("If you have a line in your sketch that reads");
+          Messages.err("import " + pkg + ".*;");
+          Messages.err("Then you'll need to first remove one of those libraries.");
+        }else{
+          Messages.err("\tPackage ("+pkg+")\t conflict found in [" + name + "] with libraries: " + libraries.stream().map(Library::getName).reduce((a, b) -> a + ", " + b).orElse(""));
         }
       }
       libraries.add(this);

@@ -117,7 +117,7 @@ public class PreprocService {
     running = true;
     PreprocSketch prevResult = null;
     CompletableFuture<?> runningCallbacks = null;
-    Messages.log("PPS: Hi!");
+    Messages.log("Hi!");
     while (running) {
       try {
         try {
@@ -127,7 +127,7 @@ public class PreprocService {
           break;
         }
 
-        Messages.log("PPS: Starting");
+        Messages.log("Starting");
 
         prevResult = preprocessSketch(prevResult);
 
@@ -143,7 +143,7 @@ public class PreprocService {
         synchronized (requestLock) {
           if (requestQueue.isEmpty()) {
             runningCallbacks = lastCallback;
-            Messages.log("PPS: Done");
+            Messages.log("Done");
             preprocessingTask.complete(prevResult);
           }
         }
@@ -151,7 +151,7 @@ public class PreprocService {
         Messages.err("problem in preprocessor service loop", e);
       }
     }
-    Messages.log("PPS: Bye!");
+    Messages.log("Bye!");
   }
 
   /**
@@ -188,7 +188,7 @@ public class PreprocService {
    * Indicate to this service that the sketch libraries have changed.
    */
   public void notifyLibrariesChanged() {
-    Messages.log("PPS: notified libraries changed");
+    Messages.log("notified libraries changed");
     librariesChanged.set(true);
     notifySketchChanged();
   }
@@ -197,7 +197,7 @@ public class PreprocService {
    * Indicate to this service that the folder housing sketch code has changed.
    */
   public void notifyCodeFolderChanged() {
-    Messages.log("PPS: notified code folder changed");
+    Messages.log("notified code folder changed");
     codeFolderChanged.set(true);
     notifySketchChanged();
   }
@@ -216,7 +216,7 @@ public class PreprocService {
           .thenAcceptBothAsync(lastCallback, (ps, a) -> callback.accept(ps))
           // Make sure exception in callback won't cancel whole callback chain
           .handleAsync((res, e) -> {
-            if (e != null) Messages.err("PPS: exception in callback", e);
+            if (e != null) Messages.err("exception in callback", e);
             return res;
           });
       return lastCallback;

@@ -563,14 +563,12 @@ public class Base {
     cl.downloadAvailableList(this, new ContribProgress(null));
     long t9 = System.currentTimeMillis();
 
-    if (DEBUG) {
-      System.out.println("core modes: " + (t2b-t2) +
-                         ", contrib modes: " + (t2c-t2b) +
-                         ", contrib ex: " + (t2c-t2b));
-      System.out.println("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
+    Messages.log("core modes: " + (t2b-t2) +
+                       ", contrib modes: " + (t2c-t2b) +
+                       ", contrib ex: " + (t2c-t2b));
+    Messages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
                          " " + (t5-t4) + " t6-t5=" + (t6-t5) + " " + (t7-t6) +
                          " handleNew=" + (t8-t7) + " " + (t9-t8) + " ms");
-    }
   }
 
 
