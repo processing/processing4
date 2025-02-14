@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="MacOS" type="AntRunConfiguration">
-    <antsettings antfile="file://$PROJECT_DIR$/build/build.xml" target="macos-run-app" />
-    <method v="2" />
-  </configuration>
-</component>

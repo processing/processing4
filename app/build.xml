@@ -169,6 +169,7 @@
            nowarn="true">
       <compilerarg value="-Xlint:deprecation" />
       <src path="src" />
+      <src path="ant" />
     </javac>
   </target>
 
