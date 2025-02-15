@@ -1,13 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="library/jogl-all.jar" sourcepath="library/jogl-all-src.jar"/>
-	<classpathentry kind="lib" path="library/gluegen-rt.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/jogl-all.jar" sourcepath="library/jogl-all-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/gluegen-rt.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JavaFX11"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-assimp.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-assimp-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-assimp-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-assimp-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-glfw.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-glfw-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-glfw-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-glfw-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-openal.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-openal-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-openal-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-openal-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-shaderc.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-shaderc-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-shaderc-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-shaderc-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-stb.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-stb-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-stb-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-stb-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vma.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vma-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vma-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vma-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vulkan.jar"/>
+	<classpathentry exported="true" kind="lib" path="library/lwjgl-vulkan-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

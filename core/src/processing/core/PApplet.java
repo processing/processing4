@@ -38,12 +38,15 @@ import java.util.zip.*;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
+import processing.GL2VK.ThreadNode;
 // TODO have this removed by 4.0 final
 import processing.awt.ShimAWT;
 
 import processing.data.*;
 import processing.event.*;
 import processing.opengl.*;
+import processing.vulkan.PGraphicsVulkan;
+import processing.vulkan.PVK;
 
 
 /**
@@ -1759,6 +1762,48 @@ public class PApplet implements PConstants {
 
   public PGraphics createGraphics(int w, int h) {
     return createGraphics(w, h, JAVA2D);
+  }
+
+  public void selectNode(int node) {
+    if (g instanceof PGraphicsVulkan) {
+      if (node == AUTO) {
+        ((PGraphicsVulkan)g).enableAutoMode();
+      }
+      else if (node == TOP) {
+        ((PGraphicsVulkan)g).selectNode(maxNodes()-1);
+      }
+      else if (node < 0 || node > maxNodes()) {
+        throw new IllegalArgumentException("Node must be in range of 0 to "+maxNodes()+" or set to AUTO or MAX.");
+      }
+      else {
+        ((PGraphicsVulkan)g).selectNode(node);
+      }
+    }
+  }
+
+  public int maxNodes() {
+    if (g instanceof PGraphicsVulkan) {
+      return ((PGraphicsVulkan)g).getNodesCount();
+    }
+    return 0;
+  }
+
+  public int maxNodes = -1;
+  public void setMaxNodes(int v) {
+    maxNodes = v;
+//    if (g instanceof PGraphicsVulkan) {
+//      ((PGraphicsVulkan)g).setMaxNodes(v);
+//    }
+  }
+
+  public void bufferMultithreaded(boolean onoff) {
+    if (g instanceof PGraphicsVulkan) {
+      ((PGraphicsVulkan)g).bufferMultithreaded(onoff);
+    }
+  }
+
+  public void printThreadNodeReport() {
+    ThreadNode.getTimedReport();
   }
 
 
@@ -3679,7 +3724,8 @@ public class PApplet implements PConstants {
 
   /**
    *
-   * Hides the mouse cursor from view.
+   * Hides the cursor from view. Will not work when running the program in a
+   * web browser or when running in full screen (Present) mode.
    *
    * <h3>Advanced</h3>
    * Hide the cursor by creating a transparent image
@@ -9603,9 +9649,9 @@ public class PApplet implements PConstants {
 
   /**
    *
-   * Calculates a new <b>color</b> that is a blend of two other colors. The <b>amt</b> parameter 
-   * controls the amount of each color to use where an amount of 0.0 will produce 
-   * the first color, 1.0 will return the second color, and 0.5 is halfway in 
+   * Calculates a new <b>color</b> that is a blend of two other colors. The <b>amt</b> parameter
+   * controls the amount of each color to use where an amount of 0.0 will produce
+   * the first color, 1.0 will return the second color, and 0.5 is halfway in
    * between. Values between 0.0 and 1.0 will interpolate between the two colors in
    * that proportion. <br />
    * An amount below 0 will be treated as 0. Likewise, amounts above 1 will be
@@ -9663,7 +9709,7 @@ public class PApplet implements PConstants {
 
   // WINDOW METHODS
 
-  Map<String, WindowEventValuePairs> windowEventQueue = new ConcurrentHashMap<>();
+  Map<String, Integer> windowEventQueue = new ConcurrentHashMap<>();
 
 
   public void windowTitle(String title) {
@@ -9683,7 +9729,8 @@ public class PApplet implements PConstants {
    * only the notification that the resize has happened.
    */
   public void postWindowResized(int newWidth, int newHeight) {
-    windowEventQueue.put("wh", new WindowEventValuePairs(newWidth, newHeight));
+    windowEventQueue.put("w", newWidth);
+    windowEventQueue.put("h", newHeight);
   }
 
 
@@ -9723,7 +9770,8 @@ public class PApplet implements PConstants {
       frameMoved(newX, newY);
     }
 
-    windowEventQueue.put("xy", new WindowEventValuePairs(newX, newY));
+    windowEventQueue.put("x", newX);
+    windowEventQueue.put("y", newY);
   }
 
 
@@ -9732,28 +9780,21 @@ public class PApplet implements PConstants {
 
 
   private void dequeueWindowEvents() {
-    if (windowEventQueue.containsKey("xy")) {
-      WindowEventValuePairs xy = windowEventQueue.remove("xy");
-      windowX = xy.num1;
-      windowY = xy.num2;
+    if (windowEventQueue.containsKey("x")) {
+      windowX = windowEventQueue.remove("x");
+      windowY = windowEventQueue.remove("y");
       windowMoved();
     }
-    if (windowEventQueue.containsKey("wh")) {
-      WindowEventValuePairs wh = windowEventQueue.remove("wh");
+    if (windowEventQueue.containsKey("w")) {
+      // these should already match width/height
+      //windowResized(windowEventQueue.remove("w"),
+      //              windowEventQueue.remove("h"));
+      windowEventQueue.remove("w");
+      windowEventQueue.remove("h");
       windowResized();
     }
   }
 
-  protected class WindowEventValuePairs {
-
-    public int num1;
-    public int num2;
-
-    public WindowEventValuePairs(int num1, int num2) {
-      this.num1 = num1;
-      this.num2 = num2;
-    }
-  }
 
   /**
    * Scale the sketch as if it fits this specific width and height.

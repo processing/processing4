@@ -2752,7 +2752,7 @@ public abstract class PGL {
   }
 
 
-  protected interface TessellatorCallback  {
+  public interface TessellatorCallback  {
     void begin(int type);
     void end();
     void vertex(Object data);
