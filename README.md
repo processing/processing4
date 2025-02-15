@@ -48,5 +48,12 @@ This framework works by keeping most of the PGraphicsOpenGL code intact and simp
 - Resizing the window
 - Some window GLFW stuff, such as keyboard input, mouse clicking and scrolling, window name and icon, etc.
 
+### Notes:
+- I recently got a new laptop and multithreading seems to cause slowdowns due to Vulkan commands being WAY faster than on my old laptop... I'll need to fix that.
+- I'd like to expose Vulkan in sketches using PVK, similar to PGL. My hope is that it could help make learning Vulkan substantially easier than setting up and doing everything from scratch.
+- There's some things in Processing that could work better if it used pure Vulkan rather than the GL-to-VK translation layer; PShapes and Vulkan's fixed command buffers, and improved retained mode to name a couple.
+- Need to install external LWJGL JAR's to the core/library folder... I'll need to figure out how to make ANT install this automatically.
+- PGraphicsOpenGL has modifications to use multiple buffers to avoid ThreadNodes writing to the same buffer at the same time.
+
 ## Performance
 TODO
