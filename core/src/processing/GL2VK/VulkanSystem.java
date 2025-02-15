@@ -4,6 +4,8 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import processing.vulkan.PSurfaceVK;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -76,9 +78,9 @@ public class VulkanSystem {
 
 
 
-    public void initVulkan(int width, int height, int threadNodeSize) {
+    public void initVulkan(PSurfaceVK surface, int threadNodeSize) {
     	vkbase = new VKSetup();
-    	vkbase.initBase(width, height);
+    	vkbase.initBase(surface);
     	device = vkbase.device;
 
         createCommandPool();
@@ -128,7 +130,7 @@ public class VulkanSystem {
             VKSetup.destroyDebugUtilsMessengerEXT(vkbase.instance, vkbase.debugMessenger, null);
         }
 
-        vkDestroySurfaceKHR(vkbase.instance, vkbase.vkwindow.surface, null);
+        vkDestroySurfaceKHR(vkbase.instance, vkbase.vkwindow.glfwsurface, null);
 
         vkDestroyInstance(vkbase.instance, null);
 

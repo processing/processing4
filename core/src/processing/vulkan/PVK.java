@@ -1225,7 +1225,7 @@ public class PVK extends PGL implements PJOGLInterface {
   @Override
   public void uniform1i(int location, int value) {
     report("uniform1i");
-//    gl2vk.glUniform1i(location, value);
+    gl2vk.glUniform1i(location, value);
   }
 
   @Override
@@ -1257,7 +1257,7 @@ public class PVK extends PGL implements PJOGLInterface {
   @Override
   public void uniform2f(int location, float value0, float value1) {
     report("uniform2f");
-//    gl2vk.glUniform2f(location, value0, value1);
+    gl2vk.glUniform2f(location, value0, value1);
 
   }
 

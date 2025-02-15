@@ -77,6 +77,9 @@ import org.lwjgl.vulkan.VkSubmitInfo;
 import org.lwjgl.vulkan.VkSurfaceCapabilitiesKHR;
 import org.lwjgl.vulkan.VkSurfaceFormatKHR;
 import org.lwjgl.vulkan.VkSwapchainCreateInfoKHR;
+
+import processing.vulkan.PSurfaceVK;
+
 import org.lwjgl.vulkan.VkCommandBuffer;
 import org.lwjgl.vulkan.VkMemoryRequirements;
 import org.lwjgl.vulkan.VkMemoryAllocateInfo;
@@ -121,7 +124,7 @@ public class VKSetup {
 
     public VkPhysicalDevice physicalDevice;
     public VkDevice device;
-    public VSurface vkwindow;
+    public PSurfaceVK vkwindow;
     public long window;
     private VkCommandBuffer transferCommandBuffer;
     public VkQueue transferQueue;
@@ -132,12 +135,12 @@ public class VKSetup {
 
     public boolean useTransferQueue = true;
 
-    public void initBase(int width, int height) {
-    	vkwindow = new VSurface(width, height);
-    	window = vkwindow.window;
+    public void initBase(PSurfaceVK surface) {
+    	vkwindow = surface;
+    	window = vkwindow.glfwwindow;
       createInstance();
       setupDebugMessenger();
-      vkwindow.createSurface(instance);
+      vkwindow.createGLFWSurface(instance);
       pickPhysicalDevice();
       createLogicalDevice();
       createSwapChain();
@@ -497,7 +500,7 @@ public class VKSetup {
             VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.calloc(stack);
 
             createInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR);
-            createInfo.surface(vkwindow.surface);
+            createInfo.surface(vkwindow.glfwsurface);
 
             // Image settings
             createInfo.minImageCount(imageCount.get(0));
@@ -665,7 +668,7 @@ public class VKSetup {
                 	useTransferQueue = false;
                 }
 
-                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, vkwindow.surface, presentSupport);
+                vkGetPhysicalDeviceSurfaceSupportKHR(device, i, vkwindow.glfwsurface, presentSupport);
 
                 if(presentSupport.get(0) == VK_TRUE) {
                     indices.presentFamily = i;
@@ -684,22 +687,22 @@ public class VKSetup {
         SwapChainSupportDetails details = new SwapChainSupportDetails();
 
         details.capabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vkwindow.surface, details.capabilities);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, vkwindow.glfwsurface, details.capabilities);
 
         IntBuffer count = stack.ints(0);
 
-        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vkwindow.surface, count, null);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, vkwindow.glfwsurface, count, null);
 
         if(count.get(0) != 0) {
             details.formats = VkSurfaceFormatKHR.malloc(count.get(0), stack);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, vkwindow.surface, count, details.formats);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, vkwindow.glfwsurface, count, details.formats);
         }
 
-        vkGetPhysicalDeviceSurfacePresentModesKHR(device,vkwindow.surface, count, null);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device,vkwindow.glfwsurface, count, null);
 
         if(count.get(0) != 0) {
             details.presentModes = stack.mallocInt(count.get(0));
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, vkwindow.surface, count, details.presentModes);
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, vkwindow.glfwsurface, count, details.presentModes);
         }
 
         return details;
@@ -793,7 +796,6 @@ public class VKSetup {
             allocInfo.allocationSize(memRequirements.size());
             allocInfo.memoryTypeIndex(findMemoryType(stack, memRequirements.memoryTypeBits(), memProperties));
 
-            System.out.println("VKsetup createImage Allocation");
             if(vkAllocateMemory(device, allocInfo, null, pTextureImageMemory) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to allocate image memory");
             }
@@ -866,7 +868,6 @@ public class VKSetup {
             allocInfo.memoryTypeIndex(findMemoryType(stack, memRequirements.memoryTypeBits(), properties));
 
 
-            System.out.println("VKsetup createBuffer Allocation");
             if(vkAllocateMemory(device, allocInfo, null, pBufferMemory) != VK_SUCCESS) {
                 throw new RuntimeException("Failed to allocate vertex buffer memory");
             }

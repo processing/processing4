@@ -4,16 +4,34 @@ import java.awt.EventQueue;
 import java.awt.FileDialog;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+
+import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CURSOR_NORMAL;
+import static org.lwjgl.glfw.GLFW.GLFW_FALSE;
+import static org.lwjgl.glfw.GLFW.GLFW_NO_API;
+import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
+import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFWVulkan.glfwCreateWindowSurface;
+import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.vulkan.VK10.VK_NULL_HANDLE;
+import static org.lwjgl.vulkan.VK10.VK_SUCCESS;
+
 import java.awt.DisplayMode;
 import java.io.File;
 import java.nio.BufferOverflowException;
+import java.nio.LongBuffer;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkInstance;
+
 import processing.GL2VK.GL2VK;
 import processing.GL2VK.Util;
-import processing.GL2VK.VMouseEvent;
 import processing.awt.ShimAWT;
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -35,6 +53,7 @@ public class PSurfaceVK implements PSurface {
   protected PApplet sketch;
   protected int sketchWidth = 0;
   protected int sketchHeight = 0;
+  private boolean windowCreated = false;
 
   private Thread drawExceptionHandler;
   private Object drawExceptionMutex = new Object();
@@ -43,11 +62,26 @@ public class PSurfaceVK implements PSurface {
   private AnimatorTask animationThread;
   private boolean isStopped = true;
 
-  private NEWTMouseListener mouseListener;
-
   private PVK pvk;
 
   public static GL2VK gl2vk = null;
+
+  /////////////////////////////////
+  // GLFW window variables
+  public long glfwwindow;
+  public int glfwwidth = 1200;
+  public int glfwheight = 800;
+  public long glfwsurface;
+  public boolean glfwframebufferResize = false;
+
+  private int glfwMouseX = 0, glfwMouseY = 0;
+  private int glfwButton = 0, glfwAction = 0;
+
+  private static int GLFW_SHIFT = 340;
+  private static int GLFW_ENTER = 257;
+  private static int GLFW_BACKSPACE = 259;
+  private static int GLFW_CTRL = 341;
+  private static int GLFW_ALT = 342;
 
   // TODO: Make framerate dynamic.
   class AnimatorTask extends TimerTask {
@@ -71,14 +105,11 @@ public class PSurfaceVK implements PSurface {
     public void run() {
 //      System.out.println("INTERVAL "+(System.nanoTime()-then));
 //      Util.beginTmr();
-      if (gl2vk == null) {
-        int nodes = sketch.maxNodes;
-        if (nodes == -1) {
-          int availableProcessors = Runtime.getRuntime().availableProcessors();
-          nodes = availableProcessors;
-        }
-        gl2vk = new GL2VK(graphics.width, graphics.height, nodes);
-        pvk.setGL2VK(gl2vk);
+
+      // We create the window here because glfw window needs to be created in the same
+      // thread as it is run in.
+      if (!windowCreated) {
+        initWindow();
       }
 
       if (pvk.shouldClose()) {
@@ -129,8 +160,6 @@ public class PSurfaceVK implements PSurface {
     sketchHeight = sketch.sketchHeight();
 
     initIcons();
-    initWindow();
-    initListeners();
     initAnimator();
   }
 
@@ -161,16 +190,156 @@ public class PSurfaceVK implements PSurface {
     // TODO: make work for vulkan
   }
 
+  public void createGLFWSurface(VkInstance instance) {
 
-  protected void nativeMouseEvent(int mouseX, int mouseY, int peAction) {
+      try(MemoryStack stack = stackPush()) {
+
+          LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);
+
+          if(glfwCreateWindowSurface(instance, glfwwindow, null, pSurface) != VK_SUCCESS) {
+              throw new RuntimeException("Failed to create window surface");
+          }
+
+          glfwsurface = pSurface.get(0);
+      }
+  }
+
+
+  private static boolean isPCodedKey(int code) {
+    return
+//        code == com.jogamp.newt.event.KeyEvent.VK_UP ||
+//           code == com.jogamp.newt.event.KeyEvent.VK_DOWN ||
+//           code == com.jogamp.newt.event.KeyEvent.VK_LEFT ||
+//           code == com.jogamp.newt.event.KeyEvent.VK_RIGHT ||
+           code == GLFW_ALT ||
+           code == GLFW_CTRL ||
+           code == GLFW_SHIFT;
+//           code == GLFW_WINDOWS ||
+//           (!isHackyKey(code));
+  }
+
+
+  // Why do we need this mapping?
+  // Relevant discussion and links here:
+  // http://forum.jogamp.org/Newt-wrong-keycode-for-key-td4033690.html#a4033697
+  // (I don't think this is a complete solution).
+  private static int mapToPConst(int code) {
+    return switch (code) {
+      case com.jogamp.newt.event.KeyEvent.VK_UP -> PConstants.UP;
+      case com.jogamp.newt.event.KeyEvent.VK_DOWN -> PConstants.DOWN;
+      case com.jogamp.newt.event.KeyEvent.VK_LEFT -> PConstants.LEFT;
+      case com.jogamp.newt.event.KeyEvent.VK_RIGHT -> PConstants.RIGHT;
+      case com.jogamp.newt.event.KeyEvent.VK_ALT -> PConstants.ALT;
+      case com.jogamp.newt.event.KeyEvent.VK_CONTROL -> PConstants.CONTROL;
+      case com.jogamp.newt.event.KeyEvent.VK_SHIFT -> PConstants.SHIFT;
+      case com.jogamp.newt.event.KeyEvent.VK_WINDOWS -> java.awt.event.KeyEvent.VK_META;
+      default -> code;
+    };
+  }
+
+
+  private static boolean isHackyKey(int code) {
+    return (code == GLFW_BACKSPACE ||
+//            code == com.jogamp.newt.event.KeyEvent.VK_TAB ||
+            code == GLFW_ENTER
+//            code == com.jogamp.newt.event.KeyEvent.VK_ESCAPE ||
+//            code == com.jogamp.newt.event.KeyEvent.VK_DELETE
+    );
+  }
+
+
+  private static char hackToChar(int code, char def) {
+    return switch (code) {
+      case com.jogamp.newt.event.KeyEvent.VK_BACK_SPACE -> PConstants.BACKSPACE;
+      case com.jogamp.newt.event.KeyEvent.VK_TAB -> PConstants.TAB;
+      case com.jogamp.newt.event.KeyEvent.VK_ENTER -> PConstants.ENTER;
+      case com.jogamp.newt.event.KeyEvent.VK_ESCAPE -> PConstants.ESC;
+      case com.jogamp.newt.event.KeyEvent.VK_DELETE -> PConstants.DELETE;
+      default -> def;
+    };
+  }
+
+
+  protected void nativeKeyEvent(long millis, int action, int modifiers,
+                                int key, int keyCode, boolean isAutoRepeat) {
+    // SHIFT, CTRL, META, and ALT are identical to processing.event.Event
+//    int modifiers = nativeEvent.getModifiers();
+//    int peModifiers = nativeEvent.getModifiers() &
+//                      (InputEvent.SHIFT_MASK |
+//                       InputEvent.CTRL_MASK |
+//                       InputEvent.META_MASK |
+//                       InputEvent.ALT_MASK);
+
+
+
+
+    // From http://jogamp.org/deployment/v2.1.0/javadoc/jogl/javadoc/com/jogamp/newt/event/KeyEvent.html
+    // public final short getKeySymbol()
+    // Returns the virtual key symbol reflecting the current keyboard layout.
+    // public final short getKeyCode()
+    // Returns the virtual key code using a fixed mapping to the US keyboard layout.
+    // In contrast to key symbol, key code uses a fixed US keyboard layout and therefore is keyboard layout independent.
+    // E.g. virtual key code VK_Y denotes the same physical key regardless whether keyboard layout QWERTY or QWERTZ is active. The key symbol of the former is VK_Y, where the latter produces VK_Y.
+
+
+    if (!isPCodedKey(key)) {
+      key = Character.toLowerCase(key);
+
+      if (modifiers == GLFW_MOD_SHIFT) {
+        key = Character.toUpperCase(key);
+      }
+
+      KeyEvent ke = new KeyEvent(new Object(), millis,
+                                 action, modifiers,
+                                 (char)key,
+                                 keyCode,
+                                 isAutoRepeat);
+      sketch.postEvent(ke);
+    }
+
+//    if (!isPCodedKey(code, nativeEvent.isPrintableKey()) && !isHackyKey(code)) {
+//      if (peAction == KeyEvent.PRESS) {
+//        // Create key typed event
+//        // TODO: combine dead keys with the following key
+//        KeyEvent tke = new KeyEvent(nativeEvent, nativeEvent.getWhen(),
+//                                    KeyEvent.TYPE, modifiers,
+//                                    keyChar,
+//                                    0,
+//                                    nativeEvent.isAutoRepeat());
+//
+//        sketch.postEvent(tke);
+//      }
+//    }
+  }
+
+
+  private void nativeMouseEvent(long millis, int action, int modifiers,
+                                  int x, int y, int button, int count) {
+
+
+
+    int peButton = switch (button) {
+    case GLFW_MOUSE_BUTTON_LEFT -> PConstants.LEFT;
+    case GLFW_MOUSE_BUTTON_MIDDLE -> PConstants.CENTER;
+    case GLFW_MOUSE_BUTTON_RIGHT -> PConstants.RIGHT;
+    default -> 0;
+    };
+
+    int peaction = switch (action) {
+    case GLFW_PRESS -> MouseEvent.PRESS;
+    case GLFW_RELEASE -> MouseEvent.RELEASE;
+    case 99 -> MouseEvent.MOVE;
+    default -> 0;
+    };
+
     int scale = 1;
 //    if (PApplet.platform == PConstants.MACOS) {
 //      scale = (int) getCurrentPixelScale();
 //    } else {
 //      scale = (int) getPixelScale();
 //    }
-    int sx = mouseX / scale;
-    int sy = mouseY / scale;
+    int sx = x / scale;
+    int sy = y / scale;
     int mx = sx;
     int my = sy;
 
@@ -187,41 +356,86 @@ public class PSurfaceVK implements PSurface {
 //      }
 //    }
 
-    MouseEvent me = new MouseEvent(new Object(), 0,
-                                   peAction, 0,
+    MouseEvent me = new MouseEvent(new Object(), millis,
+                                   peaction, modifiers,
                                    mx, my,
-                                   0,
-                                   0);
+                                   peButton,
+                                   count);
 
     sketch.postEvent(me);
   }
 
 
 
-//NEWT mouse listener
- protected class NEWTMouseListener extends VMouseEvent {
-   public NEWTMouseListener() {
-     super();
-   }
-
-   @Override
-   public void mouseMoved(int x, int y) {
-     nativeMouseEvent(x, y, MouseEvent.MOVE);
-   }
- }
-
-
 
 
   protected void initListeners() {
-    // TODO: create NEWTMouseListener class which binds to glfw to provide mouse and keyboard input.
-
-    mouseListener = new NEWTMouseListener();
   }
 
   private void initWindow() {
+    if(!glfwInit()) {
+      throw new RuntimeException("Cannot initialize GLFW");
+    }
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+    String title = "Vulkan";
+
+    glfwwidth = graphics.width;
+    glfwheight = graphics.height;
+
+    glfwwindow = glfwCreateWindow(glfwwidth, glfwheight, title, NULL, NULL);
+
+    if(glfwwindow == NULL) {
+        throw new RuntimeException("Cannot create window");
+    }
+
+    glfwSetFramebufferSizeCallback(glfwwindow, this::framebufferResizeCallback);
+    glfwSetCursorPosCallback(glfwwindow, this::cursorMoveCallback);
+    glfwSetMouseButtonCallback(glfwwindow, this::mouseButtonCallback);
+    glfwSetKeyCallback(glfwwindow, this::keyActionCallback);
+    glfwSetInputMode(glfwwindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
+
+    if (gl2vk == null) {
+      int nodes = sketch.maxNodes;
+      if (nodes == -1) {
+        int availableProcessors = Runtime.getRuntime().availableProcessors();
+        nodes = availableProcessors;
+      }
+      gl2vk = new GL2VK(this, nodes);
+      pvk.setGL2VK(gl2vk);
+    }
+    windowCreated = true;
   }
+
+  private void framebufferResizeCallback(long window, int width, int height) {
+      glfwframebufferResize = true;
+  }
+
+  private void cursorMoveCallback(long window, double xpos, double ypos) {
+    glfwMouseX = (int)xpos;
+    glfwMouseY = (int)ypos;
+    glfwAction = 99;
+    nativeMouseEvent(0, glfwAction, 0,
+                     glfwMouseX, glfwMouseY, glfwButton, 0);
+  }
+
+  private void mouseButtonCallback(long window, int button, int action, int mod) {
+    glfwButton = button;
+    glfwAction = action;
+    nativeMouseEvent(0, glfwAction, mod,
+                     glfwMouseX, glfwMouseY, glfwButton, 0);
+  }
+
+  private void keyActionCallback(long window, int key, int scancode, int action, int mods) {
+//    System.out.println((char)scancode)
+//    System.out.println(key);
+    nativeKeyEvent(0L, action, mods,
+                   (char)key, 0, false);
+  }
+
 
   private void initAnimator() {
     if (PApplet.platform == PConstants.WINDOWS) {

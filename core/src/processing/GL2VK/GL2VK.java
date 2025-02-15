@@ -10,6 +10,7 @@ import com.jogamp.opengl.GL2ES2;
 
 import processing.GL2VK.ShaderSPIRVUtils.SPIRV;
 import processing.GL2VK.ShaderSPIRVUtils.ShaderKind;
+import processing.vulkan.PSurfaceVK;
 
 import static org.lwjgl.vulkan.VK10.VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 import static processing.GL2VK.ShaderSPIRVUtils.compileShader;
@@ -280,15 +281,15 @@ public class GL2VK {
 
 
 	// Constructor
-	public GL2VK(int width, int height, int numThreadNodes) {
+	public GL2VK(PSurfaceVK surface, int numThreadNodes) {
 		system = new VulkanSystem();
-		system.initVulkan(width, height, numThreadNodes);
+		system.initVulkan(surface, numThreadNodes);
 	}
 
 	public GL2VK(int debugNumber) {
 		if (debugNumber != DEBUG_MODE) {
 			system = new VulkanSystem();
-			system.initVulkan(1200, 800, 1);
+//			system.initVulkan(new PSurfaceVK(), 1);
 		}
 	}
 
