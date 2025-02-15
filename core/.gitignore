@@ -1,9 +1,20 @@
 bin
 bin-test
 
-/library/gluegen-rt*.jar
-/library/jogl-all*.jar
+/library/*
+/natives
 
 core-sources.jar
 
 different/build
+
+DepthTest.java 
+DirectPGL.java
+HighQuantityBug.java 
+ImageTest.java 
+LoadsOfImagesPShape.java 
+LoadsOfImagesTest.java 
+PShapeTest.java 
+Sketch1.java 
+Sketch2.java 
+ThreadBug1.java

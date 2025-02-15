@@ -71,14 +71,14 @@ public class FrameBuffer implements PConstants {
   protected IntBuffer pixelBuffer;
 
 
-  FrameBuffer(PGraphicsOpenGL pg) {
+  public FrameBuffer(PGraphicsOpenGL pg) {
     this.pg = pg;
     pgl = pg.pgl;
     context = pgl.createEmptyContext();
   }
 
 
-  FrameBuffer(PGraphicsOpenGL pg, int w, int h, int samples, int colorBuffers,
+  public FrameBuffer(PGraphicsOpenGL pg, int w, int h, int samples, int colorBuffers,
               int depthBits, int stencilBits, boolean packedDepthStencil,
               boolean screen) {
     this(pg);
@@ -141,12 +141,12 @@ public class FrameBuffer implements PConstants {
   }
 
 
-  FrameBuffer(PGraphicsOpenGL pg, int w, int h) {
+  public FrameBuffer(PGraphicsOpenGL pg, int w, int h) {
     this(pg, w, h, 1, 1, 0, 0, false, false);
   }
 
 
-  FrameBuffer(PGraphicsOpenGL pg, int w, int h, boolean screen) {
+  public FrameBuffer(PGraphicsOpenGL pg, int w, int h, boolean screen) {
     this(pg, w, h, 1, 1, 0, 0, false, screen);
   }
 
