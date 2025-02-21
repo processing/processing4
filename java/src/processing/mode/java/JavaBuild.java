@@ -24,6 +24,7 @@ Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 package processing.mode.java;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -42,8 +43,10 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.data.StringList;
 import processing.data.XML;
+import processing.mode.java.preproc.ImportStatement;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
+import processing.mode.java.preproc.SketchException;
 
 
 public class JavaBuild {
@@ -275,7 +278,12 @@ public class JavaBuild {
 
     for (ImportStatement item : result.getImportStatements()) {
       String entry = item.getPackageName();
-      Library library = mode.getLibrary(entry);
+      Library library = null;
+      try{
+        library = mode.getLibrary(entry);
+      }catch (processing.app.SketchException e){
+        throw new SketchException(e.getMessage(), e.getCodeIndex(), e.getCodeLine(), e.getCodeColumn(), e.isStackTraceEnabled());
+      }
 
       if (library != null) {
         if (!importedLibraries.contains(library)) {
@@ -725,18 +733,43 @@ public class JavaBuild {
       writer.println("APPL????");
       writer.flush();
       writer.close();
+      var resources = System.getProperty("compose.application.resources.dir");
+      if(resources == null) {
+        // Use faster(?) native copy here (also to do sym links)
+        if (embedJava) {
+          Util.copyDirNative(new File(contentsOrig, "PlugIns"),
+                             new File(contentsFolder, "PlugIns"));
+        }
 
-      // Use faster(?) native copy here (also to do sym links)
-      if (embedJava) {
-        Util.copyDirNative(new File(contentsOrig, "PlugIns"),
-                           new File(contentsFolder, "PlugIns"));
+        File resourcesFolder = new File(contentsFolder, "Resources");
+        Util.copyDir(new File(contentsOrig, "Resources/en.lproj"),
+                new File(resourcesFolder, "en.lproj"));
+        Util.copyFile(mode.getContentFile("application/application.icns"),
+                new File(resourcesFolder, "application.icns"));
+      }else{
+        if(embedJava){
+          try {
+            var jdk = Files.list(new File(resources).toPath())
+                    .filter(Files::isDirectory)
+                    .filter(p -> p.getFileName().toString().startsWith("jdk-"))
+                    .findFirst()
+                    .orElseThrow();
+            var target = new File(contentsFolder, "PlugIns/");
+            target.mkdirs();
+            Util.copyDirNative(jdk.toFile(), target);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+
+          Util.copyDir(new File(resources, "modes/java/application/en.lproj"),
+                  new File(contentsFolder, "Resources/en.lproj"));
+          Util.copyFile(new File(resources, "modes/java/application/application.icns"),
+                  new File(contentsFolder, "Resources/application.icns"));
+
+
+        }
+
       }
-
-      File resourcesFolder = new File(contentsFolder, "Resources");
-      Util.copyDir(new File(contentsOrig, "Resources/en.lproj"),
-                   new File(resourcesFolder, "en.lproj"));
-      Util.copyFile(mode.getContentFile("application/application.icns"),
-                    new File(resourcesFolder, "application.icns"));
 
     } else if (exportPlatform == PConstants.LINUX) {
       if (embedJava) {

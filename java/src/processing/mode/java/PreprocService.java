@@ -56,11 +56,9 @@ import org.eclipse.jdt.core.dom.FileASTRequestor;
 import processing.app.Messages;
 import processing.app.Sketch;
 import processing.app.SketchCode;
-import processing.app.SketchException;
 import processing.app.Util;
-import processing.mode.java.TextTransform.OffsetMapper;
-import processing.mode.java.preproc.PdePreprocessor;
-import processing.mode.java.preproc.PreprocessorResult;
+import processing.mode.java.preproc.*;
+import processing.mode.java.preproc.TextTransform.OffsetMapper;
 import processing.data.IntList;
 import processing.data.StringList;
 
