@@ -281,10 +281,17 @@ public class PImage implements PConstants, Cloneable {
   (ACHIEVE HIGH-DPI BY DEFAULT)
   Change access modifier as needed.
   */
-  private int getDisplayDPI() {
-      int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
-      return dpi > 0 ? dpi : 1;  // Fallback to 1 if DPI cannot be determined
+  protected int getDisplayDPI() {
+    int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+
+    // On Windows, always assume 2x if Toolkit misreports 96 DPI
+    if (dpi == 96 && System.getProperty("os.name").toLowerCase().contains("win")) {
+      return 2;
+    }
+
+    return (dpi >= 144) ? 2 : 1;  // 2x for high DPI, 1x otherwise
   }
+
 
   /**
    * Check the alpha on an image, using a really primitive loop.
