@@ -25,6 +25,7 @@
 package processing.core;
 
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -200,7 +201,7 @@ public class PImage implements PConstants, Cloneable {
    * @param height image height
    */
   public PImage(int width, int height) {
-    init(width, height, RGB, 1);
+    init(width, height, RGB, getDisplayDPI());
 
     // toxi: is it maybe better to init the image with max alpha enabled?
     //for(int i=0; i<pixels.length; i++) pixels[i]=0xffffffff;
@@ -218,7 +219,7 @@ public class PImage implements PConstants, Cloneable {
    * @param format Either RGB, ARGB, ALPHA (grayscale alpha channel)
    */
   public PImage(int width, int height, int format) {
-    init(width, height, format, 1);
+    init(width, height, format, getDisplayDPI());
   }
 
 
@@ -231,7 +232,7 @@ public class PImage implements PConstants, Cloneable {
    * Do not remove, see notes in the other variant.
    */
   public void init(int width, int height, int format) {  // ignore
-    init(width, height, format, 1);
+    init(width, height, format, getDisplayDPI());
   }
 
 
@@ -275,6 +276,15 @@ public class PImage implements PConstants, Cloneable {
     this.pixels = pixels;
   }
 
+  /*
+  This method computes the current display's DPI, in order to set the default pixel density to the display's density
+  (ACHIEVE HIGH-DPI BY DEFAULT)
+  Change access modifier as needed.
+  */
+  private int getDisplayDPI() {
+      int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+      return dpi > 0 ? dpi : 1;  // Fallback to 1 if DPI cannot be determined
+  }
 
   /**
    * Check the alpha on an image, using a really primitive loop.
