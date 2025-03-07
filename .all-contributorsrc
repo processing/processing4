@@ -1428,6 +1428,43 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "xinemata",
+      "name": "Xin Xin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9159424?v=4",
+      "profile": "https://github.com/xinemata",
+      "contributions": [
+        "eventOrganizing",
+        "ideas"
+      ]
+    },
+    {
+      "login": "tracerstar",
+      "name": "Benjamin Fox",
+      "avatar_url": "https://avatars.githubusercontent.com/u/234190?v=4",
+      "profile": "http://benjaminfoxstudios.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "e1dem",
+      "name": "e1dem",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32488297?v=4",
+      "profile": "https://github.com/e1dem",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "inteqam",
+      "name": "Aditya Chaudhary",
+      "avatar_url": "https://avatars.githubusercontent.com/u/104833943?v=4",
+      "profile": "https://github.com/inteqam",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoType": "github",

@@ -1366,10 +1366,10 @@ public class Base {
    * @param schemeUri the full URI, including pde://
    */
   public Editor handleScheme(String schemeUri) {
-    var result = Schema.handleSchema(schemeUri, this);
-    if (result != null) {
-      return result;
-    }
+//    var result = Schema.handleSchema(schemeUri, this);
+//    if (result != null) {
+//      return result;
+//    }
 
     String location = schemeUri.substring(6);
     if (location.length() > 0) {
