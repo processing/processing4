@@ -31,6 +31,7 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
+import processing.app.ui.WelcomeToBeta;
 import processing.core.PApplet;
 
 
@@ -133,6 +134,9 @@ public class UpdateCheck {
         // Assume the person is busy downloading the latest version
 //        offerToUpdateContributions = !promptToVisitDownloadPage();
         promptToVisitDownloadPage();
+      }
+      if(latest < Base.getRevision()){
+        WelcomeToBeta.showWelcomeToBeta();
       }
 
       /*
