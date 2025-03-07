@@ -1,0 +1,61 @@
+name: Pull Requests with Gradle
+on:
+  pull_request:
+    paths-ignore:
+      - '**/*.md'
+    branches:
+      - main
+
+jobs:
+  build: 
+    name: Create Pull Request Build for ${{ matrix.os_prefix }} (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    permissions:
+      pull-requests: write
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04-arm
+            os_prefix: linux
+            arch: aarch64
+          - os: ubuntu-latest
+            os_prefix: linux
+            arch: x64
+          - os: windows-latest
+            os_prefix: windows
+            arch: x64
+          - os: macos-latest
+            os_prefix: macos
+            arch: x64
+          - os: macos-latest
+            os_prefix: macos
+            arch: aarch64
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          architecture: ${{ matrix.arch }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Build with Gradle
+        run: ./gradlew packageDistributionForCurrentOS
+      - name: Add instructions
+        if: ${{ matrix.os_prefix == 'macos' }}
+        run: |
+          echo "run 'xattr -d com.apple.quarantine Processing-${version}.dmg' to remove the quarantine flag" > ./app/build/compose/binaries/main/dmg/INSTRUCTIONS_FOR_TESTING.txt
+      - name: Add artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: processing-pr${{ github.event.pull_request.number }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-gradle
+          path:  |
+            ./app/build/compose/binaries/main/dmg/Processing-*.dmg
+            ./app/build/compose/binaries/main/dmg/INSTRUCTIONS_FOR_TESTING.txt
+            ./app/build/compose/binaries/main/msi/Processing-*.msi
+            ./app/build/compose/binaries/main/deb/processing*.deb
+          retention-days: 5

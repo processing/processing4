@@ -14,6 +14,7 @@ jobs:
       pull-requests: write
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           # compiling for arm32 needs a self-hosted runner on Raspi OS (32-bit)
@@ -51,20 +52,12 @@ jobs:
           architecture: ${{ matrix.arch }}
       - name: Setup Ant
         uses: cedx/setup-ant@v3
-      # - name: Install Certificates for Code Signing
-      #   if: ${{ matrix.os_prefix == 'macos' }}
-      #   uses: apple-actions/import-codesign-certs@v3
-      #   with:
-      #     p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
-      #     p12-password: ${{ secrets.CERTIFICATES_P12_PASSWORD }}
       - name: Build Release
         run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ github.sha }}" -Dplatform=${{ matrix.os_prefix }}
-        # env:
-        #   PROCESSING_APP_SIGNING: ${{ secrets.CERTIFICATES_P12 != '' }}
       - name: Add artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         id: upload
         with:
-          name: processing-${{github.sha}}${{ matrix.os_prefix }}-${{ matrix.arch }}
+          name: processing-pr${{ github.event.pull_request.number }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-ant
           path:  ./build/${{ matrix.os_prefix }}/processing-${{github.sha}}-${{ matrix.os_prefix}}-*
           retention-days: 5

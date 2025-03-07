@@ -1,5 +1,7 @@
 # How to Build Processing
 
+This folder contains files for the legacy `Ant` build system. This build system will be removed in the future when we're sure we no longer need it.
+
 ## IntelliJ IDEA CE
 
 First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. Then:
@@ -7,8 +9,9 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in IntelliJ IDEA CE
 1. Click `Install Required Plugins` on the bottom right or in the notification tray
-1. In the main menu, go to File > Project Structure > Project Settings > Project.
-1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk 
+1. Open the `Project Structure` window (`Ctrl+Alt+Shift+S` on Windows/Linux or `⌘;` on macOS)
+2. Go to `Project Settings > Project`
+1. In the SDK Dropdown option, select a JDK version 17 or `Download a JDK`
 1. Select your platform (Windows, MacOS or Linux) in the top right of the window
 1. Click the green Run Icon next to it
 1. Logs can be found in the `messages` or `run` pane on the bottom left of the window
