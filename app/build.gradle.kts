@@ -51,7 +51,7 @@ compose.desktop {
         ).map { "-D${it.first}=${it.second}" }.toTypedArray())
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler", "jdk.zipfs")
+            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
@@ -240,4 +240,24 @@ afterEvaluate {
             "renameWindres"
         )
     }
+    tasks.register("setExecutablePermissions") {
+        description = "Sets executable permissions on binaries in Processing.app resources"
+        group = "compose desktop"
+
+        doLast {
+            val resourcesPath = layout.buildDirectory.dir("compose/binaries")
+            fileTree(resourcesPath) {
+                include("**/resources/**/bin/**")
+                include("**/resources/**/*.sh")
+                include("**/resources/**/*.dylib")
+                include("**/resources/**/*.so")
+                include("**/resources/**/*.exe")
+            }.forEach { file ->
+                if (file.isFile) {
+                    file.setExecutable(true, false)
+                }
+            }
+        }
+    }
+    tasks.findByName("createDistributable")?.finalizedBy("setExecutablePermissions")
 }
