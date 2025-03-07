@@ -1,11 +1,10 @@
-package processing.app.contrib.ui
+package processing.app
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import processing.app.Base
-import processing.app.Platform
 import java.io.File
+import java.io.InputStream
 import java.nio.file.*
 import java.util.Properties
 
@@ -13,10 +12,13 @@ import java.util.Properties
 const val PREFERENCES_FILE_NAME = "preferences.txt"
 const val DEFAULTS_FILE_NAME = "defaults.txt"
 
+fun PlatformStart(){
+    Platform.inst ?: Platform.init()
+}
 
 @Composable
 fun loadPreferences(): Properties{
-    Platform.init()
+    PlatformStart()
 
     val settingsFolder = Platform.getSettingsFolder()
     val preferencesFile = settingsFolder.resolve(PREFERENCES_FILE_NAME)
@@ -24,20 +26,12 @@ fun loadPreferences(): Properties{
     if(!preferencesFile.exists()){
         preferencesFile.createNewFile()
     }
-    val watched = watchFile(preferencesFile)
+    watchFile(preferencesFile)
 
-    val preferences by remember {
-        mutableStateOf(Properties())
+    return Properties().apply {
+        load(ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME) ?: InputStream.nullInputStream())
+        load(preferencesFile.inputStream())
     }
-
-    LaunchedEffect(watched){
-        val defaults = Base::class.java.getResourceAsStream("/lib/${DEFAULTS_FILE_NAME}") ?: return@LaunchedEffect
-
-        preferences.load(defaults)
-        preferences.load(preferencesFile.inputStream())
-    }
-
-    return preferences
 }
 
 @Composable
@@ -68,4 +62,12 @@ fun watchFile(file: File): Any? {
         }
     }
     return event
+}
+val LocalPreferences = compositionLocalOf<Properties> { error("No preferences provided") }
+@Composable
+fun PreferencesProvider(content: @Composable () -> Unit){
+    val preferences = loadPreferences()
+    CompositionLocalProvider(LocalPreferences provides preferences){
+        content()
+    }
 }

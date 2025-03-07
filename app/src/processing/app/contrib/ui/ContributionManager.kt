@@ -12,8 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +23,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.Serializable
 import processing.app.Platform
+import processing.app.loadPreferences
 import java.net.URL
 import java.util.*
 import javax.swing.JFrame
@@ -33,16 +32,7 @@ import kotlin.io.path.*
 
 
 fun main() = application {
-    val active = remember { mutableStateOf(true) }
-    if(!active.value){
-        Window(onCloseRequest = ::exitApplication) {
-
-        }
-        return@application
-    }
-    Window(
-        onCloseRequest = { active.value = false },
-    ) {
+    Window(onCloseRequest = ::exitApplication) {
         contributionsManager()
     }
 }
