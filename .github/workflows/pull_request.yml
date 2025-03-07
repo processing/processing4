@@ -55,7 +55,7 @@ jobs:
       - name: Build Release
         run: ant -noinput -buildfile build/build.xml ${{ matrix.os_prefix }}-dist -Dversion="${{ github.sha }}" -Dplatform=${{ matrix.os_prefix }}
       - name: Add artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         id: upload
         with:
           name: processing-pr${{ github.event.pull_request.number }}-${{github.sha}}-${{ matrix.os_prefix }}-${{ matrix.arch }}-ant
