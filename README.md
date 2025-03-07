@@ -38,6 +38,7 @@ For a quick start:
 1. Fork and clone the repository
 1. Open it in IntelliJ IDEA
 1. Wait for Gradle to sync
+1. Next to the run Button, select the `Processing` Configuration 
 1. Hit Run
 
 For more information and detailed instructions, follow our [How to Build Processing](BUILD.md) guide.
@@ -280,6 +281,12 @@ Add yourself to the contributors list [here](https://github.com/processing/proce
       <td align="center" valign="top" width="16.66%"><a href="http://plopez.me"><img src="https://avatars.githubusercontent.com/u/37042253?v=4?s=120" width="120px;" alt="Pau"/><br /><sub><b>Pau</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=plopez01" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://d.hatena.ne.jp/junology/"><img src="https://avatars.githubusercontent.com/u/1933073?v=4?s=120" width="120px;" alt="Junology"/><br /><sub><b>Junology</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=Junology" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/twisst"><img src="https://avatars.githubusercontent.com/u/2244463?v=4?s=120" width="120px;" alt="Jaap Meijers"/><br /><sub><b>Jaap Meijers</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=twisst" title="Documentation">📖</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/xinemata"><img src="https://avatars.githubusercontent.com/u/9159424?v=4?s=120" width="120px;" alt="Xin Xin"/><br /><sub><b>Xin Xin</b></sub></a><br /><a href="#eventOrganizing-xinemata" title="Event Organizing">📋</a> <a href="#ideas-xinemata" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://benjaminfoxstudios.com"><img src="https://avatars.githubusercontent.com/u/234190?v=4?s=120" width="120px;" alt="Benjamin Fox"/><br /><sub><b>Benjamin Fox</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=tracerstar" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/e1dem"><img src="https://avatars.githubusercontent.com/u/32488297?v=4?s=120" width="120px;" alt="e1dem"/><br /><sub><b>e1dem</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=e1dem" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/inteqam"><img src="https://avatars.githubusercontent.com/u/104833943?v=4?s=120" width="120px;" alt="Aditya Chaudhary"/><br /><sub><b>Aditya Chaudhary</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=inteqam" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
