@@ -32,7 +32,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import processing.app.Base;
 import processing.app.Preferences;
-import processing.core.PApplet;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
 
 /**
@@ -1237,16 +1236,16 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
       boolean shouldFullScreen = Preferences.getBoolean("export.application.present");
       shouldFullScreen = shouldFullScreen || Preferences.getBoolean("export.application.fullscreen");
       if (shouldFullScreen) {
-        argsJoiner.add("\"" + PApplet.ARGS_FULL_SCREEN + "\"");
+        argsJoiner.add("\"--full-screen\"");
 
         String bgColor = Preferences.get("run.present.bgcolor");
-        argsJoiner.add("\"" + PApplet.ARGS_BGCOLOR + "=" + bgColor + "\"");
+        argsJoiner.add("\"--bgcolor=" + bgColor + "\"");
 
         if (Preferences.getBoolean("export.application.stop")) {
           String stopColor = Preferences.get("run.present.stop.color");
-          argsJoiner.add("\"" + PApplet.ARGS_STOP_COLOR + "=" + stopColor + "\"");
+          argsJoiner.add("\"--stop-color=" + stopColor + "\"");
         } else {
-          argsJoiner.add("\"" + PApplet.ARGS_HIDE_STOP + "\"");
+          argsJoiner.add("\"--hide-stop\"");
         }
       }
       

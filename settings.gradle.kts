@@ -1,10 +1,11 @@
-rootProject.name = "processing"
+rootProject.name = "org.processing"
 include(
     "core",
     "core:examples",
     "app",
     "java",
     "java:preprocessor",
+    "java:gradle",
     "java:libraries:dxf",
     "java:libraries:io",
     "java:libraries:net",
