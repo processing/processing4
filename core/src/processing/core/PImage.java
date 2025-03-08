@@ -30,8 +30,11 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import processing.awt.ShimAWT;
@@ -282,20 +285,57 @@ public class PImage implements PConstants, Cloneable {
   Change access modifier as needed.
   */
   protected int getScaleFactor() {
-    float scaleFactor = 1;
+    float scaleFactor = 1.0f;
 
-    if(Platform.isMacOS()) {
+    String osName = System.getProperty("os.name").toLowerCase();
+//    System.out.println("Operating System: " + osName);
+
+    if (osName.contains("mac")) {
+      // macOS DPI scaling
       scaleFactor = ThinkDifferent.getScaleFactor();
+      System.out.println("This is macOS DPI");
+    } else if (osName.contains("windows")) {
+      try {
+        // Path to Fenster.exe
+        String basePath = new File("").getAbsolutePath();
+        basePath = basePath.substring(0, basePath.length() - 4);
+        basePath = basePath.replace("\\", "/");
+        String fensterExePath = basePath + "/build/windows/fenster/Fenster.exe";
+
+//        for debugging purposes
+//        System.out.println("Fenster.exe Path: " + fensterExePath);
+
+        // Create a ProcessBuilder to launch Fenster.exe
+        ProcessBuilder processBuilder = new ProcessBuilder(fensterExePath);
+        processBuilder.redirectErrorStream(true);
+
+        // Start the process
+        Process process = processBuilder.start();
+
+        // Read the output of the process (getting the Scale Factor)
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+            try {
+              scaleFactor = Float.parseFloat(line) / 96.0f;  // Convert DPI to scale factor
+            } catch (NumberFormatException e) {
+              System.err.println("Failed to parse scale factor from line: " + line);
+            }
+          }
+        }
+
+      } catch (IOException e) {
+        System.err.println("Error running Fenster.exe: " + e.getMessage());
+      }
+//      System.out.println("This is Windows DPI");
+    } else if (osName.contains("linux")) {
+      // Linux DPI scaling
+      System.out.println("This is Linux DPI");
     }
-    else if(Platform.isWindows())
-    //scaleFactor = Fenster.getScaleFactor();
-    else if(Platform.isLinux())
-      System.out.println("Linux");
 
-
-    return (scaleFactor >= 1.75) ? 2 : 1;  // 2x for high DPI, 1x otherwise
+//     System.out.println("Scale Factor: " + scaleFactor);
+    return (scaleFactor >= 1.5) ? 2 : 1;  // 2x for high DPI, 1x otherwise  Threshold is a 1.5 Scale Factor (144 DPI)
   }
-
 
   /**
    * Check the alpha on an image, using a really primitive loop.
