@@ -201,7 +201,7 @@ public class PImage implements PConstants, Cloneable {
    * @param height image height
    */
   public PImage(int width, int height) {
-    init(width, height, RGB, getDisplayDPI());
+    init(width, height, RGB, getScaleFactor());
 
     // toxi: is it maybe better to init the image with max alpha enabled?
     //for(int i=0; i<pixels.length; i++) pixels[i]=0xffffffff;
@@ -219,7 +219,7 @@ public class PImage implements PConstants, Cloneable {
    * @param format Either RGB, ARGB, ALPHA (grayscale alpha channel)
    */
   public PImage(int width, int height, int format) {
-    init(width, height, format, getDisplayDPI());
+    init(width, height, format, getScaleFactor());
   }
 
 
@@ -232,7 +232,7 @@ public class PImage implements PConstants, Cloneable {
    * Do not remove, see notes in the other variant.
    */
   public void init(int width, int height, int format) {  // ignore
-    init(width, height, format, getDisplayDPI());
+    init(width, height, format, getScaleFactor());
   }
 
 
@@ -281,15 +281,19 @@ public class PImage implements PConstants, Cloneable {
   (ACHIEVE HIGH-DPI BY DEFAULT)
   Change access modifier as needed.
   */
-  protected int getDisplayDPI() {
-    int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+  protected int getScaleFactor() {
+    float scaleFactor = 1;
 
-    // On Windows, always assume 2x if Toolkit misreports 96 DPI
-    if (dpi == 96 && System.getProperty("os.name").toLowerCase().contains("win")) {
-      return 2;
+    if(Platform.isMacOS()) {
+      scaleFactor = ThinkDifferent.getScaleFactor();
     }
+    else if(Platform.isWindows())
+    //scaleFactor = Fenster.getScaleFactor();
+    else if(Platform.isLinux())
+      System.out.println("Linux");
 
-    return (dpi >= 144) ? 2 : 1;  // 2x for high DPI, 1x otherwise
+
+    return (scaleFactor >= 1.75) ? 2 : 1;  // 2x for high DPI, 1x otherwise
   }
 
 
