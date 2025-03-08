@@ -2842,6 +2842,7 @@ public class PApplet implements PConstants {
   public void focusLost() {
     // TODO: if user overrides this without calling super it's not gonna work
     pressedKeys.clear();
+    keyPressed = false;
   }
 
 
