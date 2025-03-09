@@ -301,7 +301,7 @@ public class PImage implements PConstants, Cloneable {
 
     if (osName.contains("mac")) {
       // macOS DPI scaling
-      scaleFactor = ThinkDifferent.getScaleFactor();
+      //scaleFactor = ThinkDifferent.getScaleFactor();
       System.out.println("This is macOS DPI");
     } else if (osName.contains("windows")) {
       try {
