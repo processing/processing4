@@ -29,8 +29,10 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.BufferedReader;
 import java.util.Arrays;
 
 import processing.awt.ShimAWT;
@@ -162,6 +164,13 @@ public class PImage implements PConstants, Cloneable {
   public static final int BLUE_MASK  = 0x000000ff;
 
 
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  /**
+   * The default DPI rounding method to be used.
+   */
+  private static String defaultDPIRoundingMethod = "round";
+
   //////////////////////////////////////////////////////////////
 
 
@@ -200,7 +209,7 @@ public class PImage implements PConstants, Cloneable {
    * @param height image height
    */
   public PImage(int width, int height) {
-    init(width, height, RGB, 1);
+    init(width, height, RGB, getScaleFactor());
 
     // toxi: is it maybe better to init the image with max alpha enabled?
     //for(int i=0; i<pixels.length; i++) pixels[i]=0xffffffff;
@@ -218,7 +227,7 @@ public class PImage implements PConstants, Cloneable {
    * @param format Either RGB, ARGB, ALPHA (grayscale alpha channel)
    */
   public PImage(int width, int height, int format) {
-    init(width, height, format, 1);
+    init(width, height, format, getScaleFactor());
   }
 
 
@@ -231,7 +240,7 @@ public class PImage implements PConstants, Cloneable {
    * Do not remove, see notes in the other variant.
    */
   public void init(int width, int height, int format) {  // ignore
-    init(width, height, format, 1);
+    init(width, height, format, getScaleFactor());
   }
 
 
@@ -275,7 +284,149 @@ public class PImage implements PConstants, Cloneable {
     this.pixels = pixels;
   }
 
+  /**
+   * Computes the current display's DPI to set the default pixel density to the display's density.
+   *
+   * @return The scale factor based on the default DPI rounding method.
+   */
+  protected int getScaleFactor() {
+    return getScaleFactor(defaultDPIRoundingMethod);
+  }
 
+  protected int getScaleFactor(String roundingMethod) {
+    float scaleFactor = 1.0f;
+
+    String osName = System.getProperty("os.name").toLowerCase();
+//    System.out.println("Operating System: " + osName);
+
+    if (osName.contains("mac")) {
+      // macOS DPI scaling
+      //scaleFactor = ThinkDifferent.getScaleFactor();
+      System.out.println("This is macOS DPI");
+    } else if (osName.contains("windows")) {
+      try {
+        // Path to Fenster.exe
+        String basePath = new File("").getAbsolutePath();
+        basePath = basePath.substring(0, basePath.length() - 4);
+        basePath = basePath.replace("\\", "/");
+        String fensterExePath = basePath + "/build/windows/fenster/Fenster.exe";
+
+//        for debugging purposes
+//        System.out.println("Fenster.exe Path: " + fensterExePath);
+
+        // Create a ProcessBuilder to launch Fenster.exe
+        ProcessBuilder processBuilder = new ProcessBuilder(fensterExePath);
+        processBuilder.redirectErrorStream(true);
+
+        // Start the process
+        Process process = processBuilder.start();
+
+        // Read the output of the process (getting the Scale Factor)
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+          String line;
+          while ((line = reader.readLine()) != null) {
+            try {
+              scaleFactor = Float.parseFloat(line) / 96.0f;  // Convert DPI to scale factor
+            } catch (NumberFormatException e) {
+              System.err.println("Failed to parse scale factor from line: " + line);
+            }
+          }
+        }
+
+      } catch (IOException e) {
+        System.err.println("An error occurred while trying to run the required executable (Fenster.exe). Please ensure the file path is correct and try again: " + e.getMessage());
+      }
+//      System.out.println("This is Windows DPI");
+    } else if (osName.contains("linux")) {
+      // Linux DPI scaling
+      try {
+        String desktopSession = System.getenv("XDG_SESSION_TYPE");
+        if ("wayland".equalsIgnoreCase(desktopSession)) {
+          // Wayland DPI scaling using wlr-randr
+          ProcessBuilder processBuilder = new ProcessBuilder("wlr-randr");
+          processBuilder.redirectErrorStream(true);
+          Process process = processBuilder.start();
+
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              if (line.contains("Scale:")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2) {
+                  scaleFactor = Float.parseFloat(parts[1]);
+                }
+              }
+            }
+          }
+        } else {
+          // X11 DPI scaling using xdpyinfo
+          ProcessBuilder processBuilder = new ProcessBuilder("xdpyinfo");
+          processBuilder.redirectErrorStream(true);
+          Process process = processBuilder.start();
+
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              if (line.contains("resolution:")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 3) {
+                  scaleFactor = Float.parseFloat(parts[2]) / 96.0f;  // Convert DPI to scale factor
+                }
+              }
+            }
+          }
+        }
+      } catch (IOException e) {
+        System.err.println("An error occurred while trying to run the DPI scaling command: " + e.getMessage());
+      }
+      System.out.println("This is Linux DPI");
+    }
+
+//     System.out.println("Scale Factor: " + scaleFactor);
+    return roundScaleFactor(roundingMethod,scaleFactor);  // 2x for high DPI, 1x otherwise  Threshold is a 1.5 Scale Factor (144 DPI)
+  }
+
+  /**
+   * Rounds the scale factor based on the specified rounding method.
+   *
+   * @param roundingMethod The method to use for rounding the scale factor.
+   * @param scaleFactor The scale factor to be rounded.
+   * @return The rounded scale factor.
+   * @throws RuntimeException If an invalid rounding method is used.
+   */
+  protected static int roundScaleFactor(String roundingMethod, float scaleFactor) {
+    roundingMethod = roundingMethod.toLowerCase();
+
+    if(roundingMethod.equals("round") || roundingMethod.equals("rnd") || roundingMethod.equals("nearestint") || roundingMethod.equals("nearest int") || roundingMethod.equals("nearest integer") || roundingMethod.equals("nearestinteger"))
+        return (int) Math.round(scaleFactor);
+    else if(roundingMethod.equals("ceil") || roundingMethod.equals("roundup") || roundingMethod.equals("round up") || roundingMethod.equals("rndup") || roundingMethod.equals("rnd up") || roundingMethod.equals("up"))
+        return (int) Math.ceil(scaleFactor);
+    else if(roundingMethod.equals("floor") || roundingMethod.equals("rounddown") || roundingMethod.equals("round down") || roundingMethod.equals("rnddown") || roundingMethod.equals("rnd down") || roundingMethod.equals("down"))
+        return (int) Math.floor(scaleFactor);
+    else if(roundingMethod.equals("roundpreferfloor") || roundingMethod.equals("round prefer floor") || roundingMethod.equals("roundpreferdown") || roundingMethod.equals("round prefer down") || roundingMethod.equals("rndpreferfloor") || roundingMethod.equals("rnd prefer floor") || roundingMethod.equals("rndpreferdown") || roundingMethod.equals("rnd prefer down") || roundingMethod.equals("preferfloor") || roundingMethod.equals("prefer floor") || roundingMethod.equals("preferdown") || roundingMethod.equals("prefer down"))
+        return (scaleFactor >= 1.75) ? 2 : 1;
+
+    // Throw an Exception Whenever an invalid Rounding method is used
+    throw new RuntimeException("Invalid Rounding Method: " + roundingMethod);
+  }
+
+  /**
+   * Gets the default DPI rounding method.
+   *
+   * @return The default DPI rounding method.
+   */
+  public static String getDefaultDPIRoundingMethod() {
+    return defaultDPIRoundingMethod;
+  }
+
+  /**
+   * Sets the default DPI rounding method.
+   *
+   * @param method The method to set as the default DPI rounding method.
+   */
+  public static void setDefaultDPIRoundingMethod(String roundingMethod) {
+    defaultDPIRoundingMethod = roundingMethod;
+  }
   /**
    * Check the alpha on an image, using a really primitive loop.
    */

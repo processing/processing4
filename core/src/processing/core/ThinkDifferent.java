@@ -132,6 +132,10 @@ public class ThinkDifferent {
   // https://developer.apple.com/documentation/appkit/nsapplication/activate()
   static native public void activate();
 
+  // for platform-specific (native) scale Scale Factor getter
+  // https://developer.apple.com/documentation/appkit/nsscreen/backingscalefactor
+  public static native float getScaleFactor();
+
   // Used by py5 to bring Sketch to the front
   static public boolean activateSketchWindow() {
     try {
