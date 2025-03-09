@@ -166,6 +166,9 @@ public class PImage implements PConstants, Cloneable {
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+  /**
+   * The default DPI rounding method to be used.
+   */
   private static String defaultDPIRoundingMethod = "round";
 
   //////////////////////////////////////////////////////////////
@@ -281,11 +284,11 @@ public class PImage implements PConstants, Cloneable {
     this.pixels = pixels;
   }
 
-  /*
-  This method computes the current display's DPI, in order to set the default pixel density to the display's density
-  (ACHIEVE HIGH-DPI BY DEFAULT)
-  Change access modifier as needed.
-  */
+  /**
+   * Computes the current display's DPI to set the default pixel density to the display's density.
+   *
+   * @return The scale factor based on the default DPI rounding method.
+   */
   protected int getScaleFactor() {
     return getScaleFactor(defaultDPIRoundingMethod);
   }
@@ -343,6 +346,14 @@ public class PImage implements PConstants, Cloneable {
     return roundScaleFactor(roundingMethod,scaleFactor);  // 2x for high DPI, 1x otherwise  Threshold is a 1.5 Scale Factor (144 DPI)
   }
 
+  /**
+   * Rounds the scale factor based on the specified rounding method.
+   *
+   * @param roundingMethod The method to use for rounding the scale factor.
+   * @param scaleFactor The scale factor to be rounded.
+   * @return The rounded scale factor.
+   * @throws RuntimeException If an invalid rounding method is used.
+   */
   protected static int roundScaleFactor(String roundingMethod, float scaleFactor) {
     roundingMethod = roundingMethod.toLowerCase();
 
@@ -359,12 +370,22 @@ public class PImage implements PConstants, Cloneable {
     throw new RuntimeException("Invalid Rounding Method: " + roundingMethod);
   }
 
+  /**
+   * Gets the default DPI rounding method.
+   *
+   * @return The default DPI rounding method.
+   */
   public static String getDefaultDPIRoundingMethod() {
     return defaultDPIRoundingMethod;
   }
 
-  public static void setDefaultDPIRoundingMethod(String method) {
-    defaultDPIRoundingMethod = method;
+  /**
+   * Sets the default DPI rounding method.
+   *
+   * @param method The method to set as the default DPI rounding method.
+   */
+  public static void setDefaultDPIRoundingMethod(String roundingMethod) {
+    defaultDPIRoundingMethod = roundingMethod;
   }
   /**
    * Check the alpha on an image, using a really primitive loop.
