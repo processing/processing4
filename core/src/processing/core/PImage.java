@@ -339,6 +339,46 @@ public class PImage implements PConstants, Cloneable {
 //      System.out.println("This is Windows DPI");
     } else if (osName.contains("linux")) {
       // Linux DPI scaling
+      try {
+        String desktopSession = System.getenv("XDG_SESSION_TYPE");
+        if ("wayland".equalsIgnoreCase(desktopSession)) {
+          // Wayland DPI scaling using wlr-randr
+          ProcessBuilder processBuilder = new ProcessBuilder("wlr-randr");
+          processBuilder.redirectErrorStream(true);
+          Process process = processBuilder.start();
+
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              if (line.contains("Scale:")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 2) {
+                  scaleFactor = Float.parseFloat(parts[1]);
+                }
+              }
+            }
+          }
+        } else {
+          // X11 DPI scaling using xdpyinfo
+          ProcessBuilder processBuilder = new ProcessBuilder("xdpyinfo");
+          processBuilder.redirectErrorStream(true);
+          Process process = processBuilder.start();
+
+          try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+              if (line.contains("resolution:")) {
+                String[] parts = line.split("\\s+");
+                if (parts.length >= 3) {
+                  scaleFactor = Float.parseFloat(parts[2]) / 96.0f;  // Convert DPI to scale factor
+                }
+              }
+            }
+          }
+        }
+      } catch (IOException e) {
+        System.err.println("An error occurred while trying to run the DPI scaling command: " + e.getMessage());
+      }
       System.out.println("This is Linux DPI");
     }
 
