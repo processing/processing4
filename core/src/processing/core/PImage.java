@@ -25,7 +25,6 @@
 package processing.core;
 
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -34,7 +33,6 @@ import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.util.Arrays;
 
 import processing.awt.ShimAWT;
@@ -166,6 +164,10 @@ public class PImage implements PConstants, Cloneable {
   public static final int BLUE_MASK  = 0x000000ff;
 
 
+  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+  private static String defaultDPIRoundingMethod = "round";
+
   //////////////////////////////////////////////////////////////
 
 
@@ -285,6 +287,10 @@ public class PImage implements PConstants, Cloneable {
   Change access modifier as needed.
   */
   protected int getScaleFactor() {
+    return getScaleFactor(defaultDPIRoundingMethod);
+  }
+
+  protected int getScaleFactor(String roundingMethod) {
     float scaleFactor = 1.0f;
 
     String osName = System.getProperty("os.name").toLowerCase();
@@ -325,7 +331,7 @@ public class PImage implements PConstants, Cloneable {
         }
 
       } catch (IOException e) {
-        System.err.println("Error running Fenster.exe: " + e.getMessage());
+        System.err.println("An error occurred while trying to run the required executable (Fenster.exe). Please ensure the file path is correct and try again: " + e.getMessage());
       }
 //      System.out.println("This is Windows DPI");
     } else if (osName.contains("linux")) {
@@ -334,9 +340,32 @@ public class PImage implements PConstants, Cloneable {
     }
 
 //     System.out.println("Scale Factor: " + scaleFactor);
-    return (scaleFactor >= 1.5) ? 2 : 1;  // 2x for high DPI, 1x otherwise  Threshold is a 1.5 Scale Factor (144 DPI)
+    return roundScaleFactor(roundingMethod,scaleFactor);  // 2x for high DPI, 1x otherwise  Threshold is a 1.5 Scale Factor (144 DPI)
   }
 
+  protected static int roundScaleFactor(String roundingMethod, float scaleFactor) {
+    roundingMethod = roundingMethod.toLowerCase();
+
+    if(roundingMethod.equals("round") || roundingMethod.equals("rnd") || roundingMethod.equals("nearestint") || roundingMethod.equals("nearest int") || roundingMethod.equals("nearest integer") || roundingMethod.equals("nearestinteger"))
+        return (int) Math.round(scaleFactor);
+    else if(roundingMethod.equals("ceil") || roundingMethod.equals("roundup") || roundingMethod.equals("round up") || roundingMethod.equals("rndup") || roundingMethod.equals("rnd up") || roundingMethod.equals("up"))
+        return (int) Math.ceil(scaleFactor);
+    else if(roundingMethod.equals("floor") || roundingMethod.equals("rounddown") || roundingMethod.equals("round down") || roundingMethod.equals("rnddown") || roundingMethod.equals("rnd down") || roundingMethod.equals("down"))
+        return (int) Math.floor(scaleFactor);
+    else if(roundingMethod.equals("roundpreferfloor") || roundingMethod.equals("round prefer floor") || roundingMethod.equals("roundpreferdown") || roundingMethod.equals("round prefer down") || roundingMethod.equals("rndpreferfloor") || roundingMethod.equals("rnd prefer floor") || roundingMethod.equals("rndpreferdown") || roundingMethod.equals("rnd prefer down") || roundingMethod.equals("preferfloor") || roundingMethod.equals("prefer floor") || roundingMethod.equals("preferdown") || roundingMethod.equals("prefer down"))
+        return (scaleFactor >= 1.75) ? 2 : 1;
+
+    // Throw an Exception Whenever an invalid Rounding method is used
+    throw new RuntimeException("Invalid Rounding Method: " + roundingMethod);
+  }
+
+  public static String getDefaultDPIRoundingMethod() {
+    return defaultDPIRoundingMethod;
+  }
+
+  public static void setDefaultDPIRoundingMethod(String method) {
+    defaultDPIRoundingMethod = method;
+  }
   /**
    * Check the alpha on an image, using a really primitive loop.
    */
