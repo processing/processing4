@@ -12,8 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.text.font.FontWeight
@@ -24,7 +22,9 @@ import androidx.compose.ui.window.application
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.Serializable
+import processing.app.LocalPreferences
 import processing.app.Platform
+import processing.app.ReactiveProperties
 import java.net.URL
 import java.util.*
 import javax.swing.JFrame
@@ -33,16 +33,7 @@ import kotlin.io.path.*
 
 
 fun main() = application {
-    val active = remember { mutableStateOf(true) }
-    if(!active.value){
-        Window(onCloseRequest = ::exitApplication) {
-
-        }
-        return@application
-    }
-    Window(
-        onCloseRequest = { active.value = false },
-    ) {
+    Window(onCloseRequest = ::exitApplication) {
         contributionsManager()
     }
 }
@@ -116,7 +107,7 @@ fun contributionsManager(){
     var localContributions by remember { mutableStateOf(listOf<Contribution>()) }
     var error by remember { mutableStateOf<Exception?>(null) }
 
-    val preferences = loadPreferences()
+    val preferences = LocalPreferences.current
 
     LaunchedEffect(preferences){
         try {
@@ -294,9 +285,9 @@ fun contributionsManager(){
 }
 
 
-fun loadContributionProperties(preferences: Properties): List<Pair<Type, Properties>>{
+fun loadContributionProperties(preferences: ReactiveProperties): List<Pair<Type, Properties>>{
     val result = mutableListOf<Pair<Type, Properties>>()
-    val sketchBook = Path(preferences.getProperty("sketchbook.path.four", Platform.getDefaultSketchbookFolder().path))
+    val sketchBook = Path(preferences.getProperty("sketchbook.path.four") ?: Platform.getDefaultSketchbookFolder().path)
     sketchBook.forEachDirectoryEntry{ contributionsFolder ->
         if(!contributionsFolder.isDirectory()) return@forEachDirectoryEntry
         val typeName = contributionsFolder.fileName.toString()

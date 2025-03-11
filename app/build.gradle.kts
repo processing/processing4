@@ -2,6 +2,8 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
 
+// TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
+
 plugins{
     id("java")
     kotlin("jvm") version libs.versions.kotlin
@@ -29,6 +31,9 @@ sourceSets{
         kotlin{
             srcDirs("src")
         }
+        resources{
+            srcDirs("resources", listOf("languages", "fonts", "theme").map { "../build/shared/lib/$it" })
+        }
     }
 }
 
@@ -46,7 +51,7 @@ compose.desktop {
         ).map { "-D${it.first}=${it.second}" }.toTypedArray())
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler", "jdk.accessibility")
+            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
@@ -94,6 +99,7 @@ dependencies {
     implementation(compose.ui)
     implementation(compose.components.resources)
     implementation(compose.components.uiToolingPreview)
+    implementation(compose.materialIconsExtended)
 
     implementation(compose.desktop.currentOs)
 
