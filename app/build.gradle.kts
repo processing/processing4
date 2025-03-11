@@ -2,6 +2,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
+import org.jetbrains.kotlin.fir.scopes.impl.overrides
 
 plugins{
     id("java")
@@ -15,6 +16,7 @@ plugins{
 
 group = rootProject.group
 version = rootProject.version
+val revision = rootProject.findProperty("revision") ?: "1300"
 
 repositories{
     mavenCentral()
@@ -44,7 +46,7 @@ compose.desktop {
 
         jvmArgs(*listOf(
             Pair("processing.version", version),
-            Pair("processing.revision", "1300"),
+            Pair("processing.revision", revision),
             Pair("processing.contributions.source", "https://contributions-preview.processing.org/contribs.txt"),
             Pair("processing.download.page", "https://processing.org/download/"),
             Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
@@ -57,23 +59,24 @@ compose.desktop {
             packageName = "Processing"
 
             macOS{
-                bundleID = "org.processing.app"
-                iconFile = project.file("../build/macos/processing.icns")
+                bundleID = "${rootProject.group}.app"
+                iconFile = rootProject.file("build/macos/processing.icns")
                 infoPlist{
-                    extraKeysRawXml = layout.projectDirectory.file("info.plist").asFile.readText()
+                    extraKeysRawXml = file("macos/info.plist").readText()
                 }
-                entitlementsFile.set(project.file("entitlements.plist"))
-                runtimeEntitlementsFile.set(project.file("entitlements.plist"))
+                entitlementsFile.set(file("macos/entitlements.plist"))
+                runtimeEntitlementsFile.set(file("macos/entitlements.plist"))
+                appStore = true
             }
             windows{
-                iconFile = project.file("../build/windows/processing.ico")
+                iconFile = rootProject.file("build/windows/processing.ico")
                 menuGroup = "Processing"
                 upgradeUuid = "89d8d7fe-5602-4b12-ba10-0fe78efbd602"
             }
             linux {
                 appCategory = "Programming"
                 menuGroup = "Processing"
-                iconFile = project.file("../build/linux/processing.png")
+                iconFile = rootProject.file("build/linux/processing.png")
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
 
@@ -118,7 +121,7 @@ tasks.compileJava{
 
 tasks.test {
     useJUnitPlatform()
-    workingDir = file("build/test")
+    workingDir = layout.buildDirectory.dir("test-results").get().asFile
     workingDir.mkdirs()
 }
 
