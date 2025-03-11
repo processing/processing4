@@ -1,5 +1,6 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
 
 plugins{
@@ -28,6 +29,11 @@ sourceSets{
         }
         kotlin{
             srcDirs("src")
+        }
+    }
+    test{
+        kotlin{
+            srcDirs("test")
         }
     }
 }
@@ -99,10 +105,175 @@ dependencies {
 
     implementation(libs.compottie)
     implementation(libs.kaml)
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.junitJupiter)
+    testImplementation(libs.junitJupiterParams)
 }
 
 tasks.compileJava{
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    useJUnitPlatform()
+    workingDir = file("build/test")
+    workingDir.mkdirs()
+}
+
+tasks.register<Exec>("installCreateDmg") {
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isMacOsX }
+    commandLine("arch", "-arm64", "brew", "install", "--quiet", "create-dmg")
+}
+tasks.register<Exec>("packageCustomDmg"){
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isMacOsX }
+    group = "compose desktop"
+
+    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
+    dependsOn(distributable, "installCreateDmg")
+
+    val packageName = distributable.packageName.get()
+    val dir = distributable.destinationDir.get()
+    val dmg = dir.file("../dmg/$packageName-$version.dmg").asFile
+    val app = dir.file("$packageName.app").asFile
+
+    dmg.parentFile.deleteRecursively()
+    dmg.parentFile.mkdirs()
+
+    val extra = mutableListOf<String>()
+    val isSigned = compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
+
+    if(!isSigned) {
+        val content = """
+        run 'xattr -d com.apple.quarantine Processing-${version}.dmg' to remove the quarantine flag
+        """.trimIndent()
+        val instructions = dmg.parentFile.resolve("INSTRUCTIONS.txt")
+        instructions.writeText(content)
+        extra.add("--add-file")
+        extra.add("INSTRUCTIONS.txt")
+        extra.add(instructions.path)
+        extra.add("200")
+        extra.add("25")
+    }
+
+    commandLine("brew", "install", "--quiet", "create-dmg")
+
+    commandLine("create-dmg",
+        "--volname", packageName,
+        "--volicon", file("macos/volume.icns"),
+        "--background", file("macos/background.png"),
+        "--icon", "$packageName.app", "200", "200",
+        "--window-pos", "200", "200",
+        "--window-size", "775", "485",
+        "--app-drop-link", "500", "200",
+        "--hide-extension", "$packageName.app",
+        *extra.toTypedArray(),
+        dmg,
+        app
+    )
+}
+
+tasks.register<Exec>("packageCustomMsi"){
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isWindows }
+    dependsOn("createDistributable")
+    workingDir = file("windows")
+    group = "compose desktop"
+
+    commandLine(
+        "dotnet",
+        "build",
+        "/p:Platform=x64",
+        "/p:Version=$version",
+        "/p:DefineConstants=\"Version=$version;\""
+    )
+}
+
+tasks.register("generateSnapConfiguration"){
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isLinux }
+    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
+    dependsOn(distributable)
+
+    val arch = when (System.getProperty("os.arch")) {
+        "amd64", "x86_64" -> "amd64"
+        "aarch64" -> "arm64"
+        else -> System.getProperty("os.arch")
+    }
+
+    val dir = distributable.destinationDir.get()
+    val content = """
+    name: ${rootProject.name}
+    version: ${rootProject.version}
+    base: core22
+    summary: A creative coding editor
+    description: |
+      Processing is a flexible software sketchbook and a programming language designed for learning how to code.
+    confinement: strict
+    
+    apps:
+      processing:
+        command: opt/processing/bin/Processing
+        desktop: opt/processing/lib/processing-Processing.desktop
+        plugs:
+          - desktop
+          - desktop-legacy
+          - wayland
+          - x11
+    
+    parts:
+      processing:
+        plugin: dump
+        source: deb/processing_$version-1_$arch.deb
+        source-type: deb
+        stage-packages:
+          - openjdk-17-jdk
+        override-prime: |
+          snapcraftctl prime
+          chmod -R +x opt/processing/lib/app/resources/jdk-*
+    """.trimIndent()
+    dir.file("../snapcraft.yaml").asFile.writeText(content)
+}
+
+tasks.register<Exec>("packageSnap"){
+    onlyIf { org.gradle.internal.os.OperatingSystem.current().isLinux }
+    dependsOn("packageDeb", "generateSnapConfiguration")
+    group = "compose desktop"
+
+    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
+    workingDir = distributable.destinationDir.dir("../").get().asFile
+
+    commandLine("snapcraft")
+}
+tasks.register<Zip>("zipDistributable"){
+    dependsOn("createDistributable")
+    group = "compose desktop"
+
+    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
+    val dir = distributable.destinationDir.get()
+    val packageName = distributable.packageName.get()
+
+    from(dir){ eachFile{ permissions{ unix("755") } } }
+    archiveBaseName.set(packageName)
+    destinationDirectory.set(dir.file("../").asFile)
+}
+
+afterEvaluate{
+    tasks.named("createDistributable").configure{
+        finalizedBy("zipDistributable")
+    }
+    tasks.named("packageDmg").configure{
+        dependsOn("packageCustomDmg")
+        group = "compose desktop"
+        actions = emptyList()
+    }
+    tasks.named("packageMsi").configure{
+        dependsOn("packageCustomMsi")
+        group = "compose desktop"
+        actions = emptyList()
+    }
+    tasks.named("packageDistributionForCurrentOS").configure {
+        dependsOn("packageSnap")
+    }
 }
 
 

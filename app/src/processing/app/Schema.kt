@@ -53,7 +53,11 @@ class Schema {
         private fun handleSketchUrl(uri: URI): Editor?{
             val url = File(uri.path.replace("/url/", ""))
 
-            val tempSketchFolder = File(Base.untitledFolder, url.nameWithoutExtension)
+            val rand = (1..6)
+                .map { (('a'..'z') + ('A'..'Z')).random() }
+                .joinToString("")
+
+            val tempSketchFolder = File(File(Base.untitledFolder, rand), url.nameWithoutExtension)
             tempSketchFolder.mkdirs()
             val tempSketchFile = File(tempSketchFolder, "${tempSketchFolder.name}.pde")
 
@@ -81,7 +85,7 @@ class Schema {
                 downloadFiles(uri, code, File(sketchFolder, "code"))
             }
             options["pde"]?.let{ pde ->
-                downloadFiles(uri, pde, sketchFolder)
+                downloadFiles(uri, pde, sketchFolder, "pde")
             }
             options["mode"]?.let{ mode ->
                 val modeFile = File(sketchFolder, "sketch.properties")
@@ -89,7 +93,7 @@ class Schema {
             }
 
         }
-        private fun downloadFiles(uri: URI, urlList: String, targetFolder: File){
+        private fun downloadFiles(uri: URI, urlList: String, targetFolder: File, extension: String = ""){
             Thread{
                 targetFolder.mkdirs()
 
@@ -101,37 +105,31 @@ class Schema {
                 val files = urlList.split(",")
 
                 files.filter { it.isNotBlank() }
-                    .map{ it.split(":", limit = 2) }
-                    .map{ segments ->
-                        if(segments.size == 2){
-                            if(segments[0].isBlank()){
-                                return@map listOf(null, segments[1])
-                            }
-                            return@map segments
-                        }
-                        return@map listOf(null, segments[0])
+                    .map {
+                        if (it.contains(":")) it
+                        else "$it:$it"
                     }
+                    .map{ it.split(":", limit = 2) }
                     .forEach { (name, content) ->
+                        var target = File(targetFolder, name)
+                        if(extension.isNotBlank() && target.extension != extension){
+                            target = File(targetFolder, "$name.$extension")
+                        }
                         try{
-                            // Try to decode the content as base64
                             val file = Base64.getDecoder().decode(content)
-                            if(name == null){
+                            if(name.isBlank()){
                                 Messages.err("Base64 files needs to start with a file name followed by a colon")
                                 return@forEach
                             }
-                            File(targetFolder, name).writeBytes(file)
+                            target.writeBytes(file)
                         }catch(_: IllegalArgumentException){
-                            // Assume it's a URL and download it
-                            var url = URI.create(content)
-                            if(url.host == null){
-                                url = URI.create("https://$base/$content")
-                            }
-                            if(url.scheme == null){
-                                url = URI.create("https://$content")
-                            }
-
-                            val target = File(targetFolder, name ?: url.path.split("/").last())
-                            url.toURL().openStream().use { input ->
+                            val url = URL(when{
+                                content.startsWith("https://") -> content
+                                content.startsWith("http://") -> content.replace("http://", "https://")
+                                URL("https://$content").path.isNotBlank() -> "https://$content"
+                                else -> "https://$base/$content"
+                            })
+                            url.openStream().use { input ->
                                 target.outputStream().use { output ->
                                     input.copyTo(output)
                                 }
