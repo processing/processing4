@@ -1,6 +1,5 @@
 package processing.app;
 
-import java.awt.EventQueue;
 import java.io.*;
 import java.util.*;
 import java.util.zip.ZipFile;
@@ -330,7 +329,7 @@ public class Library extends LocalContribution {
    * imports to specific libraries.
    * @param importToLibraryTable mapping from package names to Library objects
    */
-  static boolean instruced = false;
+  static boolean instructed = false;
 //  public void addPackageList(HashMap<String,Library> importToLibraryTable) {
   public void addPackageList(Map<String, List<Library>> importToLibraryTable) {
 //    PApplet.println(packages);
@@ -343,8 +342,8 @@ public class Library extends LocalContribution {
         libraries = new ArrayList<>();
         importToLibraryTable.put(pkg, libraries);
       } else {
-        if(!instruced) {
-          instruced = true;
+        if(!instructed) {
+          instructed = true;
           Messages.err("The library found in");
           Messages.err(getPath());
           Messages.err("conflicts with");

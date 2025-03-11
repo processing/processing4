@@ -35,6 +35,11 @@ sourceSets{
             srcDirs("resources", listOf("languages", "fonts", "theme").map { "../build/shared/lib/$it" })
         }
     }
+    test{
+        kotlin{
+            srcDirs("test")
+        }
+    }
 }
 
 compose.desktop {
@@ -105,6 +110,17 @@ dependencies {
 
     implementation(libs.compottie)
     implementation(libs.kaml)
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.junitJupiter)
+    testImplementation(libs.junitJupiterParams)
+}
+
+tasks.test {
+    useJUnitPlatform()
+    workingDir = file("build/test")
+    workingDir.mkdirs()
 }
 
 tasks.compileJava{
