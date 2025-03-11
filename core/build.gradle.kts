@@ -71,6 +71,3 @@ tasks.test {
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-tasks.compileJava{
-    options.encoding = "UTF-8"
-}

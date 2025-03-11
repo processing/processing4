@@ -1,5 +1,5 @@
-group = project.findProperty("group") ?: "org.processing"
-version = project.findProperty("version") ?: "0.0.0"
+group = "org.processing"
+version = "4.4.0"
 
 plugins {
     kotlin("jvm") version libs.versions.kotlin apply false
