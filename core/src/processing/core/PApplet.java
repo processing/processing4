@@ -9938,8 +9938,8 @@ public class PApplet implements PConstants {
     boolean hideStop = false;
 
     int displayNum = -1;  // use default
-    boolean present = false;
-    boolean fullScreen = false;
+    boolean present = System.getProperty("processing.present", "false").equals("true");
+    boolean fullScreen = System.getProperty("processing.fullscreen", "false").equals("true");
     float uiScale = 0;
 
     String param, value;
