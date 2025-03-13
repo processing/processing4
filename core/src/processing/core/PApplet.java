@@ -2635,8 +2635,17 @@ public class PApplet implements PConstants {
         keyPressed = true;
         keyPressed(keyEvent);
       }
-      case KeyEvent.RELEASE -> {
-        pressedKeys.remove(((long) keyCode << Character.SIZE) | key);
+      case KeyEvent.RELEASE -> {        
+        List<Long> hashesToRemove = new ArrayList<>();
+        for (Long hash : pressedKeys) {
+            int storedKeyCode = (int)(hash >> Character.SIZE);
+            if (storedKeyCode == keyCode) {
+                hashesToRemove.add(hash);
+            }
+        }
+        
+        pressedKeys.removeAll(hashesToRemove);
+
         keyPressed = !pressedKeys.isEmpty();
         keyReleased(keyEvent);
       }
