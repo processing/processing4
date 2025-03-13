@@ -1,4 +1,9 @@
-# Including the Processing Core library on your project
+# Processing Core
+
+`Core` contains the implementations of all the functionality that you would use within a Processing sketch, e.g. `size()` and `ellipse()` 
+
+
+## Including the Processing Core library on your project
 Processing’s core libraries are available through [Maven Central](https://central.sonatype.com/artifact/org.processing/core).  
 This allows integration of Processing into Java-based projects using build tools like Maven or Gradle.
 
@@ -56,6 +61,13 @@ dependencies {
   implementation group: 'org.processing', name: 'core', version: '4.3.1'
 }
 ```
+
+## Developing for Core
+The easiest way to develop for core, without the need to build the whole project, is to use the `examples/src` sketches. 
+
+## PGraphics Modes
+Documentation on how to develop graphics modes as a library should go here. 
+
 ### Other
 Other example snippets on including the library are included in the [Maven Central repo](https://central.sonatype.com/artifact/org.processing/core).  
 Please look up on how to add the custom https://jogamp.org/deployment/maven repository to your build system.

@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Windows" type="AntRunConfiguration">
-    <antsettings antfile="file://$PROJECT_DIR$/build/build.xml" target="windows-run" />
-    <method v="2" />
-  </configuration>
-</component>

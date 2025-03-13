@@ -1,5 +1,7 @@
 # How to Build Processing
 
+This folder contains files for the legacy `Ant` build system. This build system will be removed in the future when we're sure we no longer need it.
+
 ## IntelliJ IDEA CE
 
 First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. Then:

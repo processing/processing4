@@ -16,7 +16,8 @@ import java.util.Map;
 import processing.app.Problem;
 import processing.app.Sketch;
 import processing.core.PApplet;
-import processing.mode.java.TextTransform.OffsetMapper;
+import processing.mode.java.preproc.ImportStatement;
+import processing.mode.java.preproc.TextTransform.OffsetMapper;
 
 public class PreprocSketch {
 

@@ -35,12 +35,13 @@ While we assume good intentions, and will give everyone a chance to learn, we ha
 Building Processing locally on your machine will let you troubleshoot and make sure your contributions work as intended before submitting them to this repository. It also gives you the flexibility to experiment and learn more about how Processing is structured.
 
 For a quick start: 
-1. Fork and clone the repository.
-1. Open it in IntelliJ IDEA.
-1. Install the required [Ant plugin](https://plugins.jetbrains.com/plugin/23025-ant).
-1. Hit Run.
+1. Fork and clone the repository
+1. Open it in IntelliJ IDEA
+1. Wait for Gradle to sync
+1. Next to the run Button, select the `Processing` Configuration 
+1. Hit Run
 
-For more information and detailed instructions, follow our [How to Build Processing](build/README.md) guide.
+For more information and detailed instructions, follow our [How to Build Processing](BUILD.md) guide.
 
 ## Contact Information
 For technical support or troubleshooting with your project, please post on the [Processing Forum](https://discourse.processing.org/).
