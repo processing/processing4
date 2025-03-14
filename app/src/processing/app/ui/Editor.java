@@ -349,6 +349,29 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
     // Enable window resizing (which allows for full screen button)
     setResizable(true);
+
+    {
+      // Move Lines Keyboard Shortcut (Alt + Arrow Up/Down)
+      KeyStroke moveUpKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_UP, InputEvent.ALT_DOWN_MASK);
+      final String MOVE_UP_ACTION_KEY = "moveLinesUp";
+      textarea.getInputMap(JComponent.WHEN_FOCUSED).put(moveUpKeyStroke, MOVE_UP_ACTION_KEY);
+      textarea.getActionMap().put(MOVE_UP_ACTION_KEY, new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          handleMoveLines(true);
+        }
+      });
+
+      KeyStroke moveDownKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, InputEvent.ALT_DOWN_MASK);
+      final String MOVE_DOWN_ACTION_KEY = "moveLinesDown";
+      textarea.getInputMap(JComponent.WHEN_FOCUSED).put(moveDownKeyStroke, MOVE_DOWN_ACTION_KEY);
+      textarea.getActionMap().put(MOVE_DOWN_ACTION_KEY, new AbstractAction() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+          handleMoveLines(false);
+        }
+      });
+    }
   }
 
 
@@ -1918,6 +1941,110 @@ public abstract class Editor extends JFrame implements RunnerListener {
     stopCompoundEdit();
     sketch.setModified(true);
   }
+
+  
+  /**
+   * Moves the selected lines up or down in the text editor.
+   *
+   * <p>If {@code moveUp} is true, the selected lines are moved up. If false, they move down.</p>
+   * <p>This method ensures proper selection updates and handles edge cases like moving
+   * the first or last line.</p>
+   * <p>This operation is undo/redoable, allowing the user to revert the action using
+   * {@code Ctrl/Cmd + Z} (Undo). Redo functionality is available through the
+   * keybinding {@code Ctrl/Cmd + Z} on Windows/Linux and {@code Shift + Cmd + Z} on macOS.</p>
+   *
+   * @param moveUp {@code true} to move the selection up, {@code false} to move it down.
+   */
+  public void handleMoveLines(boolean moveUp) {
+    startCompoundEdit();
+    boolean isSelected = false;
+
+    if (textarea.isSelectionActive())
+      isSelected = true;
+
+    int caretPos = textarea.getCaretPosition();
+    int currentLine = textarea.getCaretLine();
+    int lineStart = textarea.getLineStartOffset(currentLine);
+    int column = caretPos - lineStart;
+
+    int startLine = textarea.getSelectionStartLine();
+    int stopLine = textarea.getSelectionStopLine();
+
+    // Adjust selection if the last line isn't fully selected
+    if (startLine != stopLine &&
+            textarea.getSelectionStop() == textarea.getLineStartOffset(stopLine)) {
+      stopLine--;
+    }
+
+    int replacedLine = moveUp ? startLine - 1 : stopLine + 1;
+    if (replacedLine < 0 || replacedLine >= textarea.getLineCount()) {
+      stopCompoundEdit();
+      return;
+    }
+
+    final String source = textarea.getText();  // Get full text from textarea
+
+    int replaceStart = textarea.getLineStartOffset(replacedLine);
+    int replaceEnd = textarea.getLineStopOffset(replacedLine);
+    if (replaceEnd > source.length()) {
+      replaceEnd = source.length();
+    }
+
+    int selectionStart = textarea.getLineStartOffset(startLine);
+    int selectionEnd = textarea.getLineStopOffset(stopLine);
+    if (selectionEnd > source.length()) {
+      selectionEnd = source.length();
+    }
+
+    String replacedText = source.substring(replaceStart, replaceEnd);
+    String selectedText = source.substring(selectionStart, selectionEnd);
+
+    if (replacedLine == textarea.getLineCount() - 1) {
+      replacedText += "\n";
+      selectedText = selectedText.substring(0, Math.max(0, selectedText.length() - 1));
+    } else if (stopLine == textarea.getLineCount() - 1) {
+      selectedText += "\n";
+      replacedText = replacedText.substring(0, Math.max(0, replacedText.length() - 1));
+    }
+
+    int newSelectionStart, newSelectionEnd;
+    if (moveUp) {
+      textarea.select(selectionStart, selectionEnd);
+      textarea.setSelectedText(replacedText);  // Use setSelectedText()
+
+      textarea.select(replaceStart, replaceEnd);
+      textarea.setSelectedText(selectedText);
+
+      newSelectionStart = textarea.getLineStartOffset(startLine - 1);
+      newSelectionEnd = textarea.getLineStopOffset(stopLine - 1);
+    } else {
+      textarea.select(replaceStart, replaceEnd);
+      textarea.setSelectedText(selectedText);
+
+      textarea.select(selectionStart, selectionEnd);
+      textarea.setSelectedText(replacedText);
+
+      newSelectionStart = textarea.getLineStartOffset(startLine + 1);
+      newSelectionEnd = stopLine + 1 < textarea.getLineCount()
+              ? Math.min(textarea.getLineStopOffset(stopLine + 1), source.length())
+              : textarea.getLineStopOffset(stopLine); // Prevent out-of-bounds
+    }
+    stopCompoundEdit();
+
+    if (isSelected)
+      SwingUtilities.invokeLater(() -> {
+        textarea.select(newSelectionStart, newSelectionEnd-1);
+      });
+    else if (replacedLine >= 0 && replacedLine < textarea.getLineCount()) {
+      int replacedLineStart = textarea.getLineStartOffset(replacedLine);
+      int replacedLineEnd = textarea.getLineStopOffset(replacedLine);
+
+      // Ensure caret stays within bounds of the new line
+      int newCaretPos = Math.min(replacedLineStart + column, replacedLineEnd - 1);
+
+      SwingUtilities.invokeLater(() -> textarea.setCaretPosition(newCaretPos));
+    }
+}
 
 
   static public boolean checkParen(char[] array, int index, int stop) {
