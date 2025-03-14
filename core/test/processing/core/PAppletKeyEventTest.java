@@ -45,7 +45,7 @@ public class PAppletKeyEventTest {
         applet.handleKeyEvent(releaseShift);
 
         Assert.assertFalse("keyPressed should be false after all keys released", applet.keyPressed);
-        Assert.assertEquals("pressedKeys should be empty", true, applet.pressedKeys.isEmpty());
+        Assert.assertTrue("pressedKeys should be empty", applet.pressedKeys.isEmpty());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class PAppletKeyEventTest {
         applet.handleKeyEvent(releaseAlt);
 
         Assert.assertFalse("keyPressed should be false after all keys released", applet.keyPressed);
-        Assert.assertEquals("pressedKeys should be empty", true, applet.pressedKeys.isEmpty());
+        Assert.assertTrue("pressedKeys should be empty", applet.pressedKeys.isEmpty());
     }
 
     @Test
