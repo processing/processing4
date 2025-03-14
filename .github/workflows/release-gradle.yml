@@ -173,3 +173,19 @@ jobs:
         run: snapcraft upload --release=beta app/build/compose/binaries/main/${{ matrix.binary }}.${{ matrix.extension }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.PROCESSING_SNAPCRAFT_TOKEN }}
+
+      - name: Sign files with Trusted Signing
+        if: runner.os == 'Windows'
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: vscx-codesigning
+          certificate-profile-name: vscx-certificate-profile
+          files-folder: app/build/compose/binaries/main/msi
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
