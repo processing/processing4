@@ -17,6 +17,10 @@
     <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="Processing"/>
     </Directory>
+    <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="Processing">
+        </Directory>
+    </Directory>
     <Component Id="ApplicationShortcut" Guid="b15e6d69-f054-4ec2-aade-8e3756b537d6">
         <Shortcut Id="ApplicationStartMenuShortcut"
                   Name="Processing"
