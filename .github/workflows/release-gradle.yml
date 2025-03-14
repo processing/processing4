@@ -24,6 +24,8 @@ jobs:
   reference:
     name: Publish Processing Reference to release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: version
     steps:
     - name: Checkout Website Repository
