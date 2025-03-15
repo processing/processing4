@@ -208,7 +208,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     Box box = Box.createVerticalBox();
     Box upper = Box.createVerticalBox();
 
-    if(SystemInfo.isMacFullWindowContentSupported) {
+    if(Platform.isMacOS() && SystemInfo.isMacFullWindowContentSupported) {
       getRootPane().putClientProperty( "apple.awt.fullWindowContent", true );
       getRootPane().putClientProperty( "apple.awt.transparentTitleBar", true );
 
