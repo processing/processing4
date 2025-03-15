@@ -7,12 +7,6 @@ Processing is a flexible software sketchbook and a programming language designed
 
 This repository contains the source code for the [Processing](https://processing.org/) project for people who want to help improve the code.
 
-## Announcing Processing 4.3.1
-
-We’re excited to announce the release of Processing 4.3.1! This update brings tooling improvements and a friendlier experience for contributors. To learn more, read the [Processing 4.3.1 announcement](https://github.com/processing/processing4-carbon-aug-19/wiki/Announcing-Processing-4.3.1).
-
-Processing was initiated in 2001 by Ben Fry and Casey Reas, who lead the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community. 
-
 > [!NOTE] 
 > Due to platform limitations, the GitHub Contributors page for this repository does not show the complete list of contributors. However, the [git commit history](https://github.com/processing/processing4/commits/main/) provides a full record of the project's contributions. For contributor graphs before November 13th, refer to [this page](https://github.com/benfry/processing4/graphs/contributors). A comprehensive [list of all contributors](#contributors) is also included below. To see all commits by a contributor, click on the [💻](https://github.com/processing/processing4/commits?author=benfry) emoji below their name.
 
