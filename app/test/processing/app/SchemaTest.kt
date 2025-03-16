@@ -48,7 +48,7 @@ class SchemaTest {
         """.trimIndent()
 
         val base64 = Base64.encode(sketch.toByteArray())
-        Schema.handleSchema("pde://sketch/base64/$base64?pde=Module:$base64", base)
+        Schema.handleSchema("pde://sketch/base64/$base64?pde=AnotherFile:$base64", base)
         val captor = ArgumentCaptor.forClass(String::class.java)
 
         verify(base).handleOpenUntitled(captor.capture())
@@ -57,7 +57,7 @@ class SchemaTest {
         assert(file.exists())
         assert(file.readText() == sketch)
 
-        val extra = file.parentFile.resolve("Module.pde")
+        val extra = file.parentFile.resolve("AnotherFile.pde")
         assert(extra.exists())
         assert(extra.readText() == sketch)
         file.parentFile.deleteRecursively()

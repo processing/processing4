@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -30,6 +31,17 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
 import processing.app.ui.theme.*
+import com.mikepenz.markdown.compose.Markdown
+import com.mikepenz.markdown.m2.markdownColor
+import com.mikepenz.markdown.m2.markdownTypography
+import com.mikepenz.markdown.model.MarkdownColors
+import com.mikepenz.markdown.model.MarkdownTypography
+import processing.app.Base.getRevision
+import processing.app.Base.getVersionName
+import processing.app.ui.theme.LocalLocale
+import processing.app.ui.theme.LocalTheme
+import processing.app.ui.theme.Locale
+import processing.app.ui.theme.ProcessingTheme
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
@@ -64,27 +76,34 @@ class WelcomeToBeta {
             ){
                 val locale = LocalLocale.current
                 Image(
-                    painter = painterResource("logo.svg"),
+                    painter = painterResource("bird.svg"),
                     contentDescription = locale["beta.logo"],
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .size(100.dp, 100.dp)
+                        .offset(0.dp, (-25).dp)
                 )
                 Column(
                     modifier = Modifier
                         .fillMaxHeight(),
                     verticalArrangement = Arrangement
                         .spacedBy(
-                            MaterialTheme.typography.subtitle1.lineHeight.value.dp,
+                            10.dp,
                             alignment = Alignment.CenterVertically
                         )
                 ) {
                     Text(
                         text = locale["beta.title"],
-                        style = MaterialTheme.typography.subtitle1,
+                        style = typography.subtitle1,
                     )
-                    Text(
-                        text = locale["beta.message"]
+                    val text = locale["beta.message"]
+                        .replace('$' + "version", getVersionName())
+                        .replace('$' + "revision", getRevision().toString())
+                    Markdown(
+                        text,
+                        colors = markdownColor(),
+                        typography = markdownTypography(text = typography.body1, link = typography.body1.copy(color = colors.primary)),
+                        modifier = Modifier.background(Color.Transparent).padding(bottom = 10.dp)
                     )
                     Row {
                         val window = LocalWindow.current

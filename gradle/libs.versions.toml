@@ -7,7 +7,7 @@ jupiter = "5.12.0"
 [libraries]
 jogl = { module = "org.jogamp.jogl:jogl-all-main", version.ref = "jogl" }
 gluegen = { module = "org.jogamp.gluegen:gluegen-rt-main", version.ref = "jogl" }
-flatlaf = { module = "com.formdev:flatlaf", version = "3.4.1" }
+flatlaf = { module = "com.formdev:flatlaf", version = "2.4" }
 jna = { module = "net.java.dev.jna:jna", version = "5.12.1" }
 jnaplatform = { module = "net.java.dev.jna:jna-platform", version = "5.12.1" }
 compottie = { module = "io.github.alexzhirkevich:compottie", version = "2.0.0-rc02" }
@@ -25,6 +25,8 @@ netbeansSwing = { module = "org.netbeans.api:org-netbeans-swing-outline", versio
 ant = { module = "org.apache.ant:ant", version = "1.10.14" }
 lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version = "0.22.0" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.17.2" }
+markdown = { module = "com.mikepenz:multiplatform-markdown-renderer-m2", version = "0.31.0" }
+markdownJVM = { module = "com.mikepenz:multiplatform-markdown-renderer-jvm", version = "0.31.0" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

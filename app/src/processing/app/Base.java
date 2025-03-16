@@ -124,6 +124,7 @@ public class Base {
 
 
   static public void main(final String[] args) {
+    Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
       try {
         createAndShowGUI(args);

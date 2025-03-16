@@ -117,7 +117,7 @@ public class UpdateCheck {
     long now = System.currentTimeMillis();
     if (lastString != null) {
       long when = Long.parseLong(lastString);
-      if (now - when < ONE_DAY) {
+      if (now - when < ONE_DAY && !Base.DEBUG) {
         // don't annoy the shit outta people
         return;
       }

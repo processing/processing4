@@ -5,8 +5,6 @@ plugins{
     alias(libs.plugins.mavenPublish)
 }
 
-group = "org.processing"
-
 repositories{
     mavenCentral()
     google()
