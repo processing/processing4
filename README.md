@@ -7,14 +7,14 @@ Processing is a flexible software sketchbook and a programming language designed
 
 This repository contains the source code for the [Processing](https://processing.org/) project for people who want to help improve the code.
 
-## Announcing Processing 4.3.1
+## Welcome to Processing 4.4!
 
-We’re excited to announce the release of Processing 4.3.1! This update brings tooling improvements and a friendlier experience for contributors. To learn more, read the [Processing 4.3.1 announcement](https://github.com/processing/processing4-carbon-aug-19/wiki/Announcing-Processing-4.3.1).
+We’re excited to announce the release of Processing 4.4! While our last big release focused on tooling and developer experience, this update modernizes Processing under the hood to make future development easier. Key changes include switching the build system from Ant to Gradle, starting the transition to Jetpack Compose Multiplatform for the UI, and adding Kotlin support to the codebase. To learn more, check out [Changes in 4.4.0](https://github.com/processing/processing4/wiki/Changes-in-4.4.0).
 
-Processing was initiated in 2001 by Ben Fry and Casey Reas, who lead the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community. 
+We hope these updates will make it easier for more people to contribute to Processing. If you'd like to get involved, have a look at our [Contributor Guide](CONTRIBUTING.md).
 
-> [!NOTE] 
-> Due to platform limitations, the GitHub Contributors page for this repository does not show the complete list of contributors. However, the [git commit history](https://github.com/processing/processing4/commits/main/) provides a full record of the project's contributions. For contributor graphs before November 13th, refer to [this page](https://github.com/benfry/processing4/graphs/contributors). A comprehensive [list of all contributors](#contributors) is also included below. To see all commits by a contributor, click on the [💻](https://github.com/processing/processing4/commits?author=benfry) emoji below their name.
+## Acknowledgement
+Processing was initiated in 2001 by Ben Fry and Casey Reas, who lead the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community.
 
 ## Using Processing
 
@@ -66,8 +66,9 @@ For licensing information about the Processing website see the [processing-websi
 Copyright (c) 2015-now The Processing Foundation
 
 ## Contributors
+The Processing project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification, recognizing all forms of contributions (not just code!). A list of all contributors is included below. You can add yourself to the contributors list [here](https://github.com/processing/processing4-carbon-aug-19/issues/839)!
 
-Add yourself to the contributors list [here](https://github.com/processing/processing4-carbon-aug-19/issues/839)!
+_Note: due to GitHub's limitations, this repository's [Contributors](https://github.com/processing/processing4/graphs/contributors) page only shows accurate contribution data starting from late 2024. Contributor graphs from before November 13th 2024 can be found on [this page](https://github.com/benfry/processing4/graphs/contributors). The [git commit history](https://github.com/processing/processing4/commits/main/) provides a full record of the project's contributions. To see all commits by a contributor, click on the [💻](https://github.com/processing/processing4/commits?author=benfry) emoji below their name._
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
