@@ -6,8 +6,6 @@ plugins {
     alias(libs.plugins.mavenPublish)
 }
 
-version = rootProject.version
-
 repositories {
     mavenCentral()
     maven { url = uri("https://jogamp.org/deployment/maven") }
@@ -21,6 +19,11 @@ sourceSets{
         resources{
             srcDirs("src")
             exclude("**/*.java")
+        }
+    }
+    test{
+        java{
+            srcDirs("test")
         }
     }
 }
@@ -70,4 +73,7 @@ tasks.test {
 }
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+tasks.compileJava{
+    options.encoding = "UTF-8"
 }

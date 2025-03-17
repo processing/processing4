@@ -113,3 +113,6 @@ java/build/
 /core/examples/build
 /java/gradle/build
 /java/gradle/example/.processing
+
+.build/
+/app/windows/obj

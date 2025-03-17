@@ -6,8 +6,6 @@ plugins{
     alias(libs.plugins.mavenPublish)
 }
 
-version = rootProject.version
-
 repositories{
     mavenCentral()
     google()
