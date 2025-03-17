@@ -124,6 +124,7 @@ public class Base {
 
 
   static public void main(final String[] args) {
+    Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
       try {
         createAndShowGUI(args);
@@ -563,14 +564,12 @@ public class Base {
     cl.downloadAvailableList(this, new ContribProgress(null));
     long t9 = System.currentTimeMillis();
 
-    if (DEBUG) {
-      System.out.println("core modes: " + (t2b-t2) +
-                         ", contrib modes: " + (t2c-t2b) +
-                         ", contrib ex: " + (t2c-t2b));
-      System.out.println("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
+    Messages.log("core modes: " + (t2b-t2) +
+                       ", contrib modes: " + (t2c-t2b) +
+                       ", contrib ex: " + (t2c-t2b));
+    Messages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
                          " " + (t5-t4) + " t6-t5=" + (t6-t5) + " " + (t7-t6) +
                          " handleNew=" + (t8-t7) + " " + (t9-t8) + " ms");
-    }
   }
 
 
@@ -1366,10 +1365,10 @@ public class Base {
    * @param schemeUri the full URI, including pde://
    */
   public Editor handleScheme(String schemeUri) {
-//    var result = Schema.handleSchema(schemeUri, this);
-//    if (result != null) {
-//      return result;
-//    }
+    var result = Schema.handleSchema(schemeUri, this);
+    if (result != null) {
+      return result;
+    }
 
     String location = schemeUri.substring(6);
     if (location.length() > 0) {

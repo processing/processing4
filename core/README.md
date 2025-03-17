@@ -63,7 +63,7 @@ dependencies {
 ```
 
 ## Developing for Core
-The easiest way to develop for core, without the need to build the whole project, is to use the `examples/src` sketches. In 
+The easiest way to develop for core, without the need to build the whole project, is to use the `examples/src` sketches. 
 
 ## PGraphics Modes
 Documentation on how to develop graphics modes as a library should go here. 
