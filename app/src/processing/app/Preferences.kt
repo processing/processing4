@@ -32,6 +32,10 @@ class ReactiveProperties: Properties() {
     }
 
     operator fun get(key: String): String? = getProperty(key)
+
+    operator fun set(key: String, value: String) {
+        setProperty(key, value)
+    }
 }
 val LocalPreferences = compositionLocalOf<ReactiveProperties> { error("No preferences provided") }
 @OptIn(FlowPreview::class)
@@ -53,7 +57,7 @@ fun PreferencesProvider(content: @Composable () -> Unit){
     LaunchedEffect(properties) {
         snapshotFlow { properties._stateMap.toMap() }
             .dropWhile { it == initialState }
-            .debounce(1000)
+            .debounce(100)
             .collect {
                 preferencesFile.outputStream().use { output ->
                     output.write(

@@ -1,5 +1,6 @@
 import org.gradle.kotlin.dsl.support.zipTo
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
@@ -121,6 +122,9 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
+
+    @OptIn(ExperimentalComposeLibrary::class)
+    testImplementation(compose.uiTest)
 }
 
 tasks.test {
