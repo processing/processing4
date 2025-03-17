@@ -134,6 +134,8 @@ CHAR_LITERAL: '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 STRING_LITERAL: '"' (~["\\\r\n] | EscapeSequence)* '"';
 
+MULTI_STRING_LIT:   '"""' (~[\\] | EscapeSequence)*? '"""';
+
 TEXT_BLOCK: '"""' [ \t]* [\r\n] (. | EscapeSequence)*? '"""';
 
 NULL_LITERAL: 'null';

@@ -314,11 +314,24 @@ qualifiedName
     : identifier ('.' identifier)*
     ;
 
+baseStringLiteral
+    : STRING_LITERAL
+    ;
+
+multilineStringLiteral
+    : MULTI_STRING_LIT
+    ;
+
+stringLiteral
+    : baseStringLiteral
+    | multilineStringLiteral
+    ;
+
 literal
     : integerLiteral
     | floatLiteral
     | CHAR_LITERAL
-    | STRING_LITERAL
+    | stringLiteral
     | BOOL_LITERAL
     | NULL_LITERAL
     | TEXT_BLOCK // Java17

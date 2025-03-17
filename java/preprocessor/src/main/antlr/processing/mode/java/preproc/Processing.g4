@@ -27,7 +27,7 @@ processingSketch
     : staticProcessingSketch
     | javaProcessingSketch
     | activeProcessingSketch
-    | warnMixedModes
+//    | warnMixedModes
     ;
 
 // java mode, is a compilation unit
@@ -111,7 +111,7 @@ literal
     : integerLiteral
     | floatLiteral
     | CHAR_LITERAL
-    | STRING_LITERAL
+    | stringLiteral
     | BOOL_LITERAL
     | NULL_LITERAL
     | hexColorLiteral
@@ -145,12 +145,3 @@ LINE_COMMENT
 CHAR_LITERAL
     : '\'' (~['\\\r\n] | EscapeSequence)* '\''  // A bit nasty but let JDT tackle invalid chars
 		;
-
-// Parser Rules
-multilineStringLiteral
-    : MULTILINE_STRING_START .*? MULTILINE_STRING_END
-    ;
-
-// Lexer Rules
-MULTILINE_STRING_START: '"""' '\r'? '\n';
-MULTILINE_STRING_END: '"""';

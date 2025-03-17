@@ -110,6 +110,8 @@ java/build/
 /java/libraries/svg/bin
 /java/preprocessor/build
 /java/lsp/build
+/java/gradle/build
+/.kotlin/sessions
 /core/examples/build
 /java/gradle/build
 /java/gradle/example/.processing
