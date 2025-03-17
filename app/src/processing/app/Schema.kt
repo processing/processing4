@@ -72,10 +72,9 @@ class Schema {
         }
         private fun handleSketchOptions(uri: URI, sketchFolder: File){
             val options = uri.query?.split("&")
-                ?.map { it.split("=") }
+                ?.map { it.split("=", limit = 2) }
                 ?.associate {
-                    URLDecoder.decode(it[0], StandardCharsets.UTF_8) to
-                            URLDecoder.decode(it[1], StandardCharsets.UTF_8)
+                    it[0] to it[1]
                 }
                 ?: emptyMap()
             options["data"]?.let{ data ->
