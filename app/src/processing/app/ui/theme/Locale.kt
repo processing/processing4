@@ -38,7 +38,9 @@ class Locale(language: String = "", val setLocale: (java.util.Locale) -> Unit) :
 val LocalLocale = compositionLocalOf<Locale> { error("No Locale Set") }
 @Composable
 fun LocaleProvider(content: @Composable () -> Unit) {
-    PlatformStart()
+    remember {
+        Platform.init()
+    }
 
     val settingsFolder = Platform.getSettingsFolder()
     val languageFile = File(settingsFolder, "language.txt")

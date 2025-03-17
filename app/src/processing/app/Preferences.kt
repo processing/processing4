@@ -16,9 +16,6 @@ import java.util.Properties
 const val PREFERENCES_FILE_NAME = "preferences.txt"
 const val DEFAULTS_FILE_NAME = "defaults.txt"
 
-fun PlatformStart(){
-    Platform.inst ?: Platform.init()
-}
 class ReactiveProperties: Properties() {
     val _stateMap = mutableStateMapOf<String, String>()
 
@@ -41,10 +38,15 @@ val LocalPreferences = compositionLocalOf<ReactiveProperties> { error("No prefer
 @OptIn(FlowPreview::class)
 @Composable
 fun PreferencesProvider(content: @Composable () -> Unit){
-    PlatformStart()
+    remember {
+        Platform.init()
+    }
 
     val settingsFolder = Platform.getSettingsFolder()
     val preferencesFile = settingsFolder.resolve(PREFERENCES_FILE_NAME)
+    if(!preferencesFile.exists()){
+        preferencesFile.createNewFile()
+    }
 
     val update = watchFile(preferencesFile)
     val properties = remember(preferencesFile, update) { ReactiveProperties().apply {
