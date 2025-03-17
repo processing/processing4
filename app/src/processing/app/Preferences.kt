@@ -45,6 +45,7 @@ fun PreferencesProvider(content: @Composable () -> Unit){
     val settingsFolder = Platform.getSettingsFolder()
     val preferencesFile = settingsFolder.resolve(PREFERENCES_FILE_NAME)
     if(!preferencesFile.exists()){
+        preferencesFile.mkdirs()
         preferencesFile.createNewFile()
     }
 
