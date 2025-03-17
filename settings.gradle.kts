@@ -1,4 +1,4 @@
-rootProject.name = "org.processing"
+rootProject.name = "processing"
 include(
     "core",
     "core:examples",
