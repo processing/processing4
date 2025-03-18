@@ -164,10 +164,8 @@ jobs:
           endpoint: https://eus.codesigning.azure.net/
           trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
-          files-folder: app/build/compose/binaries/main
-          files-folder-filter: msi,exe
-          files-folder-recurse: true
-          files-folder-depth: 2
+          files-folder: app/build/compose/binaries/main/msi
+          files-folder-filter: msi
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
@@ -177,8 +175,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           asset_name: processing-${{ needs.version.outputs.version }}-${{ matrix.os_prefix }}-${{ matrix.arch }}-portable.zip
-          file: app/build/compose/binaries/main/app/*
-          file_glob: true
+          file: app/build/compose/binaries/main/Processing-${{ needs.version.outputs.version }}.zip
 
       - name: Upload installers to release
         uses: svenstaro/upload-release-action@v2
