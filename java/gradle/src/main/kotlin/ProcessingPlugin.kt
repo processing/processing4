@@ -10,9 +10,7 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
 import org.jetbrains.compose.ComposeExtension
-import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.compose.desktop.DesktopExtension
-import org.jetbrains.kotlin.konan.properties.saveToFile
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -28,10 +26,13 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
 
+        // TODO: Add to tests
         project.dependencies.add("implementation", "org.processing:core:4.4.0")
+        // TODO: Add tests
         project.dependencies.add("implementation", project.fileTree("src").apply { include("**/code/*.jar") })
 
         // Base JOGL and Gluegen dependencies
+        // TODO: Add only if user is compiling for P2D or P3D
         project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all-main:2.5.0")
         project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt-main:2.5.0")
 
@@ -65,11 +66,8 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 application.nativeDistributions.modules("java.management")
             }
         }
-
         // TODO: Also only do within Processing
-        project.tasks.named("wrapper").configure {
-            it.enabled = false
-        }
+        project.tasks.findByName("wrapper")?.enabled = false
 
         project.tasks.create("sketch").apply {
             group = "processing"
@@ -116,7 +114,6 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             sourceSet.java.srcDir(outputDirectory)
 
             // TODO: Support multiple sketches?
-            // TODO: Preprocess PDE files in this step so we can add the library dependencies
 
             val taskName = sourceSet.getTaskName("preprocess", "PDE")
             project.tasks.register(taskName, ProcessingTask::class.java) { task ->

@@ -13,7 +13,7 @@ import java.io.UncheckedIOException
 import java.util.concurrent.Callable
 import javax.inject.Inject
 
-abstract class ProcessingTask() : SourceTask() {
+abstract class ProcessingTask : SourceTask() {
      @get:OutputDirectory
     var outputDirectory: File? = null
 
@@ -62,6 +62,10 @@ abstract class ProcessingTask() : SourceTask() {
 
                 // TODO: Only import the libraries that are actually used
                 val importStatement = meta.importStatements
+
+//                for (import in importStatement) {
+//                    project.dependencies.add("implementation", import)
+//                }
             }
     }
 

@@ -1,6 +1,5 @@
+rootProject.name = "processing-gradle-plugin-demo"
+
 pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
+    includeBuild("../../../")
 }

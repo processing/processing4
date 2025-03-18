@@ -5,8 +5,6 @@ plugins{
     kotlin("jvm") version libs.versions.kotlin
 }
 
-version = rootProject.version
-
 repositories {
     mavenCentral()
 }
@@ -17,12 +15,14 @@ dependencies{
     implementation(libs.composeGradlePlugin)
     implementation(libs.kotlinGradlePlugin)
     implementation(libs.kotlinComposePlugin)
+
+    testImplementation(libs.junit)
 }
 
 gradlePlugin{
     plugins{
         create("processing"){
-            id = "org.processing.java.gradle"
+            id = "processing.java.gradle"
             implementationClass = "org.processing.java.gradle.ProcessingPlugin"
         }
     }
