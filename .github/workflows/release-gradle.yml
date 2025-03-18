@@ -165,9 +165,9 @@ jobs:
           trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
           files-folder: app/build/compose/binaries/main
-          files-folder-filter: msi,exe,dll
+          files-folder-filter: msi,exe
           files-folder-recurse: true
-          files-folder-depth: 8
+          files-folder-depth: 2
           file-digest: SHA256
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
