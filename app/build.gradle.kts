@@ -238,6 +238,7 @@ tasks.register("generateSnapConfiguration"){
           - x11
           - network
           - opengl
+          - home
     
     parts:
       processing:
