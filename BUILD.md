@@ -50,11 +50,11 @@ We use `Gradle` as the build system for Processing. Until 2025, Processing used 
 ## Kotlin vs Java
 With the introduction of the Gradle build system we now support Kotlin within the repository. Refactors from Java to Kotlin are not  necessary at this stage, but all new functionality should be written in Kotlin.
 
-Any classes that end in `..Kt.Java` are there for backwards compatibility with the `Ant` build system. They should be removed once `Ant` compatibility is no longer required.
+Any classes that end up being written in Kotlin have their equivalent Java class under `app/ant/` source directory. 
 
 ### Running Processing
 
-The main task to run or debug the PDE is `app:run`. This runs the application with `compose desktop`
+The main task to run or debug the PDE is `run`
 
 If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
 
