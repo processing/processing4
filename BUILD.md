@@ -25,36 +25,37 @@ Instructions for other editors are welcome and feel free to contribute the docum
 
 
 ## Architecture
-Processing is made of three distinct parts, the `Core`, `Java` and the `App`. The `Core` currently stands alone and `Java` and `App` depend on it. `Java` and `App` are currently interdependent but we are working on decoupling those two.
+Processing consists of three main components: `Core`, `Java`, and `App`. The `Core` is independent, while `Java` and `App` depend on it. Currently, `Java` and `App` are interdependent, but efforts are underway to decouple them.
 
-`Core`: The part of the code that gets bundled with your sketches, so the functionality like `ellipse(25,25,50,50);` The inner workings of that function can be found here.
+- **Core**: The essential code included with your sketches that provides Processing’s basic functions. When you use functions like `ellipse(25,25,50,50)` or `background(255)`, their underlying code is part of `Core`.
 
-`Java`: This is the pipeline that will take your `.pde` file and compile and run it. The PDE understands different _modes_ with `Java` being the primary one.
+- **Java**: The part of Processing that compiles and runs `.pde` files. It supports different *modes* which implement support for different languages or versions of Processing. The default mode is `Java`.
 
-`App`: This is the PDE, the visual part of the editor that you see and work within when you use Processing.
+- `App`: This is the Processing Development Environment (PDE), the visual part of the editor that you see and work within when you use Processing.
+
 
 ### Examples
 
 - You want to fix a bug with one of the argument of a function that you use in a sketch. The `Core` is probably where you would find the implementation of the function that you would like to modify.
-- A feature/bug of the PDE editor has been driving you nuts, and  you can no longer stand it. You would probably find your bug in the `App` section of this project.
-- You've written a large sketch and Processing has become slow to compile, a place to improve this code can probably be found in the `Java` section.
+- A bug of the PDE editor has been keeping you up at night, you would likely find the relevant code in the `App` section of this project.
+- If you've written a large sketch and Processing has become slow to compile and run it, a place to improve this code can most likely be found in the `Java` section.
 
 ## User interface
-Traditionally Processing has been written in Java swing and Flatlaf (and some html & css). Since 2025 we have switched to include Jetpack Compose, for a variety of reasons but mostly for it's inter-compatibility. There were ideas to switch to a React based editor, but this approach allows us to slowly replace Java swing components to Jetpack Compose, Ship of Theseus style.   
+Historically, Processing's UI has been written in Java Swing and Flatlaf (and some html & css). Since 2025 we have switched to include Jetpack Compose, mostly for it's backwards-compatibility with Swing. This approach allows us to gradually replace Java Swing components with Jetpack Compose ones, instead of doing a complete overhaul of the editor.
 
 ## Build system
 
-We use `Gradle` as the build system for Processing. This used to be `Ant` but we have switched to be more in line with modern standards and to hopefully switch the internal build system in the `Java` mode to `Gradle` as well, unifying both systems for simplicity.
+We use `Gradle` as the build system for Processing. Until 2025, Processing used `Ant` but we have switched to `Gradle` to be more in line with modern standards. We plan to migrate the internal build system of the `Java` mode to `Gradle` as well, unifying both systems for simplicity.
 
 ## Kotlin vs Java
-Since introducing the Gradle build system we also support Kotlin within the repository. Refactors from Java to Kotlin are not really necessary at this stage, but all new functionality should be written in Kotlin.
+With the introduction of the Gradle build system we now support Kotlin within the repository. Refactors from Java to Kotlin are not  necessary at this stage, but all new functionality should be written in Kotlin.
 
-Any classes that end in `..Kt.Java` are there for backwards compatibility with the `Ant` build system and can be removed when that is no longer necessary. 
+Any classes that end up being written in Kotlin have their equivalent Java class under `app/ant/` source directory. 
 
 ### Running Processing
 
-The main task to run or debug the PDE is `app:run` this run the application with `compose desktop`
+The main task to run or debug the PDE is `run`. That means you just need to run `./gradlew run` (Linux) or `./gradlew.bat run` (Windows) to build and run Processing.
 
-If your main concern is with the `Core` you don't need to start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to also new examples for your newly added functionality.
+If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
 
 ## Other editors
