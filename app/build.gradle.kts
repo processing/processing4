@@ -52,7 +52,7 @@ compose.desktop {
         jvmArgs(*listOf(
             Pair("processing.version", rootProject.version),
             Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://download.processing.org/contribs.txt"),
+            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
             Pair("processing.download.page", "https://processing.org/download/"),
             Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
             Pair("processing.tutorials", "https://processing.org/tutorials/"),
