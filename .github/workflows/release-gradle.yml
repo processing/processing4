@@ -134,7 +134,7 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '17.0.8'
           distribution: 'temurin'
           architecture: ${{ matrix.arch }}
       - name: Setup Gradle
