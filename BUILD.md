@@ -54,7 +54,7 @@ Any classes that end up being written in Kotlin have their equivalent Java class
 
 ### Running Processing
 
-The main task to run or debug the PDE is `run`.
+The main task to run or debug the PDE is `run`. That means you just need to run `./gradlew run` (Linux) or `./gradlew.bat run` (Windows) to build and run Processing.
 
 If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
 
