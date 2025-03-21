@@ -1,4 +1,4 @@
-name: Releases
+name: Releases (Legacy)
 on:
   release:
     types: [published]
