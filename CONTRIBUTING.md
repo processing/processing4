@@ -1,6 +1,30 @@
 ## Welcome to Processing!
 
-Thanks for your interest in contributing to Processing! Processing is a collaborative project with contributions from many volunteers. Our community is always looking for contributors and appreciates involvement in all forms. We acknowledge that not everyone has the capacity, time, or financial means to participate actively or in the same ways. We want to expand the meaning of the word “contributor.” Whether you're an experienced developer or just starting out, we value your involvement. Your unique perspectives, skills, and experiences enrich our community, and we encourage you to get involved in a way that works for you. It includes documentation, teaching, writing code, making art, writing, design, activism, organizing, curating, or anything else you might imagine. The [p5.js contribute page](https://p5js.org/contribute/) gives a great overview of different ways to get involved and contribute.
+Thanks for your interest in contributing to Processing! 
+
+Processing is free and open source. This means the code is public and anyone can use it, change it, and share it. But open source is also about the people who create and use the software. Processing is made by a community of artists, educators, designers, and programmers. Many of us are volunteers.
+
+We believe that anyone can be a contributor. You don’t need to be an expert or even write code yourself. We also know that not everyone has the same time, energy, or resources to spend on Processing. That’s okay. We’re glad you’re here!
+
+## Ways to Contribute
+
+We're always grateful for your help fixing bugs and implementing new features BUT You don’t have to write code to contribute to Processing! 
+
+Here are just a few ideas on other ways to get involved:
+
+-   **Translation** – Help localize the software and documentation in your language. Many of us made our first contribution this way.
+-   **Testing** – Try out new releases (especially the betas) and [report bugs](https://github.com/processing/processing4/issues/new/choose).
+-   **Documentation** – Improve tutorials, reference pages, or even this guide!
+-   **Design** – Contribute UI design ideas or help improve user experience.
+-   **Community Support** – Answer questions on the [forum](https://discourse.processing.org/).
+-   **Education** – Create learning resources, curriculums, organize workshops, or share your teaching experiences.
+-   **Art and Projects** – Share what you’re making with Processing and use the #BuiltWithProcessing hashtag 💙
+-   **Outreach and Advocacy** – Help others discover and get excited about the project.
+
+> [!NOTE]
+> See the [p5.js contribute page](https://p5js.org/contribute/) for more resources about contributing. A lot of these guidelines also apply to Processing.
+
+## Contributor Recognition
 
 The Processing project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification, recognizing all types of contributions, not just code. We use the @all-contributors bot to handle adding people to the README.md file. You can ask the @all-contributors bot to add you in an issue or PR comment like so:
 
