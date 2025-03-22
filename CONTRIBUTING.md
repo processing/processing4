@@ -10,6 +10,12 @@ The Processing project follows the [all-contributors](https://github.com/kentcdo
 
 We usually add contributors automatically after merging a PR, but feel free to request addition yourself by commenting on [this issue](https://github.com/processing/processing4-carbon-aug-19/issues/839).
 
+## Creating a Processing Library
+
+If you have a feature idea that Processing doesn’t currently support, building a library is a great way to contribute. Libraries help expand the Processing ecosystem and allow others to use your work. To get started, check out our [Library Template](https://processing.github.io/processing-library-template/), which provides a starting point for developing, packaging, and distributing Processing libraries.
+
+Once your library is complete, you can submit it to the official [Processing Contributions](https://github.com/processing/processing-contributions) repository. This makes it discoverable through the PDE’s Contribution Manager. Follow the guidelines in the [Processing Library Guidelines](https://github.com/processing/processing4/wiki/Library-Guidelines).
+
 ## Found a Bug?
 
 First, please visit our [troubleshooting](https://github.com/processing/processing/wiki/Troubleshooting) page for common issues—you might find the answer there!
