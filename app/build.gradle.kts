@@ -1,5 +1,6 @@
 import org.gradle.kotlin.dsl.support.zipTo
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
@@ -59,7 +60,7 @@ compose.desktop {
         ).map { "-D${it.first}=${it.second}" }.toTypedArray())
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "java.management.rmi")
+            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
@@ -108,6 +109,7 @@ dependencies {
     implementation(compose.ui)
     implementation(compose.components.resources)
     implementation(compose.components.uiToolingPreview)
+    implementation(compose.materialIconsExtended)
 
     implementation(compose.desktop.currentOs)
 
@@ -120,6 +122,9 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
+
+    @OptIn(ExperimentalComposeLibrary::class)
+    testImplementation(compose.uiTest)
 }
 
 tasks.test {
