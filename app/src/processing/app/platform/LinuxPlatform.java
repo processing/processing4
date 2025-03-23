@@ -33,8 +33,7 @@ import processing.core.PApplet;
 
 
 public class LinuxPlatform extends DefaultPlatform {
-  // Switched to use ~ as the home directory for compatibility with snap
-  String homeDir = "~";
+  String homeDir;
 
 
   public void initBase(Base base) {
@@ -106,6 +105,10 @@ public class LinuxPlatform extends DefaultPlatform {
         Messages.err("XDG_CONFIG_HOME is set to " + configHomeEnv + " but does not exist.");
         configHome = null;  // don't use non-existent folder
       }
+    }
+    String snapUserCommon = System.getenv("SNAP_USER_COMMON");
+    if (snapUserCommon != null && !snapUserCommon.isBlank()) {
+      configHome = new File(snapUserCommon);
     }
     // If not set properly, use the default
     if (configHome == null) {

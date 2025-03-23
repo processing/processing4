@@ -2635,8 +2635,11 @@ public class PApplet implements PConstants {
         keyPressed = true;
         keyPressed(keyEvent);
       }
-      case KeyEvent.RELEASE -> {
-        pressedKeys.remove(((long) keyCode << Character.SIZE) | key);
+      case KeyEvent.RELEASE -> {    
+        pressedKeys.removeIf(hash -> {
+          int pressedKeyCode = (int)(hash >> Character.SIZE);
+          return pressedKeyCode == keyCode;
+        });
         keyPressed = !pressedKeys.isEmpty();
         keyReleased(keyEvent);
       }
@@ -2842,6 +2845,7 @@ public class PApplet implements PConstants {
   public void focusLost() {
     // TODO: if user overrides this without calling super it's not gonna work
     pressedKeys.clear();
+    keyPressed = false;
   }
 
 

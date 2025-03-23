@@ -134,7 +134,7 @@ jobs:
       - name: Install Java
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '17.0.8'
           distribution: 'temurin'
           architecture: ${{ matrix.arch }}
       - name: Setup Gradle
@@ -153,6 +153,22 @@ jobs:
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.password: ${{ secrets.PROCESSING_APP_PASSWORD }}
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.teamID: ${{ secrets.PROCESSING_TEAM_ID }}
           ORG_GRADLE_PROJECT_snapname: ${{ vars.SNAP_NAME }}
+      
+      - name: Sign files with Trusted Signing
+        if: runner.os == 'Windows'
+        uses: azure/trusted-signing-action@v0
+        with:
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          endpoint: https://eus.codesigning.azure.net/
+          trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT_NAME }}
+          certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
+          files-folder: app/build/compose/binaries/main/msi
+          files-folder-filter: msi
+          file-digest: SHA256
+          timestamp-rfc3161: http://timestamp.acs.microsoft.com
+          timestamp-digest: SHA256
 
       - name: Upload portables to release
         uses: svenstaro/upload-release-action@v2
@@ -174,18 +190,4 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.PROCESSING_SNAPCRAFT_TOKEN }}
 
-      - name: Sign files with Trusted Signing
-        if: runner.os == 'Windows'
-        uses: azure/trusted-signing-action@v0
-        with:
-          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
-          endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: vscx-codesigning
-          certificate-profile-name: vscx-certificate-profile
-          files-folder: app/build/compose/binaries/main/msi
-          files-folder-filter: msi
-          file-digest: SHA256
-          timestamp-rfc3161: http://timestamp.acs.microsoft.com
-          timestamp-digest: SHA256
+      
