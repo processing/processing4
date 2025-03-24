@@ -811,7 +811,7 @@ public class Sketch {
    */
   public void updateSketchCodes() {
     current.setProgram(editor.getText());
-    System.out.println("Ypdate code: " + current.getProgram());
+
   }
 
 
@@ -1434,7 +1434,7 @@ public class Sketch {
     File destFile = null;
     String codeExtension = null;
     boolean replacement = false;
-    System.out.println("ADDFILE IN SKETCH.java"+ sourceFile.getName());
+
 
     boolean isCode = false;
 
