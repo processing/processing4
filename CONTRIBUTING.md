@@ -80,16 +80,11 @@ Processing is a massive project that has existed for more than 20 years. Part of
 
 ## Editor
 
-The current Editor, based on the ancient [JEditSyntax](http://syntax.jedit.org/) package has held up long past its expiration date. [Exhaustive work](https://github.com/processing/processing4/blob/master/app/src/processing/app/syntax/README.md) has been done to look at replacing the component with something more modern, like `RSyntaxArea`, but it’s simply not feasible without breaking a massive amount of code, and likely introducing a lot of regressions in the process. All for… code folding? An incrementally better experience? But with potential for major setbacks in low-level code? It’s simply not a path that makes sense.
+The current Editor component is based on the ancient [JEditSyntax](http://syntax.jedit.org/) package and has held up long past its expiration date. [Exhaustive work](https://github.com/processing/processing4/blob/master/app/src/processing/app/syntax/README.md) has been done to look at replacing the component with something more modern, like `RSyntaxArea`, but that approach was considered too risky.
 
-With that in mind, any work on updating the editor and adding new features should be focused on further [adapting the preprocessor and compiler](https://github.com/processing/processing4/issues/117) to be wrapped using the [Language Server Protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol), so that we can link to other existing editors (Visual Studio Code and many others). It should be possible to create a Java-only, headless implementation that wraps the current source in this repository and can communicate via LSP. 
+With Processing 4.4.0, we’ve started transitioning the Processing UI from Swing to Jetpack Compose Multiplatform, allowing us to replace Swing components gradually, without a full rewrite. Any work on updating the PDE and adding new features should focus on this migration. Replacing JEditSyntax will likely be the last step in the process. In the meantime, the editor does what it needs to do, for the intended audience. Features like code-folding, refactoring, or symbol navigation are currently out of scope.
 
-The initial work was completed in Processing 4.1, and now needs more testing and implementation of Language Server clients such as [this one](https://github.com/kgtkr/processing-language-server-vscode).
-
-We can start building a new PDE that’s as simple to use as the current application, based on something like [Theia](https://theia-ide.org/), a new editor platform that uses LSP as its basis.
-
-With that in mind, nearly all editor enhancement requests will be redirected to this aim. The current editor does what we want it to, for the intended audience, and improving it requires a better foundation as a starting point.
-
+For users who want editor features beyond what the PDE offers, we’re working to make Processing easier to use in other environments. [Migrating the Processing CLI to Gradle](https://github.com/orgs/processing/projects/32/views/2?filterQuery=CLI&pane=issue&itemId=81026317) and [better Language Server support](https://github.com/orgs/processing/projects/32/views/2?filterQuery=LSP&pane=issue&itemId=90809690) will help make that possible. This should reduce the pressure to add these features to the PDE itself, allowing it to stay focused on being a minimal, beginner-friendly coding sketchbook. If you'd like to help, [let us know](https://github.com/processing/processing4/issues/883)!
 
 ## Refactoring
 
