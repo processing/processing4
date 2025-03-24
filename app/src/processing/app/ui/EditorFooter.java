@@ -39,6 +39,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import processing.app.Base;
 import processing.app.Mode;
 import processing.app.Sketch;
 import processing.app.contrib.ContributionManager;
@@ -83,9 +84,13 @@ public class EditorFooter extends Box {
   Image gradient;
   Color bgColor;
 
+  Box tabBar;
+
   JPanel cardPanel;
   CardLayout cardLayout;
   Controller controller;
+
+  JLabel version;
 
   int updateCount;
 
@@ -98,8 +103,17 @@ public class EditorFooter extends Box {
     cardPanel = new JPanel(cardLayout);
     add(cardPanel);
 
+    tabBar = new Box(BoxLayout.X_AXIS);
+
     controller = new Controller();
-    add(controller);
+    tabBar.add(controller);
+
+    version = new JLabel(Base.getVersionName());
+    version.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, MARGIN));
+
+    tabBar.add(version);
+
+    add(tabBar);
 
     updateTheme();
   }
@@ -175,6 +189,15 @@ public class EditorFooter extends Box {
 
     // replace colors for the "updates" indicator
     controller.updateTheme();
+
+    tabBar.setOpaque(true);
+    tabBar.setBackground(bgColor);
+    
+    var updatesTextColor = Theme.getColor("footer.updates.text.color");
+    var withAlpha = new Color(updatesTextColor.getRed(), updatesTextColor.getGreen(), updatesTextColor.getBlue(), 128);
+
+    version.setForeground(withAlpha);
+    version.setFont(font);
   }
 
 
