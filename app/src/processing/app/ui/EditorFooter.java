@@ -30,6 +30,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.font.FontRenderContext;
@@ -110,6 +112,22 @@ public class EditorFooter extends Box {
 
     version = new JLabel(Base.getVersionName());
     version.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, MARGIN));
+    version.addMouseListener(new MouseAdapter() {
+      public void mousePressed(MouseEvent e) {
+        if(e.getClickCount() == 5){
+          Base.DEBUG = !Base.DEBUG;
+        }
+        var debugInformation = String.join("\n",
+            "Version: " + Base.getVersionName(),
+            "Revision: " + Base.getRevision(),
+            "OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"),
+            "Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor")
+        );
+        var stringSelection = new StringSelection(debugInformation);
+        var clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+      }
+    });
 
     tabBar.add(version);
 
