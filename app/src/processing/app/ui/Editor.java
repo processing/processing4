@@ -1147,7 +1147,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       if (sketch != null) {
         sketch.setModified(!getText().equals(sketch.getCurrentCode().getSavedProgram()));
         // Go through all tabs; Replace All, Rename or Undo could have changed them
-        for (SketchCode sc : sketch.getCode()) {
+        for ( SketchCode sc : sketch.getCode()) {
           if (sc.getDocument() != null) {
             try {
               sc.setModified(!sc.getDocumentText().equals(sc.getSavedProgram()));

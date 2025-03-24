@@ -934,6 +934,7 @@ parse	FUNCTION2	XML_parse_
 removeChild	FUNCTION2	XML_removeChild_
 setContent	FUNCTION2	XML_setContent_
 setFloat	FUNCTION2	XML_setFloat_
+setHeading	FUNCTION2	PVector
 setInt	FUNCTION2	XML_setInt_
 setLong	FUNCTION2	XML_setLong_
 setName	FUNCTION2	XML_setName_

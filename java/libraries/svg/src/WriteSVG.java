@@ -17,6 +17,7 @@ public class WriteSVG extends PApplet {
 
   public void settings() {
     size(600, 400, SVG, desktopPath("frame-####.svg"));
+    System.out.println("settings1");
 //    frameRate(1);
   }
 

@@ -838,6 +838,7 @@ public class PApplet implements PConstants {
 
 
   void handleSettings() {
+
     insideSettings = true;
 
     if (!disableAWT) {
@@ -933,6 +934,8 @@ public class PApplet implements PConstants {
   public void settings() {
     // is this necessary? (doesn't appear to be, so removing)
     //size(DEFAULT_WIDTH, DEFAULT_HEIGHT, JAVA2D);
+
+
   }
 
 

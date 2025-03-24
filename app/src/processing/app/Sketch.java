@@ -263,6 +263,7 @@ public class Sketch {
     // make sure the user didn't hide the sketch folder
     ensureExistence();
 
+
     // add file to the code/codeCount list, resort the list
     //if (codeCount == code.length) {
     code = (SketchCode[]) PApplet.append(code, newCode);
@@ -270,6 +271,8 @@ public class Sketch {
     //}
     //code[codeCount++] = newCode;
   }
+
+
 
 
   protected void sortCode() {
@@ -808,6 +811,7 @@ public class Sketch {
    */
   public void updateSketchCodes() {
     current.setProgram(editor.getText());
+    System.out.println("Ypdate code: " + current.getProgram());
   }
 
 
@@ -1430,6 +1434,7 @@ public class Sketch {
     File destFile = null;
     String codeExtension = null;
     boolean replacement = false;
+    System.out.println("ADDFILE IN SKETCH.java"+ sourceFile.getName());
 
     boolean isCode = false;
 
@@ -1578,6 +1583,7 @@ public class Sketch {
     current = code[which];
     currentIndex = which;
     current.visited = System.currentTimeMillis();
+    //System.out.println(current);
 
     editor.setCode(current);
     editor.repaintHeader();
