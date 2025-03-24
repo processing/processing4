@@ -25,6 +25,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.text.*;
 import javax.swing.JComponent;
 
+import processing.app.Messages;
 import processing.app.Preferences;
 import processing.app.syntax.im.CompositionTextPainter;
 
@@ -230,6 +231,10 @@ public class TextAreaPainter extends JComponent implements TabExpander {
     int height = fontMetrics.getHeight();
     int firstLine = textArea.getFirstLine();
     int firstInvalid = firstLine + clipRect.y / height;
+
+    double verticalSmoothOffset = (textArea.getVerticalSmoothScrollPosition() - firstLine) * fontMetrics.getHeight();
+    g2.translate(0, -verticalSmoothOffset);
+
     // Because the clipRect height is usually an even multiple
     // of the font height, we subtract 1 from it, otherwise one
     // too many lines will always be painted.

@@ -172,33 +172,23 @@ public class JEditTextArea extends JComponent
 //    focusedComponent = this;
 
     addMouseWheelListener(e -> {
-      if (scrollBarsInitialized) {
-        if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-          int scrollAmount = e.getUnitsToScroll();
-//            System.out.println("rot/amt = " + e.getWheelRotation() + " " + amt);
-//            int max = vertical.getMaximum();
-//            System.out.println("UNIT SCROLL of " + amt + " at value " + vertical.getValue() + " and max " + max);
-//            System.out.println("  get wheel rotation is " + e.getWheelRotation());
-//            int ex = e.getModifiersEx();
-//            String mods = InputEvent.getModifiersExText(ex);
-//            if (ex != 0) {
-//              System.out.println("  3 2         1         0");
-//              System.out.println("  10987654321098765432109876543210");
-//              System.out.println("  " + PApplet.binary(e.getModifiersEx()));
-////            if (mods.length() > 0) {
-//              System.out.println("  mods extext = " + mods + " " + mods.length() + " " + PApplet.hex(mods.charAt(0)));
-//            }
-//            System.out.println("  " + e);
+      if (!scrollBarsInitialized) return;
+      if (e.getScrollType() != MouseWheelEvent.WHEEL_UNIT_SCROLL) return;
 
-          // inertia scrolling on OS X will fire several shift-wheel events
-          // that are negative values.. this makes the scrolling area jump.
-          boolean isHorizontal = Platform.isMacOS() && e.isShiftDown();
-          if (isHorizontal) {
-            horizontal.setValue(horizontal.getValue() + scrollAmount);
-          }else{
-            vertical.setValue(vertical.getValue() + scrollAmount);
-          }
-        }
+      var smoothScrollAmount = e.getPreciseWheelRotation();
+      var isHorizontal = Platform.isMacOS() && e.isShiftDown();
+      if (isHorizontal) {
+          smoothHorizontal += smoothScrollAmount;
+          smoothHorizontal = Math.max(0, smoothHorizontal);
+          smoothHorizontal = Math.min(horizontal.getMaximum(), smoothHorizontal);
+          painter.repaint();
+          horizontal.setValue((int) Math.round(smoothHorizontal));
+      }else{
+          smoothVertical += smoothScrollAmount;
+          smoothVertical = Math.max(0, smoothVertical);
+          smoothVertical = Math.min(vertical.getMaximum(), smoothVertical);
+          painter.repaint();
+          vertical.setValue((int) Math.round(smoothVertical));
       }
     });
   }
@@ -285,6 +275,10 @@ public class JEditTextArea extends JComponent
     horizontal.setValue(what);
   }
 
+
+  public double getVerticalSmoothScrollPosition() {
+    return smoothVertical;
+  }
 
   /**
    * Returns the object responsible for painting this text area.
@@ -2093,7 +2087,9 @@ public class JEditTextArea extends JComponent
   protected int horizontalOffset;
 
   protected JScrollBar vertical;
+  protected double smoothVertical;
   protected JScrollBar horizontal;
+  protected double smoothHorizontal;
   protected boolean scrollBarsInitialized;
 
   protected InputHandler inputHandler;
