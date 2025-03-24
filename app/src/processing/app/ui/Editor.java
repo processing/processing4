@@ -2255,7 +2255,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
    * something like "sketch_070752a - Processing 0126"
    */
   public void updateTitle() {
-    setTitle(sketch.getName() + " | Processing " + Base.getVersionName());
+    setTitle(sketch.getName());
 
     if (!sketch.isUntitled()) {
       // Set current file for macOS so that cmd-click in title bar works.
