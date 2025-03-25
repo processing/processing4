@@ -31,7 +31,7 @@ Processing consists of three main components: `Core`, `Java`, and `App`. The `Co
 
 - **Java**: The part of Processing that compiles and runs `.pde` files. It supports different *modes* which implement support for different languages or versions of Processing. The default mode is `Java`.
 
-- `App`: This is the Processing Development Environment (PDE), the visual part of the editor that you see and work within when you use Processing.
+- **App**: This is the Processing Development Environment (PDE), the visual part of the editor that you see and work within when you use Processing.
 
 
 ### Examples
