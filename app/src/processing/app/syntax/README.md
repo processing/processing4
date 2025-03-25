@@ -1,4 +1,14 @@
-# 🐉 Fixing this code: here be dragons. 🐉
+# Replacing our custom version of JEditTextArea
+
+As we have started the migration to Jetpack Compose we will eventually need to replace the JEditTextArea as well.
+
+I think a good current strategy would be to start using `RSyntaxTextArea` for the upcoming p5.js mode as it is a better maintained well rounded library. As noted below, a lot of the current state management of the PDE is interetwined with the JEditTextArea implementation. This will force us to decouple the state management out of the `JEditTextArea` whilst also trying to keep backwards compatibility alive for Tweak Mode and the current implementation of autocomplete.
+
+I also did some more research into the potential of using a JS + LSP based editor within the Jetpack Compose but as of writing (early 2025) the only way to do so would be to embed chromium into the PDE through something like [Java-CEF]([url](https://github.com/chromiumembedded/java-cef)) and it looks like a PoC for Jetpack Compose Desktop exists [here](https://github.com/JetBrains/compose-multiplatform/blob/9cd413a4ed125bee5b624550fbd40a05061e912a/experimental/cef/src/main/kotlin/org/jetbrains/compose/desktop/browser/BrowserView.kt). Moving the entire PDE into an electron app would be essentially a rewrite which currrently is not the target. 
+
+Research needs to be done on how much the Tweak Mode and autocompletion are _actually_ being used. Currently both these features are quite hidden and I suspect that most users actually move on to more advanced use-cases before they even discover such things. I would like to make both of these features much more prominent within the PDE to test if they are a good value add. 
+
+### Ben Fry's notes
 
 Every few years, we've looked at replacing this package with [RSyntaxArea](https://github.com/bobbylight/RSyntaxTextArea), most recently with two attempts during the course of developing [Processing 4](https://github.com/processing/processing4/wiki/Processing-4), but probably dating back to the mid-2000s.
 
