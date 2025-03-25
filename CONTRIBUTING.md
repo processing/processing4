@@ -10,7 +10,7 @@ This document is for new contributors looking to contribute code to Processing, 
 ## About GitHub
 Processing’s codebase is hosted on [GitHub](https://github.com/processing). GitHub is a website where people can collaborate on code. It’s widely used for open source projects and makes it easier to keep track of changes, report issues with the software, and contribute improvements to the code.
 
-If you're new to GitHub, a good place to start is the [first-contributions](https://github.com/firstcontributions/first-contributions) guide, which walks you through the basics of contributing to a project. You can also check out [Git and GitHub for Poets](https://www.youtube.com/playlist?list=PLRqwX-V7Uu6ZF9C0YMKuns9sLDzK6zoiV), a beginner-friendly video series by Dan Shiffman.
+If you're new to GitHub, a good place to start is [this tutorial](https://github.com/firstcontributions/first-contributions/blob/main/docs/gui-tool-tutorials/github-desktop-tutorial.md) guide, which walks you through the basics of contributing to a project using GitHub Desktop. For more information, we recommend [Git and GitHub for Poets](https://www.youtube.com/playlist?list=PLRqwX-V7Uu6ZF9C0YMKuns9sLDzK6zoiV), a beginner-friendly video series by Dan Shiffman.
 
 ## About issues
 
@@ -25,9 +25,9 @@ To file a new issue, visit the [Issues](https://github.com/processing/processing
 
 ### Prerequisites
 
-To contribute to Processing, you should be familiar with using the [command line](https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Environment_setup/Command_line), Git, and Java and/or Kotlin.
+To contribute to Processing, we recommend using [GitHub Desktop](https://github.com/apps/desktop) and [IntelliJ IDEA (Community Edition)](https://www.jetbrains.com/idea/download/), as that’s the toolchain we’re best able to support. If you’re comfortable using Git on the command line or prefer a different editor, that’s totally fine too! Use what works best for you. Some familiarity with the [command line](https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Environment_setup/Command_line) can help, but it’s not required.
 
-You'll also need to set up a local development environment—see our [build instructions](https://github.com/processing/processing4/blob/main/BUILD.md) to get started.
+You'll need to set up a local development environment—see our [build instructions](https://github.com/processing/processing4/blob/main/BUILD.md) to get started.
 
 ### Making your first contribution
 
