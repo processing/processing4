@@ -72,6 +72,7 @@ compose.desktop {
                 entitlementsFile.set(file("macos/entitlements.plist"))
                 runtimeEntitlementsFile.set(file("macos/entitlements.plist"))
                 appStore = true
+                jvmArgs("-Dsun.java2d.metal=true")
             }
             windows{
                 iconFile = rootProject.file("build/windows/processing.ico")
