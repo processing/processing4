@@ -751,6 +751,7 @@ random2D	FUNCTION2	PVector_random2D_
 random3D	FUNCTION2	PVector_random3D_
 rotate	FUNCTION2	PVector_rotate_
 set	FUNCTION2	PVector_set_
+setHeading	FUNCTION2	PVector_setHeading_
 setMag	FUNCTION2	PVector_setMag_
 sub	FUNCTION2	PVector_sub_
 quad	FUNCTION1	quad_
