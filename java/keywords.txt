@@ -503,6 +503,7 @@ size	FUNCTION2	FloatList_size_
 sort	FUNCTION2	FloatList_sort_
 sortReverse	FUNCTION2	FloatList_sortReverse_
 sub	FUNCTION2	FloatList_sub_
+toArray	FUNCTION2	FloatList_toArray_
 floor	FUNCTION1	floor_
 focused	KEYWORD4	focused
 frameCount	KEYWORD4	frameCount
@@ -559,6 +560,7 @@ size	FUNCTION2	IntList_size_
 sort	FUNCTION2	IntList_sort_
 sortReverse	FUNCTION2	IntList_sortReverse_
 sub	FUNCTION2	IntList_sub_
+toArray	FUNCTION2	IntList_toArray_
 join	FUNCTION1	join_
 JSONArray	KEYWORD5	JSONArray
 append	FUNCTION2	JSONArray_append_
@@ -579,6 +581,8 @@ setJSONArray	FUNCTION2	JSONArray_setJSONArray_
 setJSONObject	FUNCTION2	JSONArray_setJSONObject_
 setString	FUNCTION2	JSONArray_setString_
 size	FUNCTION2	JSONArray_size_
+toIntArray	FUNCTION2	JSONArray_toIntArray_
+toStringArray	FUNCTION2	JSONArray_toStringArray_
 JSONObject	KEYWORD5	JSONObject
 getBoolean	FUNCTION2	JSONObject_getBoolean_
 getFloat	FUNCTION2	JSONObject_getFloat_
@@ -848,6 +852,7 @@ shuffle	FUNCTION2	StringList_shuffle_
 size	FUNCTION2	StringList_size_
 sort	FUNCTION2	StringList_sort_
 sortReverse	FUNCTION2	StringList_sortReverse_
+toArray	FUNCTION2	StringList_toArray_
 upper	FUNCTION2	StringList_upper_
 stroke	FUNCTION1	stroke_
 strokeCap	FUNCTION1	strokeCap_
@@ -912,6 +917,13 @@ unbinary	FUNCTION1	unbinary_
 unhex	FUNCTION1	unhex_
 updatePixels	FUNCTION1	updatePixels_
 vertex	FUNCTION1	vertex_
+windowMove	FUNCTION1	windowMove_
+windowMoved	FUNCTION1	windowMoved_
+windowRatio	FUNCTION1	windowRatio_
+windowResizable	FUNCTION1	windowResizable_
+windowResize	FUNCTION1	windowResize_
+windowResized	FUNCTION1	windowResized_
+windowTitle	FUNCTION1	windowTitle_
 XML	KEYWORD5	XML
 addChild	FUNCTION2	XML_addChild_
 format	FUNCTION2	XML_format_
