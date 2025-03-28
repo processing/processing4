@@ -722,6 +722,13 @@ public abstract class Editor extends JFrame implements RunnerListener {
     item.addActionListener(e -> handleSaveAs());
     fileMenu.add(item);
 
+    item = Toolkit.newJMenuItemShift(Language.text("menu.file.templates"), 'T');
+    //JMenuItem finalItem = item;
+    item.addActionListener(e -> handleTemplate());
+    fileMenu.add(item);
+
+
+
     if (exportItems != null) {
       for (JMenuItem ei : exportItems) {
         fileMenu.add(ei);
@@ -760,6 +767,36 @@ public abstract class Editor extends JFrame implements RunnerListener {
       fileMenu.add(item);
     }
     return fileMenu;
+  }
+  // Define the handleTemplate method to show different templates
+  private void handleTemplate() {
+    // Create a popup menu for templates
+    JPopupMenu templatesMenu = new JPopupMenu("Templates");
+
+    JMenuItem template1 = new JMenuItem("Animation Sketch");
+    template1.addActionListener(e -> insertTemplateCode(Template.animationSketchCode));
+    templatesMenu.add(template1);
+
+    JMenuItem template2 = new JMenuItem("Interactive Sketch");
+    template2.addActionListener(e -> insertTemplateCode(Template.interactiveSketchCode));
+    templatesMenu.add(template2);
+
+    JMenuItem template3 = new JMenuItem("Fullscreen Sketch");
+    template3.addActionListener(e -> insertTemplateCode(Template.fullscreenSketchCode));
+    templatesMenu.add(template3);
+
+    JMenuItem template4 = new JMenuItem("Resizeable Sketch");
+    template4.addActionListener(e -> insertTemplateCode(Template.resizeableSketchCode));
+    templatesMenu.add(template4);
+
+    // Show the popup menu at the location where the "Templates" menu item was clicked
+    templatesMenu.show(this, 0, 0);
+  }
+
+  // Add this method to insert template code into the editor
+  private void insertTemplateCode(String templateCode) {
+    textarea.setText("");
+    insertText(templateCode);
   }
 
 
