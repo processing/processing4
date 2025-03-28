@@ -586,9 +586,9 @@ public class Base {
     item.addActionListener(e -> handleNew());
     defaultFileMenu.add(item);
 
-    item = Toolkit.newJMenuItem(Language.text("menu.file.open"), 'O');
-    item.addActionListener(e -> handleOpenPrompt());
-    defaultFileMenu.add(item);
+//    item = Toolkit.newJMenuItem(Language.text("menu.file.open"), 'O');
+//    item.addActionListener(e -> handleOpenPrompt());
+//    defaultFileMenu.add(item);
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.sketchbook"), 'K');
     item.addActionListener(e -> showSketchbookFrame());
@@ -596,6 +596,10 @@ public class Base {
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.examples"), 'O');
     item.addActionListener(e -> thinkDifferentExamples());
+    defaultFileMenu.add(item);
+
+    item = Toolkit.newJMenuItem(Language.text("menu.file.templates"), 'T');
+    //item.addActionListener(e -> handleTemplates());
     defaultFileMenu.add(item);
 
     return defaultFileMenu;
@@ -1287,6 +1291,8 @@ public class Base {
       }
     });
   }
+
+//  Open templates to start with any work
 
 
   /**
