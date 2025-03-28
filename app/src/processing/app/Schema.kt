@@ -1,5 +1,9 @@
 package processing.app
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import processing.app.ui.Editor
 import java.io.File
 import java.io.FileOutputStream
@@ -13,6 +17,8 @@ import java.util.*
 class Schema {
     companion object{
         private var base: Base? = null
+        val jobs = mutableListOf<Job>()
+
         @JvmStatic
         fun handleSchema(input: String, base: Base): Editor?{
             this.base = base
@@ -92,8 +98,9 @@ class Schema {
             }
 
         }
+
+        private val scope = CoroutineScope(Dispatchers.Default)
         private fun downloadFiles(uri: URI, urlList: String, targetFolder: File, extension: String = ""){
-            Thread{
                 targetFolder.mkdirs()
 
                 val base = uri.path.split("/")
@@ -128,15 +135,20 @@ class Schema {
                                 URL("https://$content").path.isNotBlank() -> "https://$content"
                                 else -> "https://$base/$content"
                             })
-                            url.openStream().use { input ->
-                                target.outputStream().use { output ->
-                                    input.copyTo(output)
+                            val download = scope.launch{
+                                url.openStream().use { input ->
+                                    target.outputStream().use { output ->
+                                        input.copyTo(output)
+                                    }
                                 }
+                            }
+                            jobs.add(download)
+                            download.invokeOnCompletion {
+                                jobs.remove(download)
                             }
                         }
 
                     }
-            }.start()
         }
 
 
