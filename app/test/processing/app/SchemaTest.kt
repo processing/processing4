@@ -1,5 +1,7 @@
 package processing.app
 
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.ArgumentCaptor
@@ -65,8 +67,8 @@ class SchemaTest {
 
         val base64 = Base64.encode(sketch.toByteArray())
         Schema.handleSchema("pde://sketch/base64/$base64?pde=AnotherFile:$base64", base)
-        val captor = ArgumentCaptor.forClass(String::class.java)
 
+        val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
 
         val file = File(captor.value)
@@ -82,6 +84,7 @@ class SchemaTest {
     @Test
     fun testURLSketch() {
         Schema.handleSchema("pde://sketch/url/github.com/processing/processing-examples/raw/refs/heads/main/Basics/Arrays/Array/Array.pde", base)
+        waitForSchemeJobsToComplete()
 
         val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
@@ -104,6 +107,7 @@ class SchemaTest {
     ])
     fun testURLSketchWithFile(file: String){
         Schema.handleSchema("pde://sketch/url/github.com/processing/processing-examples/raw/refs/heads/main/Basics/Arrays/ArrayObjects/ArrayObjects.pde?pde=$file", base)
+        waitForSchemeJobsToComplete()
 
         val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
@@ -124,6 +128,12 @@ class SchemaTest {
         preferences.verify {
             Preferences.set("test", "value")
             Preferences.save()
+        }
+    }
+
+    fun waitForSchemeJobsToComplete(){
+        runBlocking {
+            joinAll(*Schema.jobs.toTypedArray())
         }
     }
 }
