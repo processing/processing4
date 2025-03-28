@@ -111,7 +111,7 @@ public class EditorFooter extends Box {
     tabBar.add(controller);
 
     version = new JLabel(Base.getVersionName());
-    version.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, MARGIN));
+    version.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, Editor.RIGHT_GUTTER));
     version.addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
         if(e.getClickCount() == 5){
