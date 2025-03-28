@@ -618,12 +618,10 @@ public abstract class Editor extends JFrame implements RunnerListener {
     toolTipWarningColor = Theme.get("errors.selection.warning.bgcolor");
     toolTipErrorColor = Theme.get("errors.selection.error.bgcolor");
 
-    if(Platform.isWindows()) {
-      UIManager.put("RootPane.background", color);
-      UIManager.put("TitlePane.embeddedForeground", Theme.getColor("editor.fgcolor"));
-      getRootPane().updateUI();
-      UIManager.put("RootPane.background", null);
-    }
+    UIManager.put("RootPane.background", color);
+    UIManager.put("TitlePane.embeddedForeground", Theme.getColor("editor.fgcolor"));
+    getRootPane().updateUI();
+    UIManager.put("RootPane.background", null);
 
     JPopupMenu popup = modePopup.getPopupMenu();
     // Cannot use instanceof because com.formdev.flatlaf.ui.FlatPopupMenuBorder
