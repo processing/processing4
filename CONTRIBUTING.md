@@ -18,9 +18,6 @@ Most activity on Processing’s GitHub happens in _issues_. Issues are GitHub po
 
 To file a new issue, visit the [Issues](https://github.com/processing/processing4/issues) tab on the repository and click `New issue` then select the most appropriate template and follow the included instructions. These templates help maintainers understand and respond to issues faster.
 
->[!NOTE]
-> Before opening a new issue, check our [troubleshooting](https://github.com/processing/processing/wiki/Troubleshooting) page. The answer may already be there.
-
 ## Working on the Processing codebase
 
 ### Prerequisites
