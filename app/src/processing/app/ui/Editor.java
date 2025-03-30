@@ -39,6 +39,7 @@ import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.stream.Collectors;
+import java.nio.file.Files;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -722,11 +723,10 @@ public abstract class Editor extends JFrame implements RunnerListener {
     item.addActionListener(e -> handleSaveAs());
     fileMenu.add(item);
 
-    item = Toolkit.newJMenuItemShift(Language.text("menu.file.templates"), 'T');
-    //JMenuItem finalItem = item;
-    item.addActionListener(e -> handleTemplate());
-    fileMenu.add(item);
-
+    JMenu templatesMenu = new JMenu(Language.text("menu.file.templates"));
+    System.out.println("templatesMenu");
+    loadTemplates(templatesMenu);
+    fileMenu.add(templatesMenu);
 
 
     if (exportItems != null) {
@@ -768,34 +768,115 @@ public abstract class Editor extends JFrame implements RunnerListener {
     }
     return fileMenu;
   }
-  // Define the handleTemplate method to show different templates
-  private void handleTemplate() {
-    // Create a popup menu for templates
-    JPopupMenu templatesMenu = new JPopupMenu("Templates");
+  // Load templates from both the repository and the user's Sketchbook folder
+  private void loadTemplates(JMenu templatesMenu) {
+    List<File> allTemplates = new ArrayList<>();
 
-    JMenuItem template1 = new JMenuItem("Animation Sketch");
-    template1.addActionListener(e -> insertTemplateCode(Template.animationSketchCode));
-    templatesMenu.add(template1);
+    // Load predefined templates from the repository
+    File repoTemplatesDir = Platform.getContentFile("lib/templates");
+    System.out.println("repoTemplatesDir: " + repoTemplatesDir);
+    System.out.println("Loading templates from repository directory: " + repoTemplatesDir.getAbsolutePath());
+    addTemplatesFromDirectory(repoTemplatesDir, allTemplates);
 
-    JMenuItem template2 = new JMenuItem("Interactive Sketch");
-    template2.addActionListener(e -> insertTemplateCode(Template.interactiveSketchCode));
-    templatesMenu.add(template2);
+    // Load user-defined templates from the Sketchbook folder
+    File userTemplatesDir = new File(Base.getSketchbookFolder(), "templates");
 
-    JMenuItem template3 = new JMenuItem("Fullscreen Sketch");
-    template3.addActionListener(e -> insertTemplateCode(Template.fullscreenSketchCode));
-    templatesMenu.add(template3);
+    System.out.println("Loading templates from user sketchbook directory: " + userTemplatesDir.getAbsolutePath());
+    addTemplatesFromDirectory(userTemplatesDir, allTemplates);
 
-    JMenuItem template4 = new JMenuItem("Resizeable Sketch");
-    template4.addActionListener(e -> insertTemplateCode(Template.resizeableSketchCode));
-    templatesMenu.add(template4);
+    // Print all templates to the console
+    System.out.println("All loaded templates:");
+    System.out.println(allTemplates.size());
+    for (File template : allTemplates) {
+      System.out.println("Template: " + template.getAbsolutePath());
+    }
 
-    // Show the popup menu at the location where the "Templates" menu item was clicked
-    templatesMenu.show(this, 0, 0);
+    // Add all templates to the menu
+    addTemplatesToMenu(allTemplates, templatesMenu);
   }
 
+  private void addTemplatesFromDirectory(File directory, List<File> allTemplates) {
+    if (directory.exists() && directory.isDirectory()) {
+      File[] templateFiles = directory.listFiles();
+      if (templateFiles != null) {
+        for (File templateFile : templateFiles) {
+          System.out.println("Found template file: " + templateFile.getAbsolutePath());
+          allTemplates.add(templateFile);
+        }
+      } else {
+        System.out.println("No template files found in directory: " + directory.getAbsolutePath());
+      }
+    } else {
+      System.out.println("Directory does not exist or is not a directory: " + directory.getAbsolutePath());
+    }
+  }
+
+  // Add templates to the menu
+  // Add templates to the menu
+  private void addTemplatesToMenu(List<File> templates, JMenu templatesMenu) {
+    templatesMenu.removeAll();  // Clear existing menu items
+    for (File templateFile : templates) {
+      String templateName;
+      if (templateFile.getName().toLowerCase().endsWith(".pde")) {
+        templateName = templateFile.getName().replace(".pde", "");
+      } else {
+        templateName = templateFile.getName();
+      }
+      JMenuItem templateItem = new JMenuItem(templateName);
+      templateItem.addActionListener(e -> {
+        try {
+          String templateCode;
+          if (templateFile.getName().toLowerCase().endsWith(".pde")) {
+            templateCode = new String(Files.readAllBytes(templateFile.toPath()));
+            System.out.println("Template code read from file: " + templateCode);
+          } else {
+            templateCode = "";
+           // System.out.println("Addtemplatestomenu--suserdefned"+templateFile);// Or any other action needed for non-.pde files
+            System.out.println("Non-.pde file selected: " + templateFile.getAbsolutePath());
+          }
+
+          Editor newEditor = base.handleNew();
+          if (newEditor != null) {
+            System.out.println("New editor created. Inserting template code.");
+            newEditor.insertText(templateCode);
+          } else {
+            System.err.println("Failed to create new editor.");
+          }
+        } catch (IOException ex) {
+          ex.printStackTrace();
+        }
+      });
+      templatesMenu.add(templateItem);
+    }
+  }
+
+
+  // Method to save user-defined templates in the sketchbook/templates directory
+//  public void saveUserTemplate(String templateName, String templateCode) {
+//    File userTemplatesDir = new File(Base.getSketchbookFolder(), "templates");
+//    if (!userTemplatesDir.exists()) {
+//      userTemplatesDir.mkdirs();
+//    }
+//
+//    File templateFile = new File(userTemplatesDir, templateName + ".pde");
+//    try {
+//      Files.write(templateFile.toPath(), templateCode.getBytes());
+//      System.out.println("User template saved: " + templateFile.getAbsolutePath());
+//
+//      // Reload templates after saving a new one
+//      JMenu templatesMenu = new JMenu(Language.text("menu.file.templates"));
+//      loadTemplates(templatesMenu);
+//
+//      // Update the File menu with the new templates menu
+//      JMenu fileMenu = buildFileMenu(null);
+//      fileMenu.add(templatesMenu);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
+//  }
   // Add this method to insert template code into the editor
   private void insertTemplateCode(String templateCode) {
-    textarea.setText("");
+    //textarea.setText("");
     insertText(templateCode);
   }
 

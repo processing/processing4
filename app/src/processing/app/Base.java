@@ -1099,8 +1099,7 @@ public class Base {
   /**
    * Create a new untitled document in a new sketch window.
    */
-  public void handleNew() {
-//    long t1 = System.currentTimeMillis();
+  public Editor handleNew() {
     try {
       // In 0126, untitled sketches will begin in the temp folder,
       // and then moved to a new location because Save will default to Save As.
@@ -1108,7 +1107,7 @@ public class Base {
       File newbieDir = SketchName.nextFolder(untitledFolder);
 
       // User was told to go outside or other problem happened inside naming.
-      if (newbieDir == null) return;
+      if (newbieDir == null) return null;
 
       // Make the directory for the new sketch
       if (!newbieDir.mkdirs()) {
@@ -1128,15 +1127,15 @@ public class Base {
       }
 
       String path = newbieFile.getAbsolutePath();
-      handleOpenUntitled(path);
+      return handleOpenUntitled(path);
 
     } catch (IOException e) {
       Messages.showTrace("That's new to me",
-                         "A strange and unexplainable error occurred\n" +
-                         "while trying to create a new sketch.", e, false);
+              "A strange and unexplainable error occurred\n" +
+                      "while trying to create a new sketch.", e, false);
+      return null;
     }
   }
-
 
   /**
    * Prompt for a sketch to open, and open it in a new window.
