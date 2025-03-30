@@ -53,7 +53,7 @@ compose.desktop {
         jvmArgs(*listOf(
             Pair("processing.version", rootProject.version),
             Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://download.processing.org/contribs.txt"),
+            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
             Pair("processing.download.page", "https://processing.org/download/"),
             Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
             Pair("processing.tutorials", "https://processing.org/tutorials/"),
@@ -73,6 +73,7 @@ compose.desktop {
                 entitlementsFile.set(file("macos/entitlements.plist"))
                 runtimeEntitlementsFile.set(file("macos/entitlements.plist"))
                 appStore = true
+                jvmArgs("-Dsun.java2d.metal=true")
             }
             windows{
                 iconFile = rootProject.file("build/windows/processing.ico")
@@ -243,6 +244,7 @@ tasks.register("generateSnapConfiguration"){
           - x11
           - network
           - opengl
+          - home
     
     parts:
       processing:
@@ -358,6 +360,7 @@ tasks.register<Download>("includeJdk") {
             into(composeResources(""))
         }
     }
+    finalizedBy("prepareAppResources")
 }
 tasks.register<Copy>("includeSharedAssets"){
     from("../build/shared/")
@@ -515,7 +518,6 @@ afterEvaluate {
         dependsOn(
             "includeCore",
             "includeJavaMode",
-            "includeJdk",
             "includeSharedAssets",
             "includeProcessingExamples",
             "includeProcessingWebsiteExamples",
@@ -543,7 +545,7 @@ afterEvaluate {
         }
     }
     tasks.named("createDistributable").configure {
-        dependsOn("signResources")
+        dependsOn("signResources", "includeJdk")
         finalizedBy("setExecutablePermissions")
     }
 }

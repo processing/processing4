@@ -4481,7 +4481,7 @@ public class PGraphicsOpenGL extends PGraphics {
 
     // The minus sign is needed to invert the Y axis.
     projection.set(x,  0, 0, tx,
-                   0, -y, 0, ty,
+                   0, -y, 0, -ty,
                    0,  0, z, tz,
                    0,  0, 0,  1);
 

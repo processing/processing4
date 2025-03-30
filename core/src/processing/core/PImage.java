@@ -1057,6 +1057,9 @@ public class PImage implements PConstants, Cloneable {
    * [toxi 050728]
    */
   protected void buildBlurKernel(float r) {
+    float maxRadius = Math.min(width, height) / 2.0f;
+    float maxR = maxRadius / 3.5f;
+    r = Math.min(r, maxR);
     int radius = (int) (r * 3.5f);
     if (radius < 1) radius = 1;
     if (radius > 248) radius = 248;
@@ -1083,6 +1086,9 @@ public class PImage implements PConstants, Cloneable {
     }
   }
 
+  private int safeDivide(int numerator, int denominator) {
+    return denominator == 0 ? numerator : numerator / denominator;
+  }
 
   protected void blurAlpha(float r) {
     int sum, cb;
@@ -1115,7 +1121,7 @@ public class PImage implements PConstants, Cloneable {
           read++;
         }
         ri = yi + x;
-        b2[ri] = cb / sum;
+        b2[ri] = safeDivide(cb, sum);
       }
       yi += pixelWidth;
     }
@@ -1146,7 +1152,7 @@ public class PImage implements PConstants, Cloneable {
           ri++;
           read += pixelWidth;
         }
-        pixels[x+yi] = (cb/sum);
+        pixels[x+yi] = safeDivide(cb, sum);
       }
       yi += pixelWidth;
       ymi += pixelWidth;
@@ -1191,9 +1197,9 @@ public class PImage implements PConstants, Cloneable {
           read++;
         }
         ri = yi + x;
-        r2[ri] = cr / sum;
-        g2[ri] = cg / sum;
-        b2[ri] = cb / sum;
+        r2[ri] = safeDivide(cr, sum);
+        g2[ri] = safeDivide(cg, sum);
+        b2[ri] = safeDivide(cb, sum);
       }
       yi += pixelWidth;
     }
@@ -1228,7 +1234,7 @@ public class PImage implements PConstants, Cloneable {
           ri++;
           read += pixelWidth;
         }
-        pixels[x+yi] = 0xff000000 | (cr/sum)<<16 | (cg/sum)<<8 | (cb/sum);
+        pixels[x+yi] = 0xff000000 | (safeDivide(cr, sum))<<16 | (safeDivide(cg, sum))<<8 | (safeDivide(cb, sum));
       }
       yi += pixelWidth;
       ymi += pixelWidth;
@@ -1276,10 +1282,10 @@ public class PImage implements PConstants, Cloneable {
           read++;
         }
         ri = yi + x;
-        a2[ri] = ca / sum;
-        r2[ri] = cr / sum;
-        g2[ri] = cg / sum;
-        b2[ri] = cb / sum;
+        a2[ri] = safeDivide(ca, sum);
+        r2[ri] = safeDivide(cr, sum);
+        g2[ri] = safeDivide(cg, sum);
+        b2[ri] = safeDivide(cb, sum);
       }
       yi += pixelWidth;
     }
@@ -1315,7 +1321,7 @@ public class PImage implements PConstants, Cloneable {
           ri++;
           read += pixelWidth;
         }
-        pixels[x+yi] = (ca/sum)<<24 | (cr/sum)<<16 | (cg/sum)<<8 | (cb/sum);
+        pixels[x+yi] = (safeDivide(ca, sum))<<24 | (safeDivide(cr, sum))<<16 | (safeDivide(cg, sum))<<8 | (safeDivide(cb, sum));
       }
       yi += pixelWidth;
       ymi += pixelWidth;

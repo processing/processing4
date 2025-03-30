@@ -1,4 +1,4 @@
-name: Pull Requests
+name: Pull Requests (Legacy)
 on:
   pull_request:
     paths-ignore:

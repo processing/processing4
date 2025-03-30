@@ -31,14 +31,18 @@ import processing.app.Messages;
 import processing.app.Preferences;
 import processing.core.PApplet;
 
+import javax.swing.*;
+
 
 public class LinuxPlatform extends DefaultPlatform {
-  // Switched to use ~ as the home directory for compatibility with snap
-  String homeDir = "~";
+  String homeDir;
 
 
   public void initBase(Base base) {
     super.initBase(base);
+
+    JFrame.setDefaultLookAndFeelDecorated(true);
+    System.setProperty("flatlaf.menuBarEmbedded", "true");
 
     // Set X11 WM_CLASS property which is used as the application
     // name by Gnome 3 and other window managers.
@@ -106,6 +110,10 @@ public class LinuxPlatform extends DefaultPlatform {
         Messages.err("XDG_CONFIG_HOME is set to " + configHomeEnv + " but does not exist.");
         configHome = null;  // don't use non-existent folder
       }
+    }
+    String snapUserCommon = System.getenv("SNAP_USER_COMMON");
+    if (snapUserCommon != null && !snapUserCommon.isBlank()) {
+      configHome = new File(snapUserCommon);
     }
     // If not set properly, use the default
     if (configHome == null) {

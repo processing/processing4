@@ -1,5 +1,7 @@
 package processing.app
 
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.ArgumentCaptor
@@ -35,6 +37,22 @@ class SchemaTest {
         verify(base).handleNew()
     }
 
+
+    @Test
+    fun testCustomBase64Sketch(){
+        Schema.handleSchema("pde://sketch/base64/LyoqCiAqIEFycmF5IE9iamVjdHMuIAogKiAKICogRGVtb25zdHJhdGVzIHRoZSBzeW50YXggZm9yIGNyZWF0aW5nIGFuIGFycmF5IG9mIGN1c3RvbSBvYmplY3RzLiAKICovCgppbnQgdW5pdCA9IDQwOwppbnQgY291bnQ7Ck1vZHVsZVtdIG1vZHM7Cgp2b2lkIHNldHVwKCkgewogIHNpemUoNjQwLCAzNjApOwogIG5vU3Ryb2tlKCk7CiAgaW50IHdpZGVDb3VudCA9IHdpZHRoIC8gdW5pdDsKICBpbnQgaGlnaENvdW50ID0gaGVpZ2h0IC8gdW5pdDsKICBjb3VudCA9IHdpZGVDb3VudCAqIGhpZ2hDb3VudDsKICBtb2RzID0gbmV3IE1vZHVsZVtjb3VudF07CgogIGludCBpbmRleCA9IDA7CiAgZm9yIChpbnQgeSA9IDA7IHkgPCBoaWdoQ291bnQ7IHkrKykgewogICAgZm9yIChpbnQgeCA9IDA7IHggPCB3aWRlQ291bnQ7IHgrKykgewogICAgICBtb2RzW2luZGV4KytdID0gbmV3IE1vZHVsZSh4KnVuaXQsIHkqdW5pdCwgdW5pdC8yLCB1bml0LzIsIHJhbmRvbSgwLjA1LCAwLjgpLCB1bml0KTsKICAgIH0KICB9Cn0KCnZvaWQgZHJhdygpIHsKICBiYWNrZ3JvdW5kKDApOwogIGZvciAoTW9kdWxlIG1vZCA6IG1vZHMpIHsKICAgIG1vZC51cGRhdGUoKTsKICAgIG1vZC5kaXNwbGF5KCk7CiAgfQp9?pde=Module:Y2xhc3MgTW9kdWxlIHsKICBpbnQgeE9mZnNldDsKICBpbnQgeU9mZnNldDsKICBmbG9hdCB4LCB5OwogIGludCB1bml0OwogIGludCB4RGlyZWN0aW9uID0gMTsKICBpbnQgeURpcmVjdGlvbiA9IDE7CiAgZmxvYXQgc3BlZWQ7IAogIAogIC8vIENvbnRydWN0b3IKICBNb2R1bGUoaW50IHhPZmZzZXRUZW1wLCBpbnQgeU9mZnNldFRlbXAsIGludCB4VGVtcCwgaW50IHlUZW1wLCBmbG9hdCBzcGVlZFRlbXAsIGludCB0ZW1wVW5pdCkgewogICAgeE9mZnNldCA9IHhPZmZzZXRUZW1wOwogICAgeU9mZnNldCA9IHlPZmZzZXRUZW1wOwogICAgeCA9IHhUZW1wOwogICAgeSA9IHlUZW1wOwogICAgc3BlZWQgPSBzcGVlZFRlbXA7CiAgICB1bml0ID0gdGVtcFVuaXQ7CiAgfQogIAogIC8vIEN1c3RvbSBtZXRob2QgZm9yIHVwZGF0aW5nIHRoZSB2YXJpYWJsZXMKICB2b2lkIHVwZGF0ZSgpIHsKICAgIHggPSB4ICsgKHNwZWVkICogeERpcmVjdGlvbik7CiAgICBpZiAoeCA+PSB1bml0IHx8IHggPD0gMCkgewogICAgICB4RGlyZWN0aW9uICo9IC0xOwogICAgICB4ID0geCArICgxICogeERpcmVjdGlvbik7CiAgICAgIHkgPSB5ICsgKDEgKiB5RGlyZWN0aW9uKTsKICAgIH0KICAgIGlmICh5ID49IHVuaXQgfHwgeSA8PSAwKSB7CiAgICAgIHlEaXJlY3Rpb24gKj0gLTE7CiAgICAgIHkgPSB5ICsgKDEgKiB5RGlyZWN0aW9uKTsKICAgIH0KICB9CiAgCiAgLy8gQ3VzdG9tIG1ldGhvZCBmb3IgZHJhd2luZyB0aGUgb2JqZWN0CiAgdm9pZCBkaXNwbGF5KCkgewogICAgZmlsbCgyNTUpOwogICAgZWxsaXBzZSh4T2Zmc2V0ICsgeCwgeU9mZnNldCArIHksIDYsIDYpOwogIH0KfQAA", base)
+        val captor = ArgumentCaptor.forClass(String::class.java)
+
+        verify(base).handleOpenUntitled(captor.capture())
+
+        val file = File(captor.value)
+        assert(file.exists())
+
+        val extra = file.parentFile.resolve("Module.pde")
+        assert(extra.exists())
+        file.parentFile.deleteRecursively()
+    }
+
     @OptIn(ExperimentalEncodingApi::class)
     @Test
     fun testBase64SketchAndExtraFiles() {
@@ -49,8 +67,8 @@ class SchemaTest {
 
         val base64 = Base64.encode(sketch.toByteArray())
         Schema.handleSchema("pde://sketch/base64/$base64?pde=AnotherFile:$base64", base)
-        val captor = ArgumentCaptor.forClass(String::class.java)
 
+        val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
 
         val file = File(captor.value)
@@ -66,6 +84,7 @@ class SchemaTest {
     @Test
     fun testURLSketch() {
         Schema.handleSchema("pde://sketch/url/github.com/processing/processing-examples/raw/refs/heads/main/Basics/Arrays/Array/Array.pde", base)
+        waitForSchemeJobsToComplete()
 
         val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
@@ -88,6 +107,7 @@ class SchemaTest {
     ])
     fun testURLSketchWithFile(file: String){
         Schema.handleSchema("pde://sketch/url/github.com/processing/processing-examples/raw/refs/heads/main/Basics/Arrays/ArrayObjects/ArrayObjects.pde?pde=$file", base)
+        waitForSchemeJobsToComplete()
 
         val captor = ArgumentCaptor.forClass(String::class.java)
         verify(base).handleOpenUntitled(captor.capture())
@@ -108,6 +128,12 @@ class SchemaTest {
         preferences.verify {
             Preferences.set("test", "value")
             Preferences.save()
+        }
+    }
+
+    fun waitForSchemeJobsToComplete(){
+        runBlocking {
+            joinAll(*Schema.jobs.toTypedArray())
         }
     }
 }
