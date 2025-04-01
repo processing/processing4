@@ -586,9 +586,7 @@ public class Base {
     item.addActionListener(e -> handleNew());
     defaultFileMenu.add(item);
 
-//    item = Toolkit.newJMenuItem(Language.text("menu.file.open"), 'O');
-//    item.addActionListener(e -> handleOpenPrompt());
-//    defaultFileMenu.add(item);
+
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.sketchbook"), 'K');
     item.addActionListener(e -> showSketchbookFrame());

@@ -724,7 +724,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     fileMenu.add(item);
 
     JMenu templatesMenu = new JMenu(Language.text("menu.file.templates"));
-    System.out.println("templatesMenu");
+    Messages.log("templatesMenu");
     loadTemplates(templatesMenu);
     fileMenu.add(templatesMenu);
 
@@ -774,24 +774,13 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
     // Load predefined templates from the repository
     File repoTemplatesDir = Platform.getContentFile("lib/templates");
-    System.out.println("repoTemplatesDir: " + repoTemplatesDir);
-    System.out.println("Loading templates from repository directory: " + repoTemplatesDir.getAbsolutePath());
     addTemplatesFromDirectory(repoTemplatesDir, allTemplates);
 
     // Load user-defined templates from the Sketchbook folder
     File userTemplatesDir = new File(Base.getSketchbookFolder(), "templates");
-
-    System.out.println("Loading templates from user sketchbook directory: " + userTemplatesDir.getAbsolutePath());
     addTemplatesFromDirectory(userTemplatesDir, allTemplates);
 
-    // Print all templates to the console
-    System.out.println("All loaded templates:");
-    System.out.println(allTemplates.size());
-    for (File template : allTemplates) {
-      System.out.println("Template: " + template.getAbsolutePath());
-    }
 
-    // Add all templates to the menu
     addTemplatesToMenu(allTemplates, templatesMenu);
   }
 
@@ -800,14 +789,13 @@ public abstract class Editor extends JFrame implements RunnerListener {
       File[] templateFiles = directory.listFiles();
       if (templateFiles != null) {
         for (File templateFile : templateFiles) {
-          System.out.println("Found template file: " + templateFile.getAbsolutePath());
           allTemplates.add(templateFile);
         }
       } else {
-        System.out.println("No template files found in directory: " + directory.getAbsolutePath());
+        Messages.log("No template files found in directory: " + directory.getAbsolutePath());
       }
     } else {
-      System.out.println("Directory does not exist or is not a directory: " + directory.getAbsolutePath());
+      Messages.log("Directory does not exist or is not a directory: " + directory.getAbsolutePath());
     }
   }
 
@@ -817,32 +805,55 @@ public abstract class Editor extends JFrame implements RunnerListener {
     templatesMenu.removeAll();  // Clear existing menu items
     for (File templateFile : templates) {
       String templateName;
-      if (templateFile.getName().toLowerCase().endsWith(".pde")) {
+      if (templateFile.isDirectory()) {
+        // Handle directory case - might be a sketch folder
+        templateName = templateFile.getName();
+      } else if (templateFile.getName().toLowerCase().endsWith(".pde")) {
         templateName = templateFile.getName().replace(".pde", "");
       } else {
         templateName = templateFile.getName();
       }
+
       JMenuItem templateItem = new JMenuItem(templateName);
       templateItem.addActionListener(e -> {
         try {
-          String templateCode;
-          if (templateFile.getName().toLowerCase().endsWith(".pde")) {
+          String templateCode = "";
+
+          if (templateFile.isDirectory()) {
+            // It's a sketch folder, find the main .pde file with the same name as the folder
+            File mainPdeFile = new File(templateFile, templateFile.getName() + ".pde");
+            if (mainPdeFile.exists()) {
+              templateCode = new String(Files.readAllBytes(mainPdeFile.toPath()));
+
+            } else {
+              // If main file doesn't exist, try to read any .pde file in the directory
+              File[] pdeFiles = templateFile.listFiles((dir, name) -> name.toLowerCase().endsWith(".pde"));
+              if (pdeFiles != null && pdeFiles.length > 0) {
+                templateCode = new String(Files.readAllBytes(pdeFiles[0].toPath()));
+
+              }
+            }
+          } else if (templateFile.getName().toLowerCase().endsWith(".pde")) {
+
             templateCode = new String(Files.readAllBytes(templateFile.toPath()));
-            System.out.println("Template code read from file: " + templateCode);
+
           } else {
-            templateCode = "";
-           // System.out.println("Addtemplatestomenu--suserdefned"+templateFile);// Or any other action needed for non-.pde files
-            System.out.println("Non-.pde file selected: " + templateFile.getAbsolutePath());
+              templateCode = new String(Files.readAllBytes(templateFile.toPath()));
+            Messages.log("Unrecognized file type: " + templateFile.getAbsolutePath());
           }
 
           Editor newEditor = base.handleNew();
           if (newEditor != null) {
-            System.out.println("New editor created. Inserting template code.");
+
             newEditor.insertText(templateCode);
           } else {
-            System.err.println("Failed to create new editor.");
+            Messages.log("Failed to create new editor.");
           }
         } catch (IOException ex) {
+          Messages.log("Error reading template file: " + ex.getMessage());
+          ex.printStackTrace();
+        } catch (Exception ex) {
+          Messages.log("Unexpected error: " + ex.getMessage());
           ex.printStackTrace();
         }
       });
@@ -851,34 +862,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
   }
 
 
-  // Method to save user-defined templates in the sketchbook/templates directory
-//  public void saveUserTemplate(String templateName, String templateCode) {
-//    File userTemplatesDir = new File(Base.getSketchbookFolder(), "templates");
-//    if (!userTemplatesDir.exists()) {
-//      userTemplatesDir.mkdirs();
-//    }
-//
-//    File templateFile = new File(userTemplatesDir, templateName + ".pde");
-//    try {
-//      Files.write(templateFile.toPath(), templateCode.getBytes());
-//      System.out.println("User template saved: " + templateFile.getAbsolutePath());
-//
-//      // Reload templates after saving a new one
-//      JMenu templatesMenu = new JMenu(Language.text("menu.file.templates"));
-//      loadTemplates(templatesMenu);
-//
-//      // Update the File menu with the new templates menu
-//      JMenu fileMenu = buildFileMenu(null);
-//      fileMenu.add(templatesMenu);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//  }
-  // Add this method to insert template code into the editor
-  private void insertTemplateCode(String templateCode) {
-    //textarea.setText("");
-    insertText(templateCode);
-  }
+
 
 
   protected JMenu buildEditMenu() {
@@ -2420,7 +2404,9 @@ public abstract class Editor extends JFrame implements RunnerListener {
     statusNotice(Language.text("editor.status.saving"));
     try {
       if (sketch.save()) {
+
         statusNotice(Language.text("editor.status.saving.done"));
+
       } else {
         statusEmpty();
       }
