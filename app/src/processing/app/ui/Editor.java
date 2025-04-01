@@ -847,6 +847,9 @@ public abstract class Editor extends JFrame implements RunnerListener {
           if (newEditor != null) {
 
             newEditor.insertText(templateCode);
+            JEditTextArea textArea = newEditor.getTextArea();
+            textArea.setCaretPosition(0);
+            textArea.scrollTo(0, 0);
           } else {
             Messages.log("Failed to create new editor.");
           }
