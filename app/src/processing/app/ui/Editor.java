@@ -771,7 +771,6 @@ public abstract class Editor extends JFrame implements RunnerListener {
   // Load templates from both the repository and the user's Sketchbook folder
   private void loadTemplates(JMenu templatesMenu) {
     templatesMenu.removeAll();
-    System.out.println("templatesMenu"+templatesMenu.getComponentCount());
     List<File> allTemplates = new ArrayList<>();
 
     // Load predefined templates from the repository
