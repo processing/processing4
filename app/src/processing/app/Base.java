@@ -597,7 +597,6 @@ public class Base {
     defaultFileMenu.add(item);
 
     item = Toolkit.newJMenuItem(Language.text("menu.file.templates"), 'T');
-    //item.addActionListener(e -> handleTemplates());
     defaultFileMenu.add(item);
 
     return defaultFileMenu;
@@ -1289,7 +1288,7 @@ public class Base {
     });
   }
 
-//  Open templates to start with any work
+
 
 
   /**
