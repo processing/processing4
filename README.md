@@ -292,6 +292,7 @@ Add yourself to the contributors list [here](https://github.com/processing/proce
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/babaissarkar"><img src="https://avatars.githubusercontent.com/u/8469888?v=4?s=120" width="120px;" alt="Subhraman Sarkar"/><br /><sub><b>Subhraman Sarkar</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=babaissarkar" title="Code">💻</a> <a href="#a11y-babaissarkar" title="Accessibility">️️️️♿️</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/SushantBansal-tech"><img src="https://avatars.githubusercontent.com/u/189839531?v=4?s=120" width="120px;" alt="SushantBansal-tech"/><br /><sub><b>SushantBansal-tech</b></sub></a><br /><a href="#ideas-SushantBansal-tech" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/processing/processing4/commits?author=SushantBansal-tech" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
