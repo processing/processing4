@@ -3,7 +3,7 @@ package processing.core;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TestPMatrix3D {
+public class PMatrix3DTest {
 
   @Test
   public void testConstructorsResetAndGet() {
