@@ -30,8 +30,3 @@ tasks.register<Jar>("dxfJar") {
     from(sourceSets.main.get().output)
 }
 
-tasks.register("clean") {
-    doLast {
-        delete("build", "library/dxf.jar")
-    }
-}
