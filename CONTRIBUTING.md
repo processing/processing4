@@ -71,7 +71,7 @@ Before opening a pull request, please make sure to discuss the related issue and
 
 ## New Features
 
-In most cases, the best way to contribute a new feature is to create a library. The [Processing Library Template](https://github.com/processing/processing-library-template) is a great way to get started. For more instructions, see the [library template documenation](https://processing.github.io/processing-library-template/).
+In most cases, the best way to contribute a new feature is to create a library. The [Processing Library Template](https://github.com/processing/processing-library-template) is a great way to get started. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/).
 
 Nearly all new features are first introduced as a Library or a Mode, or even as an example. The current [OpenGL renderer](http://glgraphics.sourceforge.net/) and Video library began as separate projects by Andrés Colubri, who needed a more performant, more sophisticated version of what we had in Processing for work that he was creating. The original `loadShape()` implementation came from the “Candy” library by Michael Chang (“mflux“). Similarly, Tweak Mode began as a [separate project](http://galsasson.com/tweakmode/) by Gal Sasson before being incorporated. PDE X was a Google Summer of code [project](https://github.com/processing/processing-experimental) by Manindra Moharana that updated the PDE to include basic refactoring and better error checking.
 
