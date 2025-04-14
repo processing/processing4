@@ -2496,7 +2496,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br />
    * Using point() with strokeWeight(1) or smaller may draw nothing to the screen,
    * depending on the graphics settings of the computer. Workarounds include
-   * setting the pixel using <b>set()</s> or drawing the point using either
+   * setting the pixel using <b>set()</b> or drawing the point using either
    * <b>circle()</b> or <b>square()</b>.
    *
    * @webref shape:2d primitives
@@ -6439,7 +6439,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br />
    * Using point() with strokeWeight(1) or smaller may draw nothing to the screen,
    * depending on the graphics settings of the computer. Workarounds include
-   * setting the pixel using <b>set()</s> or drawing the point using either
+   * setting the pixel using <b>set()</b> or drawing the point using either
    * <b>circle()</b> or <b>square()</b>.
    *
    * @webref shape:attributes
