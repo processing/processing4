@@ -3559,8 +3559,8 @@ public class PGraphics extends PImage implements PConstants {
 
   /**
    * Calculates the tangent of a point on a curve. There's a good definition
-   * of <em><a href="http://en.wikipedia.org/wiki/Tangent"
-   * target="new">tangent</em> on Wikipedia</a>.
+   * of <a href="http://en.wikipedia.org/wiki/Tangent"
+   * target="new"><em>tangent</em> on Wikipedia</a>.
    *
    * <h3>Advanced</h3>
    * Code thanks to Dave Bollinger (Bug #715)
