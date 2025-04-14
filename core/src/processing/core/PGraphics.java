@@ -6252,7 +6252,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br /><br />
    * The style information controlled by the following functions are included
    * in the style:
-   * <b>fill()<b>, <b>stroke()</b>, <b>tint()</b>, <b>strokeWeight()</b>, <b>strokeCap()</b>,<b>strokeJoin()</b>,
+   * <b>fill()</b>, <b>stroke()</b>, <b>tint()</b>, <b>strokeWeight()</b>, <b>strokeCap()</b>,<b>strokeJoin()</b>,
    * <b>imageMode()</b>, <b>rectMode()</b>, <b>ellipseMode()</b>, <b>shapeMode()</b>, <b>colorMode()</b>,
    * <b>textAlign()</b>, <b>textFont()</b>, <b>textMode()</b>, <b>textSize()</b>, <b>textLeading()</b>,
    * <b>emissive()</b>, <b>specular()</b>, <b>shininess()</b>, <b>ambient()</b>
