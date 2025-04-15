@@ -9,7 +9,7 @@ This repository contains the source code for the [Processing](https://processing
 
 ## Welcome to Processing 4.4!
 
-We’re excited to announce the release of Processing 4.4! While our last big release focused on tooling and developer experience, this update modernizes Processing under the hood to make future development easier. Key changes include switching the build system from Ant to Gradle, starting the transition to Jetpack Compose Multiplatform for the UI, and adding Kotlin support to the codebase. To learn more, check out [Changes in 4.4.0](https://github.com/processing/processing4/wiki/Changes-in-4.4).
+We’re excited to announce the release of Processing 4.4! This update modernizes Processing under the hood to make future development easier. Key changes include switching the build system from Ant to Gradle, starting the transition from Swing to Jetpack Compose Multiplatform for the UI, and adding Kotlin support to the codebase. To learn more, check out [Changes in 4.4.0](https://github.com/processing/processing4/wiki/Changes-in-4.4).
 
 We hope these updates will make it easier for more people to contribute to Processing. If you'd like to get involved, have a look at our [Contributor Guide](CONTRIBUTING.md).
 
