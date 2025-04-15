@@ -2496,7 +2496,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br />
    * Using point() with strokeWeight(1) or smaller may draw nothing to the screen,
    * depending on the graphics settings of the computer. Workarounds include
-   * setting the pixel using <b>set()</s> or drawing the point using either
+   * setting the pixel using <b>set()</b> or drawing the point using either
    * <b>circle()</b> or <b>square()</b>.
    *
    * @webref shape:2d primitives
@@ -3559,8 +3559,8 @@ public class PGraphics extends PImage implements PConstants {
 
   /**
    * Calculates the tangent of a point on a curve. There's a good definition
-   * of <em><a href="http://en.wikipedia.org/wiki/Tangent"
-   * target="new">tangent</em> on Wikipedia</a>.
+   * of <a href="http://en.wikipedia.org/wiki/Tangent"
+   * target="new"><em>tangent</em> on Wikipedia</a>.
    *
    * <h3>Advanced</h3>
    * Code thanks to Dave Bollinger (Bug #715)
@@ -6252,7 +6252,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br /><br />
    * The style information controlled by the following functions are included
    * in the style:
-   * <b>fill()<b>, <b>stroke()</b>, <b>tint()</b>, <b>strokeWeight()</b>, <b>strokeCap()</b>,<b>strokeJoin()</b>,
+   * <b>fill()</b>, <b>stroke()</b>, <b>tint()</b>, <b>strokeWeight()</b>, <b>strokeCap()</b>,<b>strokeJoin()</b>,
    * <b>imageMode()</b>, <b>rectMode()</b>, <b>ellipseMode()</b>, <b>shapeMode()</b>, <b>colorMode()</b>,
    * <b>textAlign()</b>, <b>textFont()</b>, <b>textMode()</b>, <b>textSize()</b>, <b>textLeading()</b>,
    * <b>emissive()</b>, <b>specular()</b>, <b>shininess()</b>, <b>ambient()</b>
@@ -6439,7 +6439,7 @@ public class PGraphics extends PImage implements PConstants {
    * <br />
    * Using point() with strokeWeight(1) or smaller may draw nothing to the screen,
    * depending on the graphics settings of the computer. Workarounds include
-   * setting the pixel using <b>set()</s> or drawing the point using either
+   * setting the pixel using <b>set()</b> or drawing the point using either
    * <b>circle()</b> or <b>square()</b>.
    *
    * @webref shape:attributes
