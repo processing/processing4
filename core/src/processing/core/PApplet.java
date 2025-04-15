@@ -10105,6 +10105,8 @@ public class PApplet implements PConstants {
     sketch.present = present;
     sketch.fullScreen = fullScreen;
 
+    sketch.pixelDensity = sketch.displayDensity();
+
     // For 3.0.1, moved this above handleSettings() so that loadImage() can be
     // used inside settings(). Sets a terrible precedent, but the alternative
     // of not being able to size a sketch to an image is driving people loopy.
