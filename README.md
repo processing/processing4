@@ -14,7 +14,7 @@ We’re excited to announce the release of Processing 4.4! This update modernize
 We hope these updates will make it easier for more people to contribute to Processing. If you'd like to get involved, have a look at our [Contributor Guide](CONTRIBUTING.md).
 
 ## Acknowledgement
-Processing was initiated in 2001 by Ben Fry and Casey Reas, who lead the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community.
+Processing was initiated in 2001 by Ben Fry and Casey Reas, who led the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community.
 
 ## Using Processing
 
