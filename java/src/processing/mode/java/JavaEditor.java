@@ -100,9 +100,10 @@ public class JavaEditor extends Editor {
   static final int REFERENCE_PORT = 8053;
   // weird to link to a specific location like this, but it's versioned, so:
   static final String REFERENCE_URL =
-    "https://github.com/processing/processing-website/releases/download/2022-10-05-1459/reference.zip";
+    "https://github.com/processing/processing4/releases/tag/processing-1300-4.4.0";
+  static final String REFERENCE_URL_2 = "https://github.com/processing/processing4/releases/download/processing-1300-4.4.0/processing-4.4.0-reference.zip";
   Boolean useReferenceServer;
-  WebServer referenceServer;
+  ReferenceServer referenceServer;
 
 
   protected JavaEditor(Base base, String path, EditorState state,
@@ -846,7 +847,7 @@ public class JavaEditor extends Editor {
       }
       if (referenceZip.exists()) {
         try {
-          referenceServer = new WebServer(referenceZip, REFERENCE_PORT);
+          referenceServer = new ReferenceServer(referenceZip, REFERENCE_PORT);
           useReferenceServer = true;
 
         } catch (IOException e) {
@@ -889,7 +890,7 @@ public class JavaEditor extends Editor {
 
   private void downloadReference() {
     try {
-      URL source = new URL(REFERENCE_URL);
+      URL source = new URL(REFERENCE_URL_2);
       HttpURLConnection conn = (HttpURLConnection) source.openConnection();
       HttpURLConnection.setFollowRedirects(true);
       conn.setConnectTimeout(15 * 1000);
