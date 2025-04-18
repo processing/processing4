@@ -1,5 +1,14 @@
 # Processing URI Schema Definition
 
+The Processing URI schema defines a custom protocol for launching and interacting with the Processing Development Environment (PDE) via specially formatted `pde://` links. These links can be used to open sketches, create new ones, load hosted or base64-encoded files, and set preferences, all through a simple URI-based interface.
+
+This feature is primarily intended for integration with web platforms, tutorials, documentation, or third-party tools that want to streamline the experience of launching sketches in Processing from a web page. 
+
+Because these links can be generated dynamically, they support a range of interactive use cases. For example, an online editor could generate a unique link for each sketch, or a forum could create links based on user-submitted code snippets.
+
+>[!WARNING]
+> Be cautious when opening `pde://` links from unknown sources. Always review the contents of a sketch before running it, especially if it was shared by someone you don’t know. To protect your system, Processing runs downloaded sketches in a temporary folder, but you should still treat untrusted code with care.
+
 ## Local File Schema
 ```
 pde:///path/to/sketch.pde

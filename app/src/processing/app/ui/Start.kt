@@ -12,15 +12,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.toComposeImageBitmap
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import processing.app.Base
-import processing.app.Platform
-import javax.imageio.ImageIO
 
 /**
  * Show a splash screen window. A rewrite of Splash.java
@@ -29,8 +26,6 @@ class Start {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val splash = Platform.getContentFile("lib/about-processing.png")
-            val image = ImageIO.read(splash).toComposeImageBitmap()
             val duration = 200
             val timeMargin = 50
 
@@ -44,7 +39,8 @@ class Start {
                     resizable = false,
                     state = rememberWindowState(
                         position = WindowPosition(Alignment.Center),
-                        size = DpSize(image.width.dp / 2 , image.height.dp / 2)
+                        width = 578.dp,
+                        height = 665.dp
                     )
                 ) {
                     var visible by remember { mutableStateOf(false) }
@@ -81,7 +77,7 @@ class Start {
                         )
                     ) {
                         Image(
-                            bitmap = image,
+                            painter = painterResource("about-processing.svg"),
                             contentDescription = "About",
                             modifier = Modifier
                                 .fillMaxSize()

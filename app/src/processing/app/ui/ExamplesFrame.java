@@ -33,6 +33,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Enumeration;
 
 import javax.swing.Box;
@@ -57,6 +59,7 @@ import processing.app.Mode;
 import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.SketchReference;
+import processing.app.contrib.Contribution;
 import processing.app.contrib.ContributionManager;
 import processing.app.contrib.ContributionType;
 import processing.app.contrib.ExamplesContribution;
@@ -313,9 +316,11 @@ public class ExamplesFrame extends JFrame {
       }
 
       // Get examples for third party libraries
-      DefaultMutableTreeNode contributedLibExamples = new
-        DefaultMutableTreeNode(Language.text("examples.libraries"));
-      for (Library lib : mode.contribLibraries) {
+      DefaultMutableTreeNode contributedLibExamples = new DefaultMutableTreeNode(Language.text("examples.libraries"));
+      var sortedContribLibs = new ArrayList<>(mode.contribLibraries);
+      // Sort the libraries by actual name (not the name of the folder)
+      sortedContribLibs.sort(Comparator.comparing(Contribution::getName));
+      for (Library lib : sortedContribLibs) {
         if (lib.hasExamples()) {
             DefaultMutableTreeNode libNode =
               new DefaultMutableTreeNode(lib.getName());

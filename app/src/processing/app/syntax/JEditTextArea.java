@@ -399,6 +399,7 @@ public class JEditTextArea extends JComponent
   public void updateScrollBars() {
     if (vertical != null && visibleLines != 0) {
       vertical.setValues(firstLine,visibleLines,0,getLineCount());
+      vertical.setVisible(visibleLines < getLineCount());
       vertical.setUnitIncrement(2);
       vertical.setBlockIncrement(visibleLines);
     }
@@ -424,6 +425,7 @@ public class JEditTextArea extends JComponent
       // https://github.com/processing/processing/issues/319
       // https://github.com/processing/processing/issues/355
       //setValues(int newValue, int newExtent, int newMin, int newMax)
+      horizontal.setVisible(painterWidth < width);
       if (horizontalOffset < 0) {
         horizontal.setValues(-horizontalOffset, painterWidth, -leftHandGutter, width);
       } else {

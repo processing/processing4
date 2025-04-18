@@ -72,6 +72,7 @@ compose.desktop {
                 entitlementsFile.set(file("macos/entitlements.plist"))
                 runtimeEntitlementsFile.set(file("macos/entitlements.plist"))
                 appStore = true
+                jvmArgs("-Dsun.java2d.metal=true")
             }
             windows{
                 iconFile = rootProject.file("build/windows/processing.ico")
@@ -354,6 +355,7 @@ tasks.register<Download>("includeJdk") {
             into(composeResources(""))
         }
     }
+    finalizedBy("prepareAppResources")
 }
 tasks.register<Copy>("includeSharedAssets"){
     from("../build/shared/")
@@ -511,7 +513,6 @@ afterEvaluate {
         dependsOn(
             "includeCore",
             "includeJavaMode",
-            "includeJdk",
             "includeSharedAssets",
             "includeProcessingExamples",
             "includeProcessingWebsiteExamples",
@@ -539,7 +540,7 @@ afterEvaluate {
         }
     }
     tasks.named("createDistributable").configure {
-        dependsOn("signResources")
+        dependsOn("signResources", "includeJdk")
         finalizedBy("setExecutablePermissions")
     }
 }
