@@ -240,6 +240,7 @@ tasks.register("generateSnapConfiguration"){
           - network
           - opengl
           - home
+          - removable-media
     
     parts:
       processing:
