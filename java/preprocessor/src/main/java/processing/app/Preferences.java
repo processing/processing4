@@ -58,7 +58,7 @@ public class Preferences {
         }
     }
     static public boolean getBoolean(String attribute) {
-        String value = get(attribute); //, null);
+        String value = get(attribute);
         return Boolean.parseBoolean(value);
     }
     static public int getInteger(String attribute /*, int defaultValue*/) {
