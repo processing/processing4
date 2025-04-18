@@ -100,6 +100,7 @@ public class InstallCommander implements Tool {
 
       StringList jarList = new StringList();
       addJarList(jarList, new File(javaRoot));
+      addJarList(jarList, new File(javaRoot).getParentFile());
       addJarList(jarList, new File(javaRoot, "core/library"));
       addJarList(jarList, new File(javaRoot, "modes/java/mode"));
       String classPath = jarList.join(":").replaceAll(javaRoot + "\\/?", "");
