@@ -887,10 +887,25 @@ public class JavaEditor extends Editor {
   }
   */
 
+  private String getReferenceDownloadUrl() {
+    String versionName = Base.getVersionName();
+    int revisionInt = Base.getRevision();
+    String revision = String.valueOf(revisionInt);
+
+    if ("unspecified".equals(versionName) || revisionInt == Integer.MAX_VALUE) {
+      return "https://github.com/processing/processing4/releases/download/processing-1300-4.4.0/processing-4.4.0-reference.zip";
+    }
+
+    String url = String.format(
+            "https://github.com/processing/processing4/releases/download/processing-%s-%s/processing-%s-reference.zip",
+            revision, versionName, versionName);
+    System.out.println("Generated URL: " + url);
+    return url;
+  }
 
   private void downloadReference() {
     try {
-      URL source = new URL(REFERENCE_URL_2);
+      URL source = new URL(getReferenceDownloadUrl());
       HttpURLConnection conn = (HttpURLConnection) source.openConnection();
       HttpURLConnection.setFollowRedirects(true);
       conn.setConnectTimeout(15 * 1000);
