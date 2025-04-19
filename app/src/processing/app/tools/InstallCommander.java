@@ -86,30 +86,41 @@ public class InstallCommander implements Tool {
       PrintWriter writer = PApplet.createWriter(file);
       writer.print("#!/bin/sh\n\n");
 
-      writer.print("# Prevents processing-java from stealing focus, see:\n" +
-                   "# https://github.com/processing/processing/issues/3996.\n" +
-                   "OPTION_FOR_HEADLESS_RUN=\"\"\n" +
-                   "for ARG in \"$@\"\n" +
-                   "do\n" +
-                   "    if [ \"$ARG\" = \"--build\" ]; then\n" +
-                   "        OPTION_FOR_HEADLESS_RUN=\"-Djava.awt.headless=true\"\n" +
-                   "    fi\n" +
-                   "done\n\n");
+      var resourcesDir = System.getProperty("compose.application.resources.dir");
+      if(resourcesDir != null) {
+        // Gradle based distributable
+        var appBinary = (resourcesDir
+                .split("\\.app")[0] + ".app/Contents/MacOS/Processing")
+                .replaceAll(" ", "\\\\ ");
+        writer.print(appBinary + " cli $@");
 
-      String javaRoot = Platform.getContentFile(".").getCanonicalPath();
+      } else {
+        // Ant based distributable
+        writer.print("# Prevents processing-java from stealing focus, see:\n" +
+                "# https://github.com/processing/processing/issues/3996.\n" +
+                "OPTION_FOR_HEADLESS_RUN=\"\"\n" +
+                "for ARG in \"$@\"\n" +
+                "do\n" +
+                "    if [ \"$ARG\" = \"--build\" ]; then\n" +
+                "        OPTION_FOR_HEADLESS_RUN=\"-Djava.awt.headless=true\"\n" +
+                "    fi\n" +
+                "done\n\n");
 
-      StringList jarList = new StringList();
-      addJarList(jarList, new File(javaRoot));
-      addJarList(jarList, new File(javaRoot, "core/library"));
-      addJarList(jarList, new File(javaRoot, "modes/java/mode"));
-      String classPath = jarList.join(":").replaceAll(javaRoot + "\\/?", "");
+        String javaRoot = Platform.getContentFile(".").getCanonicalPath();
 
-      writer.println("cd \"" + javaRoot + "\" && " +
-                     Platform.getJavaPath().replaceAll(" ", "\\\\ ") +
-                     " -Djna.nosys=true" +
-                     " $OPTION_FOR_HEADLESS_RUN" +
-      		           " -cp \"" + classPath + "\"" +
-      		           " processing.mode.java.Commander \"$@\"");
+        StringList jarList = new StringList();
+        addJarList(jarList, new File(javaRoot));
+        addJarList(jarList, new File(javaRoot, "core/library"));
+        addJarList(jarList, new File(javaRoot, "modes/java/mode"));
+        String classPath = jarList.join(":").replaceAll(javaRoot + "\\/?", "");
+
+        writer.println("cd \"" + javaRoot + "\" && " +
+                Platform.getJavaPath().replaceAll(" ", "\\\\ ") +
+                " -Djna.nosys=true" +
+                " $OPTION_FOR_HEADLESS_RUN" +
+                " -cp \"" + classPath + "\"" +
+                " processing.mode.java.Commander \"$@\"");
+      }
       writer.flush();
       writer.close();
       file.setExecutable(true);

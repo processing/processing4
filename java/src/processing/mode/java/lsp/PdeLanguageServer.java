@@ -21,7 +21,7 @@ import org.eclipse.lsp4j.services.LanguageClientAware;
 import org.eclipse.lsp4j.services.LanguageClient;
 
 
-class PdeLanguageServer implements LanguageServer, LanguageClientAware {
+public class PdeLanguageServer implements LanguageServer, LanguageClientAware {
   Map<File, PdeAdapter> adapters = new HashMap<>();
   LanguageClient client = null;
   PdeTextDocumentService textDocumentService = new PdeTextDocumentService(this);

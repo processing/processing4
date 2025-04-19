@@ -47,7 +47,7 @@ sourceSets{
 
 compose.desktop {
     application {
-        mainClass = "processing.app.ui.Start"
+        mainClass = "processing.app.ProcessingKt"
 
         jvmArgs(*listOf(
             Pair("processing.version", rootProject.version),
@@ -97,6 +97,7 @@ compose.desktop {
 
 dependencies {
     implementation(project(":core"))
+    runtimeOnly(project(":java"))
 
     implementation(libs.flatlaf)
 
@@ -121,6 +122,8 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
+
+    implementation(libs.clikt)
 }
 
 tasks.test {
