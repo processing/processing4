@@ -391,17 +391,14 @@ public class Platform {
   static public File getJavaHome() {
     var resourcesDir = System.getProperty("compose.application.resources.dir");
     if(resourcesDir != null) {
-        var jdkFolder = Arrays.stream(new File(resourcesDir).listFiles((dir, name) -> dir.isDirectory() && name.startsWith("jdk-")))
-                .findFirst()
-                .orElse(null);
-        if(Platform.isMacOS()){
-            return new File(jdkFolder, "Contents/Home");
-        }
+      var jdkFolder = new File(resourcesDir,"jdk");
+      if(jdkFolder.exists()){
         return jdkFolder;
+      }
     }
 
     var home = System.getProperty("java.home");
-    if(home != null && new File(home, "bin/java").exists()){
+    if(home != null){
       return new File(home);
     }
     if (Platform.isMacOS()) {
