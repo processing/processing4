@@ -4,45 +4,49 @@ import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.command.main
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.ui.Start
 
-// TODO: Allow Start to run on no args
-// TODO: Modify InstallCommander to use the new structure
-// TODO: Move dependency to gradle toml
-// TODO: Add the options/arguments for Base arguments
-class Processing(val args: Array<String>): SuspendingCliktCommand(name = "Processing"){
+class Processing: SuspendingCliktCommand("processing"){
+    val sketches by argument().multiple(default = emptyList())
+
+    override fun help(context: Context) = "Start the Processing IDE"
+    override val invokeWithoutSubcommand = true
     override suspend fun run() {
-        if(currentContext.invokedSubcommand == null){
-            Start.main(args)
+        val subcommand = currentContext.invokedSubcommand
+        if (subcommand == null) {
+            Start.main(sketches.toTypedArray())
         }
     }
 }
 
-suspend fun main(args: Array<String>) = Processing(args)
-    .subcommands(
-        LSP(args),
-        LegacyCLI(args)
-    )
-    .main(args)
+suspend fun main(args: Array<String>){
+   Processing()
+        .subcommands(
+            LSP(),
+            LegacyCLI(args)
+        )
+        .main(args)
+}
 
-
-class LSP(val args: Array<String>): SuspendingCliktCommand("lsp"){
+class LSP: SuspendingCliktCommand("lsp"){
     override fun help(context: Context) = "Start the Processing Language Server"
     override suspend fun run(){
         try {
             // Indirect invocation since app does not depend on java mode
             Class.forName("processing.mode.java.lsp.PdeLanguageServer")
                 .getMethod("main", Array<String>::class.java)
-                .invoke(null, *arrayOf<Any>(args))
+                .invoke(null, *arrayOf<Any>(emptyList<String>()))
         } catch (e: Exception) {
             throw InternalError("Failed to invoke main method", e)
         }
     }
 }
 
-class LegacyCLI(val args: Array<String>): SuspendingCliktCommand(name = "cli"){
+class LegacyCLI(val args: Array<String>): SuspendingCliktCommand( "cli"){
     override fun help(context: Context) = "Legacy processing-java command line interface"
 
     val help by option("--help").flag()
@@ -57,12 +61,15 @@ class LegacyCLI(val args: Array<String>): SuspendingCliktCommand(name = "cli"){
     val variant: String? by option("--variant")
 
     override suspend fun run(){
-        val cliArgs = args.filter { it != "cli" }.toTypedArray()
+        val cliArgs = args.filter { it != "cli" }
         try {
+            if(build){
+                System.setProperty("java.awt.headless", "true")
+            }
             // Indirect invocation since app does not depend on java mode
             Class.forName("processing.mode.java.Commander")
                 .getMethod("main", Array<String>::class.java)
-                .invoke(null, *arrayOf<Any>(cliArgs))
+                .invoke(null, *arrayOf<Any>(cliArgs.toTypedArray()))
         } catch (e: Exception) {
             throw InternalError("Failed to invoke main method", e)
         }

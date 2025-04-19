@@ -123,7 +123,7 @@ dependencies {
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
 
-    implementation("com.github.ajalt.clikt:clikt:5.0.2")
+    implementation(libs.clikt)
 }
 
 tasks.test {

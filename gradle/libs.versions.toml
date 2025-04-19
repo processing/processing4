@@ -27,6 +27,7 @@ lsp4j = { module = "org.eclipse.lsp4j:org.eclipse.lsp4j", version = "0.22.0" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.17.2" }
 markdown = { module = "com.mikepenz:multiplatform-markdown-renderer-m2", version = "0.31.0" }
 markdownJVM = { module = "com.mikepenz:multiplatform-markdown-renderer-jvm", version = "0.31.0" }
+clikt = { module = "com.github.ajalt.clikt:clikt", version = "5.0.2" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
