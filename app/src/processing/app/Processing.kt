@@ -5,13 +5,16 @@ import com.github.ajalt.clikt.command.main
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.ui.Start
 
 class Processing: SuspendingCliktCommand("processing"){
-    val sketches by argument().multiple(default = emptyList())
+    val sketches by argument()
+        .multiple(default = emptyList())
+        .help("Sketches to open")
 
     override fun help(context: Context) = "Start the Processing IDE"
     override val invokeWithoutSubcommand = true
