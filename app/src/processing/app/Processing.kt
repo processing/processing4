@@ -8,10 +8,15 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.help
 import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.ui.Start
 
 class Processing: SuspendingCliktCommand("processing"){
+    val version by option("-v","--version")
+        .flag()
+        .help("Print version information")
+
     val sketches by argument()
         .multiple(default = emptyList())
         .help("Sketches to open")
@@ -19,6 +24,11 @@ class Processing: SuspendingCliktCommand("processing"){
     override fun help(context: Context) = "Start the Processing IDE"
     override val invokeWithoutSubcommand = true
     override suspend fun run() {
+        if(version){
+            println("processing-${Base.getVersionName()}-${Base.getRevision()}")
+            return
+        }
+
         val subcommand = currentContext.invokedSubcommand
         if (subcommand == null) {
             Start.main(sketches.toTypedArray())
