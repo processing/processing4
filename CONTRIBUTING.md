@@ -69,22 +69,37 @@ If there hasn’t been any activity after two weeks, feel free to gently follow 
 
 Before opening a pull request, please make sure to discuss the related issue and get assigned to it first. This helps us stay aligned and avoid unnecessary work. Thank you!
 
-## New Features
+## Adding New Features to Processing
 
-In most cases, the best way to contribute a new feature is to create a library. The [Processing Library Template](https://github.com/processing/processing-library-template) is a great way to get started. For more instructions, see the [library template documenation](https://processing.github.io/processing-library-template/).
+If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute.  The [Processing Library Template](https://github.com/processing/processing-library-template) provides a starting point for developing, packaging, and distributing Processing libraries. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/).
 
+Once your library is complete, you can submit it to the official [Processing Contributions](https://github.com/processing/processing-contributions) repository. This makes it discoverable through the PDE’s Contribution Manager. Follow the guidelines in the [Processing Library Guidelines](https://github.com/processing/processing4/wiki/Library-Guidelines).
+
+### Libraries as the Starting Point for Features
 Nearly all new features are first introduced as a Library or a Mode, or even as an example. The current [OpenGL renderer](http://glgraphics.sourceforge.net/) and Video library began as separate projects by Andrés Colubri, who needed a more performant, more sophisticated version of what we had in Processing for work that he was creating. The original `loadShape()` implementation came from the “Candy” library by Michael Chang (“mflux“). Similarly, Tweak Mode began as a [separate project](http://galsasson.com/tweakmode/) by Gal Sasson before being incorporated. PDE X was a Google Summer of code [project](https://github.com/processing/processing-experimental) by Manindra Moharana that updated the PDE to include basic refactoring and better error checking.
 
-Developing features separately from the main software has several benefits:
+### Why Develop Outside the Core?
+Working outside the main Processing codebase has several advantages:
 
 * It’s easier for the contributor to develop the software without it needing to work for tens or hundreds of thousands of Processing users.
 * It provides a way to get feedback on that code independently of everything else, and the ability to iterate on it rapidly.
 * This feedback process also helps gauge the level of interest for the community, and how it should be prioritized for the software.
 * We can delay the process of “normalizing” the features so that they’re consistent with the rest of Processing (function naming, structure, etc).
 
-A major consideration for any new feature is the level of maintenance that it might require in the future. If the original maintainer loses interest over time (which is normal) and the feature breaks (which happens more often than we'd like), it sits on the issues list unfixed, which isn’t good for anyone.
+### What Guides the Inclusion of New Features?
+We take maintenance seriously. A feature added to the core becomes a long-term responsibility. If it breaks, it needs fixing. Sometimes the original developer is no longer active (which is normal), and the burden falls on others.
 
-Processing is a massive project that has existed for more than 20 years. Part of its longevity comes from the effort that’s gone into keeping things as simple as we can, and in particular, making a lot of difficult decisions about *what to leave out*. Adding a new feature always has to be weighed against the potential confusion of one more thing—whether it’s a menu item, a dialog box, a function that needs to be added to the reference, etc. Adding a new graphics function means making it work across all the renderers that we ship (Java2D, OpenGL, JavaFX, PDF, etc) and across platforms (macOS, Windows, Linux). Does the feature help enough people that it's worth making the reference longer? Or the additional burden of maintaining that feature? It's no fun to say “no,” especially to people volunteering their time, but we often have to.
+Processing is a massive project that has existed for more than 20 years. Part of its longevity comes from the effort that’s gone into keeping things as simple as we can, and in particular, making a lot of difficult decisions about *what to leave out*. 
+
+Adding a new feature always has to be weighed against the potential confusion of one more thing—whether it’s a menu item, a dialog box, a function that needs to be added to the reference, etc. Adding a new graphics function means making it work across all the renderers that we ship (Java2D, OpenGL, JavaFX, PDF, etc) and across platforms (macOS, Windows, Linux).
+
+It may also mean new interface elements, updates to the reference, and more documentation.
+
+So when we consider a new feature, we ask ourselves:
+
+> Does this solve a problem for many users? Is it worth the added complexity and extra maintenance work?
+
+These are not easy decisions, especially when volunteers are offering their time and ideas. But we have to make them carefully to keep Processing sustainable.
 
 ## Editor
 
