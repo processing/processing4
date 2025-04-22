@@ -1,4 +1,5 @@
 import org.gradle.internal.jvm.Jvm
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
@@ -135,11 +136,11 @@ tasks.compileJava{
 val version = if(project.version == "unspecified") "1.0.0" else project.version
 
 tasks.register<Exec>("installCreateDmg") {
-    onlyIf { org.gradle.internal.os.OperatingSystem.current().isMacOsX }
+    onlyIf { OperatingSystem.current().isMacOsX }
     commandLine("arch", "-arm64", "brew", "install", "--quiet", "create-dmg")
 }
 tasks.register<Exec>("packageCustomDmg"){
-    onlyIf { org.gradle.internal.os.OperatingSystem.current().isMacOsX }
+    onlyIf { OperatingSystem.current().isMacOsX }
     group = "compose desktop"
 
     val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
@@ -169,8 +170,6 @@ tasks.register<Exec>("packageCustomDmg"){
         extra.add("25")
     }
 
-    commandLine("brew", "install", "--quiet", "create-dmg")
-
     commandLine("create-dmg",
         "--volname", packageName,
         "--volicon", file("macos/volume.icns"),
@@ -187,7 +186,7 @@ tasks.register<Exec>("packageCustomDmg"){
 }
 
 tasks.register<Exec>("packageCustomMsi"){
-    onlyIf { org.gradle.internal.os.OperatingSystem.current().isWindows }
+    onlyIf { OperatingSystem.current().isWindows }
     dependsOn("createDistributable")
     workingDir = file("windows")
     group = "compose desktop"
@@ -203,20 +202,22 @@ tasks.register<Exec>("packageCustomMsi"){
     )
 }
 
-val snapname = findProperty("snapname") ?: rootProject.name
-val snaparch = when (System.getProperty("os.arch")) {
-    "amd64", "x86_64" -> "amd64"
-    "aarch64" -> "arm64"
-    else -> System.getProperty("os.arch")
-}
+
 tasks.register("generateSnapConfiguration"){
-    onlyIf { org.gradle.internal.os.OperatingSystem.current().isLinux }
+    val name = findProperty("snapname") ?: rootProject.name
+    val arch = when (System.getProperty("os.arch")) {
+        "amd64", "x86_64" -> "amd64"
+        "aarch64" -> "arm64"
+        else -> System.getProperty("os.arch")
+    }
+
+    onlyIf { OperatingSystem.current().isLinux }
     val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
     dependsOn(distributable)
 
     val dir = distributable.destinationDir.get()
     val content = """
-    name: $snapname
+    name: $name
     version: $version
     base: core22
     summary: A creative coding editor
@@ -243,7 +244,7 @@ tasks.register("generateSnapConfiguration"){
     parts:
       processing:
         plugin: dump
-        source: deb/processing_$version-1_$snaparch.deb
+        source: deb/processing_$version-1_$arch.deb
         source-type: deb
         stage-packages:
           - openjdk-17-jre
@@ -255,7 +256,7 @@ tasks.register("generateSnapConfiguration"){
 }
 
 tasks.register<Exec>("packageSnap"){
-    onlyIf { org.gradle.internal.os.OperatingSystem.current().isLinux }
+    onlyIf { OperatingSystem.current().isLinux }
     dependsOn("packageDeb", "generateSnapConfiguration")
     group = "compose desktop"
 
@@ -290,7 +291,7 @@ afterEvaluate{
         actions = emptyList()
     }
     tasks.named("packageDistributionForCurrentOS").configure {
-        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX
+        if(OperatingSystem.current().isMacOsX
             && compose.desktop.application.nativeDistributions.macOS.notarization.appleID.isPresent
         ){
             dependsOn("notarizeDmg")
@@ -321,40 +322,9 @@ tasks.register<Copy>("includeJavaMode") {
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-tasks.register("includeJdk") {
-    dependsOn("createDistributable")
-    doFirst {
-        val jdk = Jvm.current().javaHome.absolutePath
-        val target = layout.buildDirectory.dir("compose/binaries").get().asFileTree.matching { include("**/include.jdk") }
-            .files
-            .firstOrNull()
-            ?.parentFile
-            ?.resolve("jdk")
-            ?.absolutePath
-            ?: error("Could not find include.jdk")
-
-        val isWindows = System.getProperty("os.name").lowercase().contains("win")
-        val isMacOS = System.getProperty("os.name").lowercase().contains("mac")
-        val command = if (isWindows) {
-            listOf("xcopy", "/E", "/I", "/Q", jdk, target)
-        } else {
-            listOf("cp", "-a", jdk, target)
-        }
-        ProcessBuilder(command).inheritIO().start().waitFor()
-
-        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX
-            && compose.desktop.application.nativeDistributions.macOS.notarization.appleID.isPresent
-        ) {
-            // Sign the main binary again since changed it.
-            val app = layout.buildDirectory.dir("compose/binaries").get().asFileTree.matching { include("**/*.app") }
-                .files
-                .firstOrNull()
-                ?.parentFile ?: error("Could not find Info.plist")
-            val signCommand = listOf("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", app.absolutePath)
-            ProcessBuilder(signCommand).inheritIO().start().waitFor()
-        }
-
-    }
+tasks.register<Copy>("includeJdk") {
+    from(Jvm.current().javaHome.absolutePath)
+    destinationDir = composeResources("jdk").get().asFile
 }
 tasks.register<Copy>("includeSharedAssets"){
     from("../build/shared/")
@@ -400,6 +370,7 @@ tasks.register<Copy>("includeJavaModeResources") {
     from(java.layout.buildDirectory.dir("resources-bundled"))
     into(composeResources("../"))
 }
+// TODO: Move to java mode
 tasks.register<Copy>("renameWindres") {
     dependsOn("includeSharedAssets","includeJavaModeResources")
     val dir = composeResources("modes/java/application/launch4j/bin/")
@@ -416,14 +387,9 @@ tasks.register<Copy>("renameWindres") {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     into(dir)
 }
-tasks.register("signResources"){
-    onlyIf {
-        org.gradle.internal.os.OperatingSystem.current().isMacOsX
-            &&
-        compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
-    }
-    group = "compose desktop"
+tasks.register("includeProcessingResources"){
     dependsOn(
+        "includeJdk",
         "includeCore",
         "includeJavaMode",
         "includeSharedAssets",
@@ -432,11 +398,17 @@ tasks.register("signResources"){
         "includeJavaModeResources",
         "renameWindres"
     )
-    finalizedBy("prepareAppResources")
+    finalizedBy("signResources")
+}
 
+tasks.register("signResources"){
+    onlyIf {
+        OperatingSystem.current().isMacOsX
+            &&
+        compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
+    }
+    group = "compose desktop"
     val resourcesPath = composeResources("")
-
-
 
     // find jars in the resources directory
     val jars = mutableListOf<File>()
@@ -470,7 +442,7 @@ tasks.register("signResources"){
             include("**/*x86_64*")
             include("**/*ffmpeg*")
             include("**/ffmpeg*/**")
-            exclude("jdk-*/**")
+            exclude("jdk/**")
             exclude("*.jar")
             exclude("*.so")
             exclude("*.dll")
@@ -506,39 +478,32 @@ tasks.register("signResources"){
 
 
 }
-afterEvaluate {
-    tasks.named("prepareAppResources").configure {
-        dependsOn(
-            "includeCore",
-            "includeJavaMode",
-            "includeSharedAssets",
-            "includeProcessingExamples",
-            "includeProcessingWebsiteExamples",
-            "includeJavaModeResources",
-            "renameWindres"
-        )
-    }
-    tasks.register("setExecutablePermissions") {
-        description = "Sets executable permissions on binaries in Processing.app resources"
-        group = "compose desktop"
+tasks.register("setExecutablePermissions") {
+    description = "Sets executable permissions on binaries in Processing.app resources"
+    group = "compose desktop"
 
-        doLast {
-            val resourcesPath = layout.buildDirectory.dir("compose/binaries")
-            fileTree(resourcesPath) {
-                include("**/resources/**/bin/**")
-                include("**/resources/**/*.sh")
-                include("**/resources/**/*.dylib")
-                include("**/resources/**/*.so")
-                include("**/resources/**/*.exe")
-            }.forEach { file ->
-                if (file.isFile) {
-                    file.setExecutable(true, false)
-                }
+    doLast {
+        val resourcesPath = layout.buildDirectory.dir("compose/binaries")
+        fileTree(resourcesPath) {
+            include("**/resources/**/bin/**")
+            include("**/resources/**/lib/**")
+            include("**/resources/**/*.sh")
+            include("**/resources/**/*.dylib")
+            include("**/resources/**/*.so")
+            include("**/resources/**/*.exe")
+        }.forEach { file ->
+            if (file.isFile) {
+                file.setExecutable(true, false)
             }
         }
     }
+}
+
+afterEvaluate {
+    tasks.named("prepareAppResources").configure {
+        dependsOn("includeProcessingResources")
+    }
     tasks.named("createDistributable").configure {
-        dependsOn("signResources")
-        finalizedBy( "includeJdk", "setExecutablePermissions")
+        finalizedBy("setExecutablePermissions")
     }
 }
