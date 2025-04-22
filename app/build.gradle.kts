@@ -1,10 +1,8 @@
 import org.gradle.internal.jvm.Jvm
-import org.gradle.kotlin.dsl.support.zipTo
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
-import org.jetbrains.kotlin.fir.scopes.impl.overrides
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -279,12 +277,13 @@ tasks.register<Zip>("zipDistributable"){
 }
 
 afterEvaluate{
+    // Override the default DMG task to use our custom one
     tasks.named("packageDmg").configure{
         dependsOn("packageCustomDmg")
         group = "compose desktop"
         actions = emptyList()
     }
-
+    // Override the default MSI task to use our custom one
     tasks.named("packageMsi").configure{
         dependsOn("packageCustomMsi")
         group = "compose desktop"
@@ -335,12 +334,26 @@ tasks.register("includeJdk") {
             ?: error("Could not find include.jdk")
 
         val isWindows = System.getProperty("os.name").lowercase().contains("win")
+        val isMacOS = System.getProperty("os.name").lowercase().contains("mac")
         val command = if (isWindows) {
             listOf("xcopy", "/E", "/I", "/Q", jdk, target)
         } else {
             listOf("cp", "-a", jdk, target)
         }
         ProcessBuilder(command).inheritIO().start().waitFor()
+
+        if(org.gradle.internal.os.OperatingSystem.current().isMacOsX
+            && compose.desktop.application.nativeDistributions.macOS.notarization.appleID.isPresent
+        ) {
+            // Sign the main binary again since changed it.
+            val app = layout.buildDirectory.dir("compose/binaries").get().asFileTree.matching { include("**/*.app") }
+                .files
+                .firstOrNull()
+                ?.parentFile ?: error("Could not find Info.plist")
+            val signCommand = listOf("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", app.absolutePath)
+            ProcessBuilder(signCommand).inheritIO().start().waitFor()
+        }
+
     }
 }
 tasks.register<Copy>("includeSharedAssets"){
@@ -526,6 +539,6 @@ afterEvaluate {
     }
     tasks.named("createDistributable").configure {
         dependsOn("signResources")
-        finalizedBy( "includeJdk","setExecutablePermissions")
+        finalizedBy( "includeJdk", "setExecutablePermissions")
     }
 }
