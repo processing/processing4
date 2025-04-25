@@ -136,6 +136,27 @@ tasks.compileJava{
     options.encoding = "UTF-8"
 }
 
+tasks.register("lsp-develop"){
+    group = "processing"
+    // This task is used to run the LSP server when developing the LSP server itself
+    // to run the LSP server for end-users use `processing lsp` instead
+    dependencies.add("runtimeOnly", project(":java"))
+
+    // Usage: ./gradlew lsp-develop
+    // Make sure the cwd is set to the project directory
+    // or use -p to set the project directory
+
+    // Modify run configuration to start the LSP server rather than the Processing IDE
+    val run = tasks.named<JavaExec>("run").get()
+    run.standardInput = System.`in`
+    run.standardOutput = System.out
+    dependsOn(run)
+
+    // TODO: Remove after command line is integrated, then add the `lsp` argument instead, `lsp-develop` can't be removed because we still need to pipe the input and output
+    run.jvmArgs("-Djava.awt.headless=true")
+    compose.desktop.application.mainClass = "processing.mode.java.lsp.PdeLanguageServer"
+}
+
 val version = if(project.version == "unspecified") "1.0.0" else project.version
 
 tasks.register<Exec>("installCreateDmg") {
