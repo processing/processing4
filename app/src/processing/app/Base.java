@@ -1956,18 +1956,20 @@ public class Base {
 
 
   public void populateSketchbookMenu(JMenu menu) {
-    boolean found = false;
-    try {
-      found = addSketches(menu, sketchbookFolder);
-    } catch (Exception e) {
-      Messages.showWarning("Sketchbook Menu Error",
-                           "An error occurred while trying to list the sketchbook.", e);
-    }
-    if (!found) {
-      JMenuItem empty = new JMenuItem(Language.text("menu.file.sketchbook.empty"));
-      empty.setEnabled(false);
-      menu.add(empty);
-    }
+    new Thread(() -> {
+      boolean found = false;
+      try {
+        found = addSketches(menu, sketchbookFolder);
+      } catch (Exception e) {
+        Messages.showWarning("Sketchbook Menu Error",
+                "An error occurred while trying to list the sketchbook.", e);
+      }
+      if (!found) {
+        JMenuItem empty = new JMenuItem(Language.text("menu.file.sketchbook.empty"));
+        empty.setEnabled(false);
+        menu.add(empty);
+      }
+    }).start();
   }
 
 
@@ -1978,8 +1980,14 @@ public class Base {
    * sketch should open in a new window.
    */
   protected boolean addSketches(JMenu menu, File folder) {
+    Messages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
+      return false;
+    }
+
+    // Don't look inside the 'android' folders in the sketchbook
+    if (folder.getName().equals("android")) {
       return false;
     }
 
@@ -2068,12 +2076,18 @@ public class Base {
    */
   public boolean addSketches(DefaultMutableTreeNode node, File folder,
                              boolean examples) throws IOException {
+    Messages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
       return false;
     }
 
     final String folderName = folder.getName();
+
+    // Don't look inside the 'android' folders in the sketchbook
+    if (folderName.equals("android")) {
+      return false;
+    }
 
     // Don't look inside the 'libraries' folders in the sketchbook
     if (folderName.equals("libraries")) {
