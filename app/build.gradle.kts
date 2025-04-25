@@ -140,7 +140,7 @@ tasks.register("lsp-develop"){
     dependencies.add("runtimeOnly", project(":java"))
 
     // Usage: ./gradlew lsp-develop
-    // Make sure the cwd is set the project directory
+    // Make sure the cwd is set to the project directory
     // or use -p to set the project directory
 
     // Modify run configuration to start the LSP server rather than the Processing IDE
