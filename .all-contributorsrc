@@ -1503,6 +1503,15 @@
         "ideas",
         "code"
       ]
+    },
+    {
+      "login": "Konsl",
+      "name": "Konsl",
+      "avatar_url": "https://avatars.githubusercontent.com/u/82901383?v=4",
+      "profile": "https://github.com/Konsl",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "repoType": "github",
