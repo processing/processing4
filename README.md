@@ -1,6 +1,9 @@
 <!-- Uncomment the shield below once the repo is made public -->
 <!-- [![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors) -->
 
+> [!IMPORTANT]
+> Processing Foundation is excited to announce our open call for the [Processing Project Lead position](https://processingfoundation.org/employment/processing-project-lead)! This fully remote, full-time role starts on July 15, 2025. For full consideration, please submit your application by **May 15, 2025 11:59 EST**. [Apply here!](https://docs.google.com/forms/u/1/d/e/1FAIpQLSeBGWD87Yg1Prbc34c2fmwgY71rSCL4LJVO2GaF9I2eLCi83g/viewform?usp=send_form)
+
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
 Processing is a flexible software sketchbook and a programming language designed for learning how to code.
