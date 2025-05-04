@@ -251,7 +251,16 @@ public class Base {
 
 //    long t2 = System.currentTimeMillis();
 
-    if (DEBUG || !SingleInstance.alreadyRunning(args)) {
+    // boolean flag indicating whether to create new server instance or not
+    boolean createNewInstance = DEBUG || !SingleInstance.alreadyRunning(args);
+
+    // free up resources by terminating the JVM
+    if(!createNewInstance){
+      System.exit(0);
+      return;
+    }
+
+    if (createNewInstance) {
       // Set the look and feel before opening the window
       try {
         Platform.setLookAndFeel();
@@ -324,8 +333,6 @@ public class Base {
 
 //      long t10 = System.currentTimeMillis();
 //      System.out.println("startup took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) + " " + (t5-t4) + " " + (t6-t5) + " " + (t10-t6) + " ms");
-    } else {
-      System.exit(0);
     }
   }
 
