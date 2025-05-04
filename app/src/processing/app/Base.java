@@ -324,6 +324,8 @@ public class Base {
 
 //      long t10 = System.currentTimeMillis();
 //      System.out.println("startup took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) + " " + (t5-t4) + " " + (t6-t5) + " " + (t10-t6) + " ms");
+    } else {
+      System.exit(0);
     }
   }
 
