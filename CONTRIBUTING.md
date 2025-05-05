@@ -1,6 +1,121 @@
-## Welcome to Processing!
+# Contributing to Processing on GitHub
 
-Thanks for your interest in contributing to Processing! Processing is a collaborative project with contributions from many volunteers. Our community is always looking for contributors and appreciates involvement in all forms. We acknowledge that not everyone has the capacity, time, or financial means to participate actively or in the same ways. We want to expand the meaning of the word “contributor.” Whether you're an experienced developer or just starting out, we value your involvement. Your unique perspectives, skills, and experiences enrich our community, and we encourage you to get involved in a way that works for you. It includes documentation, teaching, writing code, making art, writing, design, activism, organizing, curating, or anything else you might imagine. The [p5.js contribute page](https://p5js.org/contribute/) gives a great overview of different ways to get involved and contribute.
+Welcome to the contributor guidelines! 
+
+This document is for new contributors looking to contribute code to Processing, contributors refreshing their memory on some technical steps, or anyone interested in working on Processing’s codebase. We believe that anyone can be a contributor. You don’t need to be an expert. We also know that not everyone has the same time, energy, or resources to spend on Processing. That’s okay. We’re glad you’re here!
+
+> [!TIP]
+> For questions about your own sketches, or broader conversations about coding in Processing, our [online forum](https://discourse.processing.org/) is a fantastic resource (make sure to read the [forum guidelines](https://discourse.processing.org/t/welcome-to-the-processing-foundation-discourse/8) before posting). You can also visit the [Processing Community Discord](https://discord.gg/8pFwMVATh8).
+
+## About GitHub
+Processing’s codebase is hosted on [GitHub](https://github.com/processing). GitHub is a website where people can collaborate on code. It’s widely used for open source projects and makes it easier to keep track of changes, report issues with the software, and contribute improvements to the code.
+
+If you're new to GitHub, a good place to start is [this tutorial](https://github.com/firstcontributions/first-contributions/blob/main/docs/gui-tool-tutorials/github-desktop-tutorial.md) guide, which walks you through the basics of contributing to a project using GitHub Desktop. For more information, we recommend [Git and GitHub for Poets](https://www.youtube.com/playlist?list=PLRqwX-V7Uu6ZF9C0YMKuns9sLDzK6zoiV), a beginner-friendly video series by Dan Shiffman.
+
+## About issues
+
+Most activity on Processing’s GitHub happens in _issues_. Issues are GitHub posts which can contain bug reports, feature requests, or broader discussions about the development of Processing. It’s a great place to begin contributing.
+
+To file a new issue, visit the [Issues](https://github.com/processing/processing4/issues) tab on the repository and click `New issue` then select the most appropriate template and follow the included instructions. These templates help maintainers understand and respond to issues faster.
+
+## Working on the Processing codebase
+
+### Prerequisites
+
+To contribute to Processing, we recommend using [GitHub Desktop](https://github.com/apps/desktop) and [IntelliJ IDEA (Community Edition)](https://www.jetbrains.com/idea/download/), as that’s the toolchain we’re best able to support. If you’re comfortable using Git on the command line or prefer a different editor, that’s totally fine too! Use what works best for you. Some familiarity with the [command line](https://developer.mozilla.org/en-US/docs/Learn_web_development/Getting_started/Environment_setup/Command_line) can help, but it’s not required.
+
+You'll need to set up a local development environment—see our [build instructions](https://github.com/processing/processing4/blob/main/BUILD.md) to get started.
+
+### Making your first contribution
+
+Most issues marked [help wanted](https://github.com/processing/processing4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) or [good first issue](https://github.com/processing/processing4/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22good%20first%20issue%22%20) are a good place to start. 
+
+Before beginning work on a code contribution, please make sure that:
+
+-   The issue has been discussed and a proposed solution has been approved.
+-   You have been **assigned** to the issue.
+    
+If an implementation has been agreed upon but no one has volunteered to take it on, feel free to comment and offer to help. A maintainer can then assign the issue to you.
+
+Please do **not** open a pull request for an issue that is already assigned to someone else. We follow a “first assigned, first served” approach to avoid duplicated work. If you open a PR for an issue that someone else is already working on, your PR will be closed.
+
+If an issue has been inactive for a long time, you’re welcome to check in politely by commenting to see if the assignee still plans to work on it or would be open to someone else taking over.
+
+There’s no hard deadline for completing contributions. We understand that people often contribute on a volunteer basis and timelines may vary. That said, if you run into trouble or have questions at any point, don’t hesitate to ask for help in the issue thread. Maintainers and other community members are here to support you.
+
+### Follow the style guidelines
+Keep the [style guidelines](https://github.com/processing/processing/wiki/Style-Guidelines) in mind when making changes to the code. If you don’t, someone else will have to reformat your code so that it fits everything else (or we’ll have to reject your changes if it’ll take us too long to clean things up).
+
+### Test locally
+Before you contribute your changes, it's essential that you make sure that Processing still builds, runs, and functions on your machine. Here again, the [build instructions](https://github.com/processing/processing4/blob/main/BUILD.md) are your best friend. Pay special attention to any features that may be affected by your changes. Does everything still work as before? Great!
+
+## Submit a pull request (PR)
+
+Once your changes are ready:
+
+1.  Push your branch to your fork
+2.  Open a pull request from your branch into `main` on the official repository
+3.  Fill out the pull request information:
+
+   -   **Title**: clear and descriptive
+   -   **Resolves**: add `Resolves #[issue-number]` if applicable
+   -   **Changes**: explain what you changed and why
+   -   **Tests**: mention if you added tests or validated your changes
+   -   **Checklist**: ensure tests pass and the branch is up-to-date
+
+Maintainers usually review pull requests within one to two weeks. If changes are requested, follow up by pushing additional commits. The PR will automatically update.
+
+If there hasn’t been any activity after two weeks, feel free to gently follow up. We kindly ask that you don’t request a review or tag maintainers before that time. Thanks for your patience!
+
+Before opening a pull request, please make sure to discuss the related issue and get assigned to it first. This helps us stay aligned and avoid unnecessary work. Thank you!
+
+## Adding New Features to Processing
+
+If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute.  The [Processing Library Template](https://github.com/processing/processing-library-template) provides a starting point for developing, packaging, and distributing Processing libraries. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/).
+
+Once your library is complete, you can submit it to the official [Processing Contributions](https://github.com/processing/processing-contributions) repository. This makes it discoverable through the PDE’s Contribution Manager. Follow the guidelines in the [Processing Library Guidelines](https://github.com/processing/processing4/wiki/Library-Guidelines).
+
+### Libraries as the Starting Point for Features
+Nearly all new features are first introduced as a Library or a Mode, or even as an example. The current [OpenGL renderer](http://glgraphics.sourceforge.net/) and Video library began as separate projects by Andrés Colubri, who needed a more performant, more sophisticated version of what we had in Processing for work that he was creating. The original `loadShape()` implementation came from the “Candy” library by Michael Chang (“mflux“). Similarly, Tweak Mode began as a [separate project](http://galsasson.com/tweakmode/) by Gal Sasson before being incorporated. PDE X was a Google Summer of code [project](https://github.com/processing/processing-experimental) by Manindra Moharana that updated the PDE to include basic refactoring and better error checking.
+
+### Why Develop Outside the Core?
+Working outside the main Processing codebase has several advantages:
+
+* It’s easier for the contributor to develop the software without it needing to work for tens or hundreds of thousands of Processing users.
+* It provides a way to get feedback on that code independently of everything else, and the ability to iterate on it rapidly.
+* This feedback process also helps gauge the level of interest for the community, and how it should be prioritized for the software.
+* We can delay the process of “normalizing” the features so that they’re consistent with the rest of Processing (function naming, structure, etc).
+
+### What Guides the Inclusion of New Features?
+We take maintenance seriously. A feature added to the core becomes a long-term responsibility. If it breaks, it needs fixing. Sometimes the original developer is no longer active (which is normal), and the burden falls on others.
+
+Processing is a massive project that has existed for more than 20 years. Part of its longevity comes from the effort that’s gone into keeping things as simple as we can, and in particular, making a lot of difficult decisions about *what to leave out*. 
+
+Adding a new feature always has to be weighed against the potential confusion of one more thing—whether it’s a menu item, a dialog box, a function that needs to be added to the reference, etc. Adding a new graphics function means making it work across all the renderers that we ship (Java2D, OpenGL, JavaFX, PDF, etc) and across platforms (macOS, Windows, Linux).
+
+It may also mean new interface elements, updates to the reference, and more documentation.
+
+So when we consider a new feature, we ask ourselves:
+
+> Does this solve a problem for many users? Is it worth the added complexity and extra maintenance work?
+
+These are not easy decisions, especially when volunteers are offering their time and ideas. But we have to make them carefully to keep Processing sustainable.
+
+## Editor
+
+The current Editor component is based on the ancient [JEditSyntax](http://syntax.jedit.org/) package and has held up long past its expiration date. [Exhaustive work](https://github.com/processing/processing4/blob/master/app/src/processing/app/syntax/README.md) has been done to look at replacing the component with something more modern, like `RSyntaxArea`, but that approach was considered too risky.
+
+With Processing 4.4.0, we’ve started transitioning the Processing UI from Swing to Jetpack Compose Multiplatform, allowing us to replace Swing components gradually, without a full rewrite. Any work on updating the PDE and adding new features should focus on this migration. Replacing JEditSyntax will likely be the last step in the process. In the meantime, the editor does what it needs to do, for the intended audience. Features like code-folding, refactoring, or symbol navigation are currently out of scope.
+
+For users who want editor features beyond what the PDE offers, we’re working to make Processing easier to use in other environments. [Migrating the Processing CLI to Gradle](https://github.com/orgs/processing/projects/32/views/2?filterQuery=CLI&pane=issue&itemId=81026317) and [better Language Server support](https://github.com/orgs/processing/projects/32/views/2?filterQuery=LSP&pane=issue&itemId=90809690) will help make that possible. This should reduce the pressure to add these features to the PDE itself, allowing it to stay focused on being a minimal, beginner-friendly coding sketchbook. If you'd like to help, [let us know](https://github.com/processing/processing4/issues/883)!
+
+## Refactoring
+
+Refactoring is fun! There’s always more cleaning to do. It’s also often not very helpful.
+
+Broadly speaking, the code is built the way it is for a reason. There are so many things that can be improved, but those improvements need to come from an understanding of what’s been built so far. Changes that include refactoring are typically only accepted from contributors who have an established record of working on the code. With a better understanding of the software, the refactoring decisions come from a better, more useful place.
+
+## Contributor Recognition
 
 The Processing project follows the [all-contributors](https://github.com/kentcdodds/all-contributors) specification, recognizing all types of contributions, not just code. We use the @all-contributors bot to handle adding people to the README.md file. You can ask the @all-contributors bot to add you in an issue or PR comment like so:
 
@@ -10,70 +125,15 @@ The Processing project follows the [all-contributors](https://github.com/kentcdo
 
 We usually add contributors automatically after merging a PR, but feel free to request addition yourself by commenting on [this issue](https://github.com/processing/processing4-carbon-aug-19/issues/839).
 
-## Found a Bug?
+## Other Ways to Contribute
 
-First, please visit our [troubleshooting](https://github.com/processing/processing/wiki/Troubleshooting) page for common issues—you might find the answer there!
+We're always grateful for your help fixing bugs and implementing new features BUT You don’t have to write code to contribute to Processing! Here are just a few other ways to get involved:
 
-For coding questions or help getting started, our [online forum](https://discourse.processing.org/) is a fantastic resource. Make sure to read the [forum guidelines](https://discourse.processing.org/t/welcome-to-the-processing-foundation-discourse/8) before posting.
-
-If your issue remains unresolved after exploring these options, we'd appreciate it if you could [file a bug report](https://github.com/processing/processing4/issues). Your feedback is crucial as it helps us address issues we might not be aware of yet.
-
-## Making Your First Contribution
-
-* **Help Wanted** – Most [issues marked help wanted](https://github.com/processing/processing4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) are a good place to start. Issues are marked with this tag when:
-
-    * They are isolated enough that someone can jump into it without significant reworking of other code.
-    * Ben knows that it’s unlikely that he’ll have time to work on them.
-
-* **The Old Repository** – There are also many “help wanted” [issues in the 3.x repository](https://github.com/processing/processing4/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22). Some of these are very old, so if you're interested in one of these, check in about the priority before putting in too much work!
-
-* **JavaFX** – There are several [active issues](https://github.com/processing/processing4-javafx/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) for the JavaFX renderer as well.
-
-* **The `todo.txt` File** – This is *not* a good place to start. It’s Ben’s rambling to-do list, and dates back to the very start of the project over twenty years ago. It shouldn’t be used as a guideline for work to be done, because there are lots of things there that are no longer relevant. Consider it the dusty attic of what’s inside his head. If you see something of interest there, open an issue to see if it’s still a priority, or how it should be approached. But really, there are *so many open issues*, which represent actual problems identified by community members, and they are by far the best place to start.
-
-* **Style Guidelines** – Keep the [style guidelines](https://github.com/processing/processing/wiki/Style-Guidelines) in mind when submitting pull requests. If you don’t, someone else will have to reformat your code so that it fits everything else (or we’ll have to reject it if it’ll take us too long to clean it up).
-
-* **Larger Projects** – If you’re looking for a larger project, check out the [Project List](https://github.com/processing/processing/wiki/Project-List#processing) for other ideas.
-
-
-## New Features
-
-Nearly all new features are first introduced as a Library or a Mode, or even as an example. The current [OpenGL renderer](http://glgraphics.sourceforge.net/) and Video library began as separate projects by Andrés Colubri, who needed a more performant, more sophisticated version of what we had in Processing for work that he was creating. The original `loadShape()` implementation came from the “Candy” library by Michael Chang (“mflux“).
-
-Similarly, Tweak Mode began as a [separate project](http://galsasson.com/tweakmode/) by Gal Sasson before being incorporated. PDE X was a Google Summer of code [project](https://github.com/processing/processing-experimental) by Manindra Moharana that updated the PDE to include basic refactoring and better error checking.
-
-Developing features separately from the main software has several benefits:
-
-* It’s easier for the contributor to develop the software without it needing to work for tens or hundreds of thousands of Processing users.
-* It provides a way to get feedback on that code independently of everything else, and the ability to iterate on it rapidly.
-* This feedback process also helps gauge the level of interest for the community, and how it should be prioritized for the software.
-* We can delay the process of “normalizing” the features so that they’re consistent with the rest of Processing (function naming, structure, etc).
-
-A major consideration for any new feature is the level of maintenance that it might require in the future. If the original maintainer loses interest over time (which is normal), any ongoing work usually falls to Ben, or it sits on the issues list unfixed, which isn’t good for the community, or for Ben, who has plenty of issues of his own—whether Processing or otherwise.
-
-Processing is a massive project that has existed for more than 20 years. Part of its longevity comes from the effort that’s gone into keeping things as simple as we can, and in particular, making a lot of difficult decisions about *what to leave out*. Adding a new feature always has to be weighed against the potential confusion of one more thing—whether it’s a menu item, a dialog box, a function that needs to be added to the reference, etc. Adding a new graphics function means making it work across all the renderers that we ship (Java2D, OpenGL, JavaFX, PDF, etc) and across platforms (macOS, Windows, Linux). Does the feature help enough people that it's worth making the reference longer? Or the additional burden of maintaining that feature? It's no fun to say “no,” especially to people volunteering their time, but we often have to.
-
-
-## Editor
-
-The current Editor, based on the ancient [JEditSyntax](http://syntax.jedit.org/) package has held up long past its expiration date. [Exhaustive work](https://github.com/processing/processing4/blob/master/app/src/processing/app/syntax/README.md) has been done to look at replacing the component with something more modern, like `RSyntaxArea`, but it’s simply not feasible without breaking a massive amount of code, and likely introducing a lot of regressions in the process. All for… code folding? An incrementally better experience? But with potential for major setbacks in low-level code? It’s simply not a path that makes sense.
-
-With that in mind, any work on updating the editor and adding new features should be focused on further [adapting the preprocessor and compiler](https://github.com/processing/processing4/issues/117) to be wrapped using the [Language Server Protocol](https://en.wikipedia.org/wiki/Language_Server_Protocol), so that we can link to other existing editors (Visual Studio Code and many others). It should be possible to create a Java-only, headless implementation that wraps the current source in this repository and can communicate via LSP. 
-
-The initial work was completed in Processing 4.1, and now needs more testing and implementation of Language Server clients such as [this one](https://github.com/kgtkr/processing-language-server-vscode).
-
-We can start building a new PDE that’s as simple to use as the current application, based on something like [Theia](https://theia-ide.org/), a new editor platform that uses LSP as its basis.
-
-With that in mind, nearly all editor enhancement requests will be redirected to this aim. The current editor does what we want it to, for the intended audience, and improving it requires a better foundation as a starting point.
-
-
-## Refactoring
-
-Refactoring is fun! There’s always more cleaning to do. It’s also often not very helpful.
-
-Broadly speaking, the code is built the way it is for a reason. There are so many things that can be improved, but those improvements need to come from an understanding of what’s been built so far. Changes that include refactoring are typically only accepted from contributors who have an established record of working on the code. With a better understanding of the software, the refactoring decisions come from a better, more useful place.
-
-
-## Other Details
-
-This document was hastily thrown together in an attempt to improve the bug reporting and development/contribution process. It doesn’t yet include detail about our intent with the project, the community behind it, our values, and an explanation of how the code itself is designed.
+-   **Translation** – Help localize the software and documentation in your language. Many of us made our first contribution this way.
+-   **Testing** – Try out new releases (especially the betas) and [report bugs](https://github.com/processing/processing4/issues/new/choose).
+-   **Documentation** – Improve tutorials, reference pages, or even this guide!
+-   **Design** – Contribute UI design ideas or help improve user experience.
+-   **Community Support** – Answer questions on the [forum](https://discourse.processing.org/).
+-   **Education** – Create learning resources, curriculums, organize workshops, or share your teaching experiences.
+-   **Art and Projects** – Share what you’re making with Processing and use the #BuiltWithProcessing hashtag 💙
+-   **Outreach and Advocacy** – Help others discover and get excited about the project.

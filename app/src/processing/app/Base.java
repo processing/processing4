@@ -124,6 +124,7 @@ public class Base {
 
 
   static public void main(final String[] args) {
+    Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
       try {
         createAndShowGUI(args);
@@ -165,6 +166,20 @@ public class Base {
   static private void createAndShowGUI(String[] args) {
     // these times are fairly negligible relative to Base.<init>
 //    long t1 = System.currentTimeMillis();
+    var preferences = java.util.prefs.Preferences.userRoot().node("org/processing/app");
+    var installLocations = new ArrayList<>(List.of(preferences.get("installLocations", "").split(",")));
+    var installLocation = System.getProperty("user.dir") + "^" + Base.getVersionName();
+
+    // Check if the installLocation is already in the list
+    if (!installLocations.contains(installLocation)) {
+      // Add the installLocation to the list
+      installLocations.add(installLocation);
+
+      // Save the updated list back to preferences
+      preferences.put("installLocations", String.join(",", installLocations));
+    }
+    // TODO: Cleanup old locations if no longer installed
+    // TODO: Cleanup old locations if current version is installed in the same location
 
     File versionFile = Platform.getContentFile("lib/version.txt");
     if (versionFile != null && versionFile.exists()) {
@@ -563,14 +578,12 @@ public class Base {
     cl.downloadAvailableList(this, new ContribProgress(null));
     long t9 = System.currentTimeMillis();
 
-    if (DEBUG) {
-      System.out.println("core modes: " + (t2b-t2) +
-                         ", contrib modes: " + (t2c-t2b) +
-                         ", contrib ex: " + (t2c-t2b));
-      System.out.println("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
+    Messages.log("core modes: " + (t2b-t2) +
+                       ", contrib modes: " + (t2c-t2b) +
+                       ", contrib ex: " + (t2c-t2b));
+    Messages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
                          " " + (t5-t4) + " t6-t5=" + (t6-t5) + " " + (t7-t6) +
                          " handleNew=" + (t8-t7) + " " + (t9-t8) + " ms");
-    }
   }
 
 
@@ -1366,10 +1379,10 @@ public class Base {
    * @param schemeUri the full URI, including pde://
    */
   public Editor handleScheme(String schemeUri) {
-//    var result = Schema.handleSchema(schemeUri, this);
-//    if (result != null) {
-//      return result;
-//    }
+    var result = Schema.handleSchema(schemeUri, this);
+    if (result != null) {
+      return result;
+    }
 
     String location = schemeUri.substring(6);
     if (location.length() > 0) {
@@ -1943,18 +1956,20 @@ public class Base {
 
 
   public void populateSketchbookMenu(JMenu menu) {
-    boolean found = false;
-    try {
-      found = addSketches(menu, sketchbookFolder);
-    } catch (Exception e) {
-      Messages.showWarning("Sketchbook Menu Error",
-                           "An error occurred while trying to list the sketchbook.", e);
-    }
-    if (!found) {
-      JMenuItem empty = new JMenuItem(Language.text("menu.file.sketchbook.empty"));
-      empty.setEnabled(false);
-      menu.add(empty);
-    }
+    new Thread(() -> {
+      boolean found = false;
+      try {
+        found = addSketches(menu, sketchbookFolder);
+      } catch (Exception e) {
+        Messages.showWarning("Sketchbook Menu Error",
+                "An error occurred while trying to list the sketchbook.", e);
+      }
+      if (!found) {
+        JMenuItem empty = new JMenuItem(Language.text("menu.file.sketchbook.empty"));
+        empty.setEnabled(false);
+        menu.add(empty);
+      }
+    }).start();
   }
 
 
@@ -1965,8 +1980,14 @@ public class Base {
    * sketch should open in a new window.
    */
   protected boolean addSketches(JMenu menu, File folder) {
+    Messages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
+      return false;
+    }
+
+    // Don't look inside the 'android' folders in the sketchbook
+    if (folder.getName().equals("android")) {
       return false;
     }
 
@@ -2055,12 +2076,18 @@ public class Base {
    */
   public boolean addSketches(DefaultMutableTreeNode node, File folder,
                              boolean examples) throws IOException {
+    Messages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
       return false;
     }
 
     final String folderName = folder.getName();
+
+    // Don't look inside the 'android' folders in the sketchbook
+    if (folderName.equals("android")) {
+      return false;
+    }
 
     // Don't look inside the 'libraries' folders in the sketchbook
     if (folderName.equals("libraries")) {

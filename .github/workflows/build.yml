@@ -1,4 +1,4 @@
-name: Pre-releases
+name: Branch Builds (Legacy)
 on: 
   push:
     paths-ignore:

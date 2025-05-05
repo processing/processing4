@@ -253,19 +253,19 @@ public class Runner implements MessageConsumer {
 //      while (!available) {
       while (true) {
         try {
-          Messages.log(getClass().getName() + " attempting to attach to VM");
+          Messages.log("attempting to attach to VM");
           synchronized (cancelLock) {
             vm = connector.attach(arguments);
             if (cancelled && vm != null) {
               // cancelled and connected to the VM, handle closing now
-              Messages.log(getClass().getName() + " aborting, launch cancelled");
+              Messages.log("aborting, launch cancelled");
               close();
               return false;
             }
           }
 //          vm = connector.attach(arguments);
           if (vm != null) {
-            Messages.log(getClass().getName() + " attached to the VM");
+            Messages.log("attached to the VM");
 //            generateTrace();
 //            available = true;
             return true;
@@ -273,17 +273,17 @@ public class Runner implements MessageConsumer {
         } catch (ConnectException ce) {
           // This will fire ConnectException (socket not available) until
           // the VM finishes starting up and opens its socket for us.
-          Messages.log(getClass().getName() + " socket for VM not ready");
+          Messages.log("socket for VM not ready");
 //          System.out.println("waiting");
 //          e.printStackTrace();
           try {
             Thread.sleep(100);
           } catch (InterruptedException ie) {
-            Messages.err(getClass().getName() + " interrupted", ie);
+            Messages.err("interrupted", ie);
 //            ie.printStackTrace(sketchErr);
           }
         } catch (IOException e) {
-          Messages.err(getClass().getName() + " while attaching to VM", e);
+          Messages.err("while attaching to VM", e);
         }
       }
 //    } catch (IOException exc) {

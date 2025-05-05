@@ -121,3 +121,6 @@ generated/
 /java/mode/org.eclipse.lsp4j.jsonrpc.jar
 !java/libraries/pdf/library/itext.jar
 !java/libraries/serial/library/jssc.jar
+/app/windows/obj
+/java/gradle/build
+/java/gradle/example/.processing

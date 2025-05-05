@@ -391,17 +391,14 @@ public class Platform {
   static public File getJavaHome() {
     var resourcesDir = System.getProperty("compose.application.resources.dir");
     if(resourcesDir != null) {
-        var jdkFolder = Arrays.stream(new File(resourcesDir).listFiles((dir, name) -> dir.isDirectory() && name.startsWith("jdk-")))
-                .findFirst()
-                .orElse(null);
-        if(Platform.isMacOS()){
-            return new File(jdkFolder, "Contents/Home");
-        }
+      var jdkFolder = new File(resourcesDir,"jdk");
+      if(jdkFolder.exists()){
         return jdkFolder;
+      }
     }
 
     var home = System.getProperty("java.home");
-    if(home != null && new File(home, "bin/java").exists()){
+    if(home != null){
       return new File(home);
     }
     if (Platform.isMacOS()) {
@@ -577,18 +574,25 @@ public class Platform {
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
+  /**
+   * These methods were refactored to use the Preferences system instead of
+   * actual environment variables, since modifying environment variables at runtime
+   * proved problematic. This approach provides similar functionality
+   * while being compatible with various platforms and execution environments.
+   *
+   * This abstraction maintains a consistent API for environment-like variable storage
+   * while implementing it differently under the hood to work around runtime limitations.
+   */
 
   static public void setenv(String variable, String value) {
-    inst.setenv(variable, value);
+    Preferences.set(variable, value);
   }
-
 
   static public String getenv(String variable) {
-    return inst.getenv(variable);
+    return Preferences.get(variable);
   }
 
-
   static public int unsetenv(String variable) {
-    return inst.unsetenv(variable);
+    throw new RuntimeException("unsetenv() not yet implemented");
   }
 }

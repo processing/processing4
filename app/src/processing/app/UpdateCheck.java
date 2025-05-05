@@ -31,6 +31,7 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 
+import processing.app.ui.WelcomeToBeta;
 import processing.core.PApplet;
 
 
@@ -116,7 +117,7 @@ public class UpdateCheck {
     long now = System.currentTimeMillis();
     if (lastString != null) {
       long when = Long.parseLong(lastString);
-      if (now - when < ONE_DAY) {
+      if (now - when < ONE_DAY && !Base.DEBUG) {
         // don't annoy the shit outta people
         return;
       }
@@ -133,6 +134,9 @@ public class UpdateCheck {
         // Assume the person is busy downloading the latest version
 //        offerToUpdateContributions = !promptToVisitDownloadPage();
         promptToVisitDownloadPage();
+      }
+      if(latest < Base.getRevision()){
+        WelcomeToBeta.showWelcomeToBeta();
       }
 
       /*

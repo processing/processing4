@@ -31,6 +31,8 @@ import processing.app.Messages;
 import processing.app.Preferences;
 import processing.core.PApplet;
 
+import javax.swing.*;
+
 
 public class LinuxPlatform extends DefaultPlatform {
   String homeDir;
@@ -38,6 +40,9 @@ public class LinuxPlatform extends DefaultPlatform {
 
   public void initBase(Base base) {
     super.initBase(base);
+
+    JFrame.setDefaultLookAndFeelDecorated(true);
+    System.setProperty("flatlaf.menuBarEmbedded", "true");
 
     // Set X11 WM_CLASS property which is used as the application
     // name by Gnome 3 and other window managers.
@@ -98,13 +103,17 @@ public class LinuxPlatform extends DefaultPlatform {
     File configHome = null;
 
     // Check to see if the user has set a different location for their config
-    String configHomeEnv = getenv("XDG_CONFIG_HOME");
+    String configHomeEnv = System.getenv("XDG_CONFIG_HOME");
     if (configHomeEnv != null && !configHomeEnv.isBlank()) {
       configHome = new File(configHomeEnv);
       if (!configHome.exists()) {
         Messages.err("XDG_CONFIG_HOME is set to " + configHomeEnv + " but does not exist.");
         configHome = null;  // don't use non-existent folder
       }
+    }
+    String snapUserCommon = System.getenv("SNAP_USER_COMMON");
+    if (snapUserCommon != null && !snapUserCommon.isBlank()) {
+      configHome = new File(snapUserCommon);
     }
     // If not set properly, use the default
     if (configHome == null) {
