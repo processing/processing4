@@ -46,6 +46,13 @@ body:
 
 - type: textarea
   attributes:
+    label: What is the bug?
+    description: Briefly describe what the problem is.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
     label: Steps to reproduce this
     description: Describe what steps will produce the bug.
     value: |
