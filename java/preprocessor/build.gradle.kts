@@ -30,6 +30,13 @@ dependencies{
     implementation(libs.antlr4Runtime)
 }
 
+afterEvaluate {
+    tasks.named<Jar>("sourcesJar") {
+        dependsOn(tasks.named("generateGrammarSource"))
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
+}
+
 mavenPublishing{
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
