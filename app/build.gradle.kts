@@ -276,6 +276,7 @@ tasks.register("generateSnapConfiguration"){
         override-prime: |
           snapcraftctl prime
           rm -vf usr/lib/jvm/java-17-openjdk-*/lib/security/cacerts
+          chmod -R +x opt/processing/lib/app/resources/jdk
     """.trimIndent()
     dir.file("../snapcraft.yaml").asFile.writeText(content)
 }
