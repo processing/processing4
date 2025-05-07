@@ -423,6 +423,8 @@ tasks.register("includeProcessingResources"){
         "includeJavaModeResources",
         "renameWindres"
     )
+    // Include Legacy Movie Maker
+    dependsOn(project(":build:shared:tools:MovieMaker").tasks.named("build") )
     finalizedBy("signResources")
 }
 
