@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.HashSet;
@@ -305,47 +306,79 @@ class PdeAdapter {
     CompletionItem item = new CompletionItem();
     item.setLabel(c.getElementName());
     item.setInsertTextFormat(InsertTextFormat.Snippet);
-    String insert = c.getCompletionString();
-    if (insert.contains("( )")) {
-      insert = insert.replace("( )", "($1)");
-    } else if (insert.contains(",")) {
-      int n = 1;
-      char[] chs = insert.replace("(,", "($1,").toCharArray();
-      //insert = "";
-      StringBuilder newInsert = new StringBuilder();
-      for (char ch : chs) {
-        if (ch == ',') {
-          n += 1;
-          //insert += ",$" + n;
-          newInsert.append(",$").append(n);
-        }
-        //insert += ch;
-        newInsert.append(ch);
-      }
-      insert = newInsert.toString();
-    }
-    item.setInsertText(insert);
+    
     CompletionItemKind kind = switch (c.getType()) {
-      case 0 -> // PREDEF_CLASS
-        CompletionItemKind.Class;
-      case 1 -> // PREDEF_FIELD
-        CompletionItemKind.Constant;
-      case 2 -> // PREDEF_METHOD
-        CompletionItemKind.Function;
-      case 3 -> // LOCAL_CLASS
-        CompletionItemKind.Class;
-      case 4 -> // LOCAL_METHOD
-        CompletionItemKind.Method;
-      case 5 -> // LOCAL_FIELD
-        CompletionItemKind.Field;
-      case 6 -> // LOCAL_VARIABLE
-        CompletionItemKind.Variable;
+      case 0 -> CompletionItemKind.Class;      
+      case 1 -> CompletionItemKind.Constant;  
+      case 2 -> CompletionItemKind.Function;  
+      case 3 -> CompletionItemKind.Class;      
+      case 4 -> CompletionItemKind.Method;     
+      case 5 -> CompletionItemKind.Field;      
+      case 6 -> CompletionItemKind.Variable;
       default -> throw new IllegalArgumentException("Unknown completion type: " + c.getType());
     };
     item.setKind(kind);
-    item.setDetail(Jsoup.parse(c.getLabel()).text());
+    
+    if (c.getType() == 2 || c.getType() == 4) { 
+      // PREDEF_METHOD or LOCAL_METHOD
+      String methodName = c.getElementName();
+      
+      if (methodKnownParameterNames.containsKey(methodName)) {
+        item.setDetail(methodName + "(" + String.join(", ", methodKnownParameterNames.get(methodName)) + ")");
+
+        item.setInsertText(methodName + "($1)");
+      } else {
+        String label = Jsoup.parse(c.getLabel()).text();
+        
+        if (label.contains("(")) {
+          String paramsPart = label.substring(label.indexOf("(") + 1, label.indexOf(")"));
+          
+          if (!paramsPart.trim().isEmpty()) {
+            String[] paramTypes = paramsPart.split(",\\s*");
+            String[] paramNames = generateParameterNames(paramTypes);
+            
+            StringBuilder detailBuilder = new StringBuilder(methodName).append("(");
+            for (int i = 0; i < paramNames.length; i++) {
+              if (i > 0) detailBuilder.append(", ");
+              detailBuilder.append(paramNames[i]);
+            }
+            detailBuilder.append(")");
+            item.setDetail(detailBuilder.toString());
+            
+            item.setInsertText(methodName + "($1)");
+          } else {
+            item.setDetail(methodName + "()");
+            item.setInsertText(methodName + "()");
+          }
+        } else {
+          item.setDetail(Jsoup.parse(c.getLabel()).text());
+          item.setInsertText(methodName + "($1)");
+        }
+      }
+    } else {
+      item.setDetail(Jsoup.parse(c.getLabel()).text());
+      
+      String insert = c.getCompletionString();
+      if (insert.contains("( )")) {
+        insert = insert.replace("( )", "($1)");
+      } else if (insert.contains(",")) {
+        int n = 1;
+        char[] chs = insert.replace("(,", "($1,").toCharArray();
+        StringBuilder newInsert = new StringBuilder();
+        for (char ch : chs) {
+          if (ch == ',') {
+            n += 1;
+            newInsert.append(",$").append(n);
+          }
+          newInsert.append(ch);
+        }
+        insert = newInsert.toString();
+      }
+      item.setInsertText(insert);
+    }
+    
     return item;
-   }
+  }
 
   Optional<String> parsePhrase(String text) {
     return Optional.ofNullable(JavaTextArea.parsePhrase(text));
@@ -439,5 +472,102 @@ class PdeAdapter {
       this.line = line;
       this.col = col;
     }
+  }
+
+  // Map of known Processing methods and their parameter names
+  private static final Map<String, String[]> methodKnownParameterNames = new HashMap<>();
+  static {
+    // PApplet drawing methods
+    methodKnownParameterNames.put("rect", new String[]{"x", "y", "width", "height"});
+    methodKnownParameterNames.put("ellipse", new String[]{"x", "y", "width", "height"});
+    methodKnownParameterNames.put("line", new String[]{"x1", "y1", "x2", "y2"});
+    methodKnownParameterNames.put("point", new String[]{"x", "y"});
+    methodKnownParameterNames.put("triangle", new String[]{"x1", "y1", "x2", "y2", "x3", "y3"});
+    methodKnownParameterNames.put("quad", new String[]{"x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4"});
+    
+    // Image methods
+    methodKnownParameterNames.put("copy", new String[]{"sx", "sy", "sw", "sh", "dx", "dy", "dw", "dh"});
+    methodKnownParameterNames.put("image", new String[]{"img", "x", "y"});
+    methodKnownParameterNames.put("loadImage", new String[]{"filename"});
+    
+    // Color methods
+    methodKnownParameterNames.put("color", new String[]{"r", "g", "b"});
+    methodKnownParameterNames.put("fill", new String[]{"r", "g", "b", "a"});
+    methodKnownParameterNames.put("stroke", new String[]{"r", "g", "b", "a"});
+    
+    // Text methods
+    methodKnownParameterNames.put("text", new String[]{"str", "x", "y"});
+    methodKnownParameterNames.put("textSize", new String[]{"size"});
+    
+    // Transform methods
+    methodKnownParameterNames.put("translate", new String[]{"x", "y", "z"});
+    methodKnownParameterNames.put("rotate", new String[]{"angle"});
+    methodKnownParameterNames.put("scale", new String[]{"s"});
+    
+    // Math methods
+    methodKnownParameterNames.put("map", new String[]{"value", "start1", "stop1", "start2", "stop2"});
+    methodKnownParameterNames.put("constrain", new String[]{"amt", "low", "high"});
+    methodKnownParameterNames.put("lerp", new String[]{"start", "stop", "amt"});
+    
+    // We can add more methods later
+  }
+
+  /**
+   * Generate meaningful parameter names based on parameter types
+   */
+  private String[] generateParameterNames(String[] paramTypes) {
+    String[] paramNames = new String[paramTypes.length];
+    
+    for (int i = 0; i < paramTypes.length; i++) {
+        String type = paramTypes[i].trim();
+        
+        if (type.contains("int")) {
+            paramNames[i] = "n" + (i+1);
+        } else if (type.contains("float")) {
+            paramNames[i] = "val" + (i+1);
+        } else if (type.contains("boolean")) {
+            paramNames[i] = "flag" + (i+1);
+        } else if (type.contains("String")) {
+            paramNames[i] = "str" + (i+1);
+        } else if (type.contains("PImage")) {
+            paramNames[i] = "img";
+        } else if (type.contains("color")) {
+            paramNames[i] = "col";
+        } else if (type.contains("char")) {
+            paramNames[i] = "ch";
+        } else if (type.contains("Object")) {
+            paramNames[i] = "obj";
+        } else if (type.contains("[]")) {
+            paramNames[i] = "array";
+        } else {
+            paramNames[i] = "param" + (i+1);
+        }
+    }
+    
+    // Special case handling for common parameter patterns
+    if (paramNames.length == 2 && 
+        (paramTypes[0].contains("int") || paramTypes[0].contains("float")) && 
+        (paramTypes[1].contains("int") || paramTypes[1].contains("float"))) {
+        paramNames[0] = "x";
+        paramNames[1] = "y";
+    } else if (paramNames.length == 3 && 
+               (paramTypes[0].contains("int") || paramTypes[0].contains("float")) && 
+               (paramTypes[1].contains("int") || paramTypes[1].contains("float")) &&
+               (paramTypes[2].contains("int") || paramTypes[2].contains("float"))) {
+        paramNames[0] = "x";
+        paramNames[1] = "y";
+        paramNames[2] = "z";
+    } else if (paramNames.length == 4 && 
+               (paramTypes[0].contains("int") || paramTypes[0].contains("float")) && 
+               (paramTypes[1].contains("int") || paramTypes[1].contains("float")) &&
+               (paramTypes[2].contains("int") || paramTypes[2].contains("float")) &&
+               (paramTypes[3].contains("int") || paramTypes[3].contains("float"))) {
+        paramNames[0] = "x";
+        paramNames[1] = "y";
+        paramNames[2] = "width";
+        paramNames[3] = "height";
+    }
+    
+    return paramNames;
   }
 }
