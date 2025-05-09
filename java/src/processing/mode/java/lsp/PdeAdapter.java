@@ -308,13 +308,13 @@ class PdeAdapter {
     item.setInsertTextFormat(InsertTextFormat.Snippet);
     
     CompletionItemKind kind = switch (c.getType()) {
-      case 0 -> CompletionItemKind.Class;      
-      case 1 -> CompletionItemKind.Constant;  
-      case 2 -> CompletionItemKind.Function;  
-      case 3 -> CompletionItemKind.Class;      
-      case 4 -> CompletionItemKind.Method;     
-      case 5 -> CompletionItemKind.Field;      
-      case 6 -> CompletionItemKind.Variable;
+      case 0 -> CompletionItemKind.Class;      // PREDEF_CLASS
+      case 1 -> CompletionItemKind.Constant;   // PREDEF_FIELD
+      case 2 -> CompletionItemKind.Function;   // PREDEF_METHOD
+      case 3 -> CompletionItemKind.Class;      // LOCAL_CLASS
+      case 4 -> CompletionItemKind.Method;     // LOCAL_METHOD
+      case 5 -> CompletionItemKind.Field;      // LOCAL_FIELD
+      case 6 -> CompletionItemKind.Variable;   // LOCAL_VARIABLE
       default -> throw new IllegalArgumentException("Unknown completion type: " + c.getType());
     };
     item.setKind(kind);
