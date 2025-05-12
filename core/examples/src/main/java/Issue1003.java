@@ -16,12 +16,11 @@ public class Issue1003 extends PApplet {
     }
 
     public void draw(){
-//        ((PSurfaceAWT) surface).setResizable(true);
-
         background(frameCount % 255);
         line(0, 0, width, height);
         line(width, 0, 0, height);
     }
+
     public static void main(String[] passedArgs) {
         String[] appletArgs = new String[]{ Issue1003.class.getName()};
         if (passedArgs != null) {
