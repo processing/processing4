@@ -265,6 +265,10 @@ tasks.register("generateSnapConfiguration"){
           - opengl
           - home
           - removable-media
+          - audio-playback
+          - audio-record
+          - pulseaudio
+          - gpio
     
     parts:
       processing:
