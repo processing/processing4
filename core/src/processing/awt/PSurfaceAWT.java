@@ -49,7 +49,7 @@ public class PSurfaceAWT extends PSurfaceNone {
   GraphicsDevice displayDevice;
 
   // used for canvas to determine whether resizable or not
-//  boolean resizable;  // default is false
+  boolean resizable;  // default is false
 
   // Internally, we know it's always a JFrame (not just a Frame)
 //  JFrame frame;
@@ -57,6 +57,7 @@ public class PSurfaceAWT extends PSurfaceNone {
   // In the past, AWT Frames caused some problems on Windows and Linux,
   // but those may not be a problem for our reworked PSurfaceAWT class.
   JFrame frame;
+  boolean frameSetupComplete;
 
   // Note that x and y may not be zero, depending on the display configuration
   Rectangle screenRect;
@@ -84,6 +85,8 @@ public class PSurfaceAWT extends PSurfaceNone {
   public PSurfaceAWT(PGraphics graphics) {
     //this.graphics = graphics;
     super(graphics);
+
+    this.resizable = false; // Default is false, can be changed with surface.setResizable()
 
     /*
     if (checkRetina()) {
@@ -196,8 +199,7 @@ public class PSurfaceAWT extends PSurfaceNone {
 
     @Override
     public Dimension getMaximumSize() {
-      //return resizable ? super.getMaximumSize() : getPreferredSize();
-      return frame.isResizable() ? super.getMaximumSize() : getPreferredSize();
+      return resizable ? super.getMaximumSize() : getPreferredSize();
     }
 
 
@@ -442,7 +444,12 @@ public class PSurfaceAWT extends PSurfaceNone {
 
     // disabling resize has to happen after pack() to avoid apparent Apple bug
     // https://github.com/processing/processing/issues/506
-    frame.setResizable(false);
+    // Must use this.resizable to avoid bug where value is set before initFrame is finished
+    // https://github.com/processing/processing4/issues/1003
+    System.out.println("Resizable in initFrame: " + this.resizable);
+//    setResizable(this.resizable);
+//    frame.setResizable(true);
+//    frame.setResizable(this.resizable);
 
     frame.addWindowListener(new WindowAdapter() {
       @Override
@@ -484,11 +491,18 @@ public class PSurfaceAWT extends PSurfaceNone {
   /** Set true if we want to resize things (default is not resizable) */
   @Override
   public void setResizable(boolean resizable) {
-    //this.resizable = resizable;  // really only used for canvas
+    this.resizable = resizable;  // we need to store this so if frame init is not complete then we know the value
 
+    System.out.println("Frame in setResizable:" + frame);
     if (frame != null) {
-      frame.setResizable(resizable);
+      frame.setResizable(this.resizable);
+      System.out.println("PSurfaceAWT.frame.resizable set to:" + frame.isResizable());
+//      frame.isValid();
+      frame.validate();
+      System.out.println("PSurfaceAWT.frame.isValid():" + frame.isValid());
     }
+
+    System.out.println("PSurfaceAWT.resizable set to:" + this.resizable);
   }
 
 
