@@ -10145,11 +10145,8 @@ public class PApplet implements PConstants {
     }
     */
 
-
-
     sketch.showSurface();
     sketch.startSurface();
-
   }
 
 
