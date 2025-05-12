@@ -10148,10 +10148,6 @@ public class PApplet implements PConstants {
 
 
     sketch.showSurface();
-
-    surface.setResizable(false);
-
-
     sketch.startSurface();
 
   }

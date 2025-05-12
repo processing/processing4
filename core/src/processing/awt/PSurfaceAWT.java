@@ -49,7 +49,7 @@ public class PSurfaceAWT extends PSurfaceNone {
   GraphicsDevice displayDevice;
 
   // used for canvas to determine whether resizable or not
-  boolean resizable;  // default is false
+//  boolean resizable;  // default is false
 
   // Internally, we know it's always a JFrame (not just a Frame)
 //  JFrame frame;
@@ -57,7 +57,6 @@ public class PSurfaceAWT extends PSurfaceNone {
   // In the past, AWT Frames caused some problems on Windows and Linux,
   // but those may not be a problem for our reworked PSurfaceAWT class.
   JFrame frame;
-  boolean frameSetupComplete;
 
   // Note that x and y may not be zero, depending on the display configuration
   Rectangle screenRect;
@@ -85,8 +84,6 @@ public class PSurfaceAWT extends PSurfaceNone {
   public PSurfaceAWT(PGraphics graphics) {
     //this.graphics = graphics;
     super(graphics);
-
-    this.resizable = false; // Default is false, can be changed with surface.setResizable()
 
     /*
     if (checkRetina()) {
@@ -199,7 +196,8 @@ public class PSurfaceAWT extends PSurfaceNone {
 
     @Override
     public Dimension getMaximumSize() {
-      return resizable ? super.getMaximumSize() : getPreferredSize();
+      //return resizable ? super.getMaximumSize() : getPreferredSize();
+      return frame.isResizable() ? super.getMaximumSize() : getPreferredSize();
     }
 
 
@@ -444,12 +442,10 @@ public class PSurfaceAWT extends PSurfaceNone {
 
     // disabling resize has to happen after pack() to avoid apparent Apple bug
     // https://github.com/processing/processing/issues/506
-    // Must use this.resizable to avoid bug where value is set before initFrame is finished
-    // https://github.com/processing/processing4/issues/1003
-    System.out.println("Resizable in initFrame: " + this.resizable);
 //    setResizable(this.resizable);
-//    frame.setResizable(true);
-//    frame.setResizable(this.resizable);
+    // disabling resize has been moved again because of a bug on linux mint
+    // it can now be found in PSurfaceAWT.setVisible()
+    // https://github.com/processing/processing4/issues/1003
 
     frame.addWindowListener(new WindowAdapter() {
       @Override
@@ -491,18 +487,26 @@ public class PSurfaceAWT extends PSurfaceNone {
   /** Set true if we want to resize things (default is not resizable) */
   @Override
   public void setResizable(boolean resizable) {
-    this.resizable = resizable;  // we need to store this so if frame init is not complete then we know the value
+    //this.resizable = resizable; // really only used for canvas
 
-    System.out.println("Frame in setResizable:" + frame);
     if (frame != null) {
-      frame.setResizable(this.resizable);
-      System.out.println("PSurfaceAWT.frame.resizable set to:" + frame.isResizable());
-//      frame.isValid();
-      frame.validate();
-      System.out.println("PSurfaceAWT.frame.isValid():" + frame.isValid());
-    }
+      boolean frameValidBefore = frame.isValid();
+      frame.setResizable(resizable);
 
-    System.out.println("PSurfaceAWT.resizable set to:" + this.resizable);
+      if (PApplet.platform == PConstants.LINUX) {
+        // Because of a bug on linux mint where the window manager does not fully accept a change to
+        // frame.setResizable() we are forced to recreate the frame.
+        // To avoid extra overhead we skip this on other platforms.
+        // https://github.com/processing/processing4/issues/1003
+        frame.dispose();
+        frame.setUndecorated(frame.isUndecorated()); // Forces decoration refresh
+        frame.setVisible(true);
+      }
+
+      if (frameValidBefore && !frame.isValid()) {
+        frame.validate(); // setResizable can invalidate frame so here we validate it if it was previously valid
+      }
+    }
   }
 
 
@@ -614,20 +618,22 @@ public class PSurfaceAWT extends PSurfaceNone {
 
     // removing per https://github.com/processing/processing/pull/3162
     // can remove the code below once 3.0a6 is tested and behaving
-/*
+
     if (visible && PApplet.platform == PConstants.LINUX) {
       // Linux doesn't deal with insets the same way. We get fake insets
       // earlier, and then the window manager will slap its own insets
       // onto things once the frame is realized on the screen. Awzm.
-      if (PApplet.platform == PConstants.LINUX) {
         Insets insets = frame.getInsets();
         frame.setSize(Math.max(sketchWidth, MIN_WINDOW_WIDTH) +
                       insets.left + insets.right,
                       Math.max(sketchHeight, MIN_WINDOW_HEIGHT) +
                       insets.top + insets.bottom);
-      }
     }
-*/
+
+    // Moved here to handle issue on linux mint because it needs to happen after frame was already visible.
+    // On linux, we now recreate the frame. It seems the frame resizable state doesn't fully change without dispose().
+    // https://github.com/processing/processing4/issues/1003
+    this.setResizable(false);
   }
 
 

@@ -10,9 +10,9 @@ public class Issue1003 extends PApplet {
     }
 
     public void setup() {
-        ((PSurfaceAWT) surface).setTitle("Hello world!");
-        ((PSurfaceAWT) surface).setResizable(true);
-//        surface.setLocation(100, 100);
+        surface.setTitle("Hello resize!");
+        surface.setResizable(true);
+        surface.setLocation(100, 100);
     }
 
     public void draw(){
