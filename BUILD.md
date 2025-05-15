@@ -73,14 +73,14 @@ Make sure IntelliJ is using **temurin-17**, not another version. Some users have
 1. Go to **File > Project Structure > Project**
 2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
 
-![JDK Selection](#)
+![JDK Selection](https://github.com/user-attachments/assets/fc1dd103-c5a9-49e3-be50-40be6d025173)
 
 If it is not already installed, you can download it by:
 1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
 2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
 
-![JDK Download](#)
+![JDK Download](https://github.com/user-attachments/assets/5f789263-a936-4b1f-ba4b-485924a06a18)
 
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
