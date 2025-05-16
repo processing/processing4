@@ -1,7 +1,8 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 plugins{
-    id("java")
+    java
+    antlr
     alias(libs.plugins.mavenPublish)
 }
 
@@ -14,7 +15,7 @@ repositories{
 sourceSets{
     main{
         java{
-            srcDirs("src/main/java", "../src/", "../generated/")
+            srcDirs("src/main/java", "../src/")
             include("processing/mode/java/preproc/**/*", "processing/app/**/*")
         }
     }
@@ -25,7 +26,15 @@ dependencies{
     implementation(libs.antlr)
     implementation(libs.eclipseJDT)
 
-    implementation(project(":core"))
+    antlr(libs.antlr4)
+    implementation(libs.antlr4Runtime)
+}
+
+afterEvaluate {
+    tasks.named<Jar>("sourcesJar") {
+        dependsOn(tasks.named("generateGrammarSource"))
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    }
 }
 
 mavenPublishing{
@@ -58,13 +67,4 @@ mavenPublishing{
             developerConnection.set("scm:git:ssh://git@github.com/processing/processing4.git")
         }
     }
-}
-tasks.withType<Jar> {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-tasks.compileJava{
-    dependsOn("ant-preproc")
-}
-ant.importBuild("../build.xml"){ antTaskName ->
-    "ant-$antTaskName"
 }
