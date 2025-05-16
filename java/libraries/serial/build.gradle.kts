@@ -27,7 +27,7 @@ tasks.register("checkCore") {
 }
 
 tasks.register<Jar>("buildSerial") {
-    dependsOn("compileSerial")
+    dependsOn("checkCore")
     archiveFileName.set("serial.jar")
     destinationDirectory.set(file("library"))
     from(sourceSets.main.get().output)
