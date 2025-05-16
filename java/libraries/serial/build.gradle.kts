@@ -8,32 +8,25 @@ java {
     }
 }
 
-val coreJarPath = layout.projectDirectory.file("../../../core/library/core.jar")
-val jsscJarPath = layout.projectDirectory.file("library/jssc.jar")
-val binDir = layout.projectDirectory.dir("bin")
-val serialJarOutputDir = layout.projectDirectory.dir("library")
+val coreJar = file("../../../core/library/core.jar")
 
 dependencies {
-    implementation(files(coreJarPath))
-    implementation(files(jsscJarPath))
+
+    implementation(project(":core"))
+    implementation(files("library/jssc.jar"))
 }
 
 tasks.register("checkCore") {
     doFirst {
-        if (!coreJarPath.asFile.exists()) {
-            throw GradleException("Missing core.jar at $coreJarPath. Please build the core module first.")
+        if (!coreJar.exists()) {
+            throw GradleException("Missing core.jar at $coreJar. Please build the core module first.")
         }
     }
 }
 
-tasks.register<Jar>("buildSerial") {
-    dependsOn("compileSerial")
-    archiveFileName.set("serial.jar")
+tasks.register<Jar>("serialJar") {
+    dependsOn("checkCore", "classes")
+    archiveBaseName.set("serial")
     destinationDirectory.set(file("library"))
     from(sourceSets.main.get().output)
-}
-
-tasks.named<Delete>("clean") {
-    delete(binDir)
-    delete(serialJarOutputDir.file("serial.jar"))
 }
