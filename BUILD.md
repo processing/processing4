@@ -61,3 +61,37 @@ The main task to run or debug the PDE is `run`. That means you just need to run 
 If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
 
 ## Other editors
+
+## Troubleshooting and Setup Tips (IntelliJ IDEA)
+
+If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
+
+### Use the Correct JDK (temurin-17)
+
+Make sure IntelliJ is using **temurin-17**, not another version. Some users have reported issues with ms-17.
+
+1. Go to **File > Project Structure > Project**
+2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+
+![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
+
+If it is not already installed, you can download it by:
+1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
+2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+
+
+![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
+
+Now go back to your main window and
+1. Click the green Run Icon in the top right of the window.
+
+
+### “Duplicate content roots detected”
+
+You may see this warning in IntelliJ:
+
+> `Duplicate content roots detected: '.../processing4/java/src'`
+
+This happens because multiple modules reference the same source folder. It’s safe to ignore.
+
+
