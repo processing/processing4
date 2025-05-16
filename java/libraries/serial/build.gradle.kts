@@ -18,6 +18,7 @@ dependencies {
 
 tasks.register("checkCore") {
     doFirst {
+
         if (!coreJar.exists()) {
             throw GradleException("Missing core.jar at $coreJar. Please build the core module first.")
         }
@@ -30,3 +31,4 @@ tasks.register<Jar>("serialJar") {
     destinationDirectory.set(file("library"))
     from(sourceSets.main.get().output)
 }
+
