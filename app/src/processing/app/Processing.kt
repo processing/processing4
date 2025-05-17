@@ -52,7 +52,7 @@ class LSP: SuspendingCliktCommand("lsp"){
             // Indirect invocation since app does not depend on java mode
             Class.forName("processing.mode.java.lsp.PdeLanguageServer")
                 .getMethod("main", Array<String>::class.java)
-                .invoke(null, *arrayOf<Any>(emptyList<String>()))
+                .invoke(null, arrayOf<String>())
         } catch (e: Exception) {
             throw InternalError("Failed to invoke main method", e)
         }
