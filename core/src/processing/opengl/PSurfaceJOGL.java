@@ -1069,6 +1069,16 @@ public class PSurfaceJOGL implements PSurface {
     sketch.postEvent(me);
   }
 
+  private short normalizeKeyCode(short newtKeyCode) {
+    switch (newtKeyCode) {
+      case com.jogamp.newt.event.KeyEvent.VK_PAGE_UP:
+        return java.awt.event.KeyEvent.VK_PAGE_UP;
+      case com.jogamp.newt.event.KeyEvent.VK_SHIFT:
+        return java.awt.event.KeyEvent.VK_SHIFT;
+      default:
+        return newtKeyCode;
+    }
+  }  
 
   protected void nativeKeyEvent(com.jogamp.newt.event.KeyEvent nativeEvent,
                                 int peAction) {
@@ -1080,7 +1090,8 @@ public class PSurfaceJOGL implements PSurface {
 //                       InputEvent.META_MASK |
 //                       InputEvent.ALT_MASK);
 
-    short code = nativeEvent.getKeyCode();
+    short code = normalizeKeyCode(nativeEvent.getKeyCode());
+
     char keyChar;
     int keyCode;
     if (isPCodedKey(code, nativeEvent.isPrintableKey())) {
