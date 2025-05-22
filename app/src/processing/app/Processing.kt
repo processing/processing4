@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.api.Contributions
+import processing.app.api.Sketchbook
 import processing.app.ui.Start
 import java.io.File
 import java.util.prefs.Preferences
@@ -50,7 +51,8 @@ suspend fun main(args: Array<String>){
         .subcommands(
             LSP(),
             LegacyCLI(args),
-            Contributions()
+            Contributions(),
+            Sketchbook()
         )
         .main(args)
 }

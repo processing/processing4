@@ -29,23 +29,7 @@ class Contributions: SuspendingCliktCommand(){
     }
 
     class ExamplesList: SuspendingCliktCommand("list") {
-        @Serializable
-        data class Sketch(
-            val type: String = "sketch",
-            val name: String,
-            val path: String,
-            val mode: String = "java",
-        )
 
-        @Serializable
-        data class Folder(
-            val type: String = "folder",
-            val name: String,
-            val path: String,
-            val mode: String = "java",
-            val children: List<Folder> = emptyList(),
-            val sketches: List<Sketch> = emptyList()
-        )
 
         val serializer = Json {
             prettyPrint = true

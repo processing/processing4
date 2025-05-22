@@ -1,16 +1,40 @@
 package processing.app.api
 
+import kotlinx.serialization.Serializable
 import java.io.File
 
 class Sketch {
     companion object{
-        fun getSketches(file: File): Contributions.ExamplesList.Folder {
-            val name = file.name
-            val (sketchesFolders, childrenFolders) = file.listFiles().partition { isSketchFolder(it) }
+        @Serializable
+        data class Sketch(
+            val type: String = "sketch",
+            val name: String,
+            val path: String,
+            val mode: String = "java",
+        )
 
-            val children = childrenFolders.map { getSketches(it) }
-            val sketches = sketchesFolders.map { Contributions.ExamplesList.Sketch(name = it.name, path = it.absolutePath) }
-            return Contributions.ExamplesList.Folder(
+        @Serializable
+        data class Folder(
+            val type: String = "folder",
+            val name: String,
+            val path: String,
+            val mode: String = "java",
+            val children: List<Folder> = emptyList(),
+            val sketches: List<Sketch> = emptyList()
+        )
+
+        fun getSketches(file: File, filter: (File) -> Boolean = { true }): Folder {
+            val name = file.name
+            val (sketchesFolders, childrenFolders) = file.listFiles()?.partition { isSketchFolder(it) } ?: return Folder(
+                name = name,
+                path = file.absolutePath,
+                sketches = emptyList(),
+                children = emptyList()
+            )
+
+            val children = childrenFolders.filter(filter) .map { getSketches(it) }
+            val sketches = sketchesFolders.map { Sketch(name = it.name, path = it.absolutePath) }
+            return Folder(
                 name = name,
                 path = file.absolutePath,
                 children = children,
