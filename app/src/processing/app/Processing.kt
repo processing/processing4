@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
-import processing.app.contrib.Contributions
+import processing.app.api.Contributions
 import processing.app.ui.Start
 import java.io.File
 import java.util.prefs.Preferences

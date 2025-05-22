@@ -1,14 +1,14 @@
-package processing.app.contrib
+package processing.app.api
 
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import processing.app.Base
+import processing.app.api.Sketch.Companion.getSketches
 import java.io.File
-import kotlinx.serialization.json.*
-
 
 class Contributions: SuspendingCliktCommand(){
     override fun help(context: Context) = "Manage Processing contributions"
@@ -47,7 +47,7 @@ class Contributions: SuspendingCliktCommand(){
             val sketches: List<Sketch> = emptyList()
         )
 
-        val serializer = Json{
+        val serializer = Json {
             prettyPrint = true
         }
 
@@ -61,7 +61,7 @@ class Contributions: SuspendingCliktCommand(){
             val javaMode = "$resourcesDir/modes/java"
             val javaModeExamples = "$javaMode/examples"
 
-            val javaExamples = getExamples(File(javaModeExamples))
+            val javaExamples = getSketches(File(javaModeExamples))
 
             val json = serializer.encodeToString(listOf(javaExamples))
             println(json)
@@ -74,22 +74,6 @@ class Contributions: SuspendingCliktCommand(){
             // Mode examples
         }
 
-        suspend fun getExamples(file: File): Folder {
-            val name = file.name
-            val (sketchesFolders, childrenFolders) = file.listFiles().partition { isExampleFolder(it) }
 
-            val children = childrenFolders.map { getExamples(it) }
-            val sketches = sketchesFolders.map { Sketch(name = it.name, path = it.absolutePath) }
-            return Folder(
-                name = name,
-                path = file.absolutePath,
-                children = children,
-                sketches = sketches
-            )
-        }
-        fun isExampleFolder(file: File): Boolean {
-            return file.isDirectory && file.listFiles().any { it.isFile && it.name.endsWith(".pde") }
-        }
     }
 }
-
