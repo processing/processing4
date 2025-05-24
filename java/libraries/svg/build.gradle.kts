@@ -7,9 +7,7 @@ plugins {
 
 repositories {
     mavenCentral()
-    google()
 }
-
 
 java {
     toolchain {
@@ -50,6 +48,7 @@ val batikJar = file("library/batik.jar")
 val batikUrl = "https://dlcdn.apache.org/xmlgraphics/batik/binaries/$batikZip"
 val batikBackupUrl = "https://download.processing.org/batik/$batikZip"
 
+// Storing a copy locally in case the main URL goes dead
 val downloadBatik by tasks.registering {
     outputs.file(batikJar)
 
@@ -82,7 +81,7 @@ val downloadBatik by tasks.registering {
                 }
 
                 logger.lifecycle("Extracted $batikJarName to ${batikJar.absolutePath}")
-                zipFile.delete() // Optional cleanup
+                zipFile.delete()
                 true
             } catch (e: Exception) {
                 logger.warn("Failed to download from $url: ${e.message}")
@@ -101,35 +100,24 @@ tasks.named<JavaCompile>("compileJava") {
     dependsOn(downloadBatik, "checkCore")
     options.encoding = "UTF-8"
     classpath += files(batikJar)
+
 }
-
-
 
 tasks.named<Jar>("jar") {
     archiveBaseName.set("svg")
     destinationDirectory.set(file("library"))
     from(sourceSets.main.get().output)
-    manifest {
-        attributes(
-            "Implementation-Title" to "Processing SVG Library",
-            "Implementation-Version" to project.version
-        )
-    }
 }
 
 sourceSets {
     main {
         java {
             srcDirs("src")
-            include("**/*.java")  // Explicitly include all Java files
-        }
-        resources {
-            srcDirs("src")
-            include("**/*.properties")  // Include any properties files if needed
         }
     }
 }
 
+// Cleanup
 tasks.named<Delete>("clean") {
     delete("bin", "library/svg.jar")
 }
