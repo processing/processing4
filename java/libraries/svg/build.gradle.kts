@@ -16,12 +16,23 @@ java {
 
 val coreJar = file("../../../core/library/core.jar")
 val batikVersion = "1.19"
+
+// The .zip file to be downloaded
 val batikZip = "batik-bin-$batikVersion.zip"
+
+// The .jar that we need from the download
 val batikJar = file("library/batik.jar")
 
+// URL for the version of Batik currently supported by this library
 val batikUrl = "https://dlcdn.apache.org//xmlgraphics/batik/binaries/$batikZip"
+
+// Storing a "local" copy in case the original link goes dead. When updating
+// releases, please upload the new version to download.processing.org.
 val batikBackupUrl = "https://download.processing.org/batik/$batikZip"
 
+
+// Download Batik dependency if not present
+// OK to ignore failed downloads if we at least have a version that's local
 val downloadBatik by tasks.registering {
     outputs.file(batikJar)
 
@@ -96,6 +107,7 @@ dependencies {
     implementation(files(batikJar))
 }
 
+// Compile sources
 tasks.named<JavaCompile>("compileJava") {
     dependsOn(downloadBatik, "checkCore")
     options.encoding = "UTF-8"
@@ -115,9 +127,11 @@ tasks.register<Jar>("svgJar") {
     from(sourceSets.main.get().output)
 }
 
+// Clean the build directories
 tasks.named<Delete>("clean") {
     delete("bin", "library/svg.jar")
 }
+
 
 tasks.register<Delete>("cleanLibs") {
     delete(batikJar)
