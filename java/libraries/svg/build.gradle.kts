@@ -4,7 +4,6 @@ plugins {
     id("java-library")
 }
 
-
 repositories {
     mavenCentral()
 }
@@ -16,73 +15,54 @@ java {
 }
 
 val coreJar = file("../../../core/library/core.jar")
-
-
-dependencies {
-    implementation(project(":core"))
-    implementation(files(batikJar))
-}
-
-tasks.register("checkCore") {
-    doFirst {
-        if (!coreJar.exists()) {
-            throw GradleException("Missing core.jar at $coreJar. Please build the core module first.")
-        }
-    }
-}
-
-tasks.register<Jar>("svgJar") {
-    dependsOn("checkCore", "classes")
-    archiveBaseName.set("svg")
-    destinationDirectory.set(file("library"))
-    from(sourceSets.main.get().output)
-}
-
-// Batik configuration
 val batikVersion = "1.19"
 val batikZip = "batik-bin-$batikVersion.zip"
-val batikJarName = "batik-all-$batikVersion.jar"
 val batikJar = file("library/batik.jar")
 
-// URLs
-val batikUrl = "https://dlcdn.apache.org/xmlgraphics/batik/binaries/$batikZip"
+val batikUrl = "https://dlcdn.apache.org//xmlgraphics/batik/binaries/$batikZip"
 val batikBackupUrl = "https://download.processing.org/batik/$batikZip"
 
-// Storing a copy locally in case the main URL goes dead
 val downloadBatik by tasks.registering {
     outputs.file(batikJar)
 
     doLast {
         if (batikJar.exists()) {
-            logger.lifecycle("Batik JAR already exists at ${batikJar.absolutePath}, skipping download.")
+            logger.lifecycle("Batik JAR already exists, skipping download.")
             return@doLast
         }
 
+        batikJar.parentFile.mkdirs()
+        val zipFile = file(batikZip)
         val urlsToTry = listOf(batikUrl, batikBackupUrl)
-        val zipFile = layout.buildDirectory.file(batikZip).get().asFile
-
-        zipFile.parentFile.mkdirs()
 
         val success = urlsToTry.any { url ->
             try {
-                logger.lifecycle("Trying to download Batik from $url")
+                logger.lifecycle("Downloading Batik from $url")
                 URI(url).toURL().openStream().use { input ->
                     zipFile.outputStream().use { output ->
                         input.copyTo(output)
                     }
                 }
-                logger.lifecycle("Downloaded Batik zip to ${zipFile.absolutePath}")
-
                 copy {
-                    from(zipTree(zipFile))
-                    include("**/lib/$batikJarName")
+                    from(zipTree(zipFile)) {
+                        include("batik-$batikVersion/lib/batik-all-$batikVersion.jar")
+                    }
                     into(batikJar.parentFile)
-                    rename { batikJar.name }
+                    eachFile {
+                        path = batikJar.name
+                    }
+                    includeEmptyDirs = false
                 }
 
-                logger.lifecycle("Extracted $batikJarName to ${batikJar.absolutePath}")
                 zipFile.delete()
-                true
+
+                if (batikJar.exists()) {
+                    logger.lifecycle("Successfully extracted Batik JAR to ${batikJar.absolutePath}")
+                    true
+                } else {
+                    logger.error("Extraction failed")
+                    false
+                }
             } catch (e: Exception) {
                 logger.warn("Failed to download from $url: ${e.message}")
                 false
@@ -95,18 +75,12 @@ val downloadBatik by tasks.registering {
     }
 }
 
-
-tasks.named<JavaCompile>("compileJava") {
-    dependsOn(downloadBatik, "checkCore")
-    options.encoding = "UTF-8"
-    classpath += files(batikJar)
-
-}
-
-tasks.named<Jar>("jar") {
-    archiveBaseName.set("svg")
-    destinationDirectory.set(file("library"))
-    from(sourceSets.main.get().output)
+tasks.register("checkCore") {
+    doFirst {
+        if (!coreJar.exists()) {
+            throw GradleException("Missing core.jar at $coreJar. Please build the core module first.")
+        }
+    }
 }
 
 sourceSets {
@@ -117,7 +91,34 @@ sourceSets {
     }
 }
 
-// Cleanup
+dependencies {
+    implementation(project(":core"))
+    implementation(files(batikJar))
+}
+
+tasks.named<JavaCompile>("compileJava") {
+    dependsOn(downloadBatik, "checkCore")
+    options.encoding = "UTF-8"
+}
+
+tasks.named<Jar>("jar") {
+    dependsOn("checkCore")
+    archiveBaseName.set("svg")
+    destinationDirectory.set(file("library"))
+    from(sourceSets.main.get().output)
+}
+
+tasks.register<Jar>("svgJar") {
+    dependsOn("checkCore", "classes")
+    archiveBaseName.set("svg")
+    destinationDirectory.set(file("library"))
+    from(sourceSets.main.get().output)
+}
+
 tasks.named<Delete>("clean") {
     delete("bin", "library/svg.jar")
+}
+
+tasks.register<Delete>("cleanLibs") {
+    delete(batikJar)
 }
