@@ -527,7 +527,7 @@ public class PImage implements PConstants, Cloneable {
    * @see PImage#get(int, int, int, int)
    */
   public void resize(int w, int h) {  // ignore
-    resize(w, h, 1);
+    resize(w, h, PConstants.BILINEAR);
   }
 
 
