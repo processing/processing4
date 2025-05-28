@@ -840,7 +840,6 @@ public class PImage implements PConstants, Cloneable {
    */
   public void mask(PImage img) {
     img.loadPixels();
-    this.loadPixels();
     if (this.pixelWidth != img.pixelWidth || this.pixelHeight != img.pixelHeight) {
       if (this.pixelDensity != img.pixelDensity) {
         throw new IllegalArgumentException("mask() requires the mask image to have the same pixel size after adjusting for pixelDensity.");
