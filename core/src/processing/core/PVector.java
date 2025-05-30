@@ -848,13 +848,15 @@ public class PVector implements Serializable {
 
   /**
    *
-   * Calculate the angle of rotation for this vector (only 2D vectors)
-   *
+   * Calculate the vector's direction, that is, the angle this vector makes
+   * with the positive X axis (only 2D vectors)
+   * 
    *
    * @webref pvector:method
    * @usage web_application
-   * @return the angle of rotation
+   * @return the direction of the vector (angle with positive X axis)
    * @webBrief  Calculate the angle of rotation for this vector
+   * @see PVector#setHeading()
    */
   public float heading() {
     float angle = (float) Math.atan2(y, x);
@@ -867,7 +869,18 @@ public class PVector implements Serializable {
     return heading();
   }
 
-
+  /**
+   *
+   * Sets the angle this vector makes with the positive X axis (only 2D vectors)
+   * This is equivalent to changing the vector's direction to the given value.
+   *
+   * @webref pvector:method
+   * @usage web_application
+   * @param angle the direction of the resultant vector
+   * @return this vector, rotated to have the given direction
+   * @webBrief  Set the direction for this vector
+   * @see PVector#heading()
+   */
   public PVector setHeading(float angle) {
     float m = mag();
     x = (float) (m * Math.cos(angle));
