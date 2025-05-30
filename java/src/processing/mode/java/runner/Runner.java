@@ -775,9 +775,9 @@ public class Runner implements MessageConsumer {
 
     } else if (exceptionClass.equals("java.lang.UnsupportedClassVersionError")) {
       listener.statusError("UnsupportedClassVersionError: A library is using code compiled with an unsupported version of Java.");
-      err.println("This version of Processing only supports libraries and JAR files compiled for Java 1.8 or earlier.");
-      err.println("A library used by this sketch was compiled for Java 1.9 or later, ");
-      err.println("and needs to be recompiled to be compatible with Java 1.8.");
+      err.println("This version of Processing only supports libraries and JAR files compiled for Java 17 or earlier.");
+      err.println("A library used by this sketch was compiled for Java 18 or later, ");
+      err.println("and needs to be recompiled to be compatible with Java 17.");
 
     } else if (exceptionClass.equals("java.lang.NoSuchMethodError") ||
                exceptionClass.equals("java.lang.NoSuchFieldError")) {
