@@ -62,11 +62,15 @@ body:
   validations:
     required: false
 
-
-- type: input
+- type: dropdown
   attributes:
     label: Would you like to work on the issue?
     description: |
-      Please let us know if you can work on this or if the issue should be assigned to someone else.
+      Processing is an open-source, community-driven project. Let us know if you would like to help resolve this issue, or if you'd prefer it be assigned to someone else.  
+      See [CONTRIBUTE.md](https://github.com/processing/processing4/blob/main/CONTRIBUTE.md) for more info about contributing.
+    options:
+      - Yes, I would like to work on this
+      - No, please assign to someone else
+      - I am not sure
   validations:
     required: true
