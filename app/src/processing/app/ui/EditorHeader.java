@@ -201,7 +201,7 @@ public class EditorHeader extends JComponent {
       // hide extensions for .pde files
       if (editor.getMode().hideExtension(code.getExtension())) {
         tab.text = code.getPrettyName();
-        if (Preferences.getBoolean("sketch.name.replace_underscore")) {
+        if (AppPreferences.getBoolean("sketch.name.replace_underscore")) {
           tab.text = tab.text.replace('_', ' ');
         }
       }
@@ -399,7 +399,7 @@ public class EditorHeader extends JComponent {
         if (!Platform.isMacOS() &&  // ok on OS X
             editor.base.getEditors().size() == 1 &&  // mmm! accessor
             sketch.getCurrentCodeIndex() == 0) {
-            Messages.showWarning(Language.text("editor.header.delete.warning.title"),
+            AppMessages.showWarning(Language.text("editor.header.delete.warning.title"),
                                  Language.text("editor.header.delete.warning.text"));
         } else {
           editor.getSketch().handleDeleteCode();

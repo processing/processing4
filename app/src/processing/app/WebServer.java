@@ -222,7 +222,7 @@ public class WebServer {
         ps.print("HTTP/1.0 " + HTTP_OK + " OK");
       }
       ps.write(EOL);
-      Messages.log("From " + socket.getInetAddress().getHostAddress() + ": GET " + path + " --> " + status);
+      AppMessages.log("From " + socket.getInetAddress().getHostAddress() + ": GET " + path + " --> " + status);
 
       ps.print("Server: Processing Reference Server");
       ps.write(EOL);

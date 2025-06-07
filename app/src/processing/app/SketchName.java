@@ -30,13 +30,13 @@ public class SketchName {
    * @return File object for safe new path, or null if there were problems
    */
   static File nextFolder(File parentDir) {
-    String approach = Preferences.get("sketch.name.approach");
+    String approach = AppPreferences.get("sketch.name.approach");
     if ((approach != null) && !CLASSIC.equals(approach)) {
       WordList wl = getWordLists().get(approach);
       if (wl != null) {  // just in case the naming scheme no longer available
         File folder = wl.wordsFolder(parentDir);
         if (folder == null) {
-          Messages.showWarning("Out of Options", """
+          AppMessages.showWarning("Out of Options", """
             All possible naming combinations have been used.
             Use “Preferences” to choose a different naming system,
             or restart Processing.""");
@@ -57,8 +57,8 @@ public class SketchName {
     String newbieName;
 
     int index = 0;
-    String prefix = Preferences.get("editor.untitled.prefix");
-    String format = Preferences.get("editor.untitled.suffix");
+    String prefix = AppPreferences.get("editor.untitled.prefix");
+    String format = AppPreferences.get("editor.untitled.suffix");
     String suffix;
     if (format == null) {
       // If no format is specified, uses this ancient format
@@ -78,12 +78,12 @@ public class SketchName {
       if (index == 26) {
         // In 0159, avoid running past z by sending people outdoors.
         if (!breakTime) {
-          Messages.showWarning("Time for a Break",
+          AppMessages.showWarning("Time for a Break",
                   "You've reached the limit for auto naming of new sketches\n" +
                           "for the day. How about going for a walk instead?", null);
           breakTime = true;
         } else {
-          Messages.showWarning("Sunshine",
+          AppMessages.showWarning("Sunshine",
                   "No really, time for some fresh air for you.\n" +
                   "(At a minimum, you'll need to restart Processing.)", null);
         }
@@ -203,7 +203,7 @@ public class SketchName {
         File namingFile = Base.getLibFile(FILENAME);
         load(namingFile);
       } catch (Exception e) {
-        Messages.showWarning("Naming Error",
+        AppMessages.showWarning("Naming Error",
           "Could not load word lists from " + FILENAME, e);
       }
       File sketchbookFile = new File(Base.getSketchbookFolder(), FILENAME);
@@ -211,7 +211,7 @@ public class SketchName {
         try {
           load(sketchbookFile);
         } catch (Exception e) {
-          Messages.showWarning("Naming Error",
+          AppMessages.showWarning("Naming Error",
             "Error while reading " + FILENAME + " from sketchbook folder", e);
         }
       }

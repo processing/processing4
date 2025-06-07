@@ -29,7 +29,6 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +61,9 @@ import processing.mode.java.tweak.ColorControlBox;
 import processing.mode.java.tweak.Handle;
 import processing.mode.java.tweak.SketchParser;
 import processing.mode.java.tweak.TweakClient;
+
+import processing.utils.Util;
+import processing.utils.Preferences;
 
 
 public class JavaEditor extends Editor {
@@ -228,7 +230,7 @@ public class JavaEditor extends Editor {
         // weird for untitled sketches (that live in a temp folder) and
         // read-only sketches (that live in the examples folder).
         // TODO Better explanation? And some localization too.
-        Messages.showMessage("Save First", "Please first save the sketch.");
+        AppMessages.showMessage("Save First", "Please first save the sketch.");
       } else {
         handleExportApplication();
       }
@@ -237,7 +239,7 @@ public class JavaEditor extends Editor {
     var exportPDEZ = new JMenuItem(Language.text("menu.file.export_pdez"));
     exportPDEZ.addActionListener(e -> {
       if (sketch.isUntitled() || sketch.isReadOnly()) {
-        Messages.showMessage("Save First", "Please first save the sketch.");
+        AppMessages.showMessage("Save First", "Please first save the sketch.");
       } else {
         handleExportPDEZ();
       }
@@ -258,7 +260,7 @@ public class JavaEditor extends Editor {
     JMenuItem stopItem = new JMenuItem(Language.text("menu.sketch.stop"));
     stopItem.addActionListener(e -> {
       if (isDebuggerEnabled()) {
-        Messages.log("Invoked 'Stop' menu item");
+        AppMessages.log("Invoked 'Stop' menu item");
         debugger.stopDebug();
       } else {
         handleStop();
@@ -290,7 +292,7 @@ public class JavaEditor extends Editor {
       try {
         new Welcome(base);
       } catch (IOException ioe) {
-        Messages.showWarning("Unwelcome Error",
+        AppMessages.showWarning("Unwelcome Error",
                              "Please report this error to\n" +
                              "https://github.com/processing/processing4/issues", ioe);
       }
@@ -517,7 +519,7 @@ public class JavaEditor extends Editor {
         try {
           Platform.deleteFile(target.toFile());
         } catch (IOException e) {
-          Messages.showError("Export Error", "Could not delete existing file: " + target, e);
+          AppMessages.showError("Export Error", "Could not delete existing file: " + target, e);
         }
       }
 
@@ -562,14 +564,14 @@ public class JavaEditor extends Editor {
   protected boolean handleExportCheckModified() {
     if (sketch.isReadOnly()) {
       // if the files are read-only, need to first do a "save as".
-      Messages.showMessage(Language.text("export.messages.is_read_only"),
+      AppMessages.showMessage(Language.text("export.messages.is_read_only"),
                            Language.text("export.messages.is_read_only.description"));
       return false;
     }
 
     // don't allow if untitled
     if (sketch.isUntitled()) {
-      Messages.showMessage(Language.text("export.messages.cannot_export"),
+      AppMessages.showMessage(Language.text("export.messages.cannot_export"),
                            Language.text("export.messages.cannot_export.description"));
       return false;
     }
@@ -627,7 +629,7 @@ public class JavaEditor extends Editor {
     autoSave();
 
     if (sketch.isModified()) {
-      Messages.showMessage(Language.text("menu.file.save"),
+      AppMessages.showMessage(Language.text("menu.file.save"),
                            Language.text("tweak_mode.save_before_tweak"));
       return;
     }
@@ -850,7 +852,7 @@ public class JavaEditor extends Editor {
           useReferenceServer = true;
 
         } catch (IOException e) {
-          Messages.showWarning("Reference Server Problem", "Error while starting the documentation server.");
+          AppMessages.showWarning("Reference Server Problem", "Error while starting the documentation server.");
         }
 
       } else {
@@ -920,7 +922,7 @@ public class JavaEditor extends Editor {
       // download canceled
 
     } catch (IOException e) {
-      Messages.showWarning("Error downloading reference",
+      AppMessages.showWarning("Error downloading reference",
         "Could not download the reference. Try again later.", e);
     }
   }
@@ -1062,7 +1064,7 @@ public class JavaEditor extends Editor {
       // this method gets called twice when saving sketch for the first time
       // once with new name and another with old(causing NPE). Keep an eye out
       // for potential issues. See #2675. TODO:
-      Messages.err("Illegal tab name to addBreakpointComments() " + tabFilename);
+      AppMessages.err("Illegal tab name to addBreakpointComments() " + tabFilename);
       return;
     }
     List<LineBreakpoint> bps = debugger.getBreakpoints(tab.getFileName());
@@ -1085,7 +1087,7 @@ public class JavaEditor extends Editor {
       tab.setProgram(code);
       tab.save();
     } catch (IOException ex) {
-      Messages.err(null, ex);
+      AppMessages.err(null, ex);
     }
   }
 
@@ -1258,7 +1260,7 @@ public class JavaEditor extends Editor {
             for (AvailableContribution ac : installLibsHeaders) {
               libList.append("\n  • ").append(ac.getName());
             }
-            int option = Messages.showYesNoQuestion(this,
+            int option = AppMessages.showYesNoQuestion(this,
                 Language.text("contrib.import.dialog.title"),
                 Language.text("contrib.import.dialog.primary_text"),
                 libList.toString());
@@ -1829,7 +1831,7 @@ public class JavaEditor extends Editor {
       if (classList.getSelectedValue() != null) {
         try {
           String t = classList.getSelectedValue().trim();
-          Messages.log(t);
+          AppMessages.log(t);
           int x1 = t.indexOf('(');
           String impString = "import " + t.substring(x1 + 1, t.indexOf(')')) + ";\n";
           int ct = getSketch().getCurrentCodeIndex();
@@ -1837,7 +1839,7 @@ public class JavaEditor extends Editor {
           getTextArea().getDocument().insertString(0, impString, null);
           getSketch().setCurrentCode(ct);
         } catch (BadLocationException ble) {
-          Messages.log("Failed to insert import");
+          AppMessages.log("Failed to insert import");
           ble.printStackTrace();
         }
       }
@@ -1875,7 +1877,7 @@ public class JavaEditor extends Editor {
 
     if (jmode != null) {
       jmode.loadPreferences();
-      Messages.log("Applying prefs");
+      AppMessages.log("Applying prefs");
       // trigger it once to refresh UI
       //pdex.preferencesChanged();
       errorChecker.preferencesChanged();
@@ -1913,7 +1915,7 @@ public class JavaEditor extends Editor {
 
     if (modified) {
       // ask to keep the values
-      if (Messages.showYesNoQuestion(this, Language.text("tweak_mode"),
+      if (AppMessages.showYesNoQuestion(this, Language.text("tweak_mode"),
                                      Language.text("tweak_mode.keep_changes.line1"),
                                      Language.text("tweak_mode.keep_changes.line2")) == JOptionPane.YES_OPTION) {
         for (int i = 0; i < sketch.getCodeCount(); i++) {
@@ -1939,7 +1941,7 @@ public class JavaEditor extends Editor {
         try {
           sketch.save();
         } catch (IOException e) {
-          Messages.showWarning("Error", "Could not save the modified sketch.", e);
+          AppMessages.showWarning("Error", "Could not save the modified sketch.", e);
         }
 
         // repaint the editor header (show the modified tabs)

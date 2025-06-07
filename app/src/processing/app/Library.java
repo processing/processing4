@@ -8,6 +8,7 @@ import processing.app.contrib.*;
 import processing.core.*;
 import processing.data.StringDict;
 import processing.data.StringList;
+import processing.utils.Util;
 
 
 public class Library extends LocalContribution {
@@ -197,7 +198,7 @@ public class Library extends LocalContribution {
         if (oldName != null) {
           variantFolder = new File(libraryFolder, variant);
           if (variantFolder.exists()) {
-            Messages.log("Please update " + getName() + " for Processing 4. " +
+            AppMessages.log("Please update " + getName() + " for Processing 4. " +
               variantFolder + " is the older naming scheme.");
           }
         }
@@ -344,18 +345,18 @@ public class Library extends LocalContribution {
       } else {
         if(!instructed) {
           instructed = true;
-          Messages.err("The library found in");
-          Messages.err(getPath());
-          Messages.err("conflicts with");
+          AppMessages.err("The library found in");
+          AppMessages.err(getPath());
+          AppMessages.err("conflicts with");
           for (Library library : libraries) {
-            Messages.err(library.getPath());
+            AppMessages.err(library.getPath());
           }
-          Messages.err("which already define(s) the package " + pkg);
-          Messages.err("If you have a line in your sketch that reads");
-          Messages.err("import " + pkg + ".*;");
-          Messages.err("Then you'll need to first remove one of those libraries.");
+          AppMessages.err("which already define(s) the package " + pkg);
+          AppMessages.err("If you have a line in your sketch that reads");
+          AppMessages.err("import " + pkg + ".*;");
+          AppMessages.err("Then you'll need to first remove one of those libraries.");
         }else{
-          Messages.err("\tPackage ("+pkg+")\t conflict found in [" + name + "] with libraries: " + libraries.stream().map(Library::getName).reduce((a, b) -> a + ", " + b).orElse(""));
+          AppMessages.err("\tPackage ("+pkg+")\t conflict found in [" + name + "] with libraries: " + libraries.stream().map(Library::getName).reduce((a, b) -> a + ", " + b).orElse(""));
         }
       }
       libraries.add(this);
@@ -584,7 +585,7 @@ public class Library extends LocalContribution {
               "The library \"" + potentialName + "\" cannot be used.\n" +
               "Library names must contain only basic letters and numbers.\n" +
               "(ASCII only and no spaces, and it cannot start with a number)";
-            Messages.showMessage("Ignoring bad library name", mess);
+            AppMessages.showMessage("Ignoring bad library name", mess);
 
           } else {
             String pkg = findCollision(libraryFolder);
@@ -593,7 +594,7 @@ public class Library extends LocalContribution {
                 "The library \"" + potentialName + "\" cannot be used\n" +
                 "because it contains the " + pkg + " libraries.\n" +
                 "Please contact the library author for an update.";
-              Messages.showMessage("Ignoring bad library", mess);
+              AppMessages.showMessage("Ignoring bad library", mess);
 
               // Move the folder out of the way
               File badFolder = new File(baseFolder.getParentFile(), "disabled");
@@ -636,7 +637,7 @@ public class Library extends LocalContribution {
       if (foundEarlier != null) {
         // Warn the user about this duplication (later, on the EDT)
         if (!duplicateLibraries.contains(name)) {
-          Messages.showWarningTiered("Duplicate Library Found",
+          AppMessages.showWarningTiered("Duplicate Library Found",
             "There are multiple libraries named “" + name + "”",
             "Please remove either “" + foundEarlier.getName() +
               " or “" + lib.getName() + "”\n" +

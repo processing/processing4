@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 
 import processing.app.Language;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.core.PApplet;
 import processing.data.StringList;
 
@@ -57,7 +57,7 @@ public class CompileErrorMessageSimplifier {
       if (Modifier.isStatic(field.getModifiers()))
         try {
           if (DEBUG) {
-            Messages.log(field.getName() + " :" + field.get(null));
+            AppMessages.log(field.getName() + " :" + field.get(null));
           }
           Object val = field.get(null);
           if (val instanceof Integer) {
@@ -69,7 +69,7 @@ public class CompileErrorMessageSimplifier {
         }
     }
     if (DEBUG) {
-      Messages.log("Total items: " + constantsMap.size());
+      AppMessages.log("Total items: " + constantsMap.size());
     }
   }
 
@@ -91,13 +91,13 @@ public class CompileErrorMessageSimplifier {
     String[] args = iprob.getArguments();
 
     if (DEBUG) {
-      Messages.log("Simplifying message: " + iprob.getMessage() +
+      AppMessages.log("Simplifying message: " + iprob.getMessage() +
                        " ID: " + getIDName(iprob.getID()));
-      Messages.log("Arg count: " + args.length);
+      AppMessages.log("Arg count: " + args.length);
       for (String arg : args) {
-        Messages.log("Arg " + arg);
+        AppMessages.log("Arg " + arg);
       }
-      Messages.log("Bad code: " + badCode);
+      AppMessages.log("Bad code: " + badCode);
     }
 
     String result = null;
@@ -292,7 +292,7 @@ public class CompileErrorMessageSimplifier {
     }
 
     if (DEBUG) {
-      Messages.log("Simplified Error Msg: " + result);
+      AppMessages.log("Simplified Error Msg: " + result);
     }
 
     return result;

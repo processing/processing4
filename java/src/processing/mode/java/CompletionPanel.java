@@ -41,8 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import processing.app.Base;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.Mode;
 import processing.app.syntax.JEditTextArea;
 import processing.app.ui.Theme;
@@ -235,7 +234,7 @@ public class CompletionPanel {
         }
 
         JavaTextArea textArea = editor.getJavaTextArea();
-        Messages.err(subWord + " <= sub word, Inserting suggestion=> " +
+        AppMessages.err(subWord + " <= sub word, Inserting suggestion=> " +
           selectedSuggestion + " Current sub: " + currentSubWord);
         if (currentSubWord.length() > 0) {
           textArea.getDocument().remove(caretPos - currentSubWordLen,
@@ -287,7 +286,7 @@ public class CompletionPanel {
     int x = ta.getCaretPosition() - ta.getLineStartOffset(line) - 1, x1 = x - 1;
     if (x >= s.length() || x < 0)
       return null; //TODO: Does this check cause problems? Verify.
-    Messages.log(" x char: " + s.charAt(x));
+    AppMessages.log(" x char: " + s.charAt(x));
 
     String word = String.valueOf(s.charAt(x));
     if (s.trim().length() == 1) {
@@ -418,11 +417,11 @@ public class CompletionPanel {
           break;
 
         default:
-          Messages.log("(CustomListRenderer)Unknown CompletionCandidate type " + cc.getType());
+          AppMessages.log("(CustomListRenderer)Unknown CompletionCandidate type " + cc.getType());
           break;
         }
       } else {
-        Messages.log("(CustomListRenderer)Unknown CompletionCandidate object " + value);
+        AppMessages.log("(CustomListRenderer)Unknown CompletionCandidate object " + value);
       }
       return label;
     }

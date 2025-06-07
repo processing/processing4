@@ -22,9 +22,9 @@
 
 package processing.app.ui;
 
+import processing.app.AppPreferences;
 import processing.app.Base;
-import processing.app.Messages;
-import processing.app.Preferences;
+import processing.app.AppMessages;
 import processing.app.Settings;
 import processing.app.syntax.SyntaxStyle;
 import processing.core.PApplet;
@@ -55,7 +55,7 @@ public class Theme {
       // other things that have to be set explicitly for the defaults
       theme.setColor("run.window.bgcolor", SystemColor.control);
 
-      if (Preferences.get("theme") == null) {
+      if (AppPreferences.get("theme") == null) {
         // This is not being set in defaults.txt so that we have a way
         // to reset the theme after the major changes in 4.0 beta 9.
         // This does a one-time archival of the theme.txt file in the
@@ -65,7 +65,7 @@ public class Theme {
         // renaming the file from theme.001 to theme.txt.
         // If they were using a built-in theme, they will need to
         // re-select it using the Theme Selector.
-        Preferences.set("theme", DEFAULT_PATH);
+        AppPreferences.set("theme", DEFAULT_PATH);
 
         if (getSketchbookFile().exists()) {
           archiveCurrent();
@@ -76,7 +76,7 @@ public class Theme {
       reload();
 
     } catch (IOException e) {
-      Messages.showError("Problem loading theme.txt",
+      AppMessages.showError("Problem loading theme.txt",
         "Could not load theme.txt, please re-install Processing", e);
     }
   }
@@ -88,14 +88,14 @@ public class Theme {
    */
   static public void reload() {
     if (!loadSketchbookFile()) {
-      String prefTheme = Preferences.get("theme");
+      String prefTheme = AppPreferences.get("theme");
       try {
         File prefFile = new File(getThemeFolder(), prefTheme);
         if (prefFile.exists()) {
           theme.load(prefFile);
         }
       } catch (IOException e) {
-        Messages.showWarning("Theme Reload Problem",
+        AppMessages.showWarning("Theme Reload Problem",
           "Error while reloading the theme. Please report.", e);
       }
     }
@@ -192,7 +192,7 @@ public class Theme {
 
 
   static public SyntaxStyle getStyle(String attribute) {
-    //String str = Preferences.get("editor.token." + attribute + ".style");
+    //String str = AppPreferences.get("editor.token." + attribute + ".style");
     String str = theme.get("editor.token." + attribute + ".style");
     if (str == null) {
       throw new IllegalArgumentException("No style found for " + attribute);
@@ -202,7 +202,7 @@ public class Theme {
 
 
   static public Image makeGradient(String attribute, int wide, int high) {
-    if ("lab".equals(Preferences.get("theme.gradient.method"))) {
+    if ("lab".equals(AppPreferences.get("theme.gradient.method"))) {
       return makeGradientLab(attribute, wide, high);
     } else {  // otherwise go with the default
       return makeGradientRGB(attribute, wide, high);

@@ -19,8 +19,8 @@ import java.text.AttributedCharacterIterator.Attribute;
 import java.text.AttributedString;
 
 import processing.app.Base;
-import processing.app.Messages;
-import processing.app.Preferences;
+import processing.app.AppMessages;
+import processing.app.AppPreferences;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.TextAreaDefaults;
 import processing.app.syntax.TextAreaPainter;
@@ -79,7 +79,7 @@ public class InputMethodSupport implements InputMethodRequests, InputMethodListe
 
   @Override
   public Rectangle getTextLocation(TextHitInfo offset) {
-    Messages.log("#Called getTextLocation:" + offset);
+    AppMessages.log("#Called getTextLocation:" + offset);
     int line = textArea.getCaretLine();
     int offsetX = textArea.getCaretPosition() - textArea.getLineStartOffset(line);
     // '+1' mean textArea.lineToY(line) + textArea.getPainter().getFontMetrics().getHeight().
@@ -153,7 +153,7 @@ public class InputMethodSupport implements InputMethodRequests, InputMethodListe
       sb.append("\t ID: " + event.getID());
       sb.append("\t timestamp: " + new java.util.Date(event.getWhen()));
       sb.append("\t parmString: " + event.paramString());
-      Messages.log(sb.toString());
+      AppMessages.log(sb.toString());
     }
 
     AttributedCharacterIterator text = event.getText(); // text = composedText + commitedText
@@ -193,7 +193,7 @@ public class InputMethodSupport implements InputMethodRequests, InputMethodListe
       }
 
       CompositionTextPainter compositionPainter = textArea.getPainter().getCompositionTextPainter();
-      Messages.log("textArea.getCaretPosition() + committed_count: " + (textArea.getCaretPosition() + committedCount));
+      AppMessages.log("textArea.getCaretPosition() + committed_count: " + (textArea.getCaretPosition() + committedCount));
       compositionPainter.setComposedTextLayout(getTextLayout(text, committedCount), textArea.getCaretPosition() + committedCount);
       compositionPainter.setCaret(event.getCaret());
 
@@ -208,7 +208,7 @@ public class InputMethodSupport implements InputMethodRequests, InputMethodListe
 
 
   private TextLayout getTextLayout(AttributedCharacterIterator text, int committedCount) {
-    boolean antialias = Preferences.getBoolean("editor.smooth");
+    boolean antialias = AppPreferences.getBoolean("editor.smooth");
     TextAreaPainter painter = textArea.getPainter();
 
     // create attributed string with font info.
@@ -236,7 +236,7 @@ public class InputMethodSupport implements InputMethodRequests, InputMethodListe
                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
                         RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
     FontRenderContext frc = g2d.getFontRenderContext();
-    Messages.log("debug: FontRenderContext is Antialiased = " + frc.getAntiAliasingHint());
+    AppMessages.log("debug: FontRenderContext is Antialiased = " + frc.getAntiAliasingHint());
 
     return new TextLayout(composedTextString.getIterator(), frc);
   }

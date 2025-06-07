@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.ui.ZoomTreeCellRenderer;
 
 
@@ -95,7 +95,7 @@ class ASTViewer {
   void buildAndUpdateTree(PreprocSketch ps) {
     CompilationUnit cu = ps.compilationUnit;
     if (cu.types().isEmpty()){
-      Messages.err("No Type found in CU");
+      AppMessages.err("No Type found in CU");
       return;
     }
 

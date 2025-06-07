@@ -226,7 +226,7 @@ public class JEditTextArea extends JComponent
    * Inline Input Method Support for Japanese.
    */
   public InputMethodRequests getInputMethodRequests() {
-    if (Preferences.getBoolean("editor.input_method_support")) {
+    if (AppPreferences.getBoolean("editor.input_method_support")) {
       if (inputMethodSupport == null) {
         inputMethodSupport = new InputMethodSupport(this);
       }
@@ -1955,7 +1955,7 @@ public class JEditTextArea extends JComponent
         // Remove tabs and replace with spaces
         // https://github.com/processing/processing/issues/108
         if (selection.contains("\t")) {
-          int tabSize = Preferences.getInteger("editor.tabs.size");
+          int tabSize = AppPreferences.getInteger("editor.tabs.size");
           char[] c = new char[tabSize];
           Arrays.fill(c, ' ');
           String tabString = new String(c);
@@ -2434,7 +2434,7 @@ public class JEditTextArea extends JComponent
         try {
           select(getMarkPosition(), xyToOffset(evt.getX(), evt.getY()));
         } catch (ArrayIndexOutOfBoundsException e) {
-          Messages.err("xToOffset problem", e);
+          AppMessages.err("xToOffset problem", e);
         }
       } else {
         int line = yToLine(evt.getY());

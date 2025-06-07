@@ -26,9 +26,8 @@ import java.io.File;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 
+import processing.app.AppPreferences;
 import processing.app.Base;
-import processing.app.Messages;
-import processing.app.Preferences;
 import processing.core.PApplet;
 
 import javax.swing.*;
@@ -91,39 +90,6 @@ public class LinuxPlatform extends DefaultPlatform {
 
 
   @Override
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    // https://github.com/processing/processing4/issues/203
-    // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-
-    File configHome = null;
-
-    // Check to see if the user has set a different location for their config
-    String configHomeEnv = System.getenv("XDG_CONFIG_HOME");
-    if (configHomeEnv != null && !configHomeEnv.isBlank()) {
-      configHome = new File(configHomeEnv);
-      if (!configHome.exists()) {
-        Messages.err("XDG_CONFIG_HOME is set to " + configHomeEnv + " but does not exist.");
-        configHome = null;  // don't use non-existent folder
-      }
-    }
-    String snapUserCommon = System.getenv("SNAP_USER_COMMON");
-    if (snapUserCommon != null && !snapUserCommon.isBlank()) {
-      configHome = new File(snapUserCommon);
-    }
-    // If not set properly, use the default
-    if (configHome == null) {
-      configHome = new File(getHomeDir(), ".config");
-    }
-    return new File(configHome, "processing");
-  }
-
-
-  @Override
   public File getDefaultSketchbookFolder() throws Exception {
     return new File(getHomeDir(), "sketchbook");
   }
@@ -135,7 +101,7 @@ public class LinuxPlatform extends DefaultPlatform {
       super.openURL(url);
 
     } else if (openFolderAvailable()) {
-      String launcher = Preferences.get("launcher");  // guaranteed non-null
+      String launcher = AppPreferences.get("launcher");  // guaranteed non-null
       Runtime.getRuntime().exec(new String[] { launcher, url });
 
     } else {
@@ -146,7 +112,7 @@ public class LinuxPlatform extends DefaultPlatform {
 
   @Override
   public boolean openFolderAvailable() {
-    if (Preferences.get("launcher") != null) {
+    if (AppPreferences.get("launcher") != null) {
       return true;
     }
 
@@ -154,7 +120,7 @@ public class LinuxPlatform extends DefaultPlatform {
     try {
       Process p = Runtime.getRuntime().exec(new String[] { "xdg-open" });
       p.waitFor();
-      Preferences.set("launcher", "xdg-open");
+      AppPreferences.set("launcher", "xdg-open");
       return true;
     } catch (Exception ignored) { }
 
@@ -163,7 +129,7 @@ public class LinuxPlatform extends DefaultPlatform {
       Process p = Runtime.getRuntime().exec(new String[] { "gnome-open" });
       p.waitFor();
       // Not installed will throw an IOException (JDK 1.4.2, Ubuntu 7.04)
-      Preferences.set("launcher", "gnome-open");
+      AppPreferences.set("launcher", "gnome-open");
       return true;
     } catch (Exception ignored) { }
 
@@ -171,7 +137,7 @@ public class LinuxPlatform extends DefaultPlatform {
     try {
       Process p = Runtime.getRuntime().exec(new String[] { "kde-open" });
       p.waitFor();
-      Preferences.set("launcher", "kde-open");
+      AppPreferences.set("launcher", "kde-open");
       return true;
     } catch (Exception ignored) { }
 
@@ -185,7 +151,7 @@ public class LinuxPlatform extends DefaultPlatform {
       super.openFolder(file);
 
     } else if (openFolderAvailable()) {
-      String launcher = Preferences.get("launcher");
+      String launcher = AppPreferences.get("launcher");
       String[] params = new String[] { launcher, file.getAbsolutePath() };
       Runtime.getRuntime().exec(params);
 

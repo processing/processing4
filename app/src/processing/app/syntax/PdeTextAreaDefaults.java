@@ -31,7 +31,7 @@ import processing.app.ui.Theme;
 
 /**
  * Defaults that are PDE (but not Mode) specific. PDE specific in this
- * case means that it's using other PDE classes like Preferences.
+ * case means that it's using other PDE classes like AppPreferences.
  */
 public class PdeTextAreaDefaults extends TextAreaDefaults {
 
@@ -43,8 +43,8 @@ public class PdeTextAreaDefaults extends TextAreaDefaults {
     electricScroll = 0;
 
     caretVisible = true;
-    caretBlinks = Preferences.getBoolean("editor.caret.blink");
-    blockCaret = Preferences.getBoolean("editor.caret.block");
+    caretBlinks = AppPreferences.getBoolean("editor.caret.blink");
+    blockCaret = AppPreferences.getBoolean("editor.caret.block");
     cols = 80;
     // Set the number of rows lower to avoid layout badness with large fonts
     // https://github.com/processing/processing/issues/1313

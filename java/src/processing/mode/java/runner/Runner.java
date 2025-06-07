@@ -45,6 +45,8 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
 import processing.mode.java.preproc.SketchException;
 
+import processing.utils.Preferences;
+
 
 /**
  * Runs a compiled sketch. As of release 0136, all sketches are run externally
@@ -253,19 +255,19 @@ public class Runner implements MessageConsumer {
 //      while (!available) {
       while (true) {
         try {
-          Messages.log("attempting to attach to VM");
+          AppMessages.log("attempting to attach to VM");
           synchronized (cancelLock) {
             vm = connector.attach(arguments);
             if (cancelled && vm != null) {
               // cancelled and connected to the VM, handle closing now
-              Messages.log("aborting, launch cancelled");
+              AppMessages.log("aborting, launch cancelled");
               close();
               return false;
             }
           }
 //          vm = connector.attach(arguments);
           if (vm != null) {
-            Messages.log("attached to the VM");
+            AppMessages.log("attached to the VM");
 //            generateTrace();
 //            available = true;
             return true;
@@ -273,17 +275,17 @@ public class Runner implements MessageConsumer {
         } catch (ConnectException ce) {
           // This will fire ConnectException (socket not available) until
           // the VM finishes starting up and opens its socket for us.
-          Messages.log("socket for VM not ready");
+          AppMessages.log("socket for VM not ready");
 //          System.out.println("waiting");
 //          e.printStackTrace();
           try {
             Thread.sleep(100);
           } catch (InterruptedException ie) {
-            Messages.err("interrupted", ie);
+            AppMessages.err("interrupted", ie);
 //            ie.printStackTrace(sketchErr);
           }
         } catch (IOException e) {
-          Messages.err("while attaching to VM", e);
+          AppMessages.err("while attaching to VM", e);
         }
       }
 //    } catch (IOException exc) {
@@ -540,7 +542,7 @@ public class Runner implements MessageConsumer {
 
           if (errorStrings != null && errorStrings.length > 1) {
             if (errorStrings[0].contains("Invalid maximum heap size")) {
-              Messages.showWarning("Way Too High",
+              AppMessages.showWarning("Way Too High",
                                    "Please lower the value for \u201Cmaximum available memory\u201D in the\n" +
                                    "Preferences window. For more information, read Help \u2192 Troubleshooting.", null);
             } else {
@@ -691,7 +693,7 @@ public class Runner implements MessageConsumer {
         return connector;
       }
     }
-    Messages.showError("Compiler Error",
+    AppMessages.showError("Compiler Error",
                        "findConnector() failed to find " +
                        connectorName + " inside Runner", null);
     return null; // Not reachable

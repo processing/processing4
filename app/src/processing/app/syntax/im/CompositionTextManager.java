@@ -15,8 +15,8 @@ import java.text.CharacterIterator;
 
 import javax.swing.text.BadLocationException;
 
-import processing.app.Messages;
-import processing.app.Preferences;
+import processing.app.AppMessages;
+import processing.app.AppPreferences;
 import processing.app.syntax.JEditTextArea;
 import processing.app.syntax.TextAreaPainter;
 
@@ -158,7 +158,7 @@ public class CompositionTextManager {
   }
 
   private TextLayout getTextLayout(AttributedCharacterIterator text, int committedCount) {
-    boolean antialias = Preferences.getBoolean("editor.smooth");
+    boolean antialias = AppPreferences.getBoolean("editor.smooth");
     TextAreaPainter painter = textArea.getPainter();
 
     // create attributed string with font info.
@@ -173,7 +173,7 @@ public class CompositionTextManager {
                         RenderingHints.VALUE_TEXT_ANTIALIAS_ON :
                         RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
     FontRenderContext frc = g2d.getFontRenderContext();
-    Messages.log("debug: FontRenderContext is Antialiased = " + frc.getAntiAliasingHint());
+    AppMessages.log("debug: FontRenderContext is Antialiased = " + frc.getAntiAliasingHint());
 
     return new TextLayout(composed.getIterator(), frc);
   }

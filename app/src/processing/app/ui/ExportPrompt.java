@@ -34,9 +34,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import processing.app.AppPreferences;
 import processing.app.Language;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.app.platform.MacPlatform;
 
 import processing.core.PApplet;
@@ -66,10 +66,10 @@ public class ExportPrompt {
     this.editor = editor;
     this.callback = callback;
 
-    String pref = Preferences.get(EXPORT_VARIANTS);
+    String pref = AppPreferences.get(EXPORT_VARIANTS);
     if (pref == null) {
       pref = Platform.getVariant();  // just add myself
-      Preferences.set(EXPORT_VARIANTS, pref);
+      AppPreferences.set(EXPORT_VARIANTS, pref);
     }
     StringList selectedVariants = new StringList(pref.split(","));
 
@@ -96,7 +96,7 @@ public class ExportPrompt {
         list.append(button.getActionCommand());
       }
     }
-    Preferences.set(EXPORT_VARIANTS, list.join(","));
+    AppPreferences.set(EXPORT_VARIANTS, list.join(","));
     exportButton.setEnabled(anyExportButton());
   }
 
@@ -146,16 +146,16 @@ public class ExportPrompt {
     int divWidth = platformPanel.getPreferredSize().width;
 
     final JCheckBox showStopButton = new JCheckBox(Language.text("export.options.show_stop_button"));
-    showStopButton.setSelected(Preferences.getBoolean("export.application.stop"));
-    showStopButton.addItemListener(e -> Preferences.setBoolean("export.application.stop", showStopButton.isSelected()));
-    showStopButton.setEnabled(Preferences.getBoolean("export.application.present"));
+    showStopButton.setSelected(AppPreferences.getBoolean("export.application.stop"));
+    showStopButton.addItemListener(e -> AppPreferences.setBoolean("export.application.stop", showStopButton.isSelected()));
+    showStopButton.setEnabled(AppPreferences.getBoolean("export.application.present"));
     showStopButton.setBorder(new EmptyBorder(3, 13, 6, 13));
 
     final JCheckBox presentButton = new JCheckBox(Language.text("export.options.present"));
-    presentButton.setSelected(Preferences.getBoolean("export.application.present"));
+    presentButton.setSelected(AppPreferences.getBoolean("export.application.present"));
     presentButton.addItemListener(e -> {
       boolean sal = presentButton.isSelected();
-      Preferences.setBoolean("export.application.present", sal);
+      AppPreferences.setBoolean("export.application.present", sal);
       showStopButton.setEnabled(sal);
     });
     presentButton.setBorder(new EmptyBorder(3, 13, 3, 13));
@@ -197,7 +197,7 @@ public class ExportPrompt {
     }
 
     final boolean embed =
-      Preferences.getBoolean("export.application.embed_java");
+      AppPreferences.getBoolean("export.application.embed_java");
     final String warning1 =
       "<html><div width=\"" + divWidth + "\">";
     final String warning2a =
@@ -229,7 +229,7 @@ public class ExportPrompt {
     embedJavaButton.setSelected(embed);
     embedJavaButton.addItemListener(e -> {
       boolean selected = embedJavaButton.isSelected();
-      Preferences.setBoolean("export.application.embed_java", selected);
+      AppPreferences.setBoolean("export.application.embed_java", selected);
       if (selected) {
         warningLabel.setText(embedWarning);
       } else {
@@ -367,7 +367,7 @@ public class ExportPrompt {
 
       addMouseListener(new MouseAdapter() {
         public void mouseReleased(MouseEvent e) {
-          Color color = Preferences.getColor(prefName);
+          Color color = AppPreferences.getColor(prefName);
           chooser = new ColorChooser(editor, true, color, Language.text("color_chooser.select"), ColorPreference.this);
           chooser.show();
         }
@@ -375,14 +375,14 @@ public class ExportPrompt {
     }
 
     public void paintComponent(Graphics g) {
-      g.setColor(Preferences.getColor(prefName));
+      g.setColor(AppPreferences.getColor(prefName));
       Dimension size = getSize();
       g.fillRect(0, 0, size.width, size.height);
     }
 
     public void actionPerformed(ActionEvent e) {
       Color color = chooser.getColor();
-      Preferences.setColor(prefName, color);
+      AppPreferences.setColor(prefName, color);
       //presentColorPanel.repaint();
       repaint();
       chooser.hide();

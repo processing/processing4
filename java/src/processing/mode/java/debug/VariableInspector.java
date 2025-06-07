@@ -37,7 +37,7 @@ import org.netbeans.swing.outline.*;
 import com.sun.jdi.Value;
 
 import processing.app.Language;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.ui.Toolkit;
 import processing.mode.java.JavaEditor;
 
@@ -271,12 +271,12 @@ public class VariableInspector extends JDialog {
         break;
         }
       } catch (NumberFormatException ex) {
-        Messages.log(getClass().getName() + " invalid value entered for " +
+        AppMessages.log(getClass().getName() + " invalid value entered for " +
                      var.getName() + " -> " + stringValue);
       }
       if (value != null) {
         var.setValue(value);
-        Messages.log(getClass().getName() + " new value set: " + var.getStringValue());
+        AppMessages.log(getClass().getName() + " new value set: " + var.getStringValue());
       }
     }
 

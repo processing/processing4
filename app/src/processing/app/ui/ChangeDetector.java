@@ -35,8 +35,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import processing.app.Language;
-import processing.app.Messages;
-import processing.app.Preferences;
+import processing.app.AppMessages;
+import processing.app.AppPreferences;
 import processing.app.Sketch;
 import processing.app.SketchCode;
 
@@ -53,11 +53,11 @@ public class ChangeDetector implements WindowFocusListener {
   // Mac OS X has an (exactly) one-second difference. Not sure if it's a Java
   // bug or something else about how OS X is writing files.
   static private final int MODIFICATION_WINDOW_MILLIS =
-    Preferences.getInteger("editor.watcher.window");
+    AppPreferences.getInteger("editor.watcher.window");
 
   // Debugging this feature is particularly difficult, adding an option for it
   static private final boolean DEBUG =
-    Preferences.getBoolean("editor.watcher.debug");
+    AppPreferences.getBoolean("editor.watcher.debug");
 
 
   public ChangeDetector(Editor editor) {
@@ -68,7 +68,7 @@ public class ChangeDetector implements WindowFocusListener {
 
   @Override
   public void windowGainedFocus(WindowEvent e) {
-    if (Preferences.getBoolean("editor.watcher")) {
+    if (AppPreferences.getBoolean("editor.watcher")) {
       if (sketch != null) {
         // make sure the sketch folder exists at all.
         // if it does not, it will be re-saved, and no changes will be detected
@@ -196,7 +196,7 @@ public class ChangeDetector implements WindowFocusListener {
                 ".autosave", file.getParentFile());
               scReload.copyTo(autosave);
             } catch (IOException e) {
-              Messages.showWarning("Could not autosave modified tab",
+              AppMessages.showWarning("Could not autosave modified tab",
                   "Your changes to " + scReload.getPrettyName() +
                   " have not been saved, so we won't load the new version.", e);
               scReload.setModified(true); // So we'll have another go at saving
@@ -218,13 +218,13 @@ public class ChangeDetector implements WindowFocusListener {
               if (sketch.getCode(0).equals(scResave)) {
                 // Not a fatal error; the sketch has to stay open if
                 // they're going to save the code that's in it.
-                Messages.showWarning(
+                AppMessages.showWarning(
                     scResave.getFileName() + " deleted and not re-saved",
                     "Your main tab was deleted, and Processing couldn't " +
                     "resave it.\nYour sketch won't work without the " +
                     "main tab.", e);
               } else {
-                Messages.showWarning("Could not re-save deleted tab",
+                AppMessages.showWarning("Could not re-save deleted tab",
                                      "Your copy of " + scResave.getPrettyName() +
                                      " will stay in the editor.", e);
               }
@@ -252,7 +252,7 @@ public class ChangeDetector implements WindowFocusListener {
       Consumer<SketchCode> modifiedReload, Consumer<SketchCode> modifiedKeep,
       Consumer<SketchCode> delete, Consumer<SketchCode> deletedResave) {
     for (SketchCode sc : mergeConflict) {
-      if (1 == Messages.showCustomQuestion(editor,
+      if (1 == AppMessages.showCustomQuestion(editor,
           Language.text("change_detect.reload.title"),
           Language.interpolate("change_detect.reload.question", sc.getFileName()),
           Language.text("change_detect.reload.comment"),
@@ -267,7 +267,7 @@ public class ChangeDetector implements WindowFocusListener {
 
     for (SketchCode sc : removed) {
       if (!sketch.getCode(0).equals(sc) &&
-          1 == Messages.showCustomQuestion(editor,
+          1 == AppMessages.showCustomQuestion(editor,
           Language.text("change_detect.delete.title"),
           Language.interpolate("change_detect.delete.question", sc.getFileName()),
           Language.text("change_detect.delete.comment"),

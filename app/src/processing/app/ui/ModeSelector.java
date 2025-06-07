@@ -33,7 +33,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 
 
 public class ModeSelector extends JPanel {
@@ -131,7 +131,7 @@ public class ModeSelector extends JPanel {
       if (g != null) {
         tempWidth = getFontMetrics(titleFont).stringWidth(title);
       } else {
-        Messages.err("null Graphics in EditorToolbar.getPreferredSize()");
+        AppMessages.err("null Graphics in EditorToolbar.getPreferredSize()");
       }
     }
     return new Dimension(MODE_GAP_WIDTH + tempWidth +

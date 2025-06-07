@@ -19,15 +19,13 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package processing.app;
+package processing.utils;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.SystemColor;
 import java.io.*;
 import java.util.*;
 
-import processing.app.ui.Toolkit;
 import processing.core.*;
 
 
@@ -79,11 +77,6 @@ public class Preferences {
 
     // other things that have to be set explicitly for the defaults
     setColor("run.window.bgcolor", SystemColor.control); //$NON-NLS-1$
-
-    // For CJK users, enable IM support by default
-    if (Language.useInputMethod()) {
-      setBoolean("editor.input_method_support", true);
-    }
 
     // next load user preferences file
     preferencesFile = Base.getSettingsFile(PREFS_FILE);
@@ -347,17 +340,6 @@ public class Preferences {
   }
 
 
-  static public Font getFont(String familyAttr, String sizeAttr, int style) {
-    int fontSize = getInteger(sizeAttr);
-
-    String fontFamily = get(familyAttr);
-    if ("processing.mono".equals(fontFamily) ||
-        Toolkit.getMonoFontName().equals(fontFamily)) {
-      return Toolkit.getMonoFont(fontSize, style);
-    }
-    return new Font(fontFamily, style, fontSize);
-  }
-
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -392,7 +374,7 @@ public class Preferences {
   }
 
 
-  static protected void setSketchbookPath(String path) {
+  public static void setSketchbookPath(String path) {
     set("sketchbook.path.four", path); //$NON-NLS-1$
   }
 }

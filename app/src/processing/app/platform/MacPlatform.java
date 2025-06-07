@@ -23,7 +23,6 @@
 package processing.app.platform;
 
 import java.awt.*;
-import java.awt.desktop.AppReopenedEvent;
 import java.awt.desktop.AppReopenedListener;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,7 +33,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 
 import processing.app.Base;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.ui.About;
 import processing.core.PApplet;
 import processing.data.StringList;
@@ -48,13 +47,13 @@ public class MacPlatform extends DefaultPlatform {
   public void saveLanguage(String language) {
     String[] cmdarray = new String[]{
       "defaults", "write",
-      System.getProperty("user.home") + "/Library/Preferences/org.processing.app",
+      System.getProperty("user.home") + "/Library/AppPreferences/org.processing.app",
       "AppleLanguages", "-array", language
     };
     try {
       Runtime.getRuntime().exec(cmdarray);
     } catch (IOException e) {
-      Messages.log("Error saving platform language: " + e.getMessage());
+      AppMessages.log("Error saving platform language: " + e.getMessage());
     }
   }
 
@@ -109,15 +108,6 @@ public class MacPlatform extends DefaultPlatform {
         base.handleNew();
       }
     });
-  }
-
-
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-    return new File(getLibraryFolder(), "Processing");
   }
 
 

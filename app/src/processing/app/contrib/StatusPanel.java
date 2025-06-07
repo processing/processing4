@@ -40,7 +40,7 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.html.HTMLDocument;
 
 import processing.app.Language;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.app.laf.PdeButtonUI;
 import processing.app.laf.PdeProgressBarUI;
 import processing.app.ui.Theme;

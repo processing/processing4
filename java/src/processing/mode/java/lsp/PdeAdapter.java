@@ -32,7 +32,6 @@ import org.jsoup.Jsoup;
 import processing.app.Base;
 import processing.app.contrib.ModeContribution;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.app.Problem;
 import processing.app.Sketch;
 import processing.app.SketchCode;
@@ -44,6 +43,8 @@ import processing.mode.java.JavaMode;
 import processing.mode.java.JavaTextArea;
 import processing.mode.java.PreprocService;
 import processing.mode.java.PreprocSketch;
+
+import processing.utils.Preferences;
 
 import static java.util.Arrays.copyOfRange;
 

@@ -24,7 +24,6 @@ package processing.app.platform;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.sun.jna.Library;
@@ -209,7 +208,7 @@ public class WindowsPlatform extends DefaultPlatform {
    */
   protected void checkAssociations() {
     try {
-      if (Preferences.getBoolean(AUTO_ASSOCIATE_PREF)) {
+      if (AppPreferences.getBoolean(AUTO_ASSOCIATE_PREF)) {
         for (Association assoc : ASSOCIATIONS) {
           // Check the key that should be set by a previous run of the PDE
           String knownCommand =
@@ -257,9 +256,9 @@ public class WindowsPlatform extends DefaultPlatform {
   protected void setAssociations() throws UnsupportedEncodingException {
     for (Association assoc : ASSOCIATIONS) {
       if (!assoc.register()) {
-        Messages.log("Could not associate " + assoc.extension + "files, " +
+        AppMessages.log("Could not associate " + assoc.extension + "files, " +
                      "turning off auto-associate pref.");
-        Preferences.setBoolean("platform.auto_file_type_associations", false);
+        AppPreferences.setBoolean("platform.auto_file_type_associations", false);
       }
     }
   }
@@ -268,7 +267,7 @@ public class WindowsPlatform extends DefaultPlatform {
   protected void setSchemes() throws UnsupportedEncodingException {
     for (String scheme : APP_SCHEMES) {
       if (!registerScheme(scheme)) {
-        Messages.log("Error while trying to associate " + scheme + ":// URLs.");
+        AppMessages.log("Error while trying to associate " + scheme + ":// URLs.");
       }
     }
   }
@@ -347,55 +346,6 @@ public class WindowsPlatform extends DefaultPlatform {
     String newPath = PApplet.join(legit, File.pathSeparator);
     if (!newPath.equals(path)) {
       System.setProperty("java.library.path", newPath);
-    }
-  }
-
-
-  // looking for Documents and Settings/blah/Application Data/Processing
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    try {
-      String appDataRoaming = getAppDataPath();
-      if (appDataRoaming != null) {
-        File settingsFolder = new File(appDataRoaming, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      String appDataLocal = getLocalAppDataPath();
-      if (appDataLocal != null) {
-        File settingsFolder = new File(appDataLocal, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      if (appDataRoaming == null && appDataLocal == null) {
-        throw new IOException("Could not get the AppData folder");
-      }
-
-      // https://github.com/processing/processing/issues/3838
-      throw new IOException("Permissions error: make sure that " +
-                            appDataRoaming + " or " + appDataLocal +
-                            " is writable.");
-
-    } catch (UnsatisfiedLinkError ule) {
-      String path = new File("lib").getCanonicalPath();
-
-      String msg = Util.containsNonASCII(path) ?
-        """
-          Please move Processing to a location with only
-          ASCII characters in the path and try again.
-          https://github.com/processing/processing/issues/3543
-        """ :
-        "Could not find JNA support files, please reinstall Processing.";
-      Messages.showError("Windows JNA Problem", msg, ule);
-      return null;  // unreachable
     }
   }
 
@@ -639,7 +589,7 @@ public class WindowsPlatform extends DefaultPlatform {
       try {
         clib = Native.load("msvcrt", WinLibC.class);
       } catch (UnsatisfiedLinkError ule) {
-        Messages.showTrace("JNA Error",
+        AppMessages.showTrace("JNA Error",
                            "JNA could not be loaded. Please report here:\n" +
                            "http://github.com/processing/processing/issues/new", ule, true);
 

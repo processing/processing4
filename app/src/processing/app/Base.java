@@ -43,6 +43,7 @@ import processing.app.ui.*;
 import processing.app.ui.Toolkit;
 import processing.core.*;
 import processing.data.StringList;
+import processing.utils.Util;
 
 /**
  * The base class for the main processing application.
@@ -67,8 +68,6 @@ public class Base {
    */
   static public boolean DEBUG = System.getenv().containsKey("DEBUG");
 
-  /** True if running via Commander. */
-  static private boolean commandLine;
 
   /**
    * If settings.txt is present inside lib, it will be used to override
@@ -124,7 +123,7 @@ public class Base {
 
 
   static public void main(final String[] args) {
-    Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
+    AppMessages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
       try {
         createAndShowGUI(args);
@@ -146,7 +145,7 @@ public class Base {
             missing = "core.jar";
           }
           if (missing != null) {
-            Messages.showError("Necessary files are missing",
+            AppMessages.showError("Necessary files are missing",
                                "A file required by Processing (" + missing + ") is missing.\n\n" +
                                "Make sure that you're not trying to run Processing from inside\n" +
                                "the .zip file you downloaded, and check that Windows Defender\n" +
@@ -155,7 +154,7 @@ public class Base {
                                "It is not, but Microsoft has ignored our pleas for help.)", t);
           }
         }
-        Messages.showTrace("Unknown Problem",
+        AppMessages.showTrace("Unknown Problem",
                            "A serious error happened during startup. Please report:\n" +
                            "http://github.com/processing/processing4/issues/new", t, true);
       }
@@ -202,20 +201,20 @@ public class Base {
         if (!folder.exists()) {
           success = folder.mkdirs();
           if (!success) {
-            Messages.err("Could not create " + folder + " to store settings.");
+            AppMessages.err("Could not create " + folder + " to store settings.");
           }
         }
         if (success) {
           if (!folder.canRead()) {
-            Messages.err("Cannot read from " + folder);
+            AppMessages.err("Cannot read from " + folder);
           } else if (!folder.canWrite()) {
-            Messages.err("Cannot write to " + folder);
+            AppMessages.err("Cannot write to " + folder);
           } else {
             settingsOverride = folder.getAbsoluteFile();
           }
         }
       } catch (IOException e) {
-        Messages.err("Error while reading the settings.txt file", e);
+        AppMessages.err("Error while reading the settings.txt file", e);
       }
     }
 
@@ -247,7 +246,7 @@ public class Base {
     Language.init();
 
     // run static initialization that grabs all the prefs
-    Preferences.init();
+    AppPreferences.init();
 
 //    long t2 = System.currentTimeMillis();
 
@@ -257,7 +256,7 @@ public class Base {
         Platform.setLookAndFeel();
         Platform.setInterfaceZoom();
       } catch (Exception e) {
-        Messages.err("Error while setting up the interface", e); //$NON-NLS-1$
+        AppMessages.err("Error while setting up the interface", e); //$NON-NLS-1$
       }
 
 //      long t3 = System.currentTimeMillis();
@@ -267,7 +266,7 @@ public class Base {
 
 //      long t4 = System.currentTimeMillis();
 
-      // Load colors for UI elements. This must happen after Preferences.init()
+      // Load colors for UI elements. This must happen after AppPreferences.init()
       // (so that fonts are set) and locateSketchbookFolder() so that a
       // theme.txt file in the user's sketchbook folder is picked up.
       Theme.init();
@@ -287,7 +286,7 @@ public class Base {
         untitledFolder = new File(Util.getProcessingTemp(), uuid);
 
       } catch (IOException e) {
-        Messages.showError("Trouble without a name",
+        AppMessages.showError("Trouble without a name",
                            "Could not create a place to store untitled sketches.\n" +
                            "That's gonna prevent us from continuing.", e);
       }
@@ -295,11 +294,11 @@ public class Base {
 //      long t5 = System.currentTimeMillis();
 //      long t6 = 0;  // replaced below, just needs decl outside try { }
 
-      Messages.log("About to create Base..."); //$NON-NLS-1$
+      AppMessages.log("About to create Base..."); //$NON-NLS-1$
       try {
         final Base base = new Base(args);
         base.updateTheme();
-        Messages.log("Base() constructor succeeded");
+        AppMessages.log("Base() constructor succeeded");
 //        t6 = System.currentTimeMillis();
 
         // Prevent more than one copy of the PDE from running.
@@ -317,10 +316,10 @@ public class Base {
           // show this one so that it's not truncated in the error window.
           err = t.getCause();
         }
-        Messages.showTrace("We're off on the wrong foot",
+        AppMessages.showTrace("We're off on the wrong foot",
                            "An error occurred during startup.", err, true);
       }
-      Messages.log("Done creating Base..."); //$NON-NLS-1$
+      AppMessages.log("Done creating Base..."); //$NON-NLS-1$
 
 //      long t10 = System.currentTimeMillis();
 //      System.out.println("startup took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) + " " + (t5-t4) + " " + (t6-t5) + " " + (t10-t6) + " ms");
@@ -374,11 +373,11 @@ public class Base {
   static private void handleWelcomeScreen(Base base) {
     // Needs to be shown after the first editor window opens, so that it
     // shows up on top, and doesn't prevent an editor window from opening.
-    if (Preferences.getBoolean("welcome.four.show")) {
+    if (AppPreferences.getBoolean("welcome.four.show")) {
       try {
         new Welcome(base);
       } catch (IOException e) {
-        Messages.showTrace("Unwelcoming",
+        AppMessages.showTrace("Unwelcoming",
           "Please report this error to\n" +
             "https://github.com/processing/processing4/issues", e, false);
       }
@@ -404,7 +403,7 @@ public class Base {
         if (res % 96 != 0) {
           // fractional dpi scaling on a low-res screen
           System.out.println("If the editor cursor is in the wrong place or the interface is blocky or fuzzy,");
-          System.out.println("open Preferences and select the “Disable HiDPI Scaling” option to fix it.");
+          System.out.println("open AppPreferences and select the “Disable HiDPI Scaling” option to fix it.");
         }
       }
     }
@@ -426,7 +425,7 @@ public class Base {
   static public void cleanTempFolders() {
     try {
       final File tempDir = Util.getProcessingTemp();
-      final int days = Preferences.getInteger("temp.days");
+      final int days = AppPreferences.getInteger("temp.days");
 
       if (days > 0) {
         final long now = new Date().getTime();
@@ -472,12 +471,12 @@ public class Base {
 
 
   public static void setCommandLine() {
-    commandLine = true;
+    System.setProperty("processing.cli", "true");
   }
 
 
   static public boolean isCommandLine() {
-    return commandLine;
+    return Boolean.getBoolean("processing.cli");
   }
 
 
@@ -502,20 +501,20 @@ public class Base {
     Recent.init(this);
 
     long t4 = System.currentTimeMillis();
-    String lastModeIdentifier = Preferences.get("mode.last"); //$NON-NLS-1$
+    String lastModeIdentifier = AppPreferences.get("mode.last"); //$NON-NLS-1$
     if (lastModeIdentifier == null) {
       nextMode = getDefaultMode();
-      Messages.log("Nothing set for last.sketch.mode, using default."); //$NON-NLS-1$
+      AppMessages.log("Nothing set for last.sketch.mode, using default."); //$NON-NLS-1$
     } else {
       for (Mode m : getModeList()) {
         if (m.getIdentifier().equals(lastModeIdentifier)) {
-          Messages.logf("Setting next mode to %s.", lastModeIdentifier); //$NON-NLS-1$
+          AppMessages.logf("Setting next mode to %s.", lastModeIdentifier); //$NON-NLS-1$
           nextMode = m;
         }
       }
       if (nextMode == null) {
         nextMode = getDefaultMode();
-        Messages.logf("Could not find mode %s, using default.", lastModeIdentifier); //$NON-NLS-1$
+        AppMessages.logf("Could not find mode %s, using default.", lastModeIdentifier); //$NON-NLS-1$
       }
     }
 
@@ -538,7 +537,7 @@ public class Base {
 
     // Check if any files were passed in on the command line
     for (int i = 0; i < args.length; i++) {
-      Messages.logf("Parsing command line... args[%d] = '%s'", i, args[i]);
+      AppMessages.logf("Parsing command line... args[%d] = '%s'", i, args[i]);
 
       String path = args[i];
       // Fix a problem with systems that use a non-ASCII languages. Paths are
@@ -549,7 +548,7 @@ public class Base {
         try {
           File file = new File(args[i]);
           path = file.getCanonicalPath();
-          Messages.logf("Changing %s to canonical %s", i, args[i], path);
+          AppMessages.logf("Changing %s to canonical %s", i, args[i], path);
         } catch (IOException e) {
           e.printStackTrace();
         }
@@ -563,10 +562,10 @@ public class Base {
 
     // Create a new empty window (will be replaced with any files to be opened)
     if (!opened) {
-      Messages.log("Calling handleNew() to open a new window");
+      AppMessages.log("Calling handleNew() to open a new window");
       handleNew();
     } else {
-      Messages.log("No handleNew(), something passed on the command line");
+      AppMessages.log("No handleNew(), something passed on the command line");
     }
 
     long t8 = System.currentTimeMillis();
@@ -578,10 +577,10 @@ public class Base {
     cl.downloadAvailableList(this, new ContribProgress(null));
     long t9 = System.currentTimeMillis();
 
-    Messages.log("core modes: " + (t2b-t2) +
+    AppMessages.log("core modes: " + (t2b-t2) +
                        ", contrib modes: " + (t2c-t2b) +
                        ", contrib ex: " + (t2c-t2b));
-    Messages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
+    AppMessages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
                          " " + (t5-t4) + " t6-t5=" + (t6-t5) + " " + (t7-t6) +
                          " handleNew=" + (t8-t7) + " " + (t9-t8) + " ms");
   }
@@ -660,7 +659,7 @@ public class Base {
 
     // make this the next mode to be loaded
     nextMode = whichEditor.getMode();
-    Preferences.set("mode.last", nextMode.getIdentifier()); //$NON-NLS-1$
+    AppPreferences.set("mode.last", nextMode.getIdentifier()); //$NON-NLS-1$
   }
 
 
@@ -760,7 +759,7 @@ public class Base {
       ModeContribution.load(this, Platform.getContentFile("modes/java"),
                             getDefaultModeIdentifier());
     if (javaModeContrib == null) {
-      Messages.showError("Startup Error",
+      AppMessages.showError("Startup Error",
                 "Could not load Java Mode, please reinstall Processing.",
                          new Exception("ModeContribution.load() was null"));
 
@@ -806,7 +805,7 @@ public class Base {
             System.err.println(folder.getName() + " could not be loaded and may not compatible with this version of Processing");
             if (DEBUG) ite.printStackTrace();
           } catch (IgnorableException ig) {
-            Messages.log(ig.getMessage());
+            AppMessages.log(ig.getMessage());
             if (DEBUG) ig.printStackTrace();
           } catch (Throwable e) {
             System.err.println("Could not load Mode from " + folder);
@@ -902,19 +901,19 @@ public class Base {
       } catch (VerifyError | AbstractMethodError ve) {
         System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
                            "compatible with this version of Processing");
-        Messages.err("Incompatible Tool found during tool.init()", ve);
+        AppMessages.err("Incompatible Tool found during tool.init()", ve);
 
       } catch (NoSuchMethodError nsme) {
         System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
                            "compatible with this version of Processing");
         System.err.println("The " + nsme.getMessage() + " method no longer exists.");
-        Messages.err("Incompatible Tool found during tool.init()", nsme);
+        AppMessages.err("Incompatible Tool found during tool.init()", nsme);
 
       } catch (NoClassDefFoundError ncdfe) {
         System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
                            "compatible with this version of Processing");
         System.err.println("The " + ncdfe.getMessage() + " class is no longer available.");
-        Messages.err("Incompatible Tool found during tool.init()", ncdfe);
+        AppMessages.err("Incompatible Tool found during tool.init()", ncdfe);
 
       } catch (Error | Exception e) {
         System.err.println("An error occurred inside \"" + tool.getMenuTitle() + "\"");
@@ -986,10 +985,10 @@ public class Base {
         tool.run();
 
       } catch (NoSuchMethodError | NoClassDefFoundError ne) {
-        Messages.showWarning("Tool out of date",
+        AppMessages.showWarning("Tool out of date",
                              tool.getMenuTitle() + " is not compatible with this version of Processing.\n" +
                              "Try updating the Mode or contact its author for a new version.", ne);
-        Messages.err("Incompatible tool found during tool.run()", ne);
+        AppMessages.err("Incompatible tool found during tool.run()", ne);
         item.setEnabled(false);
 
       } catch (Exception ex) {
@@ -1141,7 +1140,7 @@ public class Base {
       handleOpenUntitled(path);
 
     } catch (IOException e) {
-      Messages.showTrace("That's new to me",
+      AppMessages.showTrace("That's new to me",
                          "A strange and unexplainable error occurred\n" +
                          "while trying to create a new sketch.", e, false);
     }
@@ -1165,7 +1164,7 @@ public class Base {
 
     final String prompt = Language.text("open");
 
-    if (Preferences.getBoolean("chooser.files.native")) {  //$NON-NLS-1$
+    if (AppPreferences.getBoolean("chooser.files.native")) {  //$NON-NLS-1$
       // use the front-most window frame for placing file dialog
       FileDialog openDialog =
         new FileDialog(activeEditor, prompt, FileDialog.LOAD);
@@ -1260,14 +1259,14 @@ public class Base {
       Editor editor = getActiveEditor();
       if (editor == null) {
         // Shouldn't really happen, but if it's still null, it's a no-go
-        Messages.showWarning("Failure is the only option",
+        AppMessages.showWarning("Failure is the only option",
             "Please open an Editor window before installing an extension.");
       } else {
         File contribFile = new File(path);
         String baseName = contribFile.getName();
         baseName = baseName.substring(0, baseName.length() - CONTRIB_BUNDLE_EXT.length());
         int result =
-          Messages.showYesNoQuestion(editor, "How to Handle " + CONTRIB_BUNDLE_EXT,
+          AppMessages.showYesNoQuestion(editor, "How to Handle " + CONTRIB_BUNDLE_EXT,
           "Install " + baseName + "?",
           "Libraries, Modes, and Tools should<br>" +
           "only be installed from trusted sources.");
@@ -1293,7 +1292,7 @@ public class Base {
               });
             } catch (IOException e) {
               EventQueue.invokeLater(() ->
-                  Messages.showWarning("Exception During Installation",
+                  AppMessages.showWarning("Exception During Installation",
                       "Could not install contrib from " + path, e));
             }
           }).start();
@@ -1362,7 +1361,7 @@ public class Base {
 
       // remove the original file, so user doesn't get confused
       if (!pdeFile.delete()) {
-        Messages.err("Could not delete " + pdeFile);
+        AppMessages.err("Could not delete " + pdeFile);
       }
 
       // update with the new path
@@ -1482,7 +1481,7 @@ public class Base {
               nextMode = mode;
             } else {
               ContributionManager.openModes();
-              Messages.showWarning("Missing Mode",
+              AppMessages.showWarning("Missing Mode",
                 "You must first install " + props.get("mode") + " Mode to use this sketch.");
               return null;
             }
@@ -1511,7 +1510,7 @@ public class Base {
       // Mode that it's using. (In 4.0b8, this became the fall-through case.)
 
       if (!Sketch.isSanitaryName(pdeFile.getName())) {
-        Messages.showWarning("You're tricky, but not tricky enough",
+        AppMessages.showWarning("You're tricky, but not tricky enough",
           pdeFile.getName() + " is not a valid name for sketch code.\n" +
           "Better to stick to ASCII, no spaces, and make sure\n" +
           "it doesn't start with a number.", null);
@@ -1590,7 +1589,7 @@ public class Base {
       return handleOpenInternal(pdeFile.getAbsolutePath(), false);
 
     } catch (IOException e) {
-      Messages.showWarning("sketch.properties",
+      AppMessages.showWarning("sketch.properties",
         "Error while reading sketch.properties from\n" + parentFolder, e);
       return null;
     }
@@ -1644,19 +1643,19 @@ public class Base {
 
       } catch (EditorException ee) {
         if (ee.getMessage() != null) {  // null if the user canceled
-          Messages.showWarning("Error opening sketch", ee.getMessage(), ee);
+          AppMessages.showWarning("Error opening sketch", ee.getMessage(), ee);
         }
       } catch (NoSuchMethodError me) {
-        Messages.showWarning("Mode out of date",
+        AppMessages.showWarning("Mode out of date",
                              nextMode.getTitle() + " is not compatible with this version of Processing.\n" +
                              "Try updating the Mode or contact its author for a new version.", me);
       } catch (Throwable t) {
         if (nextMode.equals(getDefaultMode())) {
-          Messages.showTrace("Serious Problem",
+          AppMessages.showTrace("Serious Problem",
                              "An unexpected, unknown, and unrecoverable error occurred\n" +
                              "while opening a new editor window. Please report this.", t, true);
         } else {
-          Messages.showTrace("Mode Problems",
+          AppMessages.showTrace("Mode Problems",
                              "A nasty error occurred while trying to use “" + nextMode.getTitle() + "”.\n" +
                              "It may not be compatible with this version of Processing.\n" +
                              "Try updating the Mode or contact its author for a new version.", t, false);
@@ -1666,7 +1665,7 @@ public class Base {
         Mode defaultMode = getDefaultMode();
         if (nextMode == defaultMode) {
           // unreachable? hopefully?
-          Messages.showError("Editor Problems", """
+          AppMessages.showError("Editor Problems", """
               An error occurred while trying to change modes.
               We'll have to quit for now because it's an
               unfortunate bit of indigestion with the default Mode.
@@ -1687,7 +1686,7 @@ public class Base {
         }
       }
     } catch (Throwable t) {
-      Messages.showTrace("Terrible News",
+      AppMessages.showTrace("Terrible News",
                          "A serious error occurred while " +
                          "trying to create a new editor window.", t,
                          nextMode == getDefaultMode());  // quit if default
@@ -1787,7 +1786,7 @@ public class Base {
         editor.internalCloseRunner();
       }
       // Save out the current prefs state
-      Preferences.save();
+      AppPreferences.save();
 
       // Finished with this guy
       Console.shutdown();
@@ -1866,7 +1865,7 @@ public class Base {
         }
       }
     } else {
-      Messages.showWarning("Cannot Restart",
+      AppMessages.showWarning("Cannot Restart",
         "Cannot automatically restart because the Processing\n" +
         "application has been renamed. Please quit and then restart manually.");
     }
@@ -1961,7 +1960,7 @@ public class Base {
       try {
         found = addSketches(menu, sketchbookFolder);
       } catch (Exception e) {
-        Messages.showWarning("Sketchbook Menu Error",
+        AppMessages.showWarning("Sketchbook Menu Error",
                 "An error occurred while trying to list the sketchbook.", e);
       }
       if (!found) {
@@ -1980,7 +1979,7 @@ public class Base {
    * sketch should open in a new window.
    */
   protected boolean addSketches(JMenu menu, File folder) {
-    Messages.log("scanning " + folder.getAbsolutePath());
+    AppMessages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
       return false;
@@ -2018,7 +2017,7 @@ public class Base {
       if (new File(path).exists()) {
         handleOpen(path);
       } else {
-        Messages.showWarning("Sketch Disappeared","""
+        AppMessages.showWarning("Sketch Disappeared","""
             The selected sketch no longer exists.
             You may need to restart Processing to update
             the sketchbook menu.""", null);
@@ -2076,7 +2075,7 @@ public class Base {
    */
   public boolean addSketches(DefaultMutableTreeNode node, File folder,
                              boolean examples) throws IOException {
-    Messages.log("scanning " + folder.getAbsolutePath());
+    AppMessages.log("scanning " + folder.getAbsolutePath());
     // skip .DS_Store files, etc. (this shouldn't actually be necessary)
     if (!folder.isDirectory()) {
       return false;
@@ -2188,7 +2187,7 @@ public class Base {
 
 
   /**
-   * Show the Preferences window.
+   * Show the AppPreferences window.
    */
   public void handlePrefs() {
     if (preferencesFrame == null) {
@@ -2233,14 +2232,14 @@ public class Base {
       // create the folder if it doesn't exist already
       if (!settingsFolder.exists()) {
         if (!settingsFolder.mkdirs()) {
-          Messages.showError("Settings issues",
+          AppMessages.showError("Settings issues",
                              "Processing cannot run because it could not\n" +
                              "create a folder to store your settings at\n" +
                              settingsFolder, null);
         }
       }
     } catch (Exception e) {
-      Messages.showTrace("An rare and unknowable thing happened",
+      AppMessages.showTrace("An rare and unknowable thing happened",
                          "Could not get the settings folder. Please report:\n" +
                          "http://github.com/processing/processing/issues/new",
                          e, true);
@@ -2273,11 +2272,11 @@ public class Base {
   static public void locateSketchbookFolder() {
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
-    String sketchbookPath = Preferences.getSketchbookPath();
+    String sketchbookPath = AppPreferences.getSketchbookPath();
     if (sketchbookPath != null) {
       sketchbookFolder = new File(sketchbookPath);
       if (!sketchbookFolder.exists()) {
-        Messages.showWarning("Sketchbook folder disappeared","""
+        AppMessages.showWarning("Sketchbook folder disappeared","""
             The sketchbook folder no longer exists.
             Processing will switch to the default sketchbook
             location, and create a new sketchbook folder if
@@ -2290,10 +2289,10 @@ public class Base {
     // If no path is set, get the default sketchbook folder for this platform
     if (sketchbookFolder == null) {
       sketchbookFolder = getDefaultSketchbookFolder();
-      Preferences.setSketchbookPath(sketchbookFolder.getAbsolutePath());
+      AppPreferences.setSketchbookPath(sketchbookFolder.getAbsolutePath());
       if (!sketchbookFolder.exists()) {
         if (!sketchbookFolder.mkdirs()) {
-          Messages.showError("Could not create sketchbook",
+          AppMessages.showError("Could not create sketchbook",
                              "Unable to create a sketchbook folder at\n" +
                              sketchbookFolder + "\n" +
                              "Try creating a folder at that path and restart Processing.", null);
@@ -2308,7 +2307,7 @@ public class Base {
 
   public void setSketchbookFolder(File folder) {
     sketchbookFolder = folder;
-    Preferences.setSketchbookPath(folder.getAbsolutePath());
+    AppPreferences.setSketchbookPath(folder.getAbsolutePath());
     rebuildSketchbook();
     makeSketchbookSubfolders();
   }
@@ -2372,7 +2371,7 @@ public class Base {
     } catch (Exception ignored) { }
 
     if (sketchbookFolder == null) {
-      Messages.showError("No sketchbook",
+      AppMessages.showError("No sketchbook",
                          "Problem while trying to get the sketchbook", null);
 
     } else {
@@ -2383,7 +2382,7 @@ public class Base {
       }
 
       if (!result) {
-        Messages.showError("You forgot your sketchbook",
+        AppMessages.showError("You forgot your sketchbook",
                            "Processing cannot run because it could not\n" +
                            "create a folder to store your sketchbook.", null);
       }

@@ -37,6 +37,8 @@ import processing.mode.java.preproc.SketchException;
 import processing.mode.java.runner.Runner;
 import processing.mode.java.tweak.SketchParser;
 
+import processing.utils.Preferences;
+
 
 public class JavaMode extends Mode {
 
@@ -256,7 +258,7 @@ public class JavaMode extends Mode {
 
 
   public void loadPreferences() {
-    Messages.log("Load PDEX prefs");
+    AppMessages.log("Load PDEX prefs");
 
     errorCheckEnabled = Preferences.getBoolean(prefErrorCheck);
     warningsEnabled = Preferences.getBoolean(prefWarnings);
@@ -275,7 +277,7 @@ public class JavaMode extends Mode {
 
 
   public void savePreferences() {
-    Messages.log("Saving PDEX prefs");
+    AppMessages.log("Saving PDEX prefs");
 
     Preferences.setBoolean(prefErrorCheck, errorCheckEnabled);
     Preferences.setBoolean(prefWarnings, warningsEnabled);
