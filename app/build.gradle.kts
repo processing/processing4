@@ -353,7 +353,14 @@ tasks.register<Copy>("includeJavaMode") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 tasks.register<Copy>("includeJdk") {
-    from(Jvm.current().javaHome.absolutePath)
+    from(Jvm.current().javaHome.absolutePath) {
+        // TODO: Check if this is still needed when upgrading from JDK 17
+        // https://github.com/adoptium/adoptium-support/issues/937
+        if (OperatingSystem.current().isMacOsX) {
+            exclude("**/*.jsa")
+            exclude("**/legal/**")
+        }
+    }
     destinationDir = composeResources("jdk").get().asFile
 }
 tasks.register<Copy>("includeSharedAssets"){
