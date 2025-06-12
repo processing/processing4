@@ -401,6 +401,8 @@ public class PGraphicsOpenGL extends PGraphics {
   protected FrameBuffer drawFramebuffer;
   protected FrameBuffer readFramebuffer;
   protected FrameBuffer currentFramebuffer;
+  // Used for upscaling/downscaling the framebuffer when pixelDensity > 1
+  protected FrameBuffer logicalFramebuffer;
 
   // .......................................................
 
@@ -5378,8 +5380,10 @@ public class PGraphicsOpenGL extends PGraphics {
 
   protected void allocatePixels() {
     updatePixelSize();
-    if ((pixels == null) || (pixels.length != pixelWidth * pixelHeight)) {
-      pixels = new int[pixelWidth * pixelHeight];
+    int pixelCount = (pixelDensity > 1) ? (width * height) : (pixelWidth * pixelHeight);
+
+    if ((pixels == null) || (pixels.length != pixelCount)) {
+      pixels = new int[pixelCount];
       pixelBuffer = PGL.allocateIntBuffer(pixels);
       loaded = false;
     }
@@ -5388,6 +5392,11 @@ public class PGraphicsOpenGL extends PGraphics {
 
   protected void readPixels() {
     updatePixelSize();
+    if (pixelDensity > 1) {
+      readLogicalPixels();
+      return;
+    }
+
     beginPixelsOp(OP_READ);
     try {
       // The readPixelsImpl() call in inside a try/catch block because it appears
@@ -5396,7 +5405,7 @@ public class PGraphicsOpenGL extends PGraphics {
       // of this the width and height might have a different size than the
       // one of the pixels arrays.
       pgl.readPixelsImpl(0, 0, pixelWidth, pixelHeight, PGL.RGBA, PGL.UNSIGNED_BYTE,
-                         pixelBuffer);
+              pixelBuffer);
     } catch (IndexOutOfBoundsException e) {
       // Silently catch the exception.
     }
@@ -5408,10 +5417,49 @@ public class PGraphicsOpenGL extends PGraphics {
     } catch (ArrayIndexOutOfBoundsException e) {
       // ignored
     }
+    
+  }
+
+  /**
+   * Downscales the current framebuffer to the logical framebuffer before
+   * readback into the pixels array.
+   */
+  protected  void readLogicalPixels() {
+    ensureLogicalFramebuffer();
+
+    beginPixelsOp(OP_READ);
+
+    FrameBuffer readFB = getCurrentFB();
+    int filter = parent.pixelAccessMode == PIXEL_EXACT ? PGL.NEAREST : PGL.LINEAR;
+    readFB.copy(logicalFramebuffer, PGL.COLOR_BUFFER_BIT, filter);
+
+    pushFramebuffer();
+    setFramebuffer(logicalFramebuffer);
+
+    try {
+      pgl.readPixelsImpl(0, 0, width, height, PGL.RGBA, PGL.UNSIGNED_BYTE, pixelBuffer);
+    } catch (IndexOutOfBoundsException e) {
+      // Silently catch the exception.
+    }
+
+    popFramebuffer();
+    endPixelsOp();
+
+    try {
+      PGL.getIntArray(pixelBuffer, pixels);
+      PGL.nativeToJavaARGB(pixels, width, height);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      // ignored
+    }
   }
 
 
   protected void drawPixels(int x, int y, int w, int h) {
+    if (pixelDensity > 1) {
+      drawLogicalPixels(x, y, w, h);
+      return;
+    }
+
     int len = w * h;
     if (nativePixels == null || nativePixels.length < len) {
       nativePixels = new int[len];
@@ -5472,6 +5520,97 @@ public class PGraphicsOpenGL extends PGraphics {
       // need to reflect that in the vertical arguments.
       pgl.copyToTexture(texture.glTarget, texture.glFormat, texture.glName,
                         x, pixelHeight - (y + h), w, h, nativePixelBuffer);
+    }
+  }
+
+  /**
+   * Draws the pixels to the logical framebuffer before upscaling to the
+   * output texture.
+   */
+  protected void drawLogicalPixels(int x, int y, int w, int h) {
+    ensureLogicalFramebuffer();
+
+    int len = w * h;
+    if (nativePixels == null || nativePixels.length < len) {
+      nativePixels = new int[len];
+      nativePixelBuffer = PGL.allocateIntBuffer(nativePixels);
+    }
+
+    try {
+      if (0 < x || 0 < y || w < width || h < height) {
+        int offset0 = y * width + x;
+        int offset1 = 0;
+        for (int yc = y; yc < y + h; yc++) {
+          System.arraycopy(pixels, offset0, nativePixels, offset1, w);
+          offset0 += width;
+          offset1 += w;
+        }
+      } else {
+        PApplet.arrayCopy(pixels, 0, nativePixels, 0, len);
+      }
+      PGL.javaToNativeARGB(nativePixels, w, h);
+    } catch (ArrayIndexOutOfBoundsException e) {
+      // ignored
+    }
+    PGL.putIntArray(nativePixelBuffer, nativePixels);
+
+    // TODO: Is there a better way to handle gpu->gpu writes in Processing's
+    // framebuffer management abstraction?
+    if (primaryGraphics && !pgl.isFBOBacked()) {
+      loadTextureImpl(POINT, false);
+    }
+
+    Texture logicalTexture = logicalFramebuffer.colorBufferTex[0];
+    pgl.copyToTexture(logicalTexture.glTarget, logicalTexture.glFormat,
+            logicalTexture.glName, x, height - (y + h), w, h,
+            nativePixelBuffer);
+    pgl.bindTexture(logicalTexture.glTarget, 0);
+
+    IntBuffer fboId = IntBuffer.allocate(1);
+    pgl.genFramebuffers(1, fboId);
+    fboId.rewind();
+    int framebufferId = fboId.get(0);
+
+    pgl.bindFramebufferImpl(PGL.FRAMEBUFFER, framebufferId);
+    pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0,
+            texture.glTarget, texture.glName, 0);
+
+    FrameBuffer textureFB = new FrameBuffer(this);
+    textureFB.glFbo = framebufferId;
+    textureFB.width = pixelWidth;
+    textureFB.height = pixelHeight;
+
+    pgl.bindFramebufferImpl(PGL.READ_FRAMEBUFFER, logicalFramebuffer.glFbo);
+    pgl.bindFramebufferImpl(PGL.DRAW_FRAMEBUFFER, framebufferId);
+
+    int physX = x * pixelDensity;
+    int physY = y * pixelDensity;
+    int physW = w * pixelDensity;
+    int physH = h * pixelDensity;
+    int srcY = height - (y + h);
+
+    // Blit the framebuffer from logical to physical coordinates
+    // Note: the y-coord flipping can be confusing in this entire routine
+    int filter = parent.pixelAccessMode == PIXEL_EXACT ? PGL.NEAREST : PGL.LINEAR;
+    pgl.blitFramebuffer(x, srcY, x + w, srcY + h,
+            physX, physY, physX + physW, physY + physH,
+            PGL.COLOR_BUFFER_BIT, filter);
+
+
+    fboId.rewind();
+    fboId.put(0, framebufferId);
+    pgl.bindFramebufferImpl(PGL.READ_FRAMEBUFFER, getCurrentFB().glFbo);
+    pgl.bindFramebufferImpl(PGL.DRAW_FRAMEBUFFER, getCurrentFB().glFbo);
+    pgl.deleteFramebuffers(1, fboId);
+
+    boolean needToDrawTex = primaryGraphics && (!pgl.isFBOBacked() ||
+            (pgl.isFBOBacked() && pgl.isMultisampled())) ||
+            offscreenMultisample;
+    if (texture == null) return;
+    if (needToDrawTex) {
+      beginPixelsOp(OP_WRITE);
+      drawTexture(physX, physY, physW, physH);
+      endPixelsOp();
     }
   }
 
@@ -6556,6 +6695,41 @@ public class PGraphicsOpenGL extends PGraphics {
     initialized = true;
   }
 
+  /**
+   * Ensures that the logical framebuffer is created and
+   * up-to-date with the current width and height of the
+   * image.
+   */
+  protected void ensureLogicalFramebuffer() {
+    if (logicalFramebuffer == null ||
+            logicalFramebuffer.width != width ||
+            logicalFramebuffer.height != height ||
+            logicalFramebuffer.contextIsOutdated()) {
+
+      if (logicalFramebuffer != null) {
+        logicalFramebuffer.dispose();
+      }
+
+      // TODO: We really need to make sure that the logical framebuffer
+      // is always created with the same configuration as the current framebuffer.
+      // Double check msaa still works.
+      FrameBuffer currentFB = getCurrentFB();
+      int depthBits = currentFB.depthBits;
+      int stencilBits = currentFB.stencilBits;
+      boolean packedDepthStencil = currentFB.packedDepthStencil;
+      logicalFramebuffer = new FrameBuffer(this, width, height, 1, 1,
+              depthBits, stencilBits,
+              packedDepthStencil, false);
+      Texture colorTex = new Texture(this, width, height);
+      colorTex.init(width, height);
+      logicalFramebuffer.setColorBuffer(colorTex);
+
+      pushFramebuffer();
+      setFramebuffer(logicalFramebuffer);
+      pgl.validateFramebuffer();
+      popFramebuffer();
+    }
+  }
 
   protected void beginOnscreenDraw() {
     updatePixelSize();

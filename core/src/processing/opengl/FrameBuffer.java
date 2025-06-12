@@ -176,10 +176,14 @@ public class FrameBuffer implements PConstants {
   }
 
   public void copy(FrameBuffer dest, int mask) {
+    copy(dest, mask, PGL.NEAREST);
+  }
+
+  public void copy(FrameBuffer dest, int mask, int filter) {
     pgl.bindFramebufferImpl(PGL.READ_FRAMEBUFFER, this.glFbo);
     pgl.bindFramebufferImpl(PGL.DRAW_FRAMEBUFFER, dest.glFbo);
     pgl.blitFramebuffer(0, 0, this.width, this.height,
-                        0, 0, dest.width, dest.height, mask, PGL.NEAREST);
+            0, 0, dest.width, dest.height, mask, filter);
     pgl.bindFramebufferImpl(PGL.READ_FRAMEBUFFER, pg.getCurrentFB().glFbo);
     pgl.bindFramebufferImpl(PGL.DRAW_FRAMEBUFFER, pg.getCurrentFB().glFbo);
   }
