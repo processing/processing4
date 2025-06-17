@@ -103,6 +103,7 @@ body:
     options:
       - No, I’m just reporting the issue
       - Yes, I’d like to help with this
+      - Yes, but I'll need guidance
       - I’m not sure yet
   validations:
     required: true
