@@ -6,11 +6,8 @@ body:
 - type: markdown
   attributes:
     value: |
-      Thank you for suggesting an enhancement to an existing feature of Processing! Your input is valuable in helping us improve the platform. Please fill out the following details to help us understand your suggestion better.
-
-      If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute.  The [Processing Library Template](https://github.com/processing/processing-library-template) provides a starting point for developing, packaging, and distributing Processing libraries. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/).
-    
-      Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
+      > [!NOTE]
+      > If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute.  The [Processing Library Template](https://github.com/processing/processing-library-template) provides a starting point for developing, packaging, and distributing Processing libraries. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/). Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
 
 - type: dropdown
   id: feature-area
