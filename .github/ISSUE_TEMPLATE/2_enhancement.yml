@@ -16,6 +16,7 @@ body:
     description: Choose the most relevant area for the proposed feature or improvement.
     multiple: true
     options:
+        - I'm not sure
         - Accessibility
         - Core/Environment/Rendering
         - PDE
