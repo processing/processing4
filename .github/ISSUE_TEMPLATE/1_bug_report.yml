@@ -94,12 +94,6 @@ body:
   validations:
     required: false
 
-- type: markdown
-  attributes:
-    value: |
-      > [!NOTE]
-      > Note that Processing is a community-driven, open-source project. That means we often rely on community members like you to help investigate and fix bugs. If you have the skills and time to help, your contribution would be greatly appreciated! See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about ways to get involved.
-
 - type: dropdown
   attributes:
     label: Would you like to work on the issue?
@@ -111,3 +105,9 @@ body:
       - I’m not sure yet
   validations:
     required: true
+
+- type: markdown
+  attributes:
+    value: |
+      > [!NOTE]
+      > Processing is a community-driven, open-source project. If you have time and interest to help, your contribution would be greatly appreciated! See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about ways to get involved.
