@@ -99,7 +99,7 @@ body:
   attributes:
     label: Would you like to work on the issue?
     description: |
-      If not, that’s okay too. Your report is appreciated. And if you need some guidance or support, we're happy to help you get started.
+      If not, that’s okay too. Your report is appreciated.
     options:
       - No, I’m just reporting the issue
       - Yes, I’d like to help with this
@@ -111,4 +111,4 @@ body:
   attributes:
     value: |
       > [!NOTE]
-      > Processing is a community-driven, open-source project. If you have time and interest to help, your contribution would be greatly appreciated! See the [contribution guide](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more.
+      > Processing is a community-driven, open-source project. If you have time and interest to help, your contribution would be greatly appreciated! See the [contribution guide](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more. And if you need some guidance or support, we're happy to help you get started.
