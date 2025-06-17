@@ -37,36 +37,23 @@ body:
     required: true
 
 - type: textarea
-  id: feature-description
+  id: feature-details
   attributes:
-    label: Feature description
-    description: Describe the feature in detail. Include how it should work and its intended impact.
+    label: Feature details
+    description: |
+      #### Feature description
+      Describe the feature in detail. Include how it should work and its intended impact.
+
+      #### Benefits
+      Outline how this feature would benefit users or improve Processing.
+
+      #### Challenges
+      Discuss any possible challenges or considerations in implementing this feature.
+
+      #### Additional context
+      Provide any other information, links, or screenshots that could help illustrate the feature.
   validations:
     required: true
-
-- type: textarea
-  id: benefits
-  attributes:
-    label: Benefits
-    description: Outline how this feature would benefit users or improve Processing.
-  validations:
-    required: true
-
-- type: textarea
-  id: challenges
-  attributes:
-    label: Possible challenges
-    description: Discuss any possible challenges or considerations in implementing this feature.
-  validations:
-    required: false
-
-- type: textarea
-  id: additional-context
-  attributes:
-    label: Additional context
-    description: Provide any other information, links, or screenshots that could help illustrate the feature.
-  validations:
-    required: false
 
 - type: dropdown
   attributes:
