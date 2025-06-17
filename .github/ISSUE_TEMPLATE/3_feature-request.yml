@@ -72,8 +72,8 @@ body:
 
       See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about how to get involved.
     options:
-      - Yes, I’d like to help with this
       - No, I’m just reporting the issue
+      - Yes, I’d like to help with this
       - I’m not sure yet
   validations:
     required: true
