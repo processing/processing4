@@ -1521,6 +1521,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "thisizaro",
+      "name": "Aranya Dutta",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98299268?v=4",
+      "profile": "https://github.com/thisizaro",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoType": "github",
