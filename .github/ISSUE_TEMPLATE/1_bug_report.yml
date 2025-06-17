@@ -99,11 +99,10 @@ body:
   attributes:
     label: Would you like to work on the issue?
     description: |
-      If not, that’s okay too. Your report is appreciated.
+      If not, that’s okay too. Your report is appreciated. And if you need some guidance or support, we're happy to help you get started.
     options:
       - No, I’m just reporting the issue
       - Yes, I’d like to help with this
-      - Yes, but I'll need guidance
       - I’m not sure yet
   validations:
     required: true

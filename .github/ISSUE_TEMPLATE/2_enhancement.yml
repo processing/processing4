@@ -68,11 +68,10 @@ body:
   attributes:
     label: Would you like to help implement this enhancement?
     description: |
-      If not, that’s okay too. Your suggestion is appreciated.
+      If not, that’s okay too. Your suggestion is appreciated. And if you need some guidance or support, we're happy to help you get started.
     options:
       - No, I’m just suggesting the enhancement
       - Yes, I’d like to help with this
-      - Yes, but I'll need guidance
       - I’m not sure yet
   validations:
     required: true
