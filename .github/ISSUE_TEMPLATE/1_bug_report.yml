@@ -46,6 +46,15 @@ body:
 
 - type: textarea
   attributes:
+    label: Bug description
+    description: |
+      Describe the bug in detail. Include what you expected to happen and what actually happened.
+      If applicable, include any error messages you received.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
     label: Steps to reproduce this
     description: Describe what steps will produce the bug.
     value: |

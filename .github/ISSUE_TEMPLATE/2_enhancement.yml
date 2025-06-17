@@ -67,15 +67,13 @@ body:
 
 - type: dropdown
   attributes:
-    label: Would you like to work on the issue?
+    label: Would you like to help implement this enhancement?
     description: |
-      Thank you for reporting this issue! Processing is a community-driven, open-source project. That means issues like this often rely on contributors like you to help investigate and fix them.
+      Note: [creating a library](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing) is often the best way to add new features to Processing. If you’re suggesting a change that could be implemented as a library, please consider that approach first.
 
-      Let us know if you’d like to try fixing it yourself, and don’t worry, we can guide you through the process. If not, that’s okay too. Your report is appreciated.
-
-      See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about how to get involved.
+      If you’re interested in helping implement this enhancement, let us know below. We’re happy to provide guidance and support. If not, your suggestion is still valuable and appreciated.
     options:
-      - No, I’m just reporting the issue
+      - No, I’m just suggesting the enhancement
       - Yes, I’d like to help with this
       - I’m not sure yet
   validations:
