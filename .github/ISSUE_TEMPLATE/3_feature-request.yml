@@ -6,7 +6,7 @@ body:
 - type: markdown
   attributes:
     value: |
-      > [!NOTE]
+      > [!TIP]
       > If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute. Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
 
 - type: dropdown
