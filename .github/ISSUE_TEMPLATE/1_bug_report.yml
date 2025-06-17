@@ -3,6 +3,15 @@ description: Report broken or incorrect behavior in Processing 4. (For help with
 labels: [bug]
 body:
 
+- type: markdown
+  attributes:
+    value: |
+      Thank you for reporting this issue! 
+      
+      Note that Processing is a community-driven, open-source project. That means we often rely on community members like you to help investigate and fix bugs. If you have the skills and time to help, your contribution would be greatly appreciated!
+      
+      See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about ways to get involved.
+
 - type: dropdown
   id: sub-area
   attributes:
@@ -97,11 +106,7 @@ body:
   attributes:
     label: Would you like to work on the issue?
     description: |
-      Thank you for reporting this issue! Processing is a community-driven, open-source project. That means issues like this often rely on contributors like you to help investigate and fix them.
-
-      Let us know if you’d like to try fixing it yourself, and don’t worry, we can guide you through the process. If not, that’s okay too. Your report is appreciated.
-
-      See [CONTRIBUTING.md](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more about how to get involved.
+      Let us know if you’d like to try fixing it yourself, and don’t worry, we can guide you through the process. If not, that’s okay too. Your report is appreciated.      
     options:
       - No, I’m just reporting the issue
       - Yes, I’d like to help with this

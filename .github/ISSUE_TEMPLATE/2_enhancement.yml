@@ -3,6 +3,15 @@ description: Suggest an improvement for an existing feature of Processing.
 labels: [enhancement]
 body:
 
+- type: markdown
+  attributes:
+    value: |
+      Thank you for suggesting an enhancement to an existing feature of Processing! Your input is valuable in helping us improve the platform. Please fill out the following details to help us understand your suggestion better.
+
+      If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute.  The [Processing Library Template](https://github.com/processing/processing-library-template) provides a starting point for developing, packaging, and distributing Processing libraries. For more instructions, see the [library template documentation](https://processing.github.io/processing-library-template/).
+    
+      Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
+
 - type: dropdown
   id: feature-area
   attributes:
@@ -69,8 +78,6 @@ body:
   attributes:
     label: Would you like to help implement this enhancement?
     description: |
-      Note: [creating a library](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing) is often the best way to add new features to Processing. If you’re suggesting a change that could be implemented as a library, please consider that approach first.
-
       If you’re interested in helping implement this enhancement, let us know below. We’re happy to provide guidance and support. If not, your suggestion is still valuable and appreciated.
     options:
       - No, I’m just suggesting the enhancement
