@@ -68,7 +68,7 @@ body:
   attributes:
     label: Would you like to help implement this enhancement?
     description: |
-      If you’re interested in helping implement this enhancement, let us know below. We’re happy to provide guidance and support. If not, your suggestion is still valuable and appreciated.
+      Don’t worry, we can guide you through the process. If not, that’s okay too. Your suggestion is appreciated.
     options:
       - No, I’m just suggesting the enhancement
       - Yes, I’d like to help with this
