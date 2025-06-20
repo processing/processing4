@@ -124,7 +124,7 @@ dependencies {
     testImplementation(libs.junitJupiterParams)
 
     implementation(libs.clikt)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    implementation(libs.kotlinxSerializationJson)
 }
 
 tasks.test {
