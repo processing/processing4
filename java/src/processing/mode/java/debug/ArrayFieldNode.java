@@ -26,7 +26,7 @@ import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.InvalidTypeException;
 import com.sun.jdi.Value;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 
 /**
  * Specialized {@link VariableNode} for representing single fields in an array.
@@ -53,7 +53,7 @@ public class ArrayFieldNode extends VariableNode {
     try {
       array.setValue(index, value);
     } catch (InvalidTypeException | ClassNotLoadedException ex) {
-      Messages.err(null, ex);
+      AppMessages.err(null, ex);
     }
     this.value = value;
   }

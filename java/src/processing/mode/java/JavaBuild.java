@@ -47,6 +47,7 @@ import processing.mode.java.preproc.ImportStatement;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.SketchException;
+import processing.utils.Util;
 
 
 public class JavaBuild {
@@ -577,7 +578,7 @@ public class JavaBuild {
     // if name != exportSketchName, then that's weirdness
     // BUG unfortunately, that can also be a bug in the preproc :(
     if (!sketch.getMainName().equals(foundName)) {
-      Messages.showWarning("Error during export",
+      AppMessages.showWarning("Error during export",
                            "Main tab is named " + sketch.getMainName() + " but the\n" +
                            "sketch name in the code was " + foundName, null);
       return false;
@@ -667,7 +668,7 @@ public class JavaBuild {
                                       boolean embedJava) throws IOException, SketchException {
     for (Library library : importedLibraries) {
       if (library.isUnsupported(exportVariant)) {
-        Messages.showWarning("Quibbles 'n Bits",
+        AppMessages.showWarning("Quibbles 'n Bits",
                              "The application will not be exported for\n" +
                              Platform.getSupportedVariants().get(exportVariant) +
                              " because " + library.getName() + "\n" +

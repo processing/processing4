@@ -36,7 +36,7 @@ import javax.swing.border.EmptyBorder;
 
 import processing.app.Base;
 import processing.app.Platform;
-import processing.app.Preferences;
+import processing.app.AppPreferences;
 
 
 public class Welcome {
@@ -55,12 +55,12 @@ public class Welcome {
 
     JCheckBox checkbox = new JCheckBox("Show this message on startup");
     // handles the Help menu invocation, and also the pref not existing
-    checkbox.setSelected("true".equals(Preferences.get("welcome.four.show")));
+    checkbox.setSelected("true".equals(AppPreferences.get("welcome.four.show")));
     checkbox.addItemListener(e -> {
       if (e.getStateChange() == ItemEvent.SELECTED) {
-        Preferences.setBoolean("welcome.four.show", true);
+        AppPreferences.setBoolean("welcome.four.show", true);
       } else if (e.getStateChange() == ItemEvent.DESELECTED) {
-        Preferences.setBoolean("welcome.four.show", false);
+        AppPreferences.setBoolean("welcome.four.show", false);
       }
     });
     panel.add(checkbox);
@@ -81,7 +81,7 @@ public class Welcome {
       public void handleSubmit(StringDict dict) {
         String sketchbookAction = dict.get("sketchbook", null);
         if ("create_new".equals(sketchbookAction)) {
-          File folder = new File(Preferences.getSketchbookPath()).getParentFile();
+          File folder = new File(AppPreferences.getSketchbookPath()).getParentFile();
           PApplet.selectFolder(Language.text("preferences.sketchbook_location.popup"),
                                "sketchbookCallback", folder,
                                this, this);
@@ -89,8 +89,8 @@ public class Welcome {
 
 //        // If un-checked, the key won't be in the dict, so null will be passed
 //        boolean keepShowing = "on".equals(dict.get("show_each_time", null));
-//        Preferences.setBoolean("welcome.show", keepShowing);
-//        Preferences.save();
+//        AppPreferences.setBoolean("welcome.show", keepShowing);
+//        AppPreferences.save();
         handleClose();
       }
       */
@@ -100,7 +100,7 @@ public class Welcome {
         // The link will already have the full URL prefix
         /*
         if (link.endsWith("#sketchbook")) {
-          File folder = new File(Preferences.getSketchbookPath()).getParentFile();
+          File folder = new File(AppPreferences.getSketchbookPath()).getParentFile();
           ShimAWT.selectFolder(Language.text("preferences.sketchbook_location.popup"),
                                "sketchbookCallback", folder, this);
          */
@@ -134,8 +134,8 @@ public class Welcome {
 
       @Override
       public void handleClose() {
-        Preferences.setBoolean("welcome.four.seen", true);
-        Preferences.save();
+        AppPreferences.setBoolean("welcome.four.seen", true);
+        AppPreferences.save();
         super.handleClose();
       }
     };
@@ -187,7 +187,7 @@ public class Welcome {
     } catch (Exception e) {
       e.printStackTrace();
     }
-    Preferences.init();
+    AppPreferences.init();
 
     EventQueue.invokeLater(() -> {
       try {

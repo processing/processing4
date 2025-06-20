@@ -123,7 +123,7 @@ public class Console {
 
   static public void cleanTempFiles() {
     final File consoleDir = Base.getSettingsFile("console");
-    final int days = Preferences.getInteger("console.temp.days");
+    final int days = AppPreferences.getInteger("console.temp.days");
 
     if (days > 0) {
       final long now = new Date().getTime();

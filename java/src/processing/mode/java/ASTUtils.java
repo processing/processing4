@@ -17,13 +17,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 
 
 public class ASTUtils {
 
   public static ASTNode getASTNodeAt(ASTNode root, int startJavaOffset, int stopJavaOffset) {
-    Messages.log("* getASTNodeAt");
+    AppMessages.log("* getASTNodeAt");
 
     int length = stopJavaOffset - startJavaOffset;
 
@@ -33,16 +33,16 @@ public class ASTUtils {
       node = f.getCoveringNode();
     }
     if (node == null) {
-      Messages.log("no node found");
+      AppMessages.log("no node found");
     } else {
-      Messages.log("found " + node.getClass().getSimpleName());
+      AppMessages.log("found " + node.getClass().getSimpleName());
     }
     return node;
   }
 
 
   public static SimpleName getSimpleNameAt(ASTNode root, int startJavaOffset, int stopJavaOffset) {
-    Messages.log("* getSimpleNameAt");
+    AppMessages.log("* getSimpleNameAt");
 
     // Find node at offset
     ASTNode node = getASTNodeAt(root, startJavaOffset, stopJavaOffset);
@@ -76,9 +76,9 @@ public class ASTUtils {
     }
 
     if (result == null) {
-      Messages.log("no simple name found");
+      AppMessages.log("no simple name found");
     } else {
-      Messages.log("found " + node);
+      AppMessages.log("found " + node);
     }
     return result;
   }

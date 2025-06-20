@@ -46,7 +46,7 @@ import javax.swing.JTree; // needed for javadocs
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import processing.app.Language;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.RunnerListenerEdtAdapter;
 import processing.app.Sketch;
 import processing.app.SketchCode;
@@ -177,7 +177,7 @@ public class Debugger {
       Toolkit.newJMenuItem(Language.text("menu.debug.toggle_breakpoint"), 'B');
     item.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          Messages.log("Invoked 'Toggle Breakpoint' menu item");
+          AppMessages.log("Invoked 'Toggle Breakpoint' menu item");
           // TODO wouldn't getCaretLine() do the same thing with less effort?
           //toggleBreakpoint(editor.getCurrentLineID().lineIdx());
           toggleBreakpoint(editor.getTextArea().getCaretLine());
@@ -375,7 +375,7 @@ public class Debugger {
   public synchronized void stopDebug() {
     inspector.lock();
     if (runtime != null) {
-      Messages.log("closing runtime");
+      AppMessages.log("closing runtime");
 
       for (LineBreakpoint bp : breakpoints) {
         bp.detach();
@@ -1538,24 +1538,24 @@ public class Debugger {
 
   private void log(String msg, Object... args) {
     if (args != null && args.length != 0) {
-      Messages.logf(getClass().getName() + " " + msg, args);
+      AppMessages.logf(getClass().getName() + " " + msg, args);
     } else {
-      Messages.log(getClass().getName() + " " + msg);
+      AppMessages.log(getClass().getName() + " " + msg);
     }
   }
 
 
   private void loge(String msg, Throwable t) {
     if (t != null) {
-      Messages.err(getClass().getName() + " " + msg, t);
+      AppMessages.err(getClass().getName() + " " + msg, t);
     } else {
-      Messages.err(getClass().getName() + " " + msg);
+      AppMessages.err(getClass().getName() + " " + msg);
     }
   }
 
 
   static private void logitse(Throwable t) {
-    Messages.err("incompatible thread state?", t);
+    AppMessages.err("incompatible thread state?", t);
   }
 
 
@@ -1605,9 +1605,9 @@ public class Debugger {
           // for (Event e : eventSet) { System.out.println("VM Event: " + e.toString()); }
         }
       } catch (VMDisconnectedException e) {
-        Messages.log("VMEventReader quit on VM disconnect");
+        AppMessages.log("VMEventReader quit on VM disconnect");
       } catch (Exception e) {
-        Messages.err("VMEventReader quit", e);
+        AppMessages.err("VMEventReader quit", e);
       }
     }
   }

@@ -24,6 +24,8 @@
 
 package processing.app;
 
+import processing.utils.Util;
+
 import java.io.*;
 import java.util.Stack;
 

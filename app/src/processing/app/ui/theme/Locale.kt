@@ -3,11 +3,11 @@ package processing.app.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import processing.app.LocalPreferences
-import processing.app.Messages
+import processing.app.AppMessages
 import processing.app.Platform
 import processing.app.PlatformStart
 import processing.app.watchFile
+import processing.utils.Messages
 import java.io.File
 import java.io.InputStream
 import java.util.*

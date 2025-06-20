@@ -34,7 +34,7 @@ import javax.swing.*;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.table.*;
 
-import processing.app.Util;
+import processing.utils.Util;
 import processing.app.ui.Theme;
 import processing.app.laf.PdeScrollBarUI;
 import processing.app.ui.Toolkit;

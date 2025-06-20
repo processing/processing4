@@ -36,6 +36,8 @@ import processing.app.platform.DefaultPlatform;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.data.StringDict;
+import processing.utils.SettingsResolver;
+import processing.utils.Util;
 
 
 public class Platform {
@@ -101,7 +103,7 @@ public class Platform {
       inst = (DefaultPlatform) platformClass.getDeclaredConstructor().newInstance();
 
     } catch (Exception e) {
-      Messages.showError("Problem Setting the Platform",
+      AppMessages.showError("Problem Setting the Platform",
                          "An unknown error occurred while trying to load\n" +
                          "platform-specific code for your machine.", e);
     }
@@ -129,7 +131,12 @@ public class Platform {
 
 
   static public File getSettingsFolder() throws Exception {
-    return inst.getSettingsFolder();
+    File override = Base.getSettingsOverride();
+    if (override != null) {
+      return override;
+    }
+
+    return SettingsResolver.getSettingsFolder();
   }
 
 
@@ -156,7 +163,7 @@ public class Platform {
       inst.openURL(url);
 
     } catch (Exception e) {
-      Messages.showWarning("Problem Opening URL",
+      AppMessages.showWarning("Problem Opening URL",
                            "Could not open the URL\n" + url, e);
     }
   }
@@ -180,7 +187,7 @@ public class Platform {
       inst.openFolder(file);
 
     } catch (Exception e) {
-      Messages.showWarning("Problem Opening Folder",
+      AppMessages.showWarning("Problem Opening Folder",
                            "Could not open the folder\n" + file.getAbsolutePath(), e);
     }
   }
@@ -348,7 +355,7 @@ public class Platform {
       try {
         decodedPath = pathURL.toURI().getSchemeSpecificPart();
       } catch (URISyntaxException e) {
-        Messages.showError("Missing File",
+        AppMessages.showError("Missing File",
           "Could not access a required file:\n" +
             "<b>" + name + "</b>\n" +
             "You may need to reinstall Processing.", e);
@@ -575,7 +582,7 @@ public class Platform {
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
   /**
-   * These methods were refactored to use the Preferences system instead of
+   * These methods were refactored to use the AppPreferences system instead of
    * actual environment variables, since modifying environment variables at runtime
    * proved problematic. This approach provides similar functionality
    * while being compatible with various platforms and execution environments.
@@ -585,11 +592,11 @@ public class Platform {
    */
 
   static public void setenv(String variable, String value) {
-    Preferences.set(variable, value);
+    AppPreferences.set(variable, value);
   }
 
   static public String getenv(String variable) {
-    return Preferences.get(variable);
+    return AppPreferences.get(variable);
   }
 
   static public int unsetenv(String variable) {

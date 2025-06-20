@@ -32,11 +32,9 @@ import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
 
 import processing.app.Base;
-import processing.app.Preferences;
+import processing.app.AppPreferences;
 import processing.app.ui.Toolkit;
 import processing.awt.ShimAWT;
 import processing.core.PApplet;
@@ -137,8 +135,8 @@ public class DefaultPlatform {
 
     /*
     // If the default has been overridden in the preferences, set the font
-    String fontName = Preferences.get("ui.font.family");
-    int fontSize = Preferences.getInteger("ui.font.size");
+    String fontName = AppPreferences.get("ui.font.family");
+    int fontSize = AppPreferences.getInteger("ui.font.size");
 //    fontName = "Processing Sans Pro";
 //    fontSize = 13;
     if (!"Dialog".equals(fontName) || fontSize != 12) {
@@ -180,7 +178,7 @@ public class DefaultPlatform {
 
   public void setInterfaceZoom() throws Exception {
     // Specify font when scaling is active.
-    if (!Preferences.getBoolean("editor.zoom.auto")) {
+    if (!AppPreferences.getBoolean("editor.zoom.auto")) {
       for (String widgetName : FONT_SCALING_WIDGETS) {
         scaleDefaultFont(widgetName);
       }
@@ -188,8 +186,8 @@ public class DefaultPlatform {
 //      Font defaultFont = Toolkit.getSansFont(14, Font.PLAIN);
 //      UIManager.put("defaultFont", defaultFont);
 
-//      String fontName = Preferences.get("ui.font.family");
-//      int fontSize = Preferences.getInteger("ui.font.size");
+//      String fontName = AppPreferences.get("ui.font.family");
+//      int fontSize = AppPreferences.getInteger("ui.font.size");
 //      FontUIResource uiFont = new FontUIResource(fontName, Font.PLAIN, Toolkit.zoom(fontSize));
 //      UIManager.put("Label.font", uiFont);
 //      UIManager.put("TextField.font", uiFont);
@@ -204,23 +202,6 @@ public class DefaultPlatform {
    * @param languageCode 2-digit lowercase ISO language code
    */
   public void saveLanguage(String languageCode) { }
-
-
-  /**
-   * This function should throw an exception or return a value.
-   * Do not return null.
-   */
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    // If no subclass has a behavior, default to making a
-    // ".processing" directory in the user's home directory.
-    File home = new File(System.getProperty("user.home"));
-    return new File(home, ".processing");
-  }
 
 
   /**

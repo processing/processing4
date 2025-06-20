@@ -30,13 +30,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.*;
 
-import javax.swing.JOptionPane;
-
 import processing.app.*;
 import processing.app.ui.Editor;
 import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;
+import processing.utils.Util;
 
 
 /**
@@ -105,10 +104,10 @@ public abstract class LocalContribution extends Contribution {
           maxRevision = PApplet.parseInt(maxRev, 0);
         }
       } else {
-        Messages.log("Could not read " + propertiesFile.getAbsolutePath());
+        AppMessages.log("Could not read " + propertiesFile.getAbsolutePath());
       }
     } else {
-      Messages.log("No properties file at " + propertiesFile.getAbsolutePath());
+      AppMessages.log("No properties file at " + propertiesFile.getAbsolutePath());
     }
     if (name == null) {  // fall-through case
       // We'll need this to be set at a minimum.
@@ -121,7 +120,7 @@ public abstract class LocalContribution extends Contribution {
   public String initLoader(String className) throws Exception {
     File modeDirectory = new File(folder, getTypeName());
     if (modeDirectory.exists()) {
-      Messages.log("checking mode folder regarding " + className);
+      AppMessages.log("checking mode folder regarding " + className);
       // If no class name specified, search the main <modename>.jar for the
       // full name package and mode name.
       if (className == null) {
@@ -144,12 +143,12 @@ public abstract class LocalContribution extends Contribution {
       if (archives != null && archives.length > 0) {
         URL[] urlList = new URL[archives.length];
         for (int j = 0; j < urlList.length; j++) {
-          Messages.log("Found archive " + archives[j] + " for " + getName());
+          AppMessages.log("Found archive " + archives[j] + " for " + getName());
           urlList[j] = archives[j].toURI().toURL();
         }
 //        loader = new URLClassLoader(urlList, Thread.currentThread().getContextClassLoader());
         loader = new URLClassLoader(urlList);
-        Messages.log("loading above JARs with loader " + loader);
+        AppMessages.log("loading above JARs with loader " + loader);
 //        System.out.println("listing classes for loader " + loader);
 //        listClasses(loader);
       }
@@ -196,7 +195,7 @@ public abstract class LocalContribution extends Contribution {
             }
           } else {
             int result;
-            boolean doBackup = Preferences.getBoolean("contribution.backup.on_install");
+            boolean doBackup = AppPreferences.getBoolean("contribution.backup.on_install");
             if ((doBackup && !oldContrib.backup(true, status)) ||
                   (!doBackup && !oldContrib.getFolder().delete())) {
               return null;
@@ -303,7 +302,7 @@ public abstract class LocalContribution extends Contribution {
       }
 
       boolean success;
-      boolean doBackup = Preferences.getBoolean("contribution.backup.on_remove");
+      boolean doBackup = AppPreferences.getBoolean("contribution.backup.on_remove");
       if (doBackup) {
         success = backup(true, status);
       } else {
@@ -389,7 +388,7 @@ public abstract class LocalContribution extends Contribution {
         Sketch sketch = editor.getSketch();
         if (sketch.isModified()) {
           editor.toFront();
-          Messages.showMessage("Save Sketch",
+          AppMessages.showMessage("Save Sketch",
             "Please first save “" + sketch.getName() + "”.");
           return false;
         } else {

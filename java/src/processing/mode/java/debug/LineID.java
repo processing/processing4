@@ -31,7 +31,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.Position;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 
 
 /**
@@ -151,7 +151,7 @@ public class LineID implements DocumentListener {
       this.doc = doc;
       doc.addDocumentListener(this);
     } catch (BadLocationException ex) {
-      Messages.err(null, ex);
+      AppMessages.err(null, ex);
       pos = null;
       this.doc = null;
     }

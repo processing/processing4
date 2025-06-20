@@ -32,7 +32,7 @@ import processing.core.*;
 
 
 /**
- * Storage class for theme settings. This was separated from the Preferences
+ * Storage class for theme settings. This was separated from the AppPreferences
  * class for 1.0 so that the coloring wouldn't conflict with previous releases
  * and to make way for future ability to customize.
  */
@@ -88,7 +88,7 @@ public class Settings {
         }
       }
     } else {
-      Messages.err(additions + " could not be read");
+      AppMessages.err(additions + " could not be read");
     }
 
     // check for platform-specific properties in the defaults
@@ -201,7 +201,7 @@ public class Settings {
   }
 
 
-  // identical version found in Preferences.java
+  // identical version found in AppPreferences.java
   public Font getFont(String attr) {
     try {
       boolean replace = false;
@@ -250,7 +250,7 @@ public class Settings {
     } catch (Exception e) {
       // Adding try/catch block because this may be where
       // a lot of startup crashes are happening.
-      Messages.log("Error with font " + get(attr) + " for attribute " + attr);
+      AppMessages.log("Error with font " + get(attr) + " for attribute " + attr);
     }
     return new Font("Dialog", Font.PLAIN, 12);
   }

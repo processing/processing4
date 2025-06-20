@@ -36,8 +36,8 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.text.*;
 
+import processing.app.AppPreferences;
 import processing.app.Console;
-import processing.app.Preferences;
 import processing.app.laf.PdeScrollBarUI;
 
 
@@ -68,8 +68,8 @@ public class EditorConsole extends JScrollPane {
   public EditorConsole(Editor editor) {
     this.editor = editor;
 
-    maxLineCount = Preferences.getInteger("console.scrollback.lines");
-    maxCharCount = Preferences.getInteger("console.scrollback.chars");
+    maxLineCount = AppPreferences.getInteger("console.scrollback.lines");
+    maxCharCount = AppPreferences.getInteger("console.scrollback.chars");
 
     consoleDoc = new BufferedStyledDocument(10000, maxLineCount, maxCharCount);
     consoleTextPane = new JTextPane(consoleDoc);
@@ -158,7 +158,7 @@ public class EditorConsole extends JScrollPane {
     // setBorder(null) should be called instead. The defaults are nasty.
     setBorder(new MatteBorder(0, Editor.LEFT_GUTTER, 0, 0, bgColor));
 
-    Font font = Preferences.getFont("editor.font.family", "console.font.size", Font.PLAIN);
+    Font font = AppPreferences.getFont("editor.font.family", "console.font.size", Font.PLAIN);
 
     stdStyle = new SimpleAttributeSet();
     StyleConstants.setForeground(stdStyle, fgColorOut);
@@ -192,7 +192,7 @@ public class EditorConsole extends JScrollPane {
     // and size window accordingly
     FontMetrics metrics = this.getFontMetrics(font);
     int height = metrics.getAscent() + metrics.getDescent();
-    int lines = Preferences.getInteger("console.lines"); //, 4);
+    int lines = AppPreferences.getInteger("console.lines"); //, 4);
     int sizeFudge = 6; //10; // unclear why this is necessary, but it is
     setPreferredSize(new Dimension(1024, (height * lines) + sizeFudge));
     setMinimumSize(new Dimension(1024, (height * 4) + sizeFudge));

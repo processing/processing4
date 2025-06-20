@@ -30,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import processing.app.Base;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.UpdateCheck;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;
@@ -229,7 +229,7 @@ public class ContributionListing {
   public void downloadAvailableList(final Base base,
                                     final ContribProgress progress) {
     // TODO: replace with SwingWorker [jv]
-    Messages.log("Downloading contributions list from " + LISTING_URL);
+    AppMessages.log("Downloading contributions list from " + LISTING_URL);
     new Thread(() -> {
       downloadingLock.lock();
 

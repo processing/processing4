@@ -92,11 +92,11 @@ public class UpdateCheck {
     Random r = new Random();
     long id = r.nextLong();
 
-    String idString = Preferences.get("update.id");
+    String idString = AppPreferences.get("update.id");
     if (idString != null) {
       id = Long.parseLong(idString);
     } else {
-      Preferences.set("update.id", String.valueOf(id));
+      AppPreferences.set("update.id", String.valueOf(id));
     }
     return id;
   }
@@ -113,7 +113,7 @@ public class UpdateCheck {
 
     int latest = readInt(LATEST_URL + "?" + info);
 
-    String lastString = Preferences.get("update.last");
+    String lastString = AppPreferences.get("update.last");
     long now = System.currentTimeMillis();
     if (lastString != null) {
       long when = Long.parseLong(lastString);
@@ -122,7 +122,7 @@ public class UpdateCheck {
         return;
       }
     }
-    Preferences.set("update.last", String.valueOf(now));
+    AppPreferences.set("update.last", String.valueOf(now));
 
     if (base.activeEditor != null) {
 //      boolean offerToUpdateContributions = true;
@@ -209,6 +209,6 @@ public class UpdateCheck {
 
   static public boolean isAllowed() {
     // Disable update checks for the paranoid
-    return Preferences.getBoolean("update.check");
+    return AppPreferences.getBoolean("update.check");
   }
 }

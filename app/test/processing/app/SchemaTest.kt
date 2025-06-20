@@ -20,7 +20,7 @@ class SchemaTest {
 
     }
     companion object {
-        val preferences: MockedStatic<Preferences> = mockStatic(Preferences::class.java)
+        val preferences: MockedStatic<AppPreferences> = mockStatic(AppPreferences::class.java)
     }
 
 
@@ -126,8 +126,8 @@ class SchemaTest {
     fun testPreferences() {
         Schema.handleSchema("pde://preferences?test=value", base)
         preferences.verify {
-            Preferences.set("test", "value")
-            Preferences.save()
+            AppPreferences.set("test", "value")
+            AppPreferences.save()
         }
     }
 

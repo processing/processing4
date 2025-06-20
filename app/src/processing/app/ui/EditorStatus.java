@@ -40,8 +40,8 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
+import processing.app.AppPreferences;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.core.PApplet;
 
 
@@ -135,7 +135,7 @@ public class EditorStatus extends BasicSplitPaneDivider {
         } else if (mouseState == CLIPBOARD_PRESSED) {
           if (e.isShiftDown()) {
             // open the text in a browser window as a search
-            final String fmt = Preferences.get("search.format");
+            final String fmt = AppPreferences.get("search.format");
             Platform.openURL(String.format(fmt, PApplet.urlEncode(message)));
 
           } else {

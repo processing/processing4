@@ -27,6 +27,7 @@ package processing.app.tools;
 import processing.app.*;
 import processing.app.ui.Editor;
 import processing.awt.ShimAWT;
+import processing.utils.Util;
 
 import java.io.*;
 import java.text.*;
@@ -67,7 +68,7 @@ public class Archiver implements Tool {
     Sketch sketch = editor.getSketch();
 
     if (sketch.isModified()) {
-      Messages.showWarning("Save", "Please save the sketch before archiving.");
+      AppMessages.showWarning("Save", "Please save the sketch before archiving.");
       return;
     }
 

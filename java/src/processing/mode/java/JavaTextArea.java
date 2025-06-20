@@ -33,7 +33,7 @@ import java.util.List;
 
 import javax.swing.DefaultListModel;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.Platform;
 import processing.app.syntax.PdeTextArea;
 import processing.app.syntax.TextAreaDefaults;
@@ -84,7 +84,7 @@ public class JavaTextArea extends PdeTextArea {
     if (evt.getKeyCode() == KeyEvent.VK_ESCAPE) {
       if (suggestion != null){
         if (suggestion.isVisible()){
-          Messages.log("ESC key");
+          AppMessages.log("ESC key");
           hideSuggestion();
           evt.consume();
           return;
@@ -125,12 +125,12 @@ public class JavaTextArea extends PdeTextArea {
           }
         break;
       case KeyEvent.VK_BACK_SPACE:
-        Messages.log("BK Key");
+        AppMessages.log("BK Key");
         break;
       case KeyEvent.VK_SPACE:
         if (suggestion != null) {
           if (suggestion.isVisible()) {
-            Messages.log("Space bar, hide completion list");
+            AppMessages.log("Space bar, hide completion list");
             suggestion.setInvisible();
           }
         }
@@ -156,7 +156,7 @@ public class JavaTextArea extends PdeTextArea {
     if (event.getKeyCode() == KeyEvent.VK_SPACE && event.isControlDown()) {
       // Provide completions only if it's enabled
       if (JavaMode.codeCompletionsEnabled) {
-        Messages.log("[KeyEvent]" + KeyEvent.getKeyText(event.getKeyCode()) + "  |Prediction started");
+        AppMessages.log("[KeyEvent]" + KeyEvent.getKeyText(event.getKeyCode()) + "  |Prediction started");
         fetchPhrase();
       }
     }
@@ -180,7 +180,7 @@ public class JavaTextArea extends PdeTextArea {
 
     } else if (keyChar == '.') {
       if (JavaMode.codeCompletionsEnabled) {
-        Messages.log("[KeyEvent]" + KeyEvent.getKeyText(event.getKeyCode()) + "  |Prediction started");
+        AppMessages.log("[KeyEvent]" + KeyEvent.getKeyText(event.getKeyCode()) + "  |Prediction started");
         fetchPhrase();
       }
     } else if (keyChar == ' ') { // Trigger on Ctrl-Space
@@ -191,7 +191,7 @@ public class JavaTextArea extends PdeTextArea {
           // Removed for https://github.com/processing/processing/issues/3847
           //try {
           //  getDocument().remove(getCaretPosition() - 1, 1); // Remove the typed space
-          Messages.log("[KeyEvent]" + event.getKeyChar() + "  |Prediction started");
+          AppMessages.log("[KeyEvent]" + event.getKeyChar() + "  |Prediction started");
           fetchPhrase();
           //} catch (BadLocationException e) {
           //  e.printStackTrace();
@@ -214,7 +214,7 @@ public class JavaTextArea extends PdeTextArea {
     if (JavaMode.codeCompletionsEnabled &&
         (JavaMode.ccTriggerEnabled ||
         (suggestion != null && suggestion.isVisible()))) {
-      Messages.log("[KeyEvent]" + evt.getKeyChar() + "  |Prediction started");
+      AppMessages.log("[KeyEvent]" + evt.getKeyChar() + "  |Prediction started");
       fetchPhrase();
     }
   }
@@ -290,9 +290,9 @@ public class JavaTextArea extends PdeTextArea {
       DefaultListModel<CompletionCandidate> defListModel = null;
 
       try {
-        Messages.log("phrase parse start");
+        AppMessages.log("phrase parse start");
         phrase = parsePhrase(text);
-        Messages.log("phrase: " + phrase);
+        AppMessages.log("phrase: " + phrase);
         if (phrase != null) {
           List<CompletionCandidate> candidates;
 
@@ -308,7 +308,7 @@ public class JavaTextArea extends PdeTextArea {
             if (candidates != null && !candidates.isEmpty()) {
               Collections.sort(candidates);
               defListModel = CompletionGenerator.filterPredictions(candidates);
-              Messages.log("Got: " + candidates.size() + " candidates, " + defListModel.size() + " filtered");
+              AppMessages.log("Got: " + candidates.size() + " candidates, " + defListModel.size() + " filtered");
             }
           }
 
@@ -321,12 +321,12 @@ public class JavaTextArea extends PdeTextArea {
 
           suggestionRunning = false;
           if (suggestionRequested) {
-            Messages.log("completion invalidated");
+            AppMessages.log("completion invalidated");
             fetchPhrase();
             return;
           }
 
-          Messages.log("completion finishing");
+          AppMessages.log("completion finishing");
 
           if (finalDefListModel != null) {
             showSuggestion(finalDefListModel, finalPhrase);
@@ -335,7 +335,7 @@ public class JavaTextArea extends PdeTextArea {
           }
         });
       } catch (Exception e) {
-        Messages.err("error while preparing suggestions", e);
+        AppMessages.err("error while preparing suggestions", e);
       }
     });
   }
@@ -493,7 +493,7 @@ public class JavaTextArea extends PdeTextArea {
 
     // Extract phrase
     String phrase = lineText.substring(position).trim();
-    Messages.log(phrase);
+    AppMessages.log(phrase);
 
     if (phrase.length() == 0 || Character.isDigit(phrase.charAt(0))) {
       return null; // Can't suggest for numbers or empty phrases
@@ -525,7 +525,7 @@ public class JavaTextArea extends PdeTextArea {
         e.printStackTrace();
       }
     } else {
-      Messages.log("TextArea: No suggestions to show.");
+      AppMessages.log("TextArea: No suggestions to show.");
     }
   }
 

@@ -168,7 +168,7 @@ class StatusDetail {
                                              statusPanel);
 
     } catch (MalformedURLException e) {
-      Messages.showWarning(Language.text("contrib.errors.install_failed"),
+      AppMessages.showWarning(Language.text("contrib.errors.install_failed"),
                            Language.text("contrib.errors.malformed_url"), e);
     }
   }

@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 
 import processing.app.Language;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.Platform;
 
 
@@ -149,20 +149,20 @@ class InspectMode {
     SimpleName simpleName = getSimpleNameAt(root, javaOffset, javaOffset);
 
     if (simpleName == null) {
-      Messages.log("no simple name found at click location");
+      AppMessages.log("no simple name found at click location");
       return;
     }
 
     IBinding binding = resolveBinding(simpleName);
     if (binding == null) {
-      Messages.log("binding not resolved");
+      AppMessages.log("binding not resolved");
       return;
     }
 
     String key = binding.getKey();
     ASTNode decl = ps.compilationUnit.findDeclaringNode(key);
     if (decl == null) {
-      Messages.log("decl not found, showing usage instead");
+      AppMessages.log("decl not found, showing usage instead");
       usage.findUsageAndUpdateTree(ps, binding);
       return;
     }
@@ -174,14 +174,14 @@ class InspectMode {
       case IBinding.VARIABLE: declName = ((VariableDeclaration) decl).getName(); break;
     }
     if (declName == null) {
-      Messages.log("decl name not found " + decl);
+      AppMessages.log("decl name not found " + decl);
       return;
     }
 
     if (declName.equals(simpleName)) {
       usage.findUsageAndUpdateTree(ps, binding);
     } else {
-      Messages.log("found declaration, offset " + decl.getStartPosition() + ", name: " + declName);
+      AppMessages.log("found declaration, offset " + decl.getStartPosition() + ", name: " + declName);
       SketchInterval si = ps.mapJavaToSketch(declName);
       if (!ps.inRange(si)) return;
       EventQueue.invokeLater(() -> {

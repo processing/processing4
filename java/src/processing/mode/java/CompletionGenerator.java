@@ -56,7 +56,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
-import processing.app.Messages;
+import processing.app.AppMessages;
 
 import com.google.classpath.ClassPath;
 import com.google.classpath.RegExpResourceFilter;
@@ -1376,7 +1376,7 @@ public class CompletionGenerator {
 
 
   static Type extracTypeInfo2(ASTNode node) {
-    Messages.log("* extracTypeInfo2");
+    AppMessages.log("* extracTypeInfo2");
     if (node == null)
       return null;
     switch (node.getNodeType()) {
@@ -1541,7 +1541,7 @@ public class CompletionGenerator {
 
 
   static private void log(Object object) {
-    Messages.log(object == null ? "null" : object.toString());
+    AppMessages.log(object == null ? "null" : object.toString());
   }
 
 
@@ -1569,7 +1569,7 @@ public class CompletionGenerator {
   public List<CompletionCandidate> preparePredictions(final PreprocSketch ps,
                                                       final String pdePhrase,
                                                       final int lineNumber) {
-    Messages.log("* preparePredictions");
+    AppMessages.log("* preparePredictions");
 
     if (ps.compilationUnit.types().size() == 0) {
       return new ArrayList<>();
@@ -1635,7 +1635,7 @@ public class CompletionGenerator {
     ASTNode testnode = parser.createAST(null);
     //Base.loge("PREDICTION PARSER PROBLEMS: " + parser);
     // Find closest ASTNode of the document to this word
-    Messages.err("Typed: " + phrase + "|" + " temp Node type: " + testnode.getClass().getSimpleName());
+    AppMessages.err("Typed: " + phrase + "|" + " temp Node type: " + testnode.getClass().getSimpleName());
     if(testnode instanceof MethodInvocation){
       MethodInvocation mi = (MethodInvocation)testnode;
       log(mi.getName() + "," + mi.getExpression() + "," + mi.typeArguments().size());
@@ -1647,7 +1647,7 @@ public class CompletionGenerator {
       // Make sure nearestNode is not NULL if couldn't find a closest node
       nearestNode = astRootNode;
     }
-    Messages.err(lineNumber + " Nearest ASTNode to PRED "
+    AppMessages.err(lineNumber + " Nearest ASTNode to PRED "
                       + getNodeAsString(nearestNode));
 
     candidates = new ArrayList<>();
@@ -1655,7 +1655,7 @@ public class CompletionGenerator {
     // Determine the expression typed
 
     if (testnode instanceof SimpleName && !noCompare) {
-      Messages.err("One word expression " + getNodeAsString(testnode));
+      AppMessages.err("One word expression " + getNodeAsString(testnode));
       //==> Simple one word exprssion - so is just an identifier
 
       // Bottom up traversal of the AST to look for possible definitions at
@@ -1735,7 +1735,7 @@ public class CompletionGenerator {
     } else {
       // ==> Complex expression of type blah.blah2().doIt,etc
       // Have to resolve it by carefully traversing AST of testNode
-      Messages.err("Complex expression " + getNodeAsString(testnode));
+      AppMessages.err("Complex expression " + getNodeAsString(testnode));
       log("candidates empty");
       ASTNode childExpr = getChildExpression(testnode);
       log("Parent expression : " + getParentExpression(testnode));
@@ -1766,7 +1766,7 @@ public class CompletionGenerator {
 
 
   public static DefaultListModel<CompletionCandidate> filterPredictions(List<CompletionCandidate> candidates) {
-    Messages.log("* filterPredictions");
+    AppMessages.log("* filterPredictions");
     DefaultListModel<CompletionCandidate> defListModel = new DefaultListModel<>();
     if (candidates.isEmpty())
       return defListModel;

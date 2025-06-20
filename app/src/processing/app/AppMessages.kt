@@ -19,6 +19,8 @@
 package processing.app
 
 import processing.app.ui.Toolkit
+import processing.utils.Messages
+
 import java.awt.EventQueue
 import java.awt.Frame
 import java.io.PrintWriter
@@ -26,45 +28,8 @@ import java.io.StringWriter
 import javax.swing.JFrame
 import javax.swing.JOptionPane
 
-class Messages {
+class AppMessages : Messages() {
     companion object {
-        /**
-         * "No cookie for you" type messages. Nothing fatal or all that
-         * much of a bummer, but something to notify the user about.
-         */
-        @JvmStatic
-        fun showMessage(title: String = "Message", message: String) {
-            if (Base.isCommandLine()) {
-                println("$title: $message")
-            } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.INFORMATION_MESSAGE
-                )
-            }
-        }
-
-
-        /**
-         * Non-fatal error message with optional stack trace side dish.
-         */
-        /**
-         * Non-fatal error message.
-         */
-        @JvmStatic
-        @JvmOverloads
-        fun showWarning(title: String = "Warning", message: String, e: Throwable? = null) {
-            if (Base.isCommandLine()) {
-                println("$title: $message")
-            } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.WARNING_MESSAGE
-                )
-            }
-            e?.printStackTrace()
-        }
-
         /**
          * Non-fatal error message with two levels of formatting.
          * Unlike the others, this is non-blocking and will run later on the EDT.
@@ -89,26 +54,6 @@ class Messages {
                 }
             }
             e?.printStackTrace()
-        }
-
-
-        /**
-         * Show an error message that's actually fatal to the program.
-         * This is an error that can't be recovered. Use showWarning()
-         * for errors that allow P5 to continue running.
-         */
-        @JvmStatic
-        fun showError(title: String = "Error", message: String, e: Throwable?) {
-            if (Base.isCommandLine()) {
-                System.err.println("$title: $message")
-            } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.ERROR_MESSAGE
-                )
-            }
-            e?.printStackTrace()
-            System.exit(1)
         }
 
 
@@ -218,56 +163,6 @@ class Messages {
             return -1
         }
 
-
-        // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-        @JvmStatic
-        @Deprecated("Use log() instead")
-        fun log(from: Any, message: String) {
-            if (Base.DEBUG) {
-                val callingClass = Throwable()
-                    .stackTrace[2]
-                    .className
-                    .formatClassName()
-                println("$callingClass: $message")
-            }
-        }
-
-        @JvmStatic
-        fun log(message: String?) {
-            if (Base.DEBUG) {
-                val callingClass = Throwable()
-                    .stackTrace[2]
-                    .className
-                    .formatClassName()
-                println("$callingClass$message")
-            }
-        }
-
-        @JvmStatic
-        fun logf(message: String?, vararg args: Any?) {
-            if (Base.DEBUG) {
-                val callingClass = Throwable()
-                    .stackTrace[2]
-                    .className
-                    .formatClassName()
-                System.out.printf("$callingClass$message", *args)
-            }
-        }
-
-        @JvmStatic
-        @JvmOverloads
-        fun err(message: String?, e: Throwable? = null) {
-            if (Base.DEBUG) {
-                if (message != null) {
-                    val callingClass = Throwable()
-                        .stackTrace[4]
-                        .className
-                        .formatClassName()
-                    System.err.println("$callingClass$message")
-                }
-                e?.printStackTrace()
-            }
-        }
     }
 }
 

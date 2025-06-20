@@ -38,6 +38,7 @@ import com.google.classpath.ClassPathFactory;
 
 import processing.app.*;
 import processing.mode.java.preproc.ImportStatement;
+import processing.utils.Util;
 
 
 /**
@@ -321,7 +322,7 @@ public class RuntimePathBuilder {
           try {
             return Paths.get(path).toUri().toURL();
           } catch (MalformedURLException e) {
-            Messages.err("malformed URL when preparing sketch classloader", e);
+            AppMessages.err("malformed URL when preparing sketch classloader", e);
             return null;
           }
         })

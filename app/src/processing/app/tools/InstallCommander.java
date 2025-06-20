@@ -30,7 +30,7 @@ import javax.swing.JOptionPane;
 
 import processing.app.Base;
 import processing.app.Language;
-import processing.app.Messages;
+import processing.app.AppMessages;
 import processing.app.Platform;
 import processing.app.ui.Editor;
 import processing.core.PApplet;
@@ -145,7 +145,7 @@ public class InstallCommander implements Tool {
         File targetFile = new File(System.getProperty("user.home"), "processing-java");
         String targetPath = targetFile.getAbsolutePath();
         if (targetFile.exists()) {
-          Messages.showWarning("File Already Exists",
+          AppMessages.showWarning("File Already Exists",
                                "The processing-java program already exists at:\n" +
                                targetPath + "\n" +
                                "Please remove it and try again.");
@@ -156,7 +156,7 @@ public class InstallCommander implements Tool {
       editor.statusNotice("Finished.");
 
     } catch (IOException e) {
-      Messages.showWarning("Error while installing",
+      AppMessages.showWarning("Error while installing",
                            "An error occurred and the tool was not installed.", e);
     }
   }

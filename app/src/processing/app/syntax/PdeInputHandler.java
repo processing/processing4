@@ -27,15 +27,15 @@ package processing.app.syntax;
 
 import java.awt.event.KeyEvent;
 
+import processing.app.AppPreferences;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.app.ui.Editor;
 
 
 /**
  * Sets key bindings used by the PDE, except for those that are Mode-specific.
  * Not part of the original jeditsyntax DefaultInputHandler because it makes
- * use of Preferences and other PDE classes.
+ * use of AppPreferences and other PDE classes.
  */
 public class PdeInputHandler extends DefaultInputHandler {
 
@@ -73,7 +73,7 @@ public class PdeInputHandler extends DefaultInputHandler {
     addKeyBinding("BACK_SPACE", InputHandler.BACKSPACE);
     // for 0122, shift-backspace is delete, for 0176, it's now a preference,
     // to prevent holy warriors from attacking me for it.
-    if (Preferences.getBoolean("editor.keys.shift_backspace_is_delete")) {
+    if (AppPreferences.getBoolean("editor.keys.shift_backspace_is_delete")) {
       addKeyBinding("S+BACK_SPACE", InputHandler.DELETE);
     } else {
       // Made the default for 0215, deemed better for our audience.
@@ -97,7 +97,7 @@ public class PdeInputHandler extends DefaultInputHandler {
 
     // https://processing.org/bugs/bugzilla/162.html
     // added for 0176, though the bindings do not appear relevant for osx
-    if (Preferences.getBoolean("editor.keys.alternative_cut_copy_paste")) {
+    if (AppPreferences.getBoolean("editor.keys.alternative_cut_copy_paste")) {
       addKeyBinding("C+INSERT", InputHandler.CLIPBOARD_COPY);
       addKeyBinding("S+INSERT", InputHandler.CLIPBOARD_PASTE);
       addKeyBinding("S+DELETE", InputHandler.CLIPBOARD_CUT);
@@ -110,7 +110,7 @@ public class PdeInputHandler extends DefaultInputHandler {
     // HOME and END now mean the beginning/end of the document
     // for 0176 changed this to a preference so that the Mac OS X people
     // can get the "normal" behavior as well if they prefer.
-    if (Preferences.getBoolean("editor.keys.home_and_end_travel_far")) {
+    if (AppPreferences.getBoolean("editor.keys.home_and_end_travel_far")) {
       addKeyBinding("HOME", InputHandler.DOCUMENT_HOME);
       addKeyBinding("END", InputHandler.DOCUMENT_END);
       addKeyBinding("S+HOME", InputHandler.SELECT_DOC_HOME);

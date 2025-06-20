@@ -25,7 +25,7 @@ import javax.swing.ToolTipManager;
 import javax.swing.text.*;
 import javax.swing.JComponent;
 
-import processing.app.Preferences;
+import processing.app.AppPreferences;
 import processing.app.syntax.im.CompositionTextPainter;
 
 
@@ -88,13 +88,13 @@ public class TextAreaPainter extends JComponent implements TabExpander {
     // https://github.com/processing/processing/pull/4639
     Toolkit.getMonoFontName();
      */
-    plainFont = Preferences.getFont("editor.font.family", "editor.font.size", Font.PLAIN);
-    boldFont = Preferences.getFont("editor.font.family", "editor.font.size", Font.BOLD);
-    antialias = Preferences.getBoolean("editor.smooth");
+    plainFont = AppPreferences.getFont("editor.font.family", "editor.font.size", Font.PLAIN);
+    boldFont = AppPreferences.getFont("editor.font.family", "editor.font.size", Font.BOLD);
+    antialias = AppPreferences.getBoolean("editor.smooth");
 
     // moved from setFont() override (never quite comfortable w/ that override)
     fontMetrics = super.getFontMetrics(plainFont);
-    tabSize = fontMetrics.charWidth(' ') * Preferences.getInteger("editor.tabs.size");
+    tabSize = fontMetrics.charWidth(' ') * AppPreferences.getInteger("editor.tabs.size");
     textArea.recalculateVisibleLines();
   }
 

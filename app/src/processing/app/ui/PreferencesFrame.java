@@ -33,12 +33,8 @@ import javax.swing.border.*;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-import processing.app.Base;
-import processing.app.Language;
-import processing.app.Messages;
-import processing.app.Platform;
-import processing.app.Preferences;
-import processing.app.SketchName;
+import processing.app.*;
+import processing.app.AppPreferences;
 import processing.awt.ShimAWT;
 
 import processing.core.PApplet;
@@ -205,11 +201,11 @@ public class PreferencesFrame {
 
     JLabel fontSizeLabel = new JLabel(Language.text("preferences.editor_font_size"));
     fontSizeField = new JComboBox<>(FONT_SIZES);
-    fontSizeField.setSelectedItem(Preferences.getInteger("editor.font.size"));
+    fontSizeField.setSelectedItem(AppPreferences.getInteger("editor.font.size"));
 
     JLabel consoleFontSizeLabel = new JLabel(Language.text("preferences.console_font_size"));
     consoleFontSizeField = new JComboBox<>(FONT_SIZES);
-    consoleFontSizeField.setSelectedItem(Preferences.getInteger("console.font.size"));
+    consoleFontSizeField.setSelectedItem(AppPreferences.getInteger("console.font.size"));
 
     // Sizing is screwed up on macOS, bug has been open since 2017
     // https://github.com/processing/processing4/issues/232
@@ -270,11 +266,11 @@ public class PreferencesFrame {
     Border cb = new CompoundBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, new Color(195, 195, 195)),
                                    BorderFactory.createMatteBorder(0, 0, 1, 1, new Color(54, 54, 54)));
     presentColor.setBorder(cb);
-    presentColor.setBackground(Preferences.getColor("run.present.bgcolor"));
+    presentColor.setBackground(AppPreferences.getColor("run.present.bgcolor"));
 
     /*
     presentColorHex = new JTextField(6);
-    presentColorHex.setText(Preferences.get("run.present.bgcolor").substring(1));
+    presentColorHex.setText(AppPreferences.get("run.present.bgcolor").substring(1));
     presentColorHex.getDocument().addDocumentListener(new DocumentListener() {
 
       @Override
@@ -308,7 +304,7 @@ public class PreferencesFrame {
     */
 
     selector = new ColorChooser(frame, false,
-                                Preferences.getColor("run.present.bgcolor"),
+                                AppPreferences.getColor("run.present.bgcolor"),
                                 Language.text("prompt.ok"), e -> {
       String colorValue = selector.getHexColor().substring(1);
       presentColor.setBackground(new Color(PApplet.unhex(colorValue)));
@@ -367,8 +363,8 @@ public class PreferencesFrame {
 //    inputRestartLabel.setVisible(false);
     */
 
-//    inputMethodBox.addChangeListener(e -> inputRestartLabel.setVisible(inputMethodBox.isSelected() != Preferences.getBoolean("editor.input_method_support")));
-    inputMethodBox.addChangeListener(e -> updateRestart("input_method", inputMethodBox.isSelected() != Preferences.getBoolean("editor.input_method_support")));
+//    inputMethodBox.addChangeListener(e -> inputRestartLabel.setVisible(inputMethodBox.isSelected() != AppPreferences.getBoolean("editor.input_method_support")));
+    inputMethodBox.addChangeListener(e -> updateRestart("input_method", inputMethodBox.isSelected() != AppPreferences.getBoolean("editor.input_method_support")));
 
 
     // [ ] Continuously check for errors - PDE X
@@ -456,7 +452,7 @@ public class PreferencesFrame {
       }
     });
 
-    JLabel preferencePathLabel = new JLabel(Preferences.getPreferencesPath());
+    JLabel preferencePathLabel = new JLabel(AppPreferences.getPreferencesPath());
     final JLabel clickable = preferencePathLabel;
     preferencePathLabel.addMouseListener(new MouseAdapter() {
       public void mousePressed(MouseEvent e) {
@@ -644,8 +640,8 @@ public class PreferencesFrame {
     //      May cause window to resize but need the message. [fry 220502]
     //zoomRestartLabel.setVisible(
     updateRestart("zoom",
-      zoomAutoBox.isSelected() != Preferences.getBoolean("editor.zoom.auto") ||
-      !Preferences.get("editor.zoom").equals(String.valueOf(zoomSelectionBox.getSelectedItem()))
+      zoomAutoBox.isSelected() != AppPreferences.getBoolean("editor.zoom.auto") ||
+      !AppPreferences.get("editor.zoom").equals(String.valueOf(zoomSelectionBox.getSelectedItem()))
     );
   }
 
@@ -690,23 +686,23 @@ public class PreferencesFrame {
    * then send a message to the editor saying that it's time to do the same.
    */
   protected void applyFrame() {
-//    Preferences.setBoolean("editor.smooth", //$NON-NLS-1$
+//    AppPreferences.setBoolean("editor.smooth", //$NON-NLS-1$
 //                           editorAntialiasBox.isSelected());
 
-//    Preferences.setBoolean("export.delete_target_folder", //$NON-NLS-1$
+//    AppPreferences.setBoolean("export.delete_target_folder", //$NON-NLS-1$
 //                           deletePreviousBox.isSelected());
 
     // if the sketchbook path has changed, rebuild the menus
-    String oldPath = Preferences.getSketchbookPath();
+    String oldPath = AppPreferences.getSketchbookPath();
     String newPath = sketchbookLocationField.getText();
     if (!newPath.equals(oldPath)) {
       base.setSketchbookFolder(new File(newPath));
     }
 
-    Preferences.set("sketch.name.approach", (String) namingSelectionBox.getSelectedItem());
+    AppPreferences.set("sketch.name.approach", (String) namingSelectionBox.getSelectedItem());
 
 //    setBoolean("editor.external", externalEditorBox.isSelected());
-    Preferences.setBoolean("update.check", checkUpdatesBox.isSelected()); //$NON-NLS-1$
+    AppPreferences.setBoolean("update.check", checkUpdatesBox.isSelected()); //$NON-NLS-1$
 
     // Save Language
     /*
@@ -733,7 +729,7 @@ public class PreferencesFrame {
 
     // The preference will have already been reset when the window was created
     if (displaySelectionBox.isEnabled()) {
-      int oldDisplayNum = Preferences.getInteger("run.display");
+      int oldDisplayNum = AppPreferences.getInteger("run.display");
       int displayNum = -1;  // use the default display
       for (int d = 0; d < displaySelectionBox.getItemCount(); d++) {
         if (displaySelectionBox.getSelectedIndex() == d) {
@@ -747,7 +743,7 @@ public class PreferencesFrame {
         }
       }
       if (displayNum != oldDisplayNum) {
-        Preferences.setInteger("run.display", displayNum); //$NON-NLS-1$
+        AppPreferences.setInteger("run.display", displayNum); //$NON-NLS-1$
         // Reset the location of the sketch, the window has changed
         for (Editor editor : base.getEditors()) {
           editor.setSketchLocation(null);
@@ -755,16 +751,16 @@ public class PreferencesFrame {
       }
     }
 
-    Preferences.setBoolean("run.options.memory", memoryOverrideBox.isSelected()); //$NON-NLS-1$
-    int memoryMin = Preferences.getInteger("run.options.memory.initial"); //$NON-NLS-1$
-    int memoryMax = Preferences.getInteger("run.options.memory.maximum"); //$NON-NLS-1$
+    AppPreferences.setBoolean("run.options.memory", memoryOverrideBox.isSelected()); //$NON-NLS-1$
+    int memoryMin = AppPreferences.getInteger("run.options.memory.initial"); //$NON-NLS-1$
+    int memoryMax = AppPreferences.getInteger("run.options.memory.maximum"); //$NON-NLS-1$
     try {
       memoryMax = Integer.parseInt(memoryField.getText().trim());
       // make sure memory setting isn't too small
       if (memoryMax < memoryMin) {
         memoryMax = memoryMin;
       }
-      Preferences.setInteger("run.options.memory.maximum", memoryMax); //$NON-NLS-1$
+      AppPreferences.setInteger("run.options.memory.maximum", memoryMax); //$NON-NLS-1$
     } catch (NumberFormatException e) {
       System.err.println("Ignoring bad memory setting");
     }
@@ -775,7 +771,7 @@ public class PreferencesFrame {
       if (Toolkit.getMonoFontName().equals(fontFamily)) {
         fontFamily = "processing.mono";
       }
-      Preferences.set("editor.font.family", fontFamily);
+      AppPreferences.set("editor.font.family", fontFamily);
     }
 
     try {
@@ -784,11 +780,11 @@ public class PreferencesFrame {
         // Replace with Integer version
         selection = Integer.parseInt((String) selection);
       }
-      Preferences.set("editor.font.size", String.valueOf(selection));
+      AppPreferences.set("editor.font.size", String.valueOf(selection));
 
     } catch (NumberFormatException e) {
-      Messages.log("Ignoring invalid font size " + fontSizeField); //$NON-NLS-1$
-      fontSizeField.setSelectedItem(Preferences.getInteger("editor.font.size"));
+      AppMessages.log("Ignoring invalid font size " + fontSizeField); //$NON-NLS-1$
+      fontSizeField.setSelectedItem(AppPreferences.getInteger("editor.font.size"));
     }
 
     try {
@@ -797,71 +793,71 @@ public class PreferencesFrame {
         // Replace with Integer version
         selection = Integer.parseInt((String) selection);
       }
-      Preferences.set("console.font.size", String.valueOf(selection));
+      AppPreferences.set("console.font.size", String.valueOf(selection));
 
     } catch (NumberFormatException e) {
-      Messages.log("Ignoring invalid font size " + consoleFontSizeField); //$NON-NLS-1$
-      consoleFontSizeField.setSelectedItem(Preferences.getInteger("console.font.size"));
+      AppMessages.log("Ignoring invalid font size " + consoleFontSizeField); //$NON-NLS-1$
+      consoleFontSizeField.setSelectedItem(AppPreferences.getInteger("console.font.size"));
     }
 
-    Preferences.setBoolean("editor.zoom.auto", zoomAutoBox.isSelected());
-    Preferences.set("editor.zoom",
+    AppPreferences.setBoolean("editor.zoom.auto", zoomAutoBox.isSelected());
+    AppPreferences.set("editor.zoom",
                     String.valueOf(zoomSelectionBox.getSelectedItem()));
 
     if (Platform.isWindows()) {
       Splash.setDisableHiDPI(hidpiDisableBox.isSelected());
     }
-    Preferences.setBoolean("editor.sync_folder_and_filename", syncSketchNameBox.isSelected());
+    AppPreferences.setBoolean("editor.sync_folder_and_filename", syncSketchNameBox.isSelected());
 
-    Preferences.setColor("run.present.bgcolor", presentColor.getBackground());
+    AppPreferences.setColor("run.present.bgcolor", presentColor.getBackground());
 
-    Preferences.setBoolean("editor.input_method_support", inputMethodBox.isSelected()); //$NON-NLS-1$
+    AppPreferences.setBoolean("editor.input_method_support", inputMethodBox.isSelected()); //$NON-NLS-1$
 
     if (autoAssociateBox != null) {
-      Preferences.setBoolean("platform.auto_file_type_associations", //$NON-NLS-1$
+      AppPreferences.setBoolean("platform.auto_file_type_associations", //$NON-NLS-1$
                              autoAssociateBox.isSelected());
     }
 
-    Preferences.setBoolean("pdex.errorCheckEnabled", errorCheckerBox.isSelected());
-    Preferences.setBoolean("pdex.warningsEnabled", warningsCheckerBox.isSelected());
-    Preferences.setBoolean("pdex.completion", codeCompletionBox.isSelected());
-    Preferences.setBoolean("pdex.suggest.imports", importSuggestionsBox.isSelected());
+    AppPreferences.setBoolean("pdex.errorCheckEnabled", errorCheckerBox.isSelected());
+    AppPreferences.setBoolean("pdex.warningsEnabled", warningsCheckerBox.isSelected());
+    AppPreferences.setBoolean("pdex.completion", codeCompletionBox.isSelected());
+    AppPreferences.setBoolean("pdex.suggest.imports", importSuggestionsBox.isSelected());
 
     for (Editor editor : base.getEditors()) {
       editor.applyPreferences();
     }
 
     // https://github.com/processing/processing4/issues/608
-    Preferences.save();
+    AppPreferences.save();
   }
 
 
   public void showFrame() {
-    //editorAntialiasBox.setSelected(Preferences.getBoolean("editor.smooth")); //$NON-NLS-1$
-    inputMethodBox.setSelected(Preferences.getBoolean("editor.input_method_support")); //$NON-NLS-1$
-    errorCheckerBox.setSelected(Preferences.getBoolean("pdex.errorCheckEnabled"));
-    warningsCheckerBox.setSelected(Preferences.getBoolean("pdex.warningsEnabled"));
+    //editorAntialiasBox.setSelected(AppPreferences.getBoolean("editor.smooth")); //$NON-NLS-1$
+    inputMethodBox.setSelected(AppPreferences.getBoolean("editor.input_method_support")); //$NON-NLS-1$
+    errorCheckerBox.setSelected(AppPreferences.getBoolean("pdex.errorCheckEnabled"));
+    warningsCheckerBox.setSelected(AppPreferences.getBoolean("pdex.warningsEnabled"));
     warningsCheckerBox.setEnabled(errorCheckerBox.isSelected());
-    codeCompletionBox.setSelected(Preferences.getBoolean("pdex.completion"));
-    importSuggestionsBox.setSelected(Preferences.getBoolean("pdex.suggest.imports"));
-//    deletePreviousBox.setSelected(Preferences.getBoolean("export.delete_target_folder")); //$NON-NLS-1$
+    codeCompletionBox.setSelected(AppPreferences.getBoolean("pdex.completion"));
+    importSuggestionsBox.setSelected(AppPreferences.getBoolean("pdex.suggest.imports"));
+//    deletePreviousBox.setSelected(AppPreferences.getBoolean("export.delete_target_folder")); //$NON-NLS-1$
 
-    sketchbookLocationField.setText(Preferences.getSketchbookPath());
+    sketchbookLocationField.setText(AppPreferences.getSketchbookPath());
 
-    namingSelectionBox.setSelectedItem(Preferences.get("sketch.name.approach"));
+    namingSelectionBox.setSelectedItem(AppPreferences.get("sketch.name.approach"));
     if (namingSelectionBox.getSelectedIndex() < 0) {
       // If no selection, revert to the classic style, and set the pref as well
       namingSelectionBox.setSelectedItem(SketchName.CLASSIC);
-      Preferences.set("sketch.name.approach", SketchName.CLASSIC);
+      AppPreferences.set("sketch.name.approach", SketchName.CLASSIC);
     }
 
-    checkUpdatesBox.setSelected(Preferences.getBoolean("update.check")); //$NON-NLS-1$
+    checkUpdatesBox.setSelected(AppPreferences.getBoolean("update.check")); //$NON-NLS-1$
 
     defaultDisplayNum = updateDisplayList();
-    int displayNum = Preferences.getInteger("run.display"); //$NON-NLS-1$
+    int displayNum = AppPreferences.getInteger("run.display"); //$NON-NLS-1$
     if (displayNum < 1 || displayNum > displayCount) {
       // set the display on close instead; too much weird logic here
-      //Preferences.setInteger("run.display", displayNum);
+      //AppPreferences.setInteger("run.display", displayNum);
       displayNum = defaultDisplayNum;
     }
     displaySelectionBox.setSelectedIndex(displayNum-1);
@@ -870,15 +866,15 @@ public class PreferencesFrame {
     //EventQueue.invokeLater(new Runnable() {
     new Thread(this::initFontList).start();
 
-    fontSizeField.setSelectedItem(Preferences.getInteger("editor.font.size"));
-    consoleFontSizeField.setSelectedItem(Preferences.getInteger("console.font.size"));
+    fontSizeField.setSelectedItem(AppPreferences.getInteger("editor.font.size"));
+    consoleFontSizeField.setSelectedItem(AppPreferences.getInteger("console.font.size"));
 
-    boolean zoomAuto = Preferences.getBoolean("editor.zoom.auto");
+    boolean zoomAuto = AppPreferences.getBoolean("editor.zoom.auto");
     if (zoomAuto) {
       zoomAutoBox.setSelected(true);
       zoomSelectionBox.setEnabled(false);
     }
-    String zoomSel = Preferences.get("editor.zoom");
+    String zoomSel = AppPreferences.get("editor.zoom");
     int zoomIndex = Toolkit.zoomOptions.index(zoomSel);
     if (zoomIndex != -1) {
       zoomSelectionBox.setSelectedIndex(zoomIndex);
@@ -888,19 +884,19 @@ public class PreferencesFrame {
     if (Platform.isWindows()) {
       hidpiDisableBox.setSelected(Splash.getDisableHiDPI());
     }
-    syncSketchNameBox.setSelected(Preferences.getBoolean("editor.sync_folder_and_filename"));
+    syncSketchNameBox.setSelected(AppPreferences.getBoolean("editor.sync_folder_and_filename"));
 
-    presentColor.setBackground(Preferences.getColor("run.present.bgcolor"));
-    //presentColorHex.setText(Preferences.get("run.present.bgcolor").substring(1));
+    presentColor.setBackground(AppPreferences.getColor("run.present.bgcolor"));
+    //presentColorHex.setText(AppPreferences.get("run.present.bgcolor").substring(1));
 
     memoryOverrideBox.
-      setSelected(Preferences.getBoolean("run.options.memory")); //$NON-NLS-1$
+      setSelected(AppPreferences.getBoolean("run.options.memory")); //$NON-NLS-1$
     memoryField.
-      setText(Preferences.get("run.options.memory.maximum")); //$NON-NLS-1$
+      setText(AppPreferences.get("run.options.memory.maximum")); //$NON-NLS-1$
     memoryField.setEnabled(memoryOverrideBox.isSelected());
 
     if (autoAssociateBox != null) {
-      autoAssociateBox.setSelected(Preferences.getBoolean("platform.auto_file_type_associations")); //$NON-NLS-1$
+      autoAssociateBox.setSelected(AppPreferences.getBoolean("platform.auto_file_type_associations")); //$NON-NLS-1$
     }
     // The OK Button has to be set as the default button every time the
     // PrefWindow is to be displayed
@@ -950,7 +946,7 @@ public class PreferencesFrame {
 
       EventQueue.invokeLater(() -> {
         fontSelectionBox.setModel(new DefaultComboBoxModel<>(monoFontFamilies));
-        String family = Preferences.get("editor.font.family");
+        String family = AppPreferences.get("editor.font.family");
         String defaultName = Toolkit.getMonoFontName();
         if ("processing.mono".equals(family)) {
           family = defaultName;

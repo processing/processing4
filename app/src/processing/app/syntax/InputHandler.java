@@ -12,7 +12,7 @@ package processing.app.syntax;
 import javax.swing.text.*;
 import javax.swing.JPopupMenu;
 
-import processing.app.Preferences;
+import processing.app.AppPreferences;
 import processing.data.StringDict;
 
 import java.awt.event.*;
@@ -579,11 +579,11 @@ public abstract class InputHandler extends KeyAdapter
       int lastDocument = textArea.getDocumentLength();
 
       if (caret == lastDocument &&
-          !Preferences.getBoolean(CONTEXT_AWARE_HOME_END)) {
+          !AppPreferences.getBoolean(CONTEXT_AWARE_HOME_END)) {
         textArea.getToolkit().beep();
         return;
       } else if (!Boolean.TRUE.equals(textArea.getClientProperty(SMART_HOME_END_PROPERTY))) {
-        if (!Preferences.getBoolean(CONTEXT_AWARE_HOME_END) || caret == lastNonWhiteSpaceOfLine) {
+        if (!AppPreferences.getBoolean(CONTEXT_AWARE_HOME_END) || caret == lastNonWhiteSpaceOfLine) {
           caret = lastOfLine;
         } else {
           caret = lastNonWhiteSpaceOfLine;
@@ -644,11 +644,11 @@ public abstract class InputHandler extends KeyAdapter
         (firstLine == 0 ? 0 : firstLine + textArea.getElectricScroll());
       int firstVisible = textArea.getLineStartOffset(firstVisibleLine);
 
-      if (caret == 0 && !Preferences.getBoolean(CONTEXT_AWARE_HOME_END)) {
+      if (caret == 0 && !AppPreferences.getBoolean(CONTEXT_AWARE_HOME_END)) {
         textArea.getToolkit().beep();
         return;
       } else if (!Boolean.TRUE.equals(textArea.getClientProperty(SMART_HOME_END_PROPERTY))) {
-        if (!Preferences.getBoolean(CONTEXT_AWARE_HOME_END) || caret == firstNonWhiteSpaceOfLine) {
+        if (!AppPreferences.getBoolean(CONTEXT_AWARE_HOME_END) || caret == firstNonWhiteSpaceOfLine) {
           caret = firstOfLine;
         } else {
           caret = firstNonWhiteSpaceOfLine;
@@ -1090,7 +1090,7 @@ public abstract class InputHandler extends KeyAdapter
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < repeatCount; i++)
           sb.append(str);
-        if (Preferences.getBoolean("editor.completion.auto_close") &&
+        if (AppPreferences.getBoolean("editor.completion.auto_close") &&
           hasBracketsAndQuotes(str)) {
           matchBracketsAndQuotes(str, evt, textArea, sb);
         } else {
