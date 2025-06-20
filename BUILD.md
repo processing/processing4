@@ -62,6 +62,8 @@ If your main concern is with the `Core` you don't need to build and start the wh
 
 ## Other editors
 
+TBD
+
 ## Troubleshooting and Setup Tips (IntelliJ IDEA)
 
 If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
