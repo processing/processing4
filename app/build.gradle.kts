@@ -356,6 +356,11 @@ tasks.register<Copy>("includeJavaMode") {
 tasks.register<Copy>("includeJdk") {
     from(Jvm.current().javaHome.absolutePath)
     destinationDir = composeResources("jdk").get().asFile
+
+    fileTree(destinationDir).files.forEach { file ->
+        file.setWritable(true, false)
+        file.setReadable(true, false)
+    }
 }
 tasks.register<Copy>("includeSharedAssets"){
     from("../build/shared/")
