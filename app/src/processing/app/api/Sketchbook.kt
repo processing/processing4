@@ -34,7 +34,7 @@ class Sketchbook: SuspendingCliktCommand() {
             // TODO: Currently blocked since `Base.getSketchbookFolder()` is not available in headless mode
             val sketchbookFolder = Platform.getDefaultSketchbookFolder()
 
-            val sketches = getSketches(sketchbookFolder.resolve("sketchbook"))
+            val sketches = getSketches(sketchbookFolder)
             val json = serializer.encodeToString(listOf(sketches))
             println(json)
         }

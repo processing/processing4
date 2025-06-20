@@ -25,7 +25,7 @@ class Sketch {
 
         fun getSketches(file: File, filter: (File) -> Boolean = { true }): Folder {
             val name = file.name
-            val (sketchesFolders, childrenFolders) = file.listFiles()?.partition { isSketchFolder(it) } ?: return Folder(
+            val (sketchesFolders, childrenFolders) = file.listFiles()?.filter (File::isDirectory)?.partition { isSketchFolder(it) } ?: return Folder(
                 name = name,
                 path = file.absolutePath,
                 sketches = emptyList(),
