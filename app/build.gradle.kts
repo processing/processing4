@@ -247,7 +247,7 @@ tasks.register("generateSnapConfiguration"){
     summary: A creative coding editor
     description: |
       Processing is a flexible software sketchbook and a programming language designed for learning how to code.
-    confinement: strict
+    confinement: classic
     
     apps:
       processing:
