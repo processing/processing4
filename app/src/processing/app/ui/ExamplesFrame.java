@@ -52,13 +52,8 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import processing.app.Base;
-import processing.app.Language;
-import processing.app.Library;
-import processing.app.Mode;
-import processing.app.Platform;
+import processing.app.*;
 import processing.app.Preferences;
-import processing.app.SketchReference;
 import processing.app.contrib.Contribution;
 import processing.app.contrib.ContributionManager;
 import processing.app.contrib.ContributionType;

@@ -24,6 +24,7 @@ sourceSets{
 
 dependencies{
     implementation(project(":app"))
+    implementation(project(":app:utils"))
     implementation(project(":core"))
     implementation(project(":java:preprocessor"))
 

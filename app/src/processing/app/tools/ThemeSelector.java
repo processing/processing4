@@ -30,6 +30,7 @@ import processing.app.ui.Theme;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
 import processing.data.StringDict;
+import processing.utils.Util;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

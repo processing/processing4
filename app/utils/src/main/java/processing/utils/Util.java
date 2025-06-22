@@ -20,7 +20,7 @@
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-package processing.app;
+package processing.utils;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -278,13 +278,14 @@ public class Util {
 
 
   static public File getProcessingTemp() throws IOException {
+    String os = System.getProperty("os.name");
     String tmpDir = System.getProperty("java.io.tmpdir");
     File directory = new File(tmpDir, "processing");
     if (!directory.exists()) {
       if (directory.mkdirs()) {
         // Set the parent directory writable for multi-user machines.
         // https://github.com/processing/processing4/issues/666
-        if (Platform.isLinux()) {
+        if (os.contains("Linux")) {
           Path path = directory.toPath();
           Files.setPosixFilePermissions(path, PosixFilePermissions.fromString("rwxrwxrwx"));
 
@@ -347,8 +348,9 @@ public class Util {
 
   static public void copyDirNative(File sourceDir,
                                    File targetDir) throws IOException {
+    String os = System.getProperty("os.name");
     Process process;
-    if (Platform.isMacOS() || Platform.isLinux()) {
+    if (os.contains("Mac") || os.contains("Linux")) {
       process = Runtime.getRuntime().exec(new String[] {
         "cp", "-a", sourceDir.getAbsolutePath(), targetDir.getAbsolutePath()
       });

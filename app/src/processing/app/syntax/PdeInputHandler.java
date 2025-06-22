@@ -27,8 +27,8 @@ package processing.app.syntax;
 
 import java.awt.event.KeyEvent;
 
-import processing.app.Platform;
 import processing.app.Preferences;
+import processing.app.Platform;
 import processing.app.ui.Editor;
 
 

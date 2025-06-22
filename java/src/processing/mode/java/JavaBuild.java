@@ -47,6 +47,7 @@ import processing.mode.java.preproc.ImportStatement;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.SketchException;
+import processing.utils.Util;
 
 
 public class JavaBuild {

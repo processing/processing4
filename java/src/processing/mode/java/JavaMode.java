@@ -37,6 +37,8 @@ import processing.mode.java.preproc.SketchException;
 import processing.mode.java.runner.Runner;
 import processing.mode.java.tweak.SketchParser;
 
+import processing.utils.Preferences;
+
 
 public class JavaMode extends Mode {
 

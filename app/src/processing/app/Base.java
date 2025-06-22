@@ -43,6 +43,7 @@ import processing.app.ui.*;
 import processing.app.ui.Toolkit;
 import processing.core.*;
 import processing.data.StringList;
+import processing.utils.Util;
 
 /**
  * The base class for the main processing application.
@@ -67,8 +68,6 @@ public class Base {
    */
   static public boolean DEBUG = System.getenv().containsKey("DEBUG");
 
-  /** True if running via Commander. */
-  static private boolean commandLine;
 
   /**
    * If settings.txt is present inside lib, it will be used to override
@@ -472,12 +471,12 @@ public class Base {
 
 
   public static void setCommandLine() {
-    commandLine = true;
+    System.setProperty("processing.cli", "true");
   }
 
 
   static public boolean isCommandLine() {
-    return commandLine;
+    return Boolean.getBoolean("processing.cli");
   }
 
 

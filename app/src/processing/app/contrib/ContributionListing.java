@@ -32,7 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import processing.app.Base;
 import processing.app.Messages;
 import processing.app.UpdateCheck;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;

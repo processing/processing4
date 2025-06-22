@@ -34,7 +34,7 @@ import java.util.Map;
 import processing.app.Base;
 import processing.app.Messages;
 import processing.app.Mode;
-import processing.app.Util;
+import processing.utils.Util;
 
 
 public class ModeContribution extends LocalContribution {

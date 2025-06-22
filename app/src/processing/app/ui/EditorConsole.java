@@ -36,8 +36,8 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.text.*;
 
-import processing.app.Console;
 import processing.app.Preferences;
+import processing.app.Console;
 import processing.app.laf.PdeScrollBarUI;
 
 

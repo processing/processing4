@@ -30,17 +30,16 @@ import java.nio.charset.StandardCharsets;
 
 import processing.app.Base;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.app.RunnerListener;
 import processing.app.Sketch;
 import processing.mode.java.preproc.SketchException;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.app.contrib.ModeContribution;
 import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.mode.java.runner.Runner;
 
-
+import processing.utils.Preferences;
 /**
  * Class to handle running Processing from the command line.
  */

@@ -28,6 +28,7 @@ import processing.app.ui.Editor;
 import processing.app.ui.Recent;
 import processing.app.ui.Toolkit;
 import processing.core.*;
+import processing.utils.Util;
 
 import java.awt.Color;
 import java.awt.Component;

@@ -34,9 +34,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import processing.app.Preferences;
 import processing.app.Language;
 import processing.app.Platform;
-import processing.app.Preferences;
 import processing.app.platform.MacPlatform;
 
 import processing.core.PApplet;

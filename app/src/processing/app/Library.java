@@ -8,6 +8,7 @@ import processing.app.contrib.*;
 import processing.core.*;
 import processing.data.StringDict;
 import processing.data.StringList;
+import processing.utils.Util;
 
 
 public class Library extends LocalContribution {
