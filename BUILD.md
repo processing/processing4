@@ -62,7 +62,15 @@ If your main concern is with the `Core` you don't need to build and start the wh
 
 ## Other editors
 
-TBD
+### No editor, Ubuntu 24.04
+
+```
+sudo apt install openjdk-17-jdk openjdk-17-source
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
+./gradlew build
+./gradlew tets
+./gradlew package
+```
 
 ## Troubleshooting and Setup Tips (IntelliJ IDEA)
 
