@@ -63,8 +63,7 @@ class LSP: SuspendingCliktCommand("lsp"){
 class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
     override val treatUnknownOptionsAsArgs = true
 
-    override fun help(context: Context) = "Legacy processing-java command line interface"
-
+    val help by option("--help").flag()
     val arguments by argument().multiple(default = emptyList())
 
     override suspend fun run() {
