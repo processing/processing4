@@ -62,14 +62,32 @@ If your main concern is with the `Core` you don't need to build and start the wh
 
 ## Other editors
 
-### No editor, Ubuntu 24.04
+### No editor, Linux or macOS
+
+The first step is to install Temurin JDB 17 - LTS.
+For Linux on x86, download:
+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz
+
+For macOS users on Apple Silicon, download:
+https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg
+
+For everyone else, visit:
+https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any
+
 
 ```
-sudo apt install openjdk-17-jdk openjdk-17-source
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64/
+export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
 ./gradlew build
-./gradlew tets
+./gradlew test
+```
+
+Then either:
+```
 ./gradlew package
+```
+which will result in the package being placed in `app/build/compose/binaries`,  or
+```
+./gradlew run
 ```
 
 ## Troubleshooting and Setup Tips (IntelliJ IDEA)
