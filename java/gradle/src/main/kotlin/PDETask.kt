@@ -13,9 +13,10 @@ import javax.inject.Inject
 
 
 // TODO: Generate sourcemaps
+/*
+* The PDETask is the main task that processes the .pde files and generates the Java source code
+ */
 abstract class PDETask : SourceTask() {
-
-
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:IgnoreEmptyDirectories

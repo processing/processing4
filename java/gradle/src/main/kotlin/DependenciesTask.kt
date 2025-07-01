@@ -7,6 +7,9 @@ import org.gradle.api.tasks.TaskAction
 import java.io.File
 import java.io.ObjectInputStream
 
+/*
+* The DependenciesTask resolves the dependencies for the sketch based on the libraries used
+ */
 abstract class DependenciesTask: DefaultTask() {
     @InputFile
     val librariesMetaData: RegularFileProperty = project.objects.fileProperty()
@@ -59,6 +62,7 @@ abstract class DependenciesTask: DefaultTask() {
         project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all:2.5.0:natives-macosx-universal")
         project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-macosx-universal")
 
+        // TODO: Solve windows specific issue
         // Windows specific native dependencies
         project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all:2.5.0:natives-windows-amd64")
         project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-windows-amd64")

@@ -10,6 +10,10 @@ import java.io.File
 import java.io.ObjectOutputStream
 import java.util.jar.JarFile
 
+/*
+The libraries task scans the sketchbook libraries folder for all the libraries
+This task stores the resulting information in a file that can be used later to resolve dependencies
+ */
 abstract class LibrariesTask : DefaultTask() {
 
     // TODO: Allow this directory to not exist
