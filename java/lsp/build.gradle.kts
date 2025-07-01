@@ -33,7 +33,10 @@ dependencies{
 
 mavenPublishing{
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-    signAllPublications()
+
+    // Only sign if signing is set up
+    if(project.hasProperty("signing.keyId") || project.hasProperty("signing.signingInMemoryKey"))
+        signAllPublications()
 
     pom{
         name.set("Processing Language Server")

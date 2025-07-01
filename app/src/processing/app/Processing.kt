@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
+import processing.app.gradle.api.Sketch
 import processing.app.ui.Start
 
 class Processing: SuspendingCliktCommand("processing"){
@@ -40,7 +41,8 @@ suspend fun main(args: Array<String>){
    Processing()
         .subcommands(
             LSP(),
-            LegacyCLI(args)
+            LegacyCLI(args),
+            Sketch()
         )
         .main(args)
 }

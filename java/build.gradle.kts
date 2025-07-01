@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id("java")
 }
@@ -53,7 +55,7 @@ tasks.register<Copy>("extraResources"){
     include("keywords.txt")
     include("theme/**/*")
     include("application/**/*")
-    into( layout.buildDirectory.dir("resources-bundled/common/modes/java"))
+    into(layout.buildDirectory.dir("resources-bundled/common/modes/java"))
 }
 tasks.register<Copy>("copyCore"){
     val coreProject = project(":core")
@@ -63,6 +65,22 @@ tasks.register<Copy>("copyCore"){
     }
     rename("core.+\\.jar", "core.jar")
     into(coreProject.layout.projectDirectory.dir("library"))
+}
+tasks.register<Copy>("renameWindres") {
+    val dir = layout.buildDirectory.dir("resources-bundled/common/modes/java")
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    val platform = when {
+        os.isWindows -> "windows"
+        os.isMacOsX -> "macos"
+        else -> "linux"
+    }
+    from(dir) {
+        include("*-$platform*")
+        rename("(.*)-$platform(.*)", "$1$2")
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    into(dir)
+    tasks.named("extraResources"){ dependsOn(this) }
 }
 
 val libraries = arrayOf("dxf","io","net","pdf","serial","svg")
@@ -77,7 +95,7 @@ libraries.forEach { library ->
         include("*.properties")
         include("library/**/*")
         include("examples/**/*")
-        into( layout.buildDirectory.dir("resources-bundled/common/modes/java/libraries/$library"))
+        into(layout.buildDirectory.dir("resources-bundled/common/modes/java/libraries/$library"))
     }
     tasks.named("extraResources"){ dependsOn("library-$library-extraResources") }
 }

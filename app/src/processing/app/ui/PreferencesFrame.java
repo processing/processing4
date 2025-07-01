@@ -85,6 +85,7 @@ public class PreferencesFrame {
   JCheckBox hidpiDisableBox;
 //  JLabel hidpiRestartLabel;
   JCheckBox syncSketchNameBox;
+  JCheckBox useModernBuildSystem;
 
   JComboBox<String> displaySelectionBox;
   JComboBox<String> languageSelectionBox;
@@ -554,6 +555,9 @@ public class PreferencesFrame {
     runningPanel.setBorder(new TitledBorder("Running"));
     runningPanel.setLayout(new BoxLayout(runningPanel, BoxLayout.Y_AXIS));
 
+    useModernBuildSystem = new JCheckBox(Language.text("preferences.use_modern_build_system"));
+    addRow(runningPanel, useModernBuildSystem);
+
     addRow(runningPanel, displayLabel, displaySelectionBox);
     addRow(runningPanel, backgroundColorLabel, presentColor);
     addRow(runningPanel, memoryOverrideBox, memoryField, mbLabel);
@@ -827,6 +831,8 @@ public class PreferencesFrame {
     Preferences.setBoolean("pdex.completion", codeCompletionBox.isSelected());
     Preferences.setBoolean("pdex.suggest.imports", importSuggestionsBox.isSelected());
 
+    Preferences.setBoolean("run.use_gradle", useModernBuildSystem.isSelected());
+
     for (Editor editor : base.getEditors()) {
       editor.applyPreferences();
     }
@@ -902,6 +908,11 @@ public class PreferencesFrame {
     if (autoAssociateBox != null) {
       autoAssociateBox.setSelected(Preferences.getBoolean("platform.auto_file_type_associations")); //$NON-NLS-1$
     }
+
+    if(useModernBuildSystem != null) {
+      useModernBuildSystem.setSelected(Preferences.getBoolean("run.use_gradle"));
+    }
+
     // The OK Button has to be set as the default button every time the
     // PrefWindow is to be displayed
     frame.getRootPane().setDefaultButton(okButton);
