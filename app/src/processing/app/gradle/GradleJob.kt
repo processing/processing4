@@ -15,15 +15,15 @@ import org.gradle.tooling.events.problems.internal.DefaultFileLocation
 import org.gradle.tooling.events.problems.internal.DefaultSingleProblemEvent
 import org.gradle.tooling.events.task.TaskFinishEvent
 import org.gradle.tooling.events.task.TaskStartEvent
+import org.gradle.tooling.events.task.TaskSuccessResult
 import processing.app.Base
 import processing.app.Messages
+import processing.app.ui.EditorStatus
 import java.io.InputStreamReader
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import java.lang.IllegalStateException
 
-// TODO: Move the error reporting to its own file
-// TODO: Move the output filtering to its own file
 class GradleJob{
     enum class State{
         NONE,
@@ -78,6 +78,7 @@ class GradleJob{
     private fun BuildLauncher.addStateListener(){
         addProgressListener(ProgressListener { event ->
             if(event is TaskStartEvent) {
+                service?.editor?.statusMessage("Running task: ${event.descriptor.name}", EditorStatus.NOTICE)
                 when(event.descriptor.name) {
                     ":run" -> {
                         state.value = State.RUNNING
@@ -87,6 +88,10 @@ class GradleJob{
 
             }
             if(event is TaskFinishEvent) {
+                if(event.result is TaskSuccessResult){
+                    service?.editor?.statusMessage("Finished task ${event.descriptor.name}", EditorStatus.NOTICE)
+                }
+
                 when(event.descriptor.name){
                     ":jar"->{
                         state.value = State.NONE
@@ -98,21 +103,26 @@ class GradleJob{
                 }
             }
             if(event is DefaultSingleProblemEvent) {
-                // TODO: Move to UI instead of printing
+                /*
+                We have 6 lines to display the error in the editor.
+                 */
+
                 if(event.definition.severity == Severity.ADVICE) return@ProgressListener
                 problems.add(event)
 
-                val path = (event.locations.firstOrNull() as DefaultFileLocation?)?.path
+                // TODO: Show the error on the location if it is available
 
-                val header = """
-                    ${event.definition.id.displayName}: 
-                        ${event.contextualLabel.contextualLabel}
-                    """.trimIndent()
+                val error = event.definition.id.displayName
+                service?.editor?.statusError(error)
+                System.err.println("Problem: $error")
 
-                val details = event.details.details?.replace(path ?: "", "")
-                val solutions = event.solutions.joinToString("\n") { it.solution }
-                val content = "$header\n$details\n$solutions"
-                service?.err?.println(content)
+                val message = """
+                    Context: ${event.contextualLabel.contextualLabel}
+                    Solutions: ${event.solutions.joinToString("\n\t") { it.solution }}
+                """
+                    .trimIndent()
+
+                println(message)
             }
         })
     }
