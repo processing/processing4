@@ -52,6 +52,8 @@ abstract class DependenciesTask: DefaultTask() {
         }
         project.dependencies.add("implementation",  project.files(dependencies) )
 
+        // TODO: Mutating the dependencies of configuration ':implementation' after it has been resolved or consumed. This
+
         // TODO: Add only if user is compiling for P2D or P3D
         // Add JOGL and Gluegen dependencies
         project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all-main:2.5.0")

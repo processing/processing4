@@ -20,6 +20,7 @@ import kotlin.io.path.writeText
 // TODO: Test running examples
 // TODO: Report failures to the console
 // TODO: Highlight errors in the editor
+// TODO: Stop running sketches if modern build system is turned off
 
 // TODO: ---- FUTURE ----
 // TODO: Improve progress tracking
@@ -114,6 +115,7 @@ class GradleService(
             "fullscreen" to false, // TODO: Implement
             "display" to 1, // TODO: Implement
             "external" to true,
+            "location" to null, // TODO: Implement
             "editor.location" to editor?.location?.let { "${it.x},${it.y}" },
             //"awt.disable" to false,
             //"window.color" to "0xFF000000", // TODO: Implement

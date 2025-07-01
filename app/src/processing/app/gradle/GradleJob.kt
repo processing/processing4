@@ -42,9 +42,6 @@ class GradleJob{
     private val scope = CoroutineScope(Dispatchers.IO)
     private val cancel = GradleConnector.newCancellationTokenSource()
 
-    private val outputStream = PipedOutputStream()
-    private val errorStream = PipedOutputStream()
-
     fun start() {
         val folder = service?.sketch?.folder ?: throw IllegalStateException("Sketch folder is not set")
         scope.launch {
@@ -60,8 +57,10 @@ class GradleJob{
                         withCancellationToken(cancel.token())
                         addStateListener()
                         addDebugging()
-                        setStandardOutput(outputStream)
-                        setStandardError(errorStream)
+                        if(Base.DEBUG) {
+                            setStandardOutput(System.out)
+                            setStandardError(System.err)
+                        }
                         run()
                     }
             }catch (e: Exception){
@@ -71,49 +70,6 @@ class GradleJob{
                 vm.value = null
             }
         }
-        // TODO: I'm sure this can be done better
-        scope.launch {
-            try {
-                InputStreamReader(PipedInputStream(outputStream)).buffered().use { reader ->
-                    reader.lineSequence()
-                        .forEach { line ->
-                            if (cancel.token().isCancellationRequested) {
-                                return@launch
-                            }
-                            if (state.value != State.RUNNING) {
-                                return@forEach
-                            }
-                            service?.out?.println(line)
-                        }
-                }
-            }catch (e: Exception){
-                Messages.log("Error while reading output: ${e.message}")
-            }
-        }
-        scope.launch {
-            try {
-                InputStreamReader(PipedInputStream(errorStream)).buffered().use { reader ->
-                    reader.lineSequence()
-                        .forEach { line ->
-                            if (cancel.token().isCancellationRequested) {
-                                return@launch
-                            }
-                            if (state.value != State.RUNNING) {
-                                return@forEach
-                            }
-                            when{
-                                line.contains("+[IMKClient subclass]: chose IMKClient_Modern") -> return@forEach
-                                line.contains("+[IMKInputSession subclass]: chose IMKInputSession_Modern") -> return@forEach
-                                line.startsWith("__MOVE__") -> return@forEach
-                                else -> service?.err?.println(line)
-                            }
-                        }
-                }
-            }catch (e: Exception){
-                Messages.log("Error while reading error: ${e.message}")
-            }
-        }
-
     }
 
     fun cancel(){
@@ -169,7 +125,8 @@ class GradleJob{
             scope.launch {
                 val debugger = Debugger.connect(service?.debugPort) ?: return@launch
                 vm.value = debugger
-                Exceptions.listen(debugger)
+                val exceptions = Exceptions(debugger, service?.editor)
+                exceptions.listen()
             }
 
         })

@@ -1,103 +1,98 @@
 package processing.app.gradle
 
-import com.sun.jdi.ObjectReference
+import com.sun.jdi.Location
 import com.sun.jdi.StackFrame
-import com.sun.jdi.StringReference
 import com.sun.jdi.VirtualMachine
 import com.sun.jdi.event.ExceptionEvent
 import com.sun.jdi.request.EventRequest
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import processing.app.Messages
+import processing.app.SketchException
+import processing.app.ui.Editor
 
 // TODO: Consider adding a panel to the footer
-class Exceptions {
-    companion object {
-        suspend fun listen(vm: VirtualMachine) {
-            try {
-                val manager = vm.eventRequestManager()
+class Exceptions (val vm: VirtualMachine, val editor: Editor?) {
+    suspend fun listen() {
+        try {
+            val manager = vm.eventRequestManager()
 
-                val request = manager.createExceptionRequest(null, false, true)
-                request.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD)
-                request.enable()
+            val request = manager.createExceptionRequest(null, false, true)
+            request.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD)
+            request.enable()
 
-                val queue = vm.eventQueue()
-                while (true) {
-                    val eventSet = queue.remove()
-                    for (event in eventSet) {
-                        if (event is ExceptionEvent) {
-                            printExceptionDetails(event)
-                            event.thread().resume()
-                        }
+            val queue = vm.eventQueue()
+            while (true) {
+                val eventSet = queue.remove()
+                for (event in eventSet) {
+                    if (event is ExceptionEvent) {
+                        printExceptionDetails(event)
+                        event.thread().resume()
                     }
-                    eventSet.resume()
-                    delay(10)
                 }
-            } catch (e: Exception) {
-                Messages.log("Error while listening for exceptions: ${e.message}")
+                eventSet.resume()
+                delay(10)
             }
+        } catch (e: Exception) {
+            Messages.log("Error while listening for exceptions: ${e.message}")
         }
+    }
 
-        fun printExceptionDetails(event: ExceptionEvent) {
-            val exception = event.exception()
-            val thread = event.thread()
-            val location = event.location()
-            val stackFrames = thread.frames()
+    fun printExceptionDetails(event: ExceptionEvent) {
+        val exception = event.exception()
+        val thread = event.thread()
+        val location = event.location().mapToPdeFile()
+        val stackFrames = thread.frames()
 
-            println("\n🚨 Exception Caught 🚨")
-            println("Type       : ${exception.referenceType().name()}")
-            // TODO: Fix exception message retrieval
-//        println("Message    : ${getExceptionMessage(exception)}")
-            println("Thread     : ${thread.name()}")
-            println("Location   : ${location.sourcePath()}:${location.lineNumber()}\n")
-
-            // TODO: Map to .pde file again
-            // TODO: Communicate back to Editor
-
-            // Separate stack frames
-            val userFrames = mutableListOf<StackFrame>()
-            val processingFrames = mutableListOf<StackFrame>()
-
-            stackFrames.forEach { frame ->
-                val className = frame.location().declaringType().name()
-                if (className.startsWith("processing.")) {
-                    processingFrames.add(frame)
-                } else {
-                    userFrames.add(frame)
-                }
+        val (processingFrames, userFrames) = stackFrames
+            .map{
+                val location = it.location().mapToPdeFile()
+                val method = location.method()
+                it to "${method.declaringType().name()}.${method.name()}() @ ${location.sourcePath()}:${location.lineNumber()}"
+            }
+            .partition {
+                it.first.location().declaringType().name().startsWith("processing.")
             }
 
-            // Print user frames first
-            println("🔍 Stacktrace (Your Code First):")
-            userFrames.forEachIndexed { index, frame -> printStackFrame(index, frame) }
+        /*
+        We have 6 lines by default within the editor to display more information about the exception.
+         */
 
-            // Print Processing frames second
-            if (processingFrames.isNotEmpty()) {
-                println("\n🔧 Processing Stacktrace (Hidden Initially):")
-                processingFrames.forEachIndexed { index, frame -> printStackFrame(index, frame) }
-            }
+        val message = """
+            In Processing code:
+                #processingFrames
+            
+            In your code:
+                #userFrames
+                
+        """
+            .trimIndent()
+            .replace("#processingFrames", processingFrames.joinToString("\n    ") { it.second })
+            .replace("#userFrames", userFrames.joinToString("\n    ") { it.second })
 
-            println("──────────────────────────────────\n")
+        val error = """
+            Exception: ${exception.referenceType().name()} @ ${location.sourcePath()}:${location.lineNumber()}
+        """.trimIndent()
+
+        println(message)
+        System.err.println(error)
+
+        editor?.statusError(exception.referenceType().name())
+    }
+
+    fun Location.mapToPdeFile(): Location {
+        if(editor == null) return this
+
+        // Check if the source is a .java file
+        val sketch = editor.sketch
+        sketch.code.forEach { code ->
+            if(code.extension != "java") return@forEach
+            if(sourceName() != code.fileName) return@forEach
+            return@mapToPdeFile this
         }
 
-        fun printStackFrame(index: Int, frame: StackFrame) {
-            val location = frame.location()
-            val method = location.method()
-            println(
-                "   #$index ${location.sourcePath()}:${location.lineNumber()} -> ${
-                    method.declaringType().name()
-                }.${method.name()}()"
-            )
-        }
+        // TODO: Map to .pde file again, @see JavaBuild.placeException
+        // BLOCKED: Because we don't run the JavaBuild code.prepocOffset is empty
 
-        // Extracts the exception's message
-        fun getExceptionMessage(exception: ObjectReference): String {
-            val messageMethod = exception.referenceType().methodsByName("getMessage").firstOrNull() ?: return "Unknown"
-            val messageValue =
-                exception.invokeMethod(null, messageMethod, emptyList(), ObjectReference.INVOKE_SINGLE_THREADED)
-            return (messageValue as? StringReference)?.value() ?: "Unknown"
-        }
+        return this
     }
 }
