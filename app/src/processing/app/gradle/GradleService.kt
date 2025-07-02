@@ -84,6 +84,8 @@ class GradleService(
     private fun setupGradle(): MutableList<String> {
         val sketch = sketch ?: throw IllegalStateException("Sketch is not set")
 
+        // TODO: if sketch is read-only, copy it whole to the temporary working directory / sketch
+
         val unsaved = sketch.code
             .map { code ->
                 val file = workingDir.resolve("unsaved/${code.fileName}")

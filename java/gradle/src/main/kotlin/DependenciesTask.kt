@@ -44,7 +44,7 @@ abstract class DependenciesTask: DefaultTask() {
                 library.jars.forEach { jar ->
                     jar.classes.forEach { className ->
                         if (className.startsWith(statement)) {
-                            dependencies.add(jar.path)
+                            dependencies.addAll(library.jars.map { it.path } )
                             return@import
                         }
                     }
