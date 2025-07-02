@@ -1,6 +1,7 @@
 package org.processing.java.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
@@ -57,26 +58,22 @@ abstract class DependenciesTask: DefaultTask() {
         // TODO: Add only if user is compiling for P2D or P3D
         // Add JOGL and Gluegen dependencies
         project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all-main:2.5.0")
-        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt-main:2.5.0")
+        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0")
 
-        // TODO: Only add the native dependencies for the platform the user is building for
-        // MacOS specific native dependencies
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all:2.5.0:natives-macosx-universal")
-        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-macosx-universal")
+        val os = System.getProperty("os.name").lowercase()
+        val arch = System.getProperty("os.arch").lowercase()
 
-        // TODO: Solve windows specific issue
-        // Windows specific native dependencies
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all:2.5.0:natives-windows-amd64")
-        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-windows-amd64")
+        val variant = when {
+            os.contains("mac") -> "macosx-universal"
+            os.contains("win") && arch.contains("64") -> "windows-amd64"
+            os.contains("linux") && arch.contains("aarch64") -> "linux-aarch64"
+            os.contains("linux") && arch.contains("arm") -> "linux-arm"
+            os.contains("linux") && arch.contains("amd64") -> "linux-amd64"
+            else -> throw GradleException("Unsupported OS/architecture: $os / $arch")
+        }
 
-        // Linux specific native dependencies
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all:2.5.0:natives-linux-amd64")
-        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-linux-amd64")
-
-        // NativeWindow dependencies for all platforms
-        project.dependencies.add("implementation", "org.jogamp.jogl:nativewindow:2.5.0")
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.5.0:natives-macosx-universal")
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.5.0:natives-windows-amd64")
-        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.5.0:natives-linux-amd64")
+        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-$variant")
+        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.5.0:natives-$variant")
+        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:newt:2.5.0:natives-$variant")
     }
 }

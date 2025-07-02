@@ -67,9 +67,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             extension.extensions.getByType(DesktopExtension::class.java).application { application ->
                 // Set the class to be executed initially
                 application.mainClass = sketchName
-                application.nativeDistributions.modules("java.management")
+                application.nativeDistributions.modules("java.management","jdk.jdwp.agent")
                 if(debugPort != null) {
-                    application.jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=$debugPort")
+                    application.jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debugPort")
                 }
             }
         }
