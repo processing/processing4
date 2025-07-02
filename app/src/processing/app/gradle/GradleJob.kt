@@ -6,6 +6,7 @@ import com.sun.jdi.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.gradle.tooling.BuildCancelledException
 import org.gradle.tooling.BuildLauncher
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.events.ProgressListener
@@ -29,6 +30,7 @@ class GradleJob{
         NONE,
         BUILDING,
         RUNNING,
+        ERROR,
         DONE
     }
 
@@ -64,7 +66,31 @@ class GradleJob{
                         run()
                     }
             }catch (e: Exception){
-                Messages.log("Error while running: ${e.message} ${e.cause?.message}")
+                val causesList = mutableListOf<Throwable>()
+                var cause: Throwable? = e
+                while (cause != null && cause.cause != cause) {
+                    causesList.add(cause)
+                    cause = cause.cause
+                }
+
+                val errors = causesList.joinToString("\n") { it.message ?: "Unknown error" }
+
+                val skip = listOf(BuildCancelledException::class)
+
+                if (skip.any { it.isInstance(e) }) {
+                    Messages.log("Gradle job error: $errors")
+                    return@launch
+                }
+
+                if(state.value != State.BUILDING){
+                    Messages.log("Gradle job error: $errors")
+                    return@launch
+                }
+
+                // An error occurred during the build process
+
+                System.err.println(errors)
+                service?.editor?.statusError(cause?.message)
             }finally {
                 state.value = State.DONE
                 vm.value = null
@@ -94,30 +120,40 @@ class GradleJob{
                 }
 
                 when(event.descriptor.name){
-                    ":jar"->{
-                        state.value = State.NONE
-                        Messages.log("Jar finished")
-                    }
                     ":run"->{
-                        state.value = State.NONE
+                        state.value = State.DONE
                         service?.editor?.toolbar?.deactivateRun()
                         service?.editor?.toolbar?.deactivateStop()
                     }
                 }
             }
             if(event is DefaultSingleProblemEvent) {
+
+
+                problems.add(event)
+
+                val skip = listOf(
+                    "mutating-the-dependencies-of-configuration-implementation-after-it-has-been-resolved-or-consumed-this-behavior-has-been-deprecated",
+                    "mutating-the-dependencies-of-configuration-runtimeonly-after-it-has-been-resolved-or-consumed-this-behavior-has-been-deprecated"
+                )
+                if(skip.any { event.definition.id.name.contains(it) }) {
+                    Messages.log(event.toString())
+                    return@ProgressListener
+                }
+
+                if(event.definition.severity == Severity.ADVICE) {
+                    Messages.log(event.toString())
+                    return@ProgressListener
+                }
+                // TODO: Show the error on the location if it is available
                 /*
                 We have 6 lines to display the error in the editor.
                  */
 
-                if(event.definition.severity == Severity.ADVICE) return@ProgressListener
-                problems.add(event)
-
-                // TODO: Show the error on the location if it is available
-
                 val error = event.definition.id.displayName
                 service?.editor?.statusError(error)
                 System.err.println("Problem: $error")
+                state.value = State.ERROR
 
                 val message = """
                     Context: ${event.contextualLabel.contextualLabel}
