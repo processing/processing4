@@ -57,8 +57,8 @@ class GradleJob{
                         withCancellationToken(cancel.token())
                         addStateListener()
                         addDebugging()
+                        setStandardOutput(System.out)
                         if(Base.DEBUG) {
-                            setStandardOutput(System.out)
                             setStandardError(System.err)
                         }
                         run()
@@ -83,6 +83,7 @@ class GradleJob{
                     ":run" -> {
                         state.value = State.RUNNING
                         Messages.log("Start run")
+                        service?.editor?.toolbar?.activateRun()
                     }
                 }
 
@@ -99,6 +100,8 @@ class GradleJob{
                     }
                     ":run"->{
                         state.value = State.NONE
+                        service?.editor?.toolbar?.deactivateRun()
+                        service?.editor?.toolbar?.deactivateStop()
                     }
                 }
             }

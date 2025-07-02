@@ -643,6 +643,8 @@ public class JavaEditor extends Editor {
     toolbar.activateRun();
 
     if(this.service.getEnabled()){
+      System.setProperty("processing.fullscreen", present ? "true" : "false");
+      System.setProperty("processing.tweak", tweak ? "true" : "false");
       this.service.run();
       return;
     }
@@ -676,12 +678,7 @@ public class JavaEditor extends Editor {
    */
   public void handleStop() {
     if(this.service.getEnabled()){
-      // TODO: Improve Gradle UI Feedback
-      toolbar.activateStop();
       this.service.stop();
-
-      toolbar.deactivateStop();
-      toolbar.deactivateRun();
       return;
     }
 

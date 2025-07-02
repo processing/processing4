@@ -2,6 +2,10 @@ package processing.app.gradle
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.gradle.tooling.BuildLauncher
 import processing.app.Base
 import processing.app.Language
@@ -46,38 +50,32 @@ class GradleService(
     val workingDir = createTempDirectory()
     val debugPort = (30_000..60_000).random()
 
-    // TODO: Add support for present
     fun run(){
-        stopActions()
-
-        val job = GradleJob()
-        job.service = this
-        job.configure = {
-            setup()
-            forTasks("run")
-        }
-        jobs.add(job)
-        job.start()
+        startAction("run")
     }
 
     fun export(){
-        stopActions()
-
-        val job = GradleJob()
-        job.service = this
-        job.configure = {
-            setup()
-            forTasks("runDistributable")
-        }
-        jobs.add(job)
-        job.start()
+        startAction("runDistributable")
     }
 
     fun stop(){
         stopActions()
     }
 
-    fun stopActions(){
+    private fun startAction(vararg tasks: String) {
+        if(!active.value) return
+
+        val job = GradleJob()
+        job.service = this
+        job.configure = {
+            setup()
+            forTasks(tasks.joinToString(" "))
+        }
+        jobs.add(job)
+        job.start()
+    }
+
+    private fun stopActions(){
         jobs
             .forEach(GradleJob::cancel)
     }
@@ -108,7 +106,7 @@ class GradleService(
             "settings" to Platform.getSettingsFolder().absolutePath.toString(),
             "unsaved" to unsaved.joinToString(","),
             "debugPort" to debugPort.toString(),
-            "fullscreen" to false, // TODO: Implement
+            "fullscreen" to System.getProperty("processing.fullscreen", "false").equals("true"),
             "display" to 1, // TODO: Implement
             "external" to true,
             "location" to null, // TODO: Implement
