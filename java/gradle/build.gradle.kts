@@ -22,7 +22,7 @@ dependencies{
 gradlePlugin{
     plugins{
         create("processing"){
-            id = "org.processing.gradle"
+            id = "org.processing.java"
             implementationClass = "org.processing.java.gradle.ProcessingPlugin"
         }
     }

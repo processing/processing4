@@ -11,7 +11,7 @@ class ProcessingPluginTest{
     @Test
     fun testPluginAddsSketchTask(){
         val project = ProjectBuilder.builder().build()
-        project.pluginManager.apply("org.processing.gradle")
+        project.pluginManager.apply("org.processing.java")
 
         assert(project.tasks.getByName("sketch") is Task)
     }

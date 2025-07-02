@@ -27,7 +27,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val workingDir = project.findProperty("processing.workingDir") as String?
         val debugPort = project.findProperty("processing.debugPort") as String?
 
-        // TODO: Setup sketchbook when using as a standalone plugin
+        // TODO: Setup sketchbook when using as a standalone plugin, use the Java Preferences
         val sketchbook = project.findProperty("processing.sketchbook") as String?
 
         // Apply the Java plugin to the Project

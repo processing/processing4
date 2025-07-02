@@ -29,10 +29,12 @@ import kotlin.io.path.writeText
 // TODO: Add background building
 // TODO: Track build speed (for analytics?)
 
-// The gradle service runs the gradle tasks and manages the gradle connection
-// It will create the necessary build files for gradle to run
-// Then it will kick off a new GradleJob to run the tasks
-// GradleJob manages the gradle build and connects the debugger
+/*
+* The gradle service runs the gradle tasks and manages the gradle connection
+* It will create the necessary build files for gradle to run
+* Then it will kick off a new GradleJob to run the tasks
+* GradleJob manages the gradle build and connects the debugger
+*/
 class GradleService(
     val mode: Mode,
     val editor: Editor?,
@@ -92,7 +94,7 @@ class GradleService(
                 val file = workingDir.resolve("unsaved/${code.fileName}")
                 file.parent.toFile().mkdirs()
                 // If tab is marked modified save it to the working directory
-                // Otherwise delete the file
+                // Otherwise delete the file so we don't compile with old code
                 if(code.isModified){
                     file.writeText(code.documentText)
                 }else{
@@ -101,10 +103,8 @@ class GradleService(
                 return@map code.fileName
             }
 
-        val group = System.getProperty("processing.group", "org.processing")
-
         val variables = mapOf(
-            "group" to group,
+            "group" to System.getProperty("processing.group", "org.processing"),
             "version" to Base.getVersionName(),
             "sketchFolder" to sketch.folder.absolutePath,
             "sketchbook" to Base.getSketchbookFolder(),
@@ -169,14 +169,14 @@ class GradleService(
                 //
                 """.trimIndent()
 
-            // TODO: add instructions keys
             val instructions = Language.text("gradle.instructions")
                 .split("\n")
                 .joinToString("\n") { "// $it" }
 
             val configuration =  """
+                
                 plugins{
-                    id("org.processing.gradle") version "${Base.getVersionName()}"
+                    id("org.processing.java") version "${Base.getVersionName()}"
                 }
             """.trimIndent()
             val content = "${header}\n${instructions}\n${configuration}"

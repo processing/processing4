@@ -1,3 +1,3 @@
 plugins{
-    id("org.processing.gradle")
+    id("org.processing.java")
 }
