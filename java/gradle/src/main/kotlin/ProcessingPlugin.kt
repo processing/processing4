@@ -139,7 +139,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             val librariesTaskName = sourceSet.getTaskName("scanLibraries", "PDE")
             val librariesScan = project.tasks.register(librariesTaskName, LibrariesTask::class.java) { task ->
                 task.description = "Scans the libraries in the sketchbook"
-                task.librariesDirectory.set(File(sketchbook, "libraries"))
+                task.librariesDirectory.set(sketchbook?.let { File(it, "libraries") })
             }
 
             val pdeTaskName = sourceSet.getTaskName("preprocess", "PDE")

@@ -4,6 +4,7 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -16,8 +17,8 @@ This task stores the resulting information in a file that can be used later to r
  */
 abstract class LibrariesTask : DefaultTask() {
 
-    // TODO: Allow this directory to not exist
     @InputDirectory
+    @Optional
     val librariesDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @OutputFile
@@ -38,6 +39,10 @@ abstract class LibrariesTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
+        if (!librariesDirectory.isPresent) {
+            logger.error("Libraries directory is not set. Libraries will not be imported.")
+            return
+        }
         val libraries = librariesDirectory.get().asFile
             .listFiles { file -> file.isDirectory }
             ?.map { folder ->
