@@ -49,6 +49,7 @@ class GradleJob{
         scope.launch {
             try {
                 state.value = State.BUILDING
+                service?.editor?.statusMessage("Building sketch", EditorStatus.NOTICE)
 
                 GradleConnector.newConnector()
                     .forProjectDirectory(folder)

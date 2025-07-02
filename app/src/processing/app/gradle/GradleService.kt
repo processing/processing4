@@ -64,6 +64,7 @@ class GradleService(
 
     private fun startAction(vararg tasks: String) {
         if(!active.value) return
+        editor?.let { println(Language.text("gradle.using_gradle"))  }
 
         val job = GradleJob()
         job.service = this

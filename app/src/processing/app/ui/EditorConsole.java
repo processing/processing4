@@ -257,6 +257,9 @@ public class EditorConsole extends JScrollPane {
       } else if (what.contains("__MOVE__")) {
         // Don't display the "Move" message that is used to position the sketch window
         return true;
+      }else if (what.startsWith("SLF4J: ")) {
+        // Don't display the SLF4J messages
+        return true;
       }
 
     } else {  // !err
