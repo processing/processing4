@@ -20,10 +20,9 @@ import kotlin.io.path.writeText
 // TODO: Test running examples
 // TODO: Report failures to the console
 // TODO: Highlight errors in the editor
-// TODO: Stop running sketches if modern build system is turned off
 
 // TODO: ---- FUTURE ----
-// TODO: Improve progress tracking
+// TODO: Improve progress tracking and show it in the UI
 // TODO: PoC new debugger/tweak mode
 // TODO: Allow for plugins to skip gradle entirely / new modes
 // TODO: Add background building
@@ -196,6 +195,7 @@ class GradleService(
 
 
     private fun BuildLauncher.setup(extraArguments: List<String> = listOf()) {
+        // TODO: Instead of shipping Processing with a build-in JDK we should download the JDK through Gradle
         setJavaHome(Platform.getJavaHome())
 
         val arguments = setupGradle()
@@ -208,6 +208,7 @@ class GradleService(
         return active.value
     }
     fun setEnabled(active: Boolean) {
+        if(!active) stopActions()
         this.active.value = active
     }
 }

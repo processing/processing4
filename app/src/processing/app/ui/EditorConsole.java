@@ -81,7 +81,7 @@ public class EditorConsole extends JScrollPane {
 
     sketchOut = new PrintStream(new EditorConsoleStream(false));
     sketchErr = new PrintStream(new EditorConsoleStream(true));
-    
+
     startTimer();
   }
 
