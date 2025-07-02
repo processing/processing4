@@ -43,9 +43,6 @@ class GradleService(
 
     var sketch: Sketch? = null
 
-    var out: PrintStream = System.out
-    var err: PrintStream = System.err
-
     val jobs = mutableStateListOf<GradleJob>()
     val workingDir = createTempDirectory()
     val debugPort = (30_000..60_000).random()
