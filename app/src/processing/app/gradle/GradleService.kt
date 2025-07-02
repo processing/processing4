@@ -84,7 +84,12 @@ class GradleService(
     private fun setupGradle(): MutableList<String> {
         val sketch = sketch ?: throw IllegalStateException("Sketch is not set")
 
-        // TODO: if sketch is read-only, copy it whole to the temporary working directory / sketch
+        val sketchFolder = if(sketch.isReadOnly) workingDir.resolve("sketch").toFile() else sketch.folder
+        if(sketch.isReadOnly){
+            // If the sketch is read-only, we copy it to the working directory
+            // This allows us to run the sketch without modifying the original files
+            sketch.folder.copyRecursively(sketchFolder, overwrite = true)
+        }
 
         val unsaved = sketch.code
             .map { code ->
@@ -118,7 +123,7 @@ class GradleService(
             //"window.color" to "0xFF000000", // TODO: Implement
             //"stop.color" to "0xFF000000", // TODO: Implement
             "stop.hide" to false, // TODO: Implement
-            "sketch.folder" to sketch.folder.absolutePath,
+            "sketch.folder" to sketchFolder,
         )
         val repository = Platform.getContentFile("repository").absolutePath.replace("""\""", """\\""")
 
@@ -144,7 +149,7 @@ class GradleService(
         }
 
 
-        val buildGradle = sketch.folder.resolve("build.gradle.kts")
+        val buildGradle = sketchFolder.resolve("build.gradle.kts")
         val generate = buildGradle.let {
             if(!it.exists()) return@let true
 
@@ -179,13 +184,16 @@ class GradleService(
             val content = "${header}\n${instructions}\n${configuration}"
             buildGradle.writeText(content)
         }
-        val settingsGradle = sketch.folder.resolve("settings.gradle.kts")
+        val settingsGradle = sketchFolder.resolve("settings.gradle.kts")
         if (!settingsGradle.exists()) {
             settingsGradle.createNewFile()
         }
 
         val arguments = mutableListOf("--init-script", initGradle.toAbsolutePath().toString())
         if (!Base.DEBUG) arguments.add("--quiet")
+        if(sketch.isReadOnly){
+            arguments += listOf("--project-dir", sketchFolder.absolutePath)
+        }
         arguments.addAll(variables.entries
             .filter { it.value != null }
             .map { "-Pprocessing.${it.key}=${it.value}" }
