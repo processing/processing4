@@ -23,7 +23,7 @@ package processing.mode.java;
 import org.mockito.Mockito;
 import processing.app.Library;
 import processing.app.Sketch;
-import processing.app.SketchException;
+import processing.utils.SketchException;
 import processing.mode.java.preproc.ImportStatement;
 
 import java.io.File;

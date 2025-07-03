@@ -33,7 +33,7 @@ import processing.app.ui.Editor;
 import processing.app.ui.EditorException;
 import processing.app.ui.EditorState;
 
-import processing.mode.java.preproc.SketchException;
+import processing.utils.SketchException;
 import processing.mode.java.runner.Runner;
 import processing.mode.java.tweak.SketchParser;
 
