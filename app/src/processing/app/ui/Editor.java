@@ -61,7 +61,7 @@ import processing.app.Problem;
 import processing.app.RunnerListener;
 import processing.app.Sketch;
 import processing.app.SketchCode;
-import processing.app.SketchException;
+import processing.utils.SketchException;
 import processing.app.contrib.ContributionManager;
 import processing.app.laf.PdeMenuItemUI;
 import processing.app.syntax.*;
@@ -2736,6 +2736,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     }
 
     int tabIndex = p.getTabIndex();
+    sketch.setCurrentCode(tabIndex);  // so we are looking at the right offsets below
     int lineNumber = p.getLineNumber();
     int lineStart = textarea.getLineStartOffset(lineNumber);
     int lineEnd = textarea.getLineStopOffset(lineNumber);
