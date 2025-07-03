@@ -61,7 +61,7 @@ import processing.app.Problem;
 import processing.app.RunnerListener;
 import processing.app.Sketch;
 import processing.app.SketchCode;
-import processing.app.SketchException;
+import processing.utils.SketchException;
 import processing.app.contrib.ContributionManager;
 import processing.app.laf.PdeMenuItemUI;
 import processing.app.syntax.*;

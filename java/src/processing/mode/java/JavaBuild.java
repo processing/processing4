@@ -46,7 +46,7 @@ import processing.data.XML;
 import processing.mode.java.preproc.ImportStatement;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
-import processing.mode.java.preproc.SketchException;
+import processing.utils.SketchException;
 
 
 public class JavaBuild {
@@ -281,8 +281,8 @@ public class JavaBuild {
       Library library = null;
       try{
         library = mode.getLibrary(entry);
-      }catch (processing.app.SketchException e){
-        throw new SketchException(e.getMessage(), e.getCodeIndex(), e.getCodeLine(), e.getCodeColumn(), e.isStackTraceEnabled());
+      }catch (processing.utils.SketchException e){
+        throw e;
       }
 
       if (library != null) {
@@ -345,7 +345,7 @@ public class JavaBuild {
     for (SketchCode sc : sketch.getCode()) {
       if (sc.isExtension("java")) {
         // In most cases, no pre-processing services necessary for Java files.
-        // Just write the the contents of 'program' to a .java file
+        // Just write the contents of 'program' to a .java file
         // into the build directory. However, if a default package is being
         // used (as in Android), and no package is specified in the source,
         // then we need to move this code to the same package as the sketch.
