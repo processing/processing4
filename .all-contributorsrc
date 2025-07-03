@@ -1539,6 +1539,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jd-boyd",
+      "name": "Joshua D. Boyd",
+      "avatar_url": "https://avatars.githubusercontent.com/u/361465?v=4",
+      "profile": "http://blog.jdboyd.net/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "repoType": "github",
