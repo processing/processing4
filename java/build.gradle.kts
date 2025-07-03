@@ -26,6 +26,7 @@ dependencies{
     implementation(project(":app"))
     implementation(project(":core"))
     implementation(project(":java:preprocessor"))
+    implementation(project(":app:utils"))
 
     implementation(libs.eclipseJDT)
     implementation(libs.eclipseJDTCompiler)
