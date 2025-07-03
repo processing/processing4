@@ -10,13 +10,13 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 > If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
 
 1. Clone the Processing4 repository to your machine locally
-2. Open the cloned repository in IntelliJ IDEA CE
-3. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-4. IntelliJ may start loading Gradle dependencies automatically. Wait for this process to complete.
-5. In the main menu, go to File > Project Structure > Project Settings > Project.
-6. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
-7. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
-8. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
+1. Open the cloned repository in IntelliJ IDEA CE
+1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
+1. IntelliJ may start loading Gradle dependencies automatically. Wait for this process to complete.
+1. In the main menu, go to File > Project Structure > Project Settings > Project.
+1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
+1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
+1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
 
 
 ## VSCode
