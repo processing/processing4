@@ -299,6 +299,9 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/thisizaro"><img src="https://avatars.githubusercontent.com/u/98299268?v=4?s=120" width="120px;" alt="Aranya Dutta"/><br /><sub><b>Aranya Dutta</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=thisizaro" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/ovalnine"><img src="https://avatars.githubusercontent.com/u/13293768?v=4?s=120" width="120px;" alt="ovalnine"/><br /><sub><b>ovalnine</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=ovalnine" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="http://blog.jdboyd.net/"><img src="https://avatars.githubusercontent.com/u/361465?v=4?s=120" width="120px;" alt="Joshua D. Boyd"/><br /><sub><b>Joshua D. Boyd</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=jd-boyd" title="Documentation">📖</a></td>
+    </tr>
   </tbody>
 </table>
 
