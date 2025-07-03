@@ -40,6 +40,7 @@ import processing.app.ui.ExamplesFrame;
 import processing.app.ui.Recent;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
+import processing.utils.SketchException;
 
 
 public abstract class Mode {
