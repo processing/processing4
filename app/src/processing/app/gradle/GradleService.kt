@@ -84,8 +84,10 @@ class GradleService(
     private fun setupGradle(): MutableList<String> {
         val sketch = sketch ?: throw IllegalStateException("Sketch is not set")
 
-        val sketchFolder = if(sketch.isReadOnly) workingDir.resolve("sketch").toFile() else sketch.folder
-        if(sketch.isReadOnly){
+        val copy = sketch.isReadOnly || sketch.isUntitled
+
+        val sketchFolder = if(copy) workingDir.resolve("sketch").toFile() else sketch.folder
+        if(copy){
             // If the sketch is read-only, we copy it to the working directory
             // This allows us to run the sketch without modifying the original files
             sketch.folder.copyRecursively(sketchFolder, overwrite = true)
@@ -108,7 +110,7 @@ class GradleService(
         val variables = mapOf(
             "group" to System.getProperty("processing.group", "org.processing"),
             "version" to Base.getVersionName(),
-            "sketchFolder" to sketch.folder.absolutePath,
+            "sketchFolder" to sketchFolder,
             "sketchbook" to Base.getSketchbookFolder(),
             "workingDir" to workingDir.toAbsolutePath().toString(),
             "settings" to Platform.getSettingsFolder().absolutePath.toString(),
@@ -123,7 +125,6 @@ class GradleService(
             //"window.color" to "0xFF000000", // TODO: Implement
             //"stop.color" to "0xFF000000", // TODO: Implement
             "stop.hide" to false, // TODO: Implement
-            "sketch.folder" to sketchFolder,
         )
         val repository = Platform.getContentFile("repository").absolutePath.replace("""\""", """\\""")
 
@@ -191,7 +192,7 @@ class GradleService(
 
         val arguments = mutableListOf("--init-script", initGradle.toAbsolutePath().toString())
         if (!Base.DEBUG) arguments.add("--quiet")
-        if(sketch.isReadOnly){
+        if(copy){
             arguments += listOf("--project-dir", sketchFolder.absolutePath)
         }
         arguments.addAll(variables.entries
