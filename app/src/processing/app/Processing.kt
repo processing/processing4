@@ -59,30 +59,22 @@ class LSP: SuspendingCliktCommand("lsp"){
     }
 }
 
-class LegacyCLI(val args: Array<String>): SuspendingCliktCommand( "cli"){
-    override fun help(context: Context) = "Legacy processing-java command line interface"
+
+class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
+    override val treatUnknownOptionsAsArgs = true
 
     val help by option("--help").flag()
-    val build by option("--build").flag()
-    val run by option("--run").flag()
-    val present by option("--present").flag()
-    val sketch: String? by option("--sketch")
-    val force by option("--force").flag()
-    val output: String? by option("--output")
-    val export by option("--export").flag()
-    val noJava by option("--no-java").flag()
-    val variant: String? by option("--variant")
+    val arguments by argument().multiple(default = emptyList())
 
-    override suspend fun run(){
-        val cliArgs = args.filter { it != "cli" }
+    override suspend fun run() {
         try {
-            if(build){
+            if (arguments.contains("--build")) {
                 System.setProperty("java.awt.headless", "true")
             }
-            // Indirect invocation since app does not depend on java mode
+
             Class.forName("processing.mode.java.Commander")
                 .getMethod("main", Array<String>::class.java)
-                .invoke(null, *arrayOf<Any>(cliArgs.toTypedArray()))
+                .invoke(null, arguments.toTypedArray())
         } catch (e: Exception) {
             throw InternalError("Failed to invoke main method", e)
         }
