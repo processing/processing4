@@ -2,7 +2,7 @@ package processing.app.gradle
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import com.sun.jdi.*
+import com.sun.jdi.VirtualMachine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,18 +12,14 @@ import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.events.ProgressListener
 import org.gradle.tooling.events.problems.ProblemEvent
 import org.gradle.tooling.events.problems.Severity
-import org.gradle.tooling.events.problems.internal.DefaultFileLocation
 import org.gradle.tooling.events.problems.internal.DefaultSingleProblemEvent
 import org.gradle.tooling.events.task.TaskFinishEvent
 import org.gradle.tooling.events.task.TaskStartEvent
 import org.gradle.tooling.events.task.TaskSuccessResult
 import processing.app.Base
 import processing.app.Messages
+import processing.app.Platform
 import processing.app.ui.EditorStatus
-import java.io.InputStreamReader
-import java.io.PipedInputStream
-import java.io.PipedOutputStream
-import java.lang.IllegalStateException
 
 class GradleJob{
     enum class State{
@@ -53,6 +49,12 @@ class GradleJob{
 
                 GradleConnector.newConnector()
                     .forProjectDirectory(folder)
+                    .apply {
+                        // TODO: Remove when switched to classic confinement within Snap
+                        if(System.getenv("SNAP_USER_COMMON") != null){
+                            useGradleUserHomeDir(Platform.getSettingsFolder().resolve("gradle"))
+                        }
+                    }
                     .connect()
                     .newBuild()
                     .apply {
