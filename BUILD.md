@@ -12,7 +12,7 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in IntelliJ IDEA CE
 1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-1. IntelliJ may start loading Gradle dependencies automatically. Wait for this process to complete.
+1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
 1. In the main menu, go to File > Project Structure > Project Settings > Project.
 1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
 1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
@@ -129,6 +129,8 @@ Any classes that end up being written in Kotlin have their equivalent Java class
 The main task to run or debug the PDE is `run`. That means you just need to run `./gradlew run` (Linux) or `./gradlew.bat run` (Windows) to build and run Processing.
 
 If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
+
+If you are specifically trying to run the `Processing CLI`, you can test commands from `app/test/Processing.app/CLITest`.
 
 ## Troubleshooting and Setup Tips (IntelliJ IDEA)
 
