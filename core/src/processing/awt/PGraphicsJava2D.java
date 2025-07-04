@@ -2777,17 +2777,52 @@ public class PGraphicsJava2D extends PGraphics {
 
   @Override
   public void loadPixels() {
-    if (pixels == null || (pixels.length != pixelWidth*pixelHeight)) {
-      pixels = new int[pixelWidth * pixelHeight];
-    }
+    if (pixelDensity > 1) {
+      loadLogicalPixels();
+    } else {
+      if (pixels == null || (pixels.length != pixelWidth*pixelHeight)) {
+        pixels = new int[pixelWidth * pixelHeight];
+      }
 
+      WritableRaster raster = getRaster();
+      raster.getDataElements(0, 0, pixelWidth, pixelHeight, pixels);
+      if (raster.getNumBands() == 3) {
+        // Java won't set the high bits when RGB, returns 0 for alpha
+        // https://github.com/processing/processing/issues/2030
+        for (int i = 0; i < pixels.length; i++) {
+          pixels[i] = 0xff000000 | pixels[i];
+        }
+      }
+    }
+  }
+  
+  protected void loadLogicalPixels() {
+    int logicalPixelCount = width * height;
+    int physicalPixelCount = pixelWidth * pixelHeight;
+    
+    if (pixels == null || (pixels.length != logicalPixelCount)) {
+      pixels = new int[logicalPixelCount];
+    }
+    
+    // Create temporary physical pixel buffe
+    int[] physicalPixels = new int[physicalPixelCount];
+    
     WritableRaster raster = getRaster();
-    raster.getDataElements(0, 0, pixelWidth, pixelHeight, pixels);
+    raster.getDataElements(0, 0, pixelWidth, pixelHeight, physicalPixels);
     if (raster.getNumBands() == 3) {
-      // Java won't set the high bits when RGB, returns 0 for alpha
-      // https://github.com/processing/processing/issues/2030
-      for (int i = 0; i < pixels.length; i++) {
-        pixels[i] = 0xff000000 | pixels[i];
+      for (int i = 0; i < physicalPixels.length; i++) {
+        physicalPixels[i] = 0xff000000 | physicalPixels[i];
+      }
+    }
+    
+    for (int logicalY = 0; logicalY < height; logicalY++) {
+      for (int logicalX = 0; logicalX < width; logicalX++) {
+        int logicalIndex = logicalY * width + logicalX;
+        
+        float physicalX = (logicalX + 0.5f) * pixelDensity - 0.5f;
+        float physicalY = (logicalY + 0.5f) * pixelDensity - 0.5f;
+        
+        pixels[logicalIndex] = bilinearSample(physicalPixels, physicalX, physicalY, pixelWidth, pixelHeight);
       }
     }
   }
@@ -2816,18 +2851,222 @@ public class PGraphicsJava2D extends PGraphics {
    */
   @Override
   public void updatePixels(int x, int y, int c, int d) {
-    //if ((x == 0) && (y == 0) && (c == width) && (d == height)) {
-//    System.err.format("%d %d %d %d .. w/h = %d %d .. pw/ph = %d %d %n", x, y, c, d, width, height, pixelWidth, pixelHeight);
-    if ((x != 0) || (y != 0) || (c != pixelWidth) || (d != pixelHeight)) {
+    if (pixelDensity > 1) {
+      updateLogicalPixels(x, y, c, d);
+    } else {
+      if ((x != 0) || (y != 0) || (c != pixelWidth) || (d != pixelHeight)) {
+        // Show a warning message, but continue anyway.
+        showVariationWarning("updatePixels(x, y, w, h)");
+      }
+      if (pixels != null) {
+        getRaster().setDataElements(0, 0, pixelWidth, pixelHeight, pixels);
+      }
+      modified = true;
+    }
+  }
+  
+  protected void updateLogicalPixels(int x, int y, int c, int d) {
+    // For pixel density > 1, upsample logical pixels to physical pixels
+    if ((x != 0) || (y != 0) || (c != width) || (d != height)) {
       // Show a warning message, but continue anyway.
       showVariationWarning("updatePixels(x, y, w, h)");
-//      new Exception().printStackTrace(System.out);
     }
-//    updatePixels();
+    
     if (pixels != null) {
-      getRaster().setDataElements(0, 0, pixelWidth, pixelHeight, pixels);
+      int physicalPixelCount = pixelWidth * pixelHeight;
+      int[] physicalPixels = new int[physicalPixelCount];
+      
+      if (parent.pixelAccessMode == PIXEL_SMOOTH) {
+        for (int physicalY = 0; physicalY < pixelHeight; physicalY++) {
+          for (int physicalX = 0; physicalX < pixelWidth; physicalX++) {
+            int physicalIndex = physicalY * pixelWidth + physicalX;
+            
+            float logicalX = (physicalX + 0.5f) / pixelDensity - 0.5f;
+            float logicalY = (physicalY + 0.5f) / pixelDensity - 0.5f;
+            
+            physicalPixels[physicalIndex] = bilinearSample(pixels, logicalX, logicalY, width, height);
+          }
+        }
+      } else {
+        for (int physicalY = 0; physicalY < pixelHeight; physicalY++) {
+          for (int physicalX = 0; physicalX < pixelWidth; physicalX++) {
+            int physicalIndex = physicalY * pixelWidth + physicalX;
+            
+            int logicalX = physicalX / pixelDensity;
+            int logicalY = physicalY / pixelDensity;
+            
+            logicalX = Math.max(0, Math.min(width - 1, logicalX));
+            logicalY = Math.max(0, Math.min(height - 1, logicalY));
+            
+            int logicalIndex = logicalY * width + logicalX;
+            physicalPixels[physicalIndex] = pixels[logicalIndex];
+          }
+        }
+      }
+      
+      getRaster().setDataElements(0, 0, pixelWidth, pixelHeight, physicalPixels);
     }
     modified = true;
+  }
+  
+  
+  /**
+   * Perform bilinear interpolation on pixel data.
+   * @param pixels the source pixel array
+   * @param x floating point x coordinate
+   * @param y floating point y coordinate  
+   * @param w width of the source image
+   * @param h height of the source image
+   * @return interpolated color value
+   */
+  private int bilinearSample(int[] pixels, float x, float y, int w, int h) {
+    // Clamp coordinates
+    x = Math.max(0, Math.min(w - 1, x));
+    y = Math.max(0, Math.min(h - 1, y));
+    
+    // Get integer coordinates and fractional parts
+    int x1 = (int) Math.floor(x);
+    int y1 = (int) Math.floor(y);
+    int x2 = Math.min(x1 + 1, w - 1);
+    int y2 = Math.min(y1 + 1, h - 1);
+    
+    float fx = x - x1;
+    float fy = y - y1;
+    
+    // Sample four corner pixels
+    int c00 = pixels[y1 * w + x1];  // top-left
+    int c10 = pixels[y1 * w + x2];  // top-right
+    int c01 = pixels[y2 * w + x1];  // bottom-left
+    int c11 = pixels[y2 * w + x2];  // bottom-right
+    
+    // Interpolate each color channel separately
+    int a = bilinearChannel((c00 >> 24) & 0xff, (c10 >> 24) & 0xff, (c01 >> 24) & 0xff, (c11 >> 24) & 0xff, fx, fy);
+    int r = bilinearChannel((c00 >> 16) & 0xff, (c10 >> 16) & 0xff, (c01 >> 16) & 0xff, (c11 >> 16) & 0xff, fx, fy);
+    int g = bilinearChannel((c00 >> 8) & 0xff, (c10 >> 8) & 0xff, (c01 >> 8) & 0xff, (c11 >> 8) & 0xff, fx, fy);
+    int b = bilinearChannel(c00 & 0xff, c10 & 0xff, c01 & 0xff, c11 & 0xff, fx, fy);
+    
+    return (a << 24) | (r << 16) | (g << 8) | b;
+  }
+  
+  
+  /**
+   * Bilinear interpolation for a single color channel.
+   * @param c00 top-left value
+   * @param c10 top-right value
+   * @param c01 bottom-left value
+   * @param c11 bottom-right value
+   * @param fx horizontal interpolation factor (0-1)
+   * @param fy vertical interpolation factor (0-1)
+   * @return interpolated channel value
+   */
+  private int bilinearChannel(int c00, int c10, int c01, int c11, float fx, float fy) {
+    float top = c00 * (1 - fx) + c10 * fx;
+    float bottom = c01 * (1 - fx) + c11 * fx;
+    return Math.round(top * (1 - fy) + bottom * fy);
+  }
+  
+  
+  /**
+   * Distribute a color to physical pixels using bilinear weights.
+   * This is the inverse operation of bilinear sampling, ensuring
+   * that set(get()) operations are symmetric in PIXEL_SMOOTH mode.
+   * @param color the color to distribute
+   * @param physicalX floating point physical x coordinate
+   * @param physicalY floating point physical y coordinate
+   */
+  private void distributeBilinear(int color, float physicalX, float physicalY) {
+    // Clamp coordinates
+    physicalX = Math.max(0, Math.min(pixelWidth - 1, physicalX));
+    physicalY = Math.max(0, Math.min(pixelHeight - 1, physicalY));
+    
+    // Get integer coordinates and fractional parts
+    int x1 = (int) Math.floor(physicalX);
+    int y1 = (int) Math.floor(physicalY);
+    int x2 = Math.min(x1 + 1, pixelWidth - 1);
+    int y2 = Math.min(y1 + 1, pixelHeight - 1);
+    
+    float fx = physicalX - x1;
+    float fy = physicalY - y1;
+    
+    // Calculate bilinear weights
+    float w00 = (1 - fx) * (1 - fy);  // top-left
+    float w10 = fx * (1 - fy);        // top-right
+    float w01 = (1 - fx) * fy;        // bottom-left
+    float w11 = fx * fy;              // bottom-right
+    
+    // Read current physical pixels
+    WritableRaster raster = getRaster();
+    int[] corners = new int[4];
+    
+    raster.getDataElements(x1, y1, getset);
+    corners[0] = getset[0];  // top-left
+    
+    raster.getDataElements(x2, y1, getset);
+    corners[1] = getset[0];  // top-right
+    
+    raster.getDataElements(x1, y2, getset);
+    corners[2] = getset[0];  // bottom-left
+    
+    raster.getDataElements(x2, y2, getset);
+    corners[3] = getset[0];  // bottom-right
+    
+    // Handle RGB format (add alpha channel if missing)
+    if (raster.getNumBands() == 3) {
+      for (int i = 0; i < corners.length; i++) {
+        corners[i] = 0xff000000 | corners[i];
+      }
+    }
+    
+    // Blend new color
+    int[] newColors = new int[4];
+    newColors[0] = blendColors(corners[0], color, w00);  // top-left
+    newColors[1] = blendColors(corners[1], color, w10);  // top-right
+    newColors[2] = blendColors(corners[2], color, w01);  // bottom-left
+    newColors[3] = blendColors(corners[3], color, w11);  // bottom-right
+    
+    getset[0] = newColors[0];
+    raster.setDataElements(x1, y1, getset);
+    
+    getset[0] = newColors[1];
+    raster.setDataElements(x2, y1, getset);
+    
+    getset[0] = newColors[2];
+    raster.setDataElements(x1, y2, getset);
+    
+    getset[0] = newColors[3];
+    raster.setDataElements(x2, y2, getset);
+  }
+  
+  
+  /**
+   * Blend two colors using a weight factor.
+   * @param existing the existing color
+   * @param newColor the new color to blend in
+   * @param weight the weight of the new color (0.0 to 1.0)
+   * @return the blended color
+   */
+  private int blendColors(int existing, int newColor, float weight) {
+    if (weight <= 0) return existing;
+    if (weight >= 1) return newColor;
+    
+    // Extract channels
+    int aExist = (existing >> 24) & 0xff;
+    int rExist = (existing >> 16) & 0xff;
+    int gExist = (existing >> 8) & 0xff;
+    int bExist = existing & 0xff;
+    
+    int aNew = (newColor >> 24) & 0xff;
+    int rNew = (newColor >> 16) & 0xff;
+    int gNew = (newColor >> 8) & 0xff;
+    int bNew = newColor & 0xff;
+    
+    // Blend channels
+    int aBlend = Math.round(aExist * (1 - weight) + aNew * weight);
+    int rBlend = Math.round(rExist * (1 - weight) + rNew * weight);
+    int gBlend = Math.round(gExist * (1 - weight) + gNew * weight);
+    int bBlend = Math.round(bExist * (1 - weight) + bNew * weight);
+    
+    return (aBlend << 24) | (rBlend << 16) | (gBlend << 8) | bBlend;
   }
 
 
@@ -2855,15 +3094,54 @@ public class PGraphicsJava2D extends PGraphics {
   @Override
   public int get(int x, int y) {
     if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) return 0;
-    //return ((BufferedImage) image).getRGB(x, y);
-//    WritableRaster raster = ((BufferedImage) (useOffscreen && primarySurface ? offscreen : image)).getRaster();
-    WritableRaster raster = getRaster();
-    raster.getDataElements(x, y, getset);
-    if (raster.getNumBands() == 3) {
-      // https://github.com/processing/processing/issues/2030
-      return getset[0] | 0xff000000;
+    
+    if (pixelDensity > 1) {
+      if (parent.pixelAccessMode == PIXEL_SMOOTH) {
+        float physicalX = (x + 0.5f) * pixelDensity - 0.5f;
+        float physicalY = (y + 0.5f) * pixelDensity - 0.5f;
+        
+        int minX = Math.max(0, (int) Math.floor(physicalX));
+        int minY = Math.max(0, (int) Math.floor(physicalY));
+        int maxX = Math.min(pixelWidth - 1, (int) Math.ceil(physicalX));
+        int maxY = Math.min(pixelHeight - 1, (int) Math.ceil(physicalY));
+        
+        int regionWidth = maxX - minX + 1;
+        int regionHeight = maxY - minY + 1;
+        int[] regionPixels = new int[regionWidth * regionHeight];
+        
+        WritableRaster raster = getRaster();
+        raster.getDataElements(minX, minY, regionWidth, regionHeight, regionPixels);
+        
+        if (raster.getNumBands() == 3) {
+          for (int i = 0; i < regionPixels.length; i++) {
+            regionPixels[i] = 0xff000000 | regionPixels[i];
+          }
+        }
+        
+        float adjustedX = physicalX - minX;
+        float adjustedY = physicalY - minY;
+        
+        return bilinearSample(regionPixels, adjustedX, adjustedY, regionWidth, regionHeight);
+      } else {
+        int physicalX = x * pixelDensity;
+        int physicalY = y * pixelDensity;
+        
+        WritableRaster raster = getRaster();
+        raster.getDataElements(physicalX, physicalY, getset);
+        if (raster.getNumBands() == 3) {
+          return getset[0] | 0xff000000;
+        }
+        return getset[0];
+      }
+    } else {
+      WritableRaster raster = getRaster();
+      raster.getDataElements(x, y, getset);
+      if (raster.getNumBands() == 3) {
+        // https://github.com/processing/processing/issues/2030
+        return getset[0] | 0xff000000;
+      }
+      return getset[0];
     }
-    return getset[0];
   }
 
 
@@ -2914,12 +3192,33 @@ public class PGraphicsJava2D extends PGraphics {
 
   @Override
   public void set(int x, int y, int argb) {
-    if ((x < 0) || (y < 0) || (x >= pixelWidth) || (y >= pixelHeight)) return;
-//    ((BufferedImage) image).setRGB(x, y, argb);
-    getset[0] = argb;
-//    WritableRaster raster = ((BufferedImage) (useOffscreen && primarySurface ? offscreen : image)).getRaster();
-//    WritableRaster raster = image.getRaster();
-    getRaster().setDataElements(x, y, getset);
+    if ((x < 0) || (y < 0) || (x >= width) || (y >= height)) return;
+    
+    if (pixelDensity > 1) {
+      if (parent.pixelAccessMode == PIXEL_SMOOTH) {
+        float physicalX = (x + 0.5f) * pixelDensity - 0.5f;
+        float physicalY = (y + 0.5f) * pixelDensity - 0.5f;
+        
+        distributeBilinear(argb, physicalX, physicalY);
+      } else {
+        int physicalStartX = x * pixelDensity;
+        int physicalStartY = y * pixelDensity;
+        
+        getset[0] = argb;
+        WritableRaster raster = getRaster();
+        
+        for (int py = physicalStartY; py < physicalStartY + pixelDensity; py++) {
+          for (int px = physicalStartX; px < physicalStartX + pixelDensity; px++) {
+            if (px < pixelWidth && py < pixelHeight) {
+              raster.setDataElements(px, py, getset);
+            }
+          }
+        }
+      }
+    } else {
+      getset[0] = argb;
+      getRaster().setDataElements(x, y, getset);
+    }
   }
 
 

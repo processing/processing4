@@ -434,27 +434,23 @@ public class PImage implements PConstants, Cloneable {
    * @param w width
    * @param h height
    */
-  public void updatePixels(int x, int y, int w, int h) {  // ignore
+  public void updatePixels(int x, int y, int w, int h) {
     int x2 = x + w;
     int y2 = y + h;
+    int boundsWidth = (pixelDensity > 1) ? width : pixelWidth;
+    int boundsHeight = (pixelDensity > 1) ? height : pixelHeight;
 
     if (!modified) {
       mx1 = PApplet.max(0, x);
-      mx2 = PApplet.min(pixelWidth, x2);
+      mx2 = PApplet.min(boundsWidth, x2);
       my1 = PApplet.max(0, y);
-      my2 = PApplet.min(pixelHeight, y2);
+      my2 = PApplet.min(boundsHeight, y2);
       modified = true;
-
     } else {
       if (x < mx1) mx1 = PApplet.max(0, x);
-      if (x > mx2) mx2 = PApplet.min(pixelWidth, x);
+      if (x2 > mx2) mx2 = PApplet.min(boundsWidth, x2);
       if (y < my1) my1 = PApplet.max(0, y);
-      if (y > my2) my2 = PApplet.min(pixelHeight, y);
-
-      if (x2 < mx1) mx1 = PApplet.max(0, x2);
-      if (x2 > mx2) mx2 = PApplet.min(pixelWidth, x2);
-      if (y2 < my1) my1 = PApplet.max(0, y2);
-      if (y2 > my2) my2 = PApplet.min(pixelHeight, y2);
+      if (y2 > my2) my2 = PApplet.min(boundsHeight, y2);
     }
   }
 
@@ -579,12 +575,15 @@ public class PImage implements PConstants, Cloneable {
    * @see PApplet#copy(PImage, int, int, int, int, int, int, int, int)
    */
   public int get(int x, int y) {
-    if ((x < 0) || (y < 0) || (x >= pixelWidth) || (y >= pixelHeight)) return 0;
+    int boundsWidth = (pixelDensity > 1) ? width : pixelWidth;
+    int boundsHeight = (pixelDensity > 1) ? height : pixelHeight;
+
+    if ((x < 0) || (y < 0) || (x >= boundsWidth) || (y >= boundsHeight)) return 0;
 
     return switch (format) {
-      case RGB -> pixels[y * pixelWidth + x] | 0xff000000;
-      case ARGB -> pixels[y * pixelWidth + x];
-      case ALPHA -> (pixels[y * pixelWidth + x] << 24) | 0xffffff;
+      case RGB -> pixels[y * boundsWidth + x] | 0xff000000;
+      case ARGB -> pixels[y * boundsWidth + x];
+      case ALPHA -> (pixels[y * boundsWidth + x] << 24) | 0xffffff;
       default -> 0;
     };
   }
@@ -704,18 +703,21 @@ public class PImage implements PConstants, Cloneable {
    * @usage web_application
    * @param x x-coordinate of the pixel
    * @param y y-coordinate of the pixel
-   * @param c any value of the color datatype
+   * @param argb any value of the color datatype
    * @see PImage#get(int, int, int, int)
    * @see PImage#pixels
    * @see PImage#copy(PImage, int, int, int, int, int, int, int, int)
    */
-  public void set(int x, int y, int c) {
-    if ((x < 0) || (y < 0) || (x >= pixelWidth) || (y >= pixelHeight)) return;
+  public void set(int x, int y, int argb) {
+    loadPixels();
+    int boundsWidth = (pixelDensity > 1) ? width : pixelWidth;
+    int boundsHeight = (pixelDensity > 1) ? height : pixelHeight;
 
+    if ((x < 0) || (y < 0) || (x >= boundsWidth) || (y >= boundsHeight)) return;
     switch (format) {
-      case RGB -> pixels[y * pixelWidth + x] = 0xff000000 | c;
-      case ARGB -> pixels[y * pixelWidth + x] = c;
-      case ALPHA -> pixels[y * pixelWidth + x] = ((c & 0xff) << 24) | 0xffffff;
+      case RGB -> pixels[y * boundsWidth + x] = 0xff000000 | argb;
+      case ARGB -> pixels[y * boundsWidth + x] = argb;
+      case ALPHA -> pixels[y * boundsWidth + x] = ((argb & 0xff) << 24) | 0xffffff;
     }
 
     updatePixels(x, y, 1, 1);  // slow...
