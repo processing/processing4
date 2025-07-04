@@ -24,7 +24,6 @@ package processing.app.platform;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import com.sun.jna.Library;
@@ -347,55 +346,6 @@ public class WindowsPlatform extends DefaultPlatform {
     String newPath = PApplet.join(legit, File.pathSeparator);
     if (!newPath.equals(path)) {
       System.setProperty("java.library.path", newPath);
-    }
-  }
-
-
-  // looking for Documents and Settings/blah/Application Data/Processing
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    try {
-      String appDataRoaming = getAppDataPath();
-      if (appDataRoaming != null) {
-        File settingsFolder = new File(appDataRoaming, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      String appDataLocal = getLocalAppDataPath();
-      if (appDataLocal != null) {
-        File settingsFolder = new File(appDataLocal, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      if (appDataRoaming == null && appDataLocal == null) {
-        throw new IOException("Could not get the AppData folder");
-      }
-
-      // https://github.com/processing/processing/issues/3838
-      throw new IOException("Permissions error: make sure that " +
-                            appDataRoaming + " or " + appDataLocal +
-                            " is writable.");
-
-    } catch (UnsatisfiedLinkError ule) {
-      String path = new File("lib").getCanonicalPath();
-
-      String msg = Util.containsNonASCII(path) ?
-        """
-          Please move Processing to a location with only
-          ASCII characters in the path and try again.
-          https://github.com/processing/processing/issues/3543
-        """ :
-        "Could not find JNA support files, please reinstall Processing.";
-      Messages.showError("Windows JNA Problem", msg, ule);
-      return null;  // unreachable
     }
   }
 

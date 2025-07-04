@@ -32,8 +32,6 @@ import javax.swing.border.EmptyBorder;
 
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
 
 import processing.app.Base;
 import processing.app.Preferences;
@@ -204,23 +202,6 @@ public class DefaultPlatform {
    * @param languageCode 2-digit lowercase ISO language code
    */
   public void saveLanguage(String languageCode) { }
-
-
-  /**
-   * This function should throw an exception or return a value.
-   * Do not return null.
-   */
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    // If no subclass has a behavior, default to making a
-    // ".processing" directory in the user's home directory.
-    File home = new File(System.getProperty("user.home"));
-    return new File(home, ".processing");
-  }
 
 
   /**

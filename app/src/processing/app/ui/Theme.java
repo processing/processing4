@@ -22,9 +22,9 @@
 
 package processing.app.ui;
 
+import processing.app.Preferences;
 import processing.app.Base;
 import processing.app.Messages;
-import processing.app.Preferences;
 import processing.app.Settings;
 import processing.app.syntax.SyntaxStyle;
 import processing.core.PApplet;

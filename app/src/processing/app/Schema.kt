@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import processing.app.ui.Editor
+import processing.utils.Messages
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI

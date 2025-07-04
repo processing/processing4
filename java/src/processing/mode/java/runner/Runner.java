@@ -45,6 +45,8 @@ import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
 import processing.mode.java.preproc.SketchException;
 
+import processing.utils.Preferences;
+
 
 /**
  * Runs a compiled sketch. As of release 0136, all sketches are run externally

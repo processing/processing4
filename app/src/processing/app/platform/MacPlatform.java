@@ -23,7 +23,6 @@
 package processing.app.platform;
 
 import java.awt.*;
-import java.awt.desktop.AppReopenedEvent;
 import java.awt.desktop.AppReopenedListener;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -109,15 +108,6 @@ public class MacPlatform extends DefaultPlatform {
         base.handleNew();
       }
     });
-  }
-
-
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-    return new File(getLibraryFolder(), "Processing");
   }
 
 

@@ -40,8 +40,8 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
-import processing.app.Platform;
 import processing.app.Preferences;
+import processing.app.Platform;
 import processing.core.PApplet;
 
 

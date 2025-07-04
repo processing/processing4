@@ -36,6 +36,8 @@ import processing.app.platform.DefaultPlatform;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.data.StringDict;
+import processing.utils.SettingsResolver;
+import processing.utils.Util;
 
 
 public class Platform {
@@ -129,7 +131,12 @@ public class Platform {
 
 
   static public File getSettingsFolder() throws Exception {
-    return inst.getSettingsFolder();
+    File override = Base.getSettingsOverride();
+    if (override != null) {
+      return override;
+    }
+
+    return SettingsResolver.getSettingsFolder();
   }
 
 

@@ -72,7 +72,7 @@ import processing.app.Language;
 import processing.app.Messages;
 import processing.app.Platform;
 import processing.app.Preferences;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.awt.PGraphicsJava2D;
 import processing.awt.PShapeJava2D;
 import processing.core.PApplet;

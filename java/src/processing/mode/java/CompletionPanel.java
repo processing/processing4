@@ -41,7 +41,6 @@ import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import processing.app.Base;
 import processing.app.Messages;
 import processing.app.Mode;
 import processing.app.syntax.JEditTextArea;

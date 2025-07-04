@@ -31,7 +31,7 @@ import processing.app.Base;
 import processing.app.Language;
 import processing.app.Messages;
 import processing.app.Platform;
-import processing.app.Util;
+import processing.utils.Util;
 import processing.app.ui.Editor;
 import processing.core.PApplet;
 import processing.data.StringDict;
