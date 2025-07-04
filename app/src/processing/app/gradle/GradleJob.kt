@@ -83,7 +83,7 @@ class GradleJob{
                     return@launch
                 }
 
-                if(state.value != State.BUILDING){
+                if(state.value == State.RUNNING){
                     Messages.log("Gradle job error: $errors")
                     return@launch
                 }
@@ -91,7 +91,7 @@ class GradleJob{
                 // An error occurred during the build process
 
                 System.err.println(errors)
-                service?.editor?.statusError(cause?.message)
+                service?.editor?.statusError(causesList.last().message)
             }finally {
                 state.value = State.DONE
                 vm.value = null
