@@ -10,7 +10,6 @@ import kotlin.time.TimeSource
 
 class Debugger {
     companion object {
-        // TODO: Stop if build has failed
         suspend fun connect(port: Int?): VirtualMachine? {
             try {
                 Messages.log("Attaching to VM $port")
