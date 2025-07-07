@@ -2,20 +2,19 @@ package processing.app.gradle
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.gradle.tooling.BuildLauncher
-import processing.app.Base
-import processing.app.Language
+import processing.app.Base.DEBUG
+import processing.app.Base.getSketchbookFolder
+import processing.app.Base.getVersionName
+import processing.app.Language.text
 import processing.app.Messages
 import processing.app.Mode
 import processing.app.Platform
+import processing.app.Platform.getContentFile
+import processing.app.Platform.getSettingsFolder
 import processing.app.Preferences
 import processing.app.Sketch
 import processing.app.ui.Editor
-import java.io.*
 import kotlin.io.path.createTempDirectory
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
@@ -48,51 +47,51 @@ class GradleService(
 
     val jobs = mutableStateListOf<GradleJob>()
     val workingDir = createTempDirectory()
+
     val debugPort = (30_000..60_000).random()
+    val logPort = debugPort + 1
+    val errPort = logPort + 1
 
     fun run(){
-        startAction("run")
+        startJob("run")
     }
 
     fun export(){
-        startAction("runDistributable")
+        startJob("runDistributable")
     }
 
     fun stop(){
-        stopActions()
+        stopJobs()
     }
 
-    private fun startAction(vararg tasks: String) {
+    private fun startJob(vararg tasks: String) {
         if(!active.value) return
-        editor?.let { println(Language.text("gradle.using_gradle"))  }
+        editor?.let { println(text("gradle.using_gradle"))  }
 
         val job = GradleJob()
         job.service = this
         job.configure = {
-            setup()
+            setupGradle()
             forTasks(tasks.joinToString(" "))
         }
         jobs.add(job)
         job.start()
     }
 
-    private fun stopActions(){
-        jobs
-            .forEach(GradleJob::cancel)
+    private fun stopJobs(){
+        jobs.forEach(GradleJob::cancel)
     }
 
-    private fun setupGradle(): MutableList<String> {
+    private fun BuildLauncher.setupGradle(extraArguments: List<String> = listOf()) {
         val sketch = sketch ?: throw IllegalStateException("Sketch is not set")
-
         val copy = sketch.isReadOnly || sketch.isUntitled
-
         val sketchFolder = if(copy) workingDir.resolve("sketch").toFile() else sketch.folder
         if(copy){
             // If the sketch is read-only, we copy it to the working directory
             // This allows us to run the sketch without modifying the original files
             sketch.folder.copyRecursively(sketchFolder, overwrite = true)
         }
-
+        // Save the unsaved code into the working directory for gradle to compile
         val unsaved = sketch.code
             .map { code ->
                 val file = workingDir.resolve("unsaved/${code.fileName}")
@@ -106,16 +105,18 @@ class GradleService(
                 }
                 return@map code.fileName
             }
-
+        // Collect the variables to pass to gradle
         val variables = mapOf(
             "group" to System.getProperty("processing.group", "org.processing"),
-            "version" to Base.getVersionName(),
+            "version" to getVersionName(),
             "sketchFolder" to sketchFolder,
-            "sketchbook" to Base.getSketchbookFolder(),
+            "sketchbook" to getSketchbookFolder(),
             "workingDir" to workingDir.toAbsolutePath().toString(),
-            "settings" to Platform.getSettingsFolder().absolutePath.toString(),
+            "settings" to getSettingsFolder().absolutePath.toString(),
             "unsaved" to unsaved.joinToString(","),
             "debugPort" to debugPort.toString(),
+            "logPort" to logPort.toString(),
+            "errPort" to errPort.toString(),
             "fullscreen" to System.getProperty("processing.fullscreen", "false").equals("true"),
             "display" to 1, // TODO: Implement
             "external" to true,
@@ -126,8 +127,8 @@ class GradleService(
             //"stop.color" to "0xFF000000", // TODO: Implement
             "stop.hide" to false, // TODO: Implement
         )
-        val repository = Platform.getContentFile("repository").absolutePath.replace("""\""", """\\""")
-
+        val repository = getContentFile("repository").absolutePath.replace("""\""", """\\""")
+        // Create the init.gradle.kts file in the working directory
         val initGradle = workingDir.resolve("init.gradle.kts").apply {
             val content = """
                 beforeSettings{
@@ -148,8 +149,7 @@ class GradleService(
 
             writeText(content)
         }
-
-
+        // Create the build.gradle.kts file in the sketch folder
         val buildGradle = sketchFolder.resolve("build.gradle.kts")
         val generate = buildGradle.let {
             if(!it.exists()) return@let true
@@ -158,59 +158,55 @@ class GradleService(
             if(!contents.contains("@processing-auto-generated")) return@let false
 
             val version = contents.substringAfter("version=").substringBefore("\n")
-            if(version != Base.getVersionName()) return@let true
+            if(version != getVersionName()) return@let true
 
             val modeTitle = contents.substringAfter("mode=").substringBefore(" ")
-            if(this.mode.title != modeTitle) return@let true
+            if(mode.title != modeTitle) return@let true
 
-            return@let Base.DEBUG
+            return@let DEBUG
         }
         if (generate) {
             Messages.log("build.gradle.kts outdated or not found in ${sketch.folder}, creating one")
             val header = """
-                // @processing-auto-generated mode=${mode.title} version=${Base.getVersionName()}
+                // @processing-auto-generated mode=${mode.title} version=${getVersionName()}
                 //
                 """.trimIndent()
 
-            val instructions = Language.text("gradle.instructions")
+            val instructions = text("gradle.instructions")
                 .split("\n")
                 .joinToString("\n") { "// $it" }
 
             val configuration =  """
                 
                 plugins{
-                    id("org.processing.java") version "${Base.getVersionName()}"
+                    id("org.processing.java") version "${getVersionName()}"
                 }
             """.trimIndent()
             val content = "${header}\n${instructions}\n${configuration}"
             buildGradle.writeText(content)
         }
+        // Create the settings.gradle.kts file in the sketch folder
         val settingsGradle = sketchFolder.resolve("settings.gradle.kts")
         if (!settingsGradle.exists()) {
             settingsGradle.createNewFile()
         }
-
+        // Collect the arguments to pass to gradle
         val arguments = mutableListOf("--init-script", initGradle.toAbsolutePath().toString())
-        if (!Base.DEBUG) arguments.add("--quiet")
+        if (!DEBUG) arguments.add("--quiet")
         if(copy){
             arguments += listOf("--project-dir", sketchFolder.absolutePath)
         }
+
         arguments.addAll(variables.entries
             .filter { it.value != null }
             .map { "-Pprocessing.${it.key}=${it.value}" }
         )
+        arguments.addAll(extraArguments)
 
-        return arguments
-    }
+        withArguments(*arguments.toTypedArray())
 
-
-    private fun BuildLauncher.setup(extraArguments: List<String> = listOf()) {
         // TODO: Instead of shipping Processing with a build-in JDK we should download the JDK through Gradle
         setJavaHome(Platform.getJavaHome())
-
-        val arguments = setupGradle()
-        arguments.addAll(extraArguments)
-        withArguments(*arguments.toTypedArray())
     }
 
     // Hooks for java to check if the Gradle service is running since mutableStateOf is not accessible in java
@@ -218,7 +214,7 @@ class GradleService(
         return active.value
     }
     fun setEnabled(active: Boolean) {
-        if(!active) stopActions()
+        if(!active) stopJobs()
         this.active.value = active
     }
 }

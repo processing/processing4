@@ -13,6 +13,7 @@ import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.desktop.DesktopExtension
 import processing.app.Preferences
 import java.io.File
+import java.net.Socket
 import java.util.*
 import javax.inject.Inject
 
@@ -26,6 +27,8 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val processingGroup = project.findProperty("processing.group") as String? ?: "org.processing"
         val workingDir = project.findProperty("processing.workingDir") as String?
         val debugPort = project.findProperty("processing.debugPort") as String?
+        val logPort = project.findProperty("processing.logPort") as String?
+        val errPort = project.findProperty("processing.errPort") as String?
 
         // TODO: Setup sketchbook when using as a standalone plugin, use the Java Preferences
         val sketchbook = project.findProperty("processing.sketchbook") as String?
@@ -120,6 +123,10 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             project.properties
                 .filterKeys { it.startsWith("processing") }
                 .forEach { (key, value) -> task.systemProperty(key, value) }
+
+            if(logPort != null) task.standardOutput =  Socket("localhost", logPort.toInt()).outputStream
+            if(errPort != null) task.errorOutput = Socket("localhost", errPort.toInt()).outputStream
+
         }
 
         project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.all { sourceSet ->

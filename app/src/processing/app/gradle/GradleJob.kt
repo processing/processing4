@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import com.sun.jdi.VirtualMachine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.gradle.tooling.BuildCancelledException
 import org.gradle.tooling.BuildLauncher
@@ -20,6 +21,8 @@ import processing.app.Base
 import processing.app.Messages
 import processing.app.Platform
 import processing.app.ui.EditorStatus
+import java.io.PrintStream
+import java.net.ServerSocket
 
 class GradleJob{
     enum class State{
@@ -36,16 +39,17 @@ class GradleJob{
     val state = mutableStateOf(State.NONE)
     val vm = mutableStateOf<VirtualMachine?>(null)
     val problems = mutableStateListOf<ProblemEvent>()
+    val jobs = mutableStateListOf<Job>()
 
     private val scope = CoroutineScope(Dispatchers.IO)
     private val cancel = GradleConnector.newCancellationTokenSource()
 
     fun start() {
         val folder = service?.sketch?.folder ?: throw IllegalStateException("Sketch folder is not set")
-        scope.launch {
+        launchJob {
             try {
                 state.value = State.BUILDING
-                service?.editor?.statusMessage("Building sketch", EditorStatus.NOTICE)
+                service?.editor?.statusMessage("Connecting to Gradle", EditorStatus.NOTICE)
 
                 GradleConnector.newConnector()
                     .forProjectDirectory(folder)
@@ -56,14 +60,20 @@ class GradleJob{
                         }
                     }
                     .connect()
+                    .apply {
+                        service?.editor?.statusMessage("Building sketch", EditorStatus.NOTICE)
+                    }
                     .newBuild()
                     .apply {
                         configure()
                         withCancellationToken(cancel.token())
                         addStateListener()
                         addDebugging()
-                        setStandardOutput(System.out)
-                        setStandardError(System.err)
+                        addLogserver()
+                        if(Base.DEBUG) {
+                            setStandardOutput(System.out)
+                            setStandardError(System.err)
+                        }
                         run()
                     }
             }catch (e: Exception){
@@ -80,12 +90,12 @@ class GradleJob{
 
                 if (skip.any { it.isInstance(e) }) {
                     Messages.log("Gradle job error: $errors")
-                    return@launch
+                    return@launchJob
                 }
 
                 if(state.value == State.RUNNING){
                     Messages.log("Gradle job error: $errors")
-                    return@launch
+                    return@launchJob
                 }
 
                 // An error occurred during the build process
@@ -98,10 +108,16 @@ class GradleJob{
             }
         }
     }
+    fun launchJob(block: suspend CoroutineScope.() -> Unit){
+        val job = scope.launch { block() }
+        jobs.add(job)
+    }
 
     fun cancel(){
         cancel.cancel()
+        jobs.forEach(Job::cancel)
     }
+
     private fun BuildLauncher.addStateListener(){
         addProgressListener(ProgressListener { event ->
             if(event is TaskStartEvent) {
@@ -167,13 +183,42 @@ class GradleJob{
         })
     }
 
+    fun addLogserver(){
+        launchJob {
+            startLogServer(service?.logPort ?: 5006, System.out)
+        }
+        launchJob{
+            startLogServer(service?.errPort ?: 5007, System.err)
+        }
+    }
+    fun startLogServer(port: Int, target: PrintStream){
+        val server = ServerSocket(port)
+        Messages.log("Log server started on port $port")
+        val client = server.accept()
+        Messages.log("Log server client connected")
+
+        val reader = client.getInputStream().bufferedReader()
+        try {
+            reader.forEachLine { line ->
+                if (line.isNotBlank()) {
+                    target.println(line)
+                }
+            }
+        } catch (e: Exception) {
+            Messages.log("Error while reading from log server: ${e.message}")
+        } finally {
+            client.close()
+            server.close()
+        }
+    }
+
     fun BuildLauncher.addDebugging() {
         addProgressListener(ProgressListener { event ->
             if (event !is TaskStartEvent) return@ProgressListener
             if (event.descriptor.name != ":run") return@ProgressListener
 
-            scope.launch {
-                val debugger = Debugger.connect(service?.debugPort) ?: return@launch
+            launchJob {
+                val debugger = Debugger.connect(service?.debugPort) ?: return@launchJob
                 vm.value = debugger
                 val exceptions = Exceptions(debugger, service?.editor)
                 exceptions.listen()
