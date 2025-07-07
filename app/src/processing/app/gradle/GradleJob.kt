@@ -63,9 +63,7 @@ class GradleJob{
                         addStateListener()
                         addDebugging()
                         setStandardOutput(System.out)
-                        if(Base.DEBUG) {
-                            setStandardError(System.err)
-                        }
+                        setStandardError(System.err)
                         run()
                     }
             }catch (e: Exception){
