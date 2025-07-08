@@ -34,6 +34,12 @@ class GradleService(
     val active = mutableStateOf(Preferences.getBoolean("run.use_gradle"))
 
     var sketch: Sketch? = null
+        set (value) {
+            field = value
+            if(value == null) return
+            // If the sketch is set, we start the build process to speed up the first run
+            startJob("build")
+        }
 
     val jobs = mutableStateListOf<GradleJob>()
     val workingDir = createTempDirectory()
