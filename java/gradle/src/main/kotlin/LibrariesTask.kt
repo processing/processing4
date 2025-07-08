@@ -17,6 +17,7 @@ This task stores the resulting information in a file that can be used later to r
  */
 abstract class LibrariesTask : DefaultTask() {
 
+    // TODO: Allow multiple directories
     @InputDirectory
     @Optional
     val librariesDirectory: DirectoryProperty = project.objects.directoryProperty()
@@ -41,6 +42,9 @@ abstract class LibrariesTask : DefaultTask() {
     fun execute() {
         if (!librariesDirectory.isPresent) {
             logger.error("Libraries directory is not set. Libraries will not be imported.")
+            val meta = ObjectOutputStream(librariesMetaData.get().asFile.outputStream())
+            meta.writeObject(arrayListOf<Library>())
+            meta.close()
             return
         }
         val libraries = librariesDirectory.get().asFile

@@ -33,7 +33,9 @@ import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
 
-// Starts a gradle job to run the sketch
+/*
+* The gradle job runs the gradle tasks and manages the gradle connection
+ */
 class GradleJob(
     vararg val tasks: String,
     val workingDir: Path,
@@ -231,14 +233,16 @@ class GradleJob(
         }
     }
 
-    fun launchJob(block: suspend CoroutineScope.() -> Unit){
-        val job = scope.launch { block() }
-        jobs.add(job)
-    }
+
 
     fun cancel(){
         cancel.cancel()
         jobs.forEach(Job::cancel)
+    }
+
+    private fun launchJob(block: suspend CoroutineScope.() -> Unit){
+        val job = scope.launch { block() }
+        jobs.add(job)
     }
 
     // Handle exception thrown by Gradle
@@ -278,6 +282,7 @@ class GradleJob(
         }
     }
 
+    // TODO: Move to separate file
     private fun BuildLauncher.addStateListener(){
         addProgressListener(ProgressListener { event ->
             if(event is TaskStartEvent) {

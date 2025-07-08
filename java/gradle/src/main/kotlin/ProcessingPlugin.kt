@@ -17,7 +17,6 @@ import java.net.Socket
 import java.util.*
 import javax.inject.Inject
 
-// TODO: CI/CD for publishing the plugin
 class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFactory) : Plugin<Project> {
     override fun apply(project: Project) {
         val sketchName = project.layout.projectDirectory.asFile.name.replace(Regex("[^a-zA-Z0-9_]"), "_")
@@ -32,6 +31,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
 
         // TODO: Setup sketchbook when using as a standalone plugin, use the Java Preferences
         val sketchbook = project.findProperty("processing.sketchbook") as String?
+        val settings = project.findProperty("processing.settings") as String?
 
         // Apply the Java plugin to the Project
         project.plugins.apply(JavaPlugin::class.java)
@@ -46,13 +46,12 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             project.tasks.findByName("wrapper")?.enabled = false
         }
 
-        // Add the compose plugin to wrap the sketch in an executable
-        project.plugins.apply("org.jetbrains.compose")
-
         // Add kotlin support
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         // Add jetpack compose support
         project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
+        // Add the compose plugin to wrap the sketch in an executable
+        project.plugins.apply("org.jetbrains.compose")
 
         // Add the Processing core library (within Processing from the internal maven repo and outside from the internet)
         project.dependencies.add("implementation", "$processingGroup:core:${processingVersion}")
@@ -129,8 +128,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
 
         }
 
-        project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.all { sourceSet ->
-            // For each java source set (mostly main) add a new source set for the PDE files
+        project.extensions.getByType(JavaPluginExtension::class.java).sourceSets.first().let{ sourceSet ->
             val pdeSourceSet = objectFactory.newInstance(
                 DefaultPDESourceDirectorySet::class.java,
                 objectFactory.sourceDirectorySet("${sourceSet.name}.pde", "${sourceSet.name} Processing Source")
@@ -142,11 +140,16 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 srcDir("$workingDir/unsaved")
             }
             sourceSet.allSource.source(pdeSourceSet)
+            sourceSet.java.srcDir(project.layout.projectDirectory).apply {
+                include("**/*.java")
+                exclude("${project.layout.buildDirectory.asFile.get()}/**/*")
+            }
 
             val librariesTaskName = sourceSet.getTaskName("scanLibraries", "PDE")
             val librariesScan = project.tasks.register(librariesTaskName, LibrariesTask::class.java) { task ->
                 task.description = "Scans the libraries in the sketchbook"
                 task.librariesDirectory.set(sketchbook?.let { File(it, "libraries") })
+                // TODO: Save the libraries metadata to settings folder to share between sketches
             }
 
             val pdeTaskName = sourceSet.getTaskName("preprocess", "PDE")
@@ -154,31 +157,20 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 task.description = "Processes the ${sourceSet.name} PDE"
                 task.source = pdeSourceSet
                 task.sketchName = sketchName
-                task.workingDir = workingDir
-                task.sketchBook = sketchbook
 
                 // Set the output of the pre-processor as the input for the java compiler
                 sourceSet.java.srcDir(task.outputDirectory)
-
-                task.doLast {
-                    // Copy java files from the root to the generated directory
-                    project.copy { copyTask ->
-                        copyTask.from(project.layout.projectDirectory){ from ->
-                            from.include("*.java")
-                        }
-                        copyTask.into(task.outputDirectory)
-                    }
-                }
             }
 
             val depsTaskName = sourceSet.getTaskName("addLegacyDependencies", "PDE")
             project.tasks.register(depsTaskName, DependenciesTask::class.java){ task ->
+                task.librariesMetaData
                 task.dependsOn(pdeTask, librariesScan)
+                // TODO: Save the libraries metadata to settings folder to share between sketches
             }
 
-            project.tasks.named(
-                sourceSet.compileJavaTaskName
-            ) { task ->
+            // Make sure that the PDE task runs before the java compilation task
+            project.tasks.named(sourceSet.compileJavaTaskName) { task ->
                 task.dependsOn(pdeTaskName, depsTaskName)
             }
         }

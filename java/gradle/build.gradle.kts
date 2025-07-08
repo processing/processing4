@@ -7,6 +7,7 @@ plugins{
 
 repositories {
     mavenCentral()
+    maven("https://jogamp.org/deployment/maven")
 }
 
 dependencies{
@@ -16,9 +17,11 @@ dependencies{
     implementation(libs.kotlinGradlePlugin)
     implementation(libs.kotlinComposePlugin)
 
+    testImplementation(project(":core"))
     testImplementation(libs.junit)
 }
 
+// TODO: CI/CD for publishing the plugin to the Gradle Plugin Portal
 gradlePlugin{
     plugins{
         create("processing"){

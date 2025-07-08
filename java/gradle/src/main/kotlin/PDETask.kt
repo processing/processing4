@@ -7,6 +7,7 @@ import org.gradle.work.InputChanges
 import processing.mode.java.preproc.PdePreprocessor
 import java.io.File
 import java.io.ObjectOutputStream
+import java.io.Serializable
 import java.util.concurrent.Callable
 import java.util.jar.JarFile
 import javax.inject.Inject
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 // TODO: Generate sourcemaps
 /*
-* The PDETask is the main task that processes the .pde files and generates the Java source code
+* The PDETask is the main task that processes the .pde files and generates the Java source code through the PdePreprocessor.
  */
 abstract class PDETask : SourceTask() {
     @get:InputFiles
@@ -24,21 +25,13 @@ abstract class PDETask : SourceTask() {
     open val stableSources: FileCollection = project.files(Callable<Any> { this.source })
 
     @OutputDirectory
-    val outputDirectory = project.objects.directoryProperty()
-
-    @get:Input
-    @get:Optional
-    var workingDir: String? = null
+    val outputDirectory: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Input
     var sketchName: String = "processing"
 
-    @get:Input
-    @get:Optional
-    var sketchBook: String? = null
-
     @OutputFile
-    val sketchMetaData = project.objects.fileProperty()
+    val sketchMetaData: RegularFileProperty = project.objects.fileProperty()
 
     init{
         outputDirectory.convention(project.layout.buildDirectory.dir("generated/pde"))
@@ -49,18 +42,16 @@ abstract class PDETask : SourceTask() {
         val sketchName: String,
         val sketchRenderer: String?,
         val importStatements: List<String>
-    ) : java.io.Serializable
+    ) : Serializable
 
     @TaskAction
     fun execute() {
-        // TODO: Allow pre-processor to run on individual files (future)
-        // TODO: Only compare file names from both defined roots (e.g. sketch.pde and folder/sketch.pde should both be included)
-
         // Using stableSources since we can only run the pre-processor on the full set of sources
         val combined = stableSources
             .files
             .groupBy { it.name }
             .map { entry ->
+                // TODO: Select by which one is in the unsaved folder
                 entry.value.maxByOrNull { it.lastModified() }!!
             }
             .joinToString("\n"){
@@ -73,6 +64,8 @@ abstract class PDETask : SourceTask() {
             .setTabSize(4)
             .build()
             .write(javaFile, combined)
+
+        // TODO: Save the edits to meta files
 
         javaFile.flush()
         javaFile.close()
@@ -87,10 +80,4 @@ abstract class PDETask : SourceTask() {
         metaFile.writeObject(sketchMeta)
         metaFile.close()
     }
-
-    @get:Inject
-    open val deleter: Deleter
-        get() {
-            throw UnsupportedOperationException("Decorator takes care of injection")
-        }
 }
