@@ -75,7 +75,7 @@ class ProcessingPluginTest{
     @Test
     fun testMultiplePDE(){
         val (buildResult, sketchFolder, classLoader) = createTemporaryProcessingSketch("build"){ sketchFolder ->
-            sketchFolder.resolve("sketch.pde").writeText(""")
+            sketchFolder.resolve("sketch.pde").writeText("""
                 void setup(){
                     size(100, 100);
                 }
@@ -175,24 +175,29 @@ class ProcessingPluginTest{
         }
     }
 
-}
+    @Test
+    fun testImportingLibrary(){
 
-
-fun isDebuggerAttached(): Boolean {
-    val runtimeMxBean = ManagementFactory.getRuntimeMXBean()
-    val inputArguments = runtimeMxBean.inputArguments
-    return inputArguments.any {
-        it.contains("-agentlib:jdwp")
-    }
-}
-fun openFolderInFinder(folder: File) {
-    if (!folder.exists() || !folder.isDirectory) {
-        println("Invalid directory: ${folder.absolutePath}")
-        return
     }
 
-    val process = ProcessBuilder("open", folder.absolutePath)
-        .inheritIO()
-        .start()
-    process.waitFor()
+    fun isDebuggerAttached(): Boolean {
+        val runtimeMxBean = ManagementFactory.getRuntimeMXBean()
+        val inputArguments = runtimeMxBean.inputArguments
+        return inputArguments.any {
+            it.contains("-agentlib:jdwp")
+        }
+    }
+    fun openFolderInFinder(folder: File) {
+        if (!folder.exists() || !folder.isDirectory) {
+            println("Invalid directory: ${folder.absolutePath}")
+            return
+        }
+
+        val process = ProcessBuilder("open", folder.absolutePath)
+            .inheritIO()
+            .start()
+        process.waitFor()
+    }
 }
+
+

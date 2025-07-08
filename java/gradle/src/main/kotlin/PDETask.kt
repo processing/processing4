@@ -51,8 +51,8 @@ abstract class PDETask : SourceTask() {
             .files
             .groupBy { it.name }
             .map { entry ->
-                // TODO: Select by which one is in the unsaved folder
-                entry.value.maxByOrNull { it.lastModified() }!!
+                entry.value.firstOrNull { it.parentFile?.name == "unsaved" }
+                    ?: entry.value.first()
             }
             .joinToString("\n"){
                  it.readText()
