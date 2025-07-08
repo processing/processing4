@@ -177,7 +177,7 @@ class ProcessingPluginTest{
 
     @Test
     fun testImportingLibrary(){
-
+        // TODO: Implement a test that imports a Processing library and uses it in the sketch
     }
 
     fun isDebuggerAttached(): Boolean {
