@@ -751,7 +751,7 @@ public class JavaBuild {
           try {
             var jdk = Files.list(new File(resources).toPath())
                     .filter(Files::isDirectory)
-                    .filter(p -> p.getFileName().toString().startsWith("jdk-"))
+                    .filter(p -> p.getFileName().toString().matches("jdk[-\\d].*"))
                     .findFirst()
                     .orElseThrow();
             var target = new File(contentsFolder, "PlugIns/");
