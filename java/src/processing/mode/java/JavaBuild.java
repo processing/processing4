@@ -750,10 +750,10 @@ public class JavaBuild {
         if(embedJava){
           try {
             var jdk = Files.list(new File(resources).toPath())
-                    .filter(Files::isDirectory)
-                    .filter(p -> p.getFileName().toString().matches("jdk[-\\d].*"))
-                    .findFirst()
-                    .orElseThrow();
+                .filter(Files::isDirectory)
+                .filter(p -> p.getFileName().toString().startsWith("jdk"))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No JDK folder found in resources. Expected a folder starting with 'jdk'."));
             var target = new File(contentsFolder, "PlugIns/");
             target.mkdirs();
             Util.copyDirNative(jdk.toFile(), target);
