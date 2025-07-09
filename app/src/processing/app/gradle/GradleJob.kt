@@ -63,7 +63,12 @@ class GradleJob(
     private val cancel = GradleConnector.newCancellationTokenSource()
 
 
-    // All the configuration for the gradle build
+    /*
+    Set up the gradle build launcher with the necessary configuration
+    This includes setting the working directory, the tasks to run,
+    and the arguments to pass to gradle.
+    Create the necessary build files if they do not exist.
+     */
     private fun BuildLauncher.setupGradle(extraArguments: List<String> = listOf()) {
         val copy = sketch.isReadOnly || sketch.isUntitled
 
@@ -195,6 +200,9 @@ class GradleJob(
         withCancellationToken(cancel.token())
     }
 
+    /*
+    Start the gradle job and run the tasks
+     */
     fun start() {
         launchJob {
             handleExceptions {
@@ -234,18 +242,26 @@ class GradleJob(
     }
 
 
-
+    /*
+    Cancel the gradle job and all the jobs that were launched in this scope
+     */
     fun cancel(){
         cancel.cancel()
         jobs.forEach(Job::cancel)
     }
 
+    /*
+    Add a job to the scope and add it to the list of jobs so we can cancel it later
+     */
     private fun launchJob(block: suspend CoroutineScope.() -> Unit){
         val job = scope.launch { block() }
         jobs.add(job)
     }
 
-    // Handle exception thrown by Gradle
+
+    /*
+    Handle exceptions that occur during the build process and inform the user about them
+     */
     private fun handleExceptions(action: () -> Unit){
         try{
             action()
@@ -282,7 +298,11 @@ class GradleJob(
         }
     }
 
-    // TODO: Move to separate file
+    // TODO: Move to separate file?
+    /*
+    Add a progress listener to the build launcher
+    to track the progress of the build and update the editor status accordingly
+     */
     private fun BuildLauncher.addStateListener(){
         addProgressListener(ProgressListener { event ->
             if(event is TaskStartEvent) {
@@ -328,6 +348,7 @@ class GradleJob(
                     return@ProgressListener
                 }
                 // TODO: Show the error on the location if it is available
+                // TODO: This functionality should be provided by the mode
                 /*
                 We have 6 lines to display the error in the editor.
                  */
@@ -348,6 +369,11 @@ class GradleJob(
         })
     }
 
+    /*
+    Start log servers for the standard output and error streams
+    This allows us to capture the output of Processing and display it in the editor
+    Whilst keeping the gradle output separate
+     */
     fun BuildLauncher.addLogserver(){
         launchJob {
             startLogServer(logPort, System.out)
@@ -357,6 +383,10 @@ class GradleJob(
         }
     }
 
+    /*
+    Connected a debugger to the gradle run task
+    This allows us to debug the sketch while it is running
+     */
     fun BuildLauncher.addDebugging() {
         addProgressListener(ProgressListener { event ->
             if (event !is TaskStartEvent) return@ProgressListener

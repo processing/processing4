@@ -3,6 +3,7 @@ package processing.app.gradle.api
 import com.github.ajalt.clikt.command.SuspendingCliktCommand
 import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import processing.app.Base
@@ -30,6 +31,8 @@ class Sketch : SuspendingCliktCommand("sketch") {
     class Run : SuspendingCliktCommand(name = "run") {
         val sketch by option("--sketch", help = "The sketch to run")
                         .required()
+
+        val mode by option("--mode", help = "The mode to use for running the sketch (only java is supported for now)")
 
         override fun help(context: Context): String {
             return "Run the Processing sketch."

@@ -56,6 +56,7 @@ class Exceptions (val vm: VirtualMachine, val editor: Editor?) {
         /*
         We have 6 lines by default within the editor to display more information about the exception.
          */
+        // TODO: Improve the display and clarity of the exception details
 
         val message = """
             In Processing code:
@@ -91,7 +92,7 @@ class Exceptions (val vm: VirtualMachine, val editor: Editor?) {
         }
 
         // TODO: Map to .pde file again, @see JavaBuild.placeException
-        // BLOCKED: Because we don't run the JavaBuild code.prepocOffset is empty
+        // TODO: This functionality should be provided by the mode
 
         return this
     }

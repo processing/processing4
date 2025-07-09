@@ -9,17 +9,13 @@ import processing.app.Sketch
 import processing.app.ui.Editor
 import kotlin.io.path.createTempDirectory
 
-// TODO: Test offline mode, gradle seems to be included as not needed to be downloaded.
-// TODO: Test running examples
-// TODO: Report failures to the console
-// TODO: Highlight errors in the editor
+// TODO: Highlight errors in the editor in the right place
 
 // TODO: ---- FUTURE ----
 // TODO: Improve progress tracking and show it in the UI
 // TODO: PoC new debugger/tweak mode
-// TODO: Allow for plugins to skip gradle entirely / new modes
-// TODO: Add background building
 // TODO: Track build speed (for analytics?)
+// TODO: Bundle Gradle with the app
 
 /*
 * The gradle service runs the gradle tasks and manages the gradle connection

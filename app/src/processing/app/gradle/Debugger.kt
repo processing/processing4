@@ -21,6 +21,7 @@ class Debugger {
                 args["port"]?.setValue(port?.toString() ?: "5005")
 
                 // Try to attach the debugger, retrying if it fails
+                // TODO: Stop retrying after the job has been cancelled / failed
                 val start = TimeSource.Monotonic.markNow()
                 while (start.elapsedNow() < 10.seconds) {
                     try {
