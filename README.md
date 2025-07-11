@@ -310,6 +310,7 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="http://i-j.fr"><img src="https://avatars.githubusercontent.com/u/80685479?v=4?s=120" width="120px;" alt="Joackim de Bourqueney"/><br /><sub><b>Joackim de Bourqueney</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=jdebou" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/toniab"><img src="https://avatars.githubusercontent.com/u/370199?v=4?s=120" width="120px;" alt="Tonz"/><br /><sub><b>Tonz</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=toniab" title="Code">💻</a> <a href="https://github.com/processing/processing4/commits?author=toniab" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/aj-m"><img src="https://avatars.githubusercontent.com/u/2524348?v=4?s=120" width="120px;" alt="Andrew"/><br /><sub><b>Andrew</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=aj-m" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
