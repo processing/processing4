@@ -301,6 +301,7 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="http://blog.jdboyd.net/"><img src="https://avatars.githubusercontent.com/u/361465?v=4?s=120" width="120px;" alt="Joshua D. Boyd"/><br /><sub><b>Joshua D. Boyd</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=jd-boyd" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/Vaivaswat2244"><img src="https://avatars.githubusercontent.com/u/113991324?v=4?s=120" width="120px;" alt="Vaivaswat Dubey"/><br /><sub><b>Vaivaswat Dubey</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=Vaivaswat2244" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
