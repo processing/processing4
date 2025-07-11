@@ -2,9 +2,12 @@
 
 Great to see you are interested in contributing to Processing. To get started you will need to have an IDE to build and develop Processing. Our recommendation and what we use ourselves is Intellij IDEA.
 
-## IntelliJ IDEA
+## IntelliJ IDEA (recommended)
 
-First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. Then:
+First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. 
+
+> [!TIP]
+> If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
 
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in IntelliJ IDEA CE
@@ -25,6 +28,73 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 
 Instructions for other editors are welcome and feel free to contribute the documentation for those [here](#other-editors)
 
+## Other Editors
+
+TBD
+
+## Command Line
+
+If you prefer not to use an IDE, you can also build Processing directly from the command line. 
+
+### Set Up the Environment
+
+If you don't have them installed, you will need to install [Git](https://git-scm.com/downloads) and [Gradle](https://gradle.org/install/) first. Then follow these steps:
+
+1. **Clone the repository:**
+    ```bash
+    git clone https://github.com/processing/processing4.git
+    cd processing4
+    ```
+
+2. **Install Temurin JDK 17:**
+    
+    Download and install the appropriate version for your platform:
+
+    - [Linux (x86)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz)
+    - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
+    - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
+
+3. **Set the `JAVA_HOME` environment variable:**
+
+    ```bash
+    export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
+    ```
+
+### Build, Run, and Package Processing
+
+#### Build the Project (Required First Step)
+
+This compiles the source code and prepares everything needed to run or test Processing:
+
+```bash
+./gradlew build
+```
+
+#### Run Tests
+
+Run unit tests and verify your build:
+
+```bash
+./gradlew test
+```
+
+#### Launch Processing
+
+Start the Processing Development Environment (PDE):
+
+```bash
+./gradlew run
+```
+
+#### Create a Distributable Package (Optional)
+
+Generate a packaged version of Processing, ready for distribution:
+
+```bash
+./gradlew package
+```
+
+The packaged files will be available in the `app/build/compose/binaries` directory.
 
 ## Architecture
 Processing consists of three main components: `Core`, `Java`, and `App`. The `Core` is independent, while `Java` and `App` depend on it. Currently, `Java` and `App` are interdependent, but efforts are underway to decouple them.
@@ -60,4 +130,34 @@ The main task to run or debug the PDE is `run`. That means you just need to run 
 
 If your main concern is with the `Core` you don't need to build and start the whole PDE to test your changes. In IntelliJ IDEA you can select any of the sketches in `core/examples/src/.../` to run by click on the green arrow next to their main functions. This will just compile core and the example sketch. Feel free to create additional examples for your new functionality.
 
-## Other editors
+## Troubleshooting and Setup Tips (IntelliJ IDEA)
+
+If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
+
+### Use the Correct JDK (temurin-17)
+
+Make sure IntelliJ is using **temurin-17**, not another version. Some users have reported issues with ms-17.
+
+1. Go to **File > Project Structure > Project**
+2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+
+![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
+
+If it is not already installed, you can download it by:
+1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
+2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+
+
+![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
+
+Now go back to your main window and
+1. Click the green Run Icon in the top right of the window.
+
+
+### “Duplicate content roots detected”
+
+You may see this warning in IntelliJ:
+
+> `Duplicate content roots detected: '.../processing4/java/src'`
+
+This happens because multiple modules reference the same source folder. It’s safe to ignore.

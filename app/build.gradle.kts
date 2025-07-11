@@ -265,6 +265,10 @@ tasks.register("generateSnapConfiguration"){
           - opengl
           - home
           - removable-media
+          - audio-playback
+          - audio-record
+          - pulseaudio
+          - gpio
     
     parts:
       processing:
@@ -276,6 +280,7 @@ tasks.register("generateSnapConfiguration"){
         override-prime: |
           snapcraftctl prime
           rm -vf usr/lib/jvm/java-17-openjdk-*/lib/security/cacerts
+          chmod -R +x opt/processing/lib/app/resources/jdk
     """.trimIndent()
     dir.file("../snapcraft.yaml").asFile.writeText(content)
 }
@@ -350,6 +355,11 @@ tasks.register<Copy>("includeJavaMode") {
 tasks.register<Copy>("includeJdk") {
     from(Jvm.current().javaHome.absolutePath)
     destinationDir = composeResources("jdk").get().asFile
+
+    fileTree(destinationDir).files.forEach { file ->
+        file.setWritable(true, false)
+        file.setReadable(true, false)
+    }
 }
 tasks.register<Copy>("includeSharedAssets"){
     from("../build/shared/")

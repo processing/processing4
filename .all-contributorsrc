@@ -1512,6 +1512,42 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "marioguzzzman",
+      "name": "Mario Guzman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7597610?v=4",
+      "profile": "http://www.mario-guzman.com",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "thisizaro",
+      "name": "Aranya Dutta",
+      "avatar_url": "https://avatars.githubusercontent.com/u/98299268?v=4",
+      "profile": "https://github.com/thisizaro",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ovalnine",
+      "name": "ovalnine",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13293768?v=4",
+      "profile": "https://github.com/ovalnine",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jd-boyd",
+      "name": "Joshua D. Boyd",
+      "avatar_url": "https://avatars.githubusercontent.com/u/361465?v=4",
+      "profile": "http://blog.jdboyd.net/",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "repoType": "github",

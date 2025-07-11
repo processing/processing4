@@ -1,9 +1,6 @@
 <!-- Uncomment the shield below once the repo is made public -->
 <!-- [![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors) -->
 
-> [!IMPORTANT]
-> Processing Foundation is excited to announce our open call for the [Processing Project Lead position](https://processingfoundation.org/employment/processing-project-lead)! This fully remote, full-time role starts on July 15, 2025. For full consideration, please submit your application by **May 15, 2025 11:59 EST**. [Apply here!](https://docs.google.com/forms/u/1/d/e/1FAIpQLSeBGWD87Yg1Prbc34c2fmwgY71rSCL4LJVO2GaF9I2eLCi83g/viewform?usp=send_form)
-
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
 Processing is a flexible software sketchbook and a programming language designed for learning how to code.
@@ -298,6 +295,12 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/babaissarkar"><img src="https://avatars.githubusercontent.com/u/8469888?v=4?s=120" width="120px;" alt="Subhraman Sarkar"/><br /><sub><b>Subhraman Sarkar</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=babaissarkar" title="Code">💻</a> <a href="#a11y-babaissarkar" title="Accessibility">️️️️♿️</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/SushantBansal-tech"><img src="https://avatars.githubusercontent.com/u/189839531?v=4?s=120" width="120px;" alt="SushantBansal-tech"/><br /><sub><b>SushantBansal-tech</b></sub></a><br /><a href="#ideas-SushantBansal-tech" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/processing/processing4/commits?author=SushantBansal-tech" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/Konsl"><img src="https://avatars.githubusercontent.com/u/82901383?v=4?s=120" width="120px;" alt="Konsl"/><br /><sub><b>Konsl</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=Konsl" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="http://www.mario-guzman.com"><img src="https://avatars.githubusercontent.com/u/7597610?v=4?s=120" width="120px;" alt="Mario Guzman"/><br /><sub><b>Mario Guzman</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=marioguzzzman" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/thisizaro"><img src="https://avatars.githubusercontent.com/u/98299268?v=4?s=120" width="120px;" alt="Aranya Dutta"/><br /><sub><b>Aranya Dutta</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=thisizaro" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/ovalnine"><img src="https://avatars.githubusercontent.com/u/13293768?v=4?s=120" width="120px;" alt="ovalnine"/><br /><sub><b>ovalnine</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=ovalnine" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="http://blog.jdboyd.net/"><img src="https://avatars.githubusercontent.com/u/361465?v=4?s=120" width="120px;" alt="Joshua D. Boyd"/><br /><sub><b>Joshua D. Boyd</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=jd-boyd" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
