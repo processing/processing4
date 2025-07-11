@@ -307,6 +307,9 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="http://nmexis.me"><img src="https://avatars.githubusercontent.com/u/12763829?v=4?s=120" width="120px;" alt="Nico Mexis"/><br /><sub><b>Nico Mexis</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=ThexXTURBOXx" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="http://charlotte.fyi"><img src="https://avatars.githubusercontent.com/u/10366310?v=4?s=120" width="120px;" alt="charlotte 🌸"/><br /><sub><b>charlotte 🌸</b></sub></a><br /><a href="https://github.com/processing/processing4/pulls?q=is%3Apr+reviewed-by%3Atychedelia" title="Reviewed Pull Requests">👀</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="http://i-j.fr"><img src="https://avatars.githubusercontent.com/u/80685479?v=4?s=120" width="120px;" alt="Joackim de Bourqueney"/><br /><sub><b>Joackim de Bourqueney</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=jdebou" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
