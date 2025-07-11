@@ -1558,6 +1558,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jSdCool",
+      "name": "jSdCool",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37940266?v=4",
+      "profile": "https://www.cbi-games.org",
+      "contributions": [
+        "code",
+        "doc"
+      ]
     }
   ],
   "repoType": "github",
