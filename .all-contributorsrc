@@ -1615,6 +1615,15 @@
         "code",
         "doc"
       ]
+    },
+    {
+      "login": "aj-m",
+      "name": "Andrew",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2524348?v=4",
+      "profile": "https://github.com/aj-m",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoType": "github",
