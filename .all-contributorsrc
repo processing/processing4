@@ -1596,6 +1596,15 @@
       "contributions": [
         "review"
       ]
+    },
+    {
+      "login": "jdebou",
+      "name": "Joackim de Bourqueney",
+      "avatar_url": "https://avatars.githubusercontent.com/u/80685479?v=4",
+      "profile": "http://i-j.fr",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoType": "github",
