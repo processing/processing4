@@ -77,6 +77,8 @@
          usetimestamp="true" />
   </target>
 
+  <mkdir dir="tool" />
+
   <target name="prepare-ffmpeg" depends="download-ffmpeg">
     <gunzip src="${ffmpeg.gz}" dest="${ffmpeg.binary}" />
     <chmod file="${ffmpeg.binary}" perm="ugo+x" />
