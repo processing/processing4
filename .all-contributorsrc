@@ -1570,61 +1570,70 @@
         "doc"
       ]
     },
-    {
-      "login": "AhmedMagedC",
-      "name": "AhmedMaged",
-      "avatar_url": "https://avatars.githubusercontent.com/u/111961041?v=4",
-      "profile": "https://github.com/AhmedMagedC",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "ThexXTURBOXx",
-      "name": "Nico Mexis",
-      "avatar_url": "https://avatars.githubusercontent.com/u/12763829?v=4",
-      "profile": "http://nmexis.me",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "tychedelia",
-      "name": "charlotte 🌸",
-      "avatar_url": "https://avatars.githubusercontent.com/u/10366310?v=4",
-      "profile": "http://charlotte.fyi",
-      "contributions": [
-        "review"
-      ]
-    },
-    {
-      "login": "jdebou",
-      "name": "Joackim de Bourqueney",
-      "avatar_url": "https://avatars.githubusercontent.com/u/80685479?v=4",
-      "profile": "http://i-j.fr",
-      "contributions": [
-        "code"
-      ]
-    },
-    {
-      "login": "toniab",
-      "name": "Tonz",
-      "avatar_url": "https://avatars.githubusercontent.com/u/370199?v=4",
-      "profile": "https://github.com/toniab",
-      "contributions": [
-        "code",
-        "doc"
-      ]
-    },
-    {
-      "login": "aj-m",
-      "name": "Andrew",
-      "avatar_url": "https://avatars.githubusercontent.com/u/2524348?v=4",
-      "profile": "https://github.com/aj-m",
-      "contributions": [
-        "code"
-      ]
-    }
+      {
+    "login": "AhmedMagedC",
+    "name": "AhmedMaged",
+    "avatar_url": "https://avatars.githubusercontent.com/u/111961041?v=4",
+    "profile": "https://github.com/AhmedMagedC",
+    "contributions": [
+      "code"
+    ]
+  },
+  {
+    "login": "ThexXTURBOXx",
+    "name": "Nico Mexis",
+    "avatar_url": "https://avatars.githubusercontent.com/u/12763829?v=4",
+    "profile": "http://nmexis.me",
+    "contributions": [
+      "code"
+    ]
+  },
+  {
+    "login": "tychedelia",
+    "name": "charlotte 🌸",
+    "avatar_url": "https://avatars.githubusercontent.com/u/10366310?v=4",
+    "profile": "http://charlotte.fyi",
+    "contributions": [
+      "review"
+    ]
+  },
+  {
+    "login": "jdebou",
+    "name": "Joackim de Bourqueney",
+    "avatar_url": "https://avatars.githubusercontent.com/u/80685479?v=4",
+    "profile": "http://i-j.fr",
+    "contributions": [
+      "code"
+    ]
+  },
+  {
+    "login": "toniab",
+    "name": "Tonz",
+    "avatar_url": "https://avatars.githubusercontent.com/u/370199?v=4",
+    "profile": "https://github.com/toniab",
+    "contributions": [
+      "code",
+      "doc"
+    ]
+  },
+  {
+    "login": "aj-m",
+    "name": "Andrew",
+    "avatar_url": "https://avatars.githubusercontent.com/u/2524348?v=4",
+    "profile": "https://github.com/aj-m",
+    "contributions": [
+      "code"
+    ]
+  },
+  {
+    "login": "pnngocdoan",
+    "name": "Ngoc Doan",
+    "avatar_url": "https://avatars.githubusercontent.com/u/113954980?v=4",
+    "profile": "https://github.com/pnngocdoan",
+    "contributions": [
+      "code"
+    ]
+  }
   ],
   "repoType": "github",
   "repoHost": "https://github.com",
