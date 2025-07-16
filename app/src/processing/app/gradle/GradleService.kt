@@ -29,6 +29,8 @@ class GradleService(
 ) {
     val active = mutableStateOf(Preferences.getBoolean("run.use_gradle"))
 
+    val settings = GradleSettings()
+
     var sketch: Sketch? = null
         set (value) {
             field = value
@@ -77,5 +79,11 @@ class GradleService(
     fun setEnabled(active: Boolean) {
         if(!active) stopJobs()
         this.active.value = active
+        val editor = editor ?: return
+        if(active){
+            editor.footer?.addPanel(settings, text("gradle.settings"), "/lib/footer/settings")
+        }else{
+            editor.footer?.removePanel(settings)
+        }
     }
 }
