@@ -34,12 +34,15 @@ Before beginning work on a code contribution, please make sure that:
 
 -   The issue has been discussed and a proposed solution has been approved.
 -   You have been **assigned** to the issue.
-    
+
 If an implementation has been agreed upon but no one has volunteered to take it on, feel free to comment and offer to help. A maintainer can then assign the issue to you.
+
+> [!NOTE]
+> If this is your first contribution to our repositories, or if an implementation has not been agreed upon yet, please include a brief explanation of how you plan to approach the issue. This helps us understand your thinking and gives us an opportunity to discuss the best solution. Note that **we do not auto-assign issues**, so comments that only say "please assign" without further context may be overlooked.
 
 Please do **not** open a pull request for an issue that is already assigned to someone else. We follow a “first assigned, first served” approach to avoid duplicated work. If you open a PR for an issue that someone else is already working on, your PR will be closed.
 
-If an issue has been inactive for a long time, you’re welcome to check in politely by commenting to see if the assignee still plans to work on it or would be open to someone else taking over.
+If an issue has been inactive for over a month, you’re welcome to check in politely by commenting to see if the assignee still plans to work on it or would be open to someone else taking over.
 
 There’s no hard deadline for completing contributions. We understand that people often contribute on a volunteer basis and timelines may vary. That said, if you run into trouble or have questions at any point, don’t hesitate to ask for help in the issue thread. Maintainers and other community members are here to support you.
 
@@ -50,6 +53,9 @@ Keep the [style guidelines](https://github.com/processing/processing/wiki/Style-
 Before you contribute your changes, it's essential that you make sure that Processing still builds, runs, and functions on your machine. Here again, the [build instructions](https://github.com/processing/processing4/blob/main/BUILD.md) are your best friend. Pay special attention to any features that may be affected by your changes. Does everything still work as before? Great!
 
 ## Submit a pull request (PR)
+
+> [!IMPORTANT]
+> Before submitting a pull request, please ask to be assigned to the corresponding issue. If someone else is already assigned or has shared that they’re working on it, we ask that you wait or choose another issue. This helps us avoid duplicated efforts and respect each other's time. PRs submitted without assignment may be closed without a review.
 
 Once your changes are ready:
 
