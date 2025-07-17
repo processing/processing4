@@ -59,25 +59,6 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         // Add the compose plugin to wrap the sketch in an executable
         project.plugins.apply("org.jetbrains.compose")
 
-        val propertiesFile = project.layout.projectDirectory.file("sketch.properties")
-        if (propertiesFile.asFile.exists()) {
-            val properties = Properties()
-            properties.load(propertiesFile.asFile.inputStream())
-
-            val pluginsSetting = properties.getProperty("sketch.plugins")
-            if (pluginsSetting != null && pluginsSetting.isNotEmpty()) {
-                val plugins = pluginsSetting.split(",").map { it.trim() }
-
-                plugins.forEach { pluginId ->
-                    // Apply the plugin to the project, equivalent of
-                    // plugins {
-                    //     id("org.processing.java.hotreload")
-                    // }
-                    project.plugins.apply(pluginId)
-                }
-            }
-        }
-
         // Add the Processing core library (within Processing from the internal maven repo and outside from the internet), equivalent of
         // dependencies {
         //     implementation("org.processing:core:4.3.4")

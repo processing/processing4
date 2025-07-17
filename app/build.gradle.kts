@@ -527,7 +527,7 @@ afterEvaluate {
     tasks.named("prepareAppResources").configure {
         dependsOn("includeProcessingResources")
         // Make sure all libraries are bundled in the maven repository distributed with the app
-        dependsOn(listOf("core","java:preprocessor", "java:gradle").map { project(":$it").tasks.named("publishAllPublicationsToAppRepository") })
+        dependsOn(listOf("core","java:preprocessor", "java:gradle", "java:gradle:hotreload").map { project(":$it").tasks.named("publishAllPublicationsToAppRepository") })
     }
     tasks.named("createDistributable").configure {
         finalizedBy("setExecutablePermissions")

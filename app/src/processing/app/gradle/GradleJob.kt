@@ -25,6 +25,7 @@ import processing.app.Messages
 import processing.app.Platform
 import processing.app.Platform.getContentFile
 import processing.app.Platform.getSettingsFolder
+import processing.app.Settings
 import processing.app.Sketch
 import processing.app.gradle.Log.Companion.startLogServer
 import processing.app.ui.Editor
@@ -32,6 +33,7 @@ import processing.app.ui.EditorStatus
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
 import kotlin.io.path.writeText
+import kotlin.text.split
 
 /*
 * The gradle job runs the gradle tasks and manages the gradle connection
@@ -166,11 +168,44 @@ class GradleJob(
                 .split("\n")
                 .joinToString("\n") { "// $it" }
 
+            val enabledPlugins = mutableListOf(GradlePlugin(
+                "Processing Java",
+                "The Processing Java mode for Gradle",
+                null,
+                "org.processing.java",
+                getVersionName()
+            ))
+            val propertiesFile = sketchFolder.resolve(Sketch.PROPERTIES_NAME)
+            if(propertiesFile.exists()){
+                val sketchSettings = Settings(propertiesFile)
+
+                // Grab the installed plugins
+                val plugins = GradlePlugin.plugins
+
+                // Grab the enabled plugins
+                val pluginSetting = (sketchSettings.get(GradlePlugin.PROPERTIES_KEY) ?: "")
+                    .split(",")
+                    .map { it.trim() }
+                    .filter{ it.isNotEmpty() }
+
+                // Link plugins in the settings to their installed counterparts
+                enabledPlugins.addAll(
+                    pluginSetting
+                        .mapNotNull { id ->
+                            plugins.find { plugin -> plugin.id == id
+                            }
+                        }
+                )
+            }
+
+            val pluginList = enabledPlugins
+                .joinToString("\n    ") { "id(\"${it.id}\") version \"${it.version}\"" }
+
             val configuration =  """
                 plugins{
-                    id("org.processing.java") version "${getVersionName()}"
+                    #plugins
                 }
-            """.trimIndent()
+            """.trimIndent().replace("#plugins", pluginList)
             val content = "${header}\n${instructions}\n\n${configuration}"
             buildGradle.writeText(content)
         }

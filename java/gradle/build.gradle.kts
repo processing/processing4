@@ -24,7 +24,7 @@ dependencies{
 // TODO: CI/CD for publishing the plugin to the Gradle Plugin Portal
 gradlePlugin{
     plugins{
-        create("processing"){
+        create("processing.java"){
             id = "org.processing.java"
             implementationClass = "org.processing.java.gradle.ProcessingPlugin"
         }

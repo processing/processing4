@@ -13,7 +13,7 @@ data class GradlePlugin(
     companion object{
         const val PROPERTIES_KEY = "sketch.plugins"
         val plugins = mutableStateListOf<GradlePlugin>(
-            GradlePlugin("Hot Reload (experimental)", "Automatically apply changes in your sketch upon saving", null, "org.processing.java.hotreload", Base.getVersionName()),
+            GradlePlugin("Hot Reload", "Automatically apply changes in your sketch upon saving", null, "org.processing.java.hotreload", Base.getVersionName()),
             GradlePlugin("Android","Run your sketch on an Android device", null, "org.processing.android", Base.getVersionName()),
         )
     }
