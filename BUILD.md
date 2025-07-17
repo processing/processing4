@@ -113,7 +113,7 @@ Processing consists of three main components: `Core`, `Java`, and `App`. The `Co
 - If you've written a large sketch and Processing has become slow to compile and run it, a place to improve this code can most likely be found in the `Java` section.
 
 ## User interface
-Historically, Processing's UI has been written in Java Swing and Flatlaf (and some html & css). Since 2025 we have switched to include Jetpack Compose, mostly for it's backwards-compatibility with Swing. This approach allows us to gradually replace Java Swing components with Jetpack Compose ones, instead of doing a complete overhaul of the editor.
+Historically, Processing's UI has been written in Java Swing and Flatlaf (and some html & css). Since 2025 we have switched to include Jetpack Compose. It is backwards-compatible with Swing, which allows us to gradually replace Java Swing components with Jetpack Compose ones, instead of doing a complete overhaul of the editor.
 
 ## Build system
 
