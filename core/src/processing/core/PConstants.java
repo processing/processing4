@@ -232,6 +232,12 @@ public interface PConstants {
 //  static final int CMYK  = 5;  // image & color (someday)
 
 
+  // pixel access modes (for high DPI / pixel density scaling)
+
+  int PIXEL_EXACT  = 0;  // nearest-neighbor, pixel-perfect operations
+  int PIXEL_SMOOTH = 1;  // bilinear interpolation, smooth scaling
+
+
   // image file types
 
   int TIFF  = 0;
