@@ -62,6 +62,8 @@ import processing.mode.java.tweak.Handle;
 import processing.mode.java.tweak.SketchParser;
 import processing.mode.java.tweak.TweakClient;
 
+import static processing.app.gradle.GradleSettings.addGradleSettings;
+
 
 public class JavaEditor extends Editor {
   JavaMode jmode;
@@ -205,6 +207,7 @@ public class JavaEditor extends Editor {
   public EditorFooter createFooter() {
     EditorFooter footer = super.createFooter();
     addErrorTable(footer);
+    addGradleSettings(footer, service);
     return footer;
   }
 

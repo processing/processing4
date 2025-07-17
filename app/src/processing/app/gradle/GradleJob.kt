@@ -118,6 +118,7 @@ class GradleJob(
         val repository = getContentFile("repository").absolutePath.replace("""\""", """\\""")
         // Create the init.gradle.kts file in the working directory
         // This allows us to run the gradle plugin that has been bundled with the editor
+        // TODO: Add the plugin repositories if they are defined
         val initGradle = workingDir.resolve("init.gradle.kts").apply {
             val content = """
                 beforeSettings{

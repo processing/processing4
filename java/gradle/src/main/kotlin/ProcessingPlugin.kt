@@ -11,10 +11,9 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.desktop.DesktopExtension
-import processing.app.Preferences
 import java.io.File
 import java.net.Socket
-import java.util.*
+import java.util.Properties
 import javax.inject.Inject
 
 class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFactory) : Plugin<Project> {
@@ -33,7 +32,10 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val sketchbook = project.findProperty("processing.sketchbook") as String?
         val settings = project.findProperty("processing.settings") as String?
 
-        // Apply the Java plugin to the Project
+        // Apply the Java plugin to the Project, equivalent of
+        // plugins {
+        //     java
+        // }
         project.plugins.apply(JavaPlugin::class.java)
 
         if(isProcessing){
@@ -46,25 +48,67 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             project.tasks.findByName("wrapper")?.enabled = false
         }
 
-        // Add kotlin support
+        // Add kotlin support, equivalent of
+        // plugins {
+        //     kotlin("jvm") version "1.8.0"
+        //     kotlin("plugin.compose") version "1.8.0"
+        // }
         project.plugins.apply("org.jetbrains.kotlin.jvm")
         // Add jetpack compose support
         project.plugins.apply("org.jetbrains.kotlin.plugin.compose")
         // Add the compose plugin to wrap the sketch in an executable
         project.plugins.apply("org.jetbrains.compose")
 
-        // Add the Processing core library (within Processing from the internal maven repo and outside from the internet)
+        val propertiesFile = project.layout.projectDirectory.file("sketch.properties")
+        if (propertiesFile.asFile.exists()) {
+            val properties = Properties()
+            properties.load(propertiesFile.asFile.inputStream())
+
+            val pluginsSetting = properties.getProperty("sketch.plugins")
+            if (pluginsSetting != null && pluginsSetting.isNotEmpty()) {
+                val plugins = pluginsSetting.split(",").map { it.trim() }
+
+                plugins.forEach { pluginId ->
+                    // Apply the plugin to the project, equivalent of
+                    // plugins {
+                    //     id("org.processing.java.hotreload")
+                    // }
+                    project.plugins.apply(pluginId)
+                }
+            }
+        }
+
+        // Add the Processing core library (within Processing from the internal maven repo and outside from the internet), equivalent of
+        // dependencies {
+        //     implementation("org.processing:core:4.3.4")
+        // }
         project.dependencies.add("implementation", "$processingGroup:core:${processingVersion}")
 
-        // Add the jars in the code folder
+        // Add the jars in the code folder, equivalent of
+        // dependencies {
+        //     implementation(fileTree("src") { include("**/code/*.jar") })
+        // }
         project.dependencies.add("implementation", project.fileTree("src").apply { include("**/code/*.jar") })
 
-        // Add the repositories necessary for building the sketch
+        // Add the repositories necessary for building the sketch, equivalent of
+        // repositories {
+        //     maven("https://jogamp.org/deployment/maven")
+        //     mavenCentral()
+        //     mavenLocal()
+        // }
         project.repositories.add(project.repositories.maven { it.setUrl("https://jogamp.org/deployment/maven") })
         project.repositories.add(project.repositories.mavenCentral())
         project.repositories.add(project.repositories.mavenLocal())
 
-        // Configure the compose Plugin
+        // Configure the compose Plugin, equivalent of
+        // compose {
+        //     application {
+        //         mainClass.set(sketchName)
+        //         nativeDistributions {
+        //             includeAllModules()
+        //         }
+        //     }
+        // }
         project.extensions.configure(ComposeExtension::class.java) { extension ->
             extension.extensions.getByType(DesktopExtension::class.java).application { application ->
                 // Set the class to be executed initially
@@ -140,10 +184,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 srcDir("$workingDir/unsaved")
             }
             sourceSet.allSource.source(pdeSourceSet)
-            sourceSet.java.srcDir(project.layout.projectDirectory).apply {
-                include("**/*.java")
-                exclude("${project.layout.buildDirectory.asFile.get()}/**/*")
-            }
+//            sourceSet.java.srcDir(project.layout.projectDirectory).apply {
+//                include("*.java")
+//            }
 
             val librariesTaskName = sourceSet.getTaskName("scanLibraries", "PDE")
             val librariesScan = project.tasks.register(librariesTaskName, LibrariesTask::class.java) { task ->

@@ -152,6 +152,7 @@ public class EditorFooter extends Box {
   public void addPanel(Component comp, String name, String icon) {
     tabs.add(new Tab(comp, name, icon));
     cardPanel.add(name, comp);
+    repaint();
   }
 
   /**

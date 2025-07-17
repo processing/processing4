@@ -2,11 +2,13 @@ package processing.app.gradle
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.awt.ComposePanel
 import processing.app.Language.text
 import processing.app.Mode
 import processing.app.Preferences
 import processing.app.Sketch
 import processing.app.ui.Editor
+import processing.app.ui.Theme
 import kotlin.io.path.createTempDirectory
 
 // TODO: Highlight errors in the editor in the right place
@@ -28,17 +30,7 @@ class GradleService(
     val editor: Editor?,
 ) {
     val active = mutableStateOf(Preferences.getBoolean("run.use_gradle"))
-
-    val settings = GradleSettings()
-
-    var sketch: Sketch? = null
-        set (value) {
-            field = value
-            if(value == null) return
-            // If the sketch is set, we start the build process to speed up the first run
-            startJob("build")
-        }
-
+    var sketch = mutableStateOf<Sketch?>(null)
     val jobs = mutableStateListOf<GradleJob>()
     val workingDir = createTempDirectory()
 
@@ -61,7 +53,7 @@ class GradleService(
         val job = GradleJob(
             tasks = tasks,
             workingDir  = workingDir,
-            sketch = sketch ?: throw IllegalStateException("Sketch is not set"),
+            sketch = sketch.value ?: throw IllegalStateException("Sketch is not set"),
             editor = editor
         )
         jobs.add(job)
@@ -72,18 +64,16 @@ class GradleService(
         jobs.forEach(GradleJob::cancel)
     }
 
-    // Hooks for java to check if the Gradle service is running since mutableStateOf is not accessible in java
+    // Hooks for java to interact with the Gradle service since mutableStateOf is not accessible in java
+    fun setSketch(sketch: Sketch){
+        this.sketch.value = sketch
+        startJob("build")
+    }
     fun getEnabled(): Boolean {
         return active.value
     }
     fun setEnabled(active: Boolean) {
         if(!active) stopJobs()
         this.active.value = active
-        val editor = editor ?: return
-        if(active){
-            editor.footer?.addPanel(settings, text("gradle.settings"), "/lib/footer/settings")
-        }else{
-            editor.footer?.removePanel(settings)
-        }
     }
 }

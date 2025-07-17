@@ -53,7 +53,7 @@ class Sketch : SuspendingCliktCommand("sketch") {
             System.setProperty("java.awt.headless", "false")
 
             val service = GradleService(mode,null)
-            service.sketch = processing.app.Sketch(sketch, mode)
+            service.sketch.value = processing.app.Sketch(sketch, mode)
             service.run()
 
             // TODO: Use an async way to wait for the job to finish
