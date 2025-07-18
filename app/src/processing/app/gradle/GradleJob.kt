@@ -72,6 +72,7 @@ class GradleJob(
     Create the necessary build files if they do not exist.
      */
     private fun BuildLauncher.setupGradle(extraArguments: List<String> = listOf()) {
+
         val copy = sketch.isReadOnly || sketch.isUntitled
 
         val sketchFolder = if(copy) workingDir.resolve("sketch").toFile() else sketch.folder
@@ -218,6 +219,8 @@ class GradleJob(
         val arguments = mutableListOf("--init-script", initGradle.toAbsolutePath().toString())
         // Hide Gradle output from the console if not in debug mode
         if(!DEBUG) arguments += "--quiet"
+        // TODO: Fix continuous mode for the hot reload
+        arguments += "-t"
 
         if(copy) arguments += listOf("--project-dir", sketchFolder.absolutePath)
 

@@ -122,3 +122,5 @@ processing-examples
 /java/gradle/example/gradlew
 /java/gradle/example/gradlew.bat
 /java/gradle/example/.kotlin/errors
+/java/gradle/hotreload/build
+*.iml
