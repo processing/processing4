@@ -122,10 +122,14 @@ class GradleJob(
         // Create the init.gradle.kts file in the working directory
         // This allows us to run the gradle plugin that has been bundled with the editor
         // TODO: Add the plugin repositories if they are defined
+        // TODO: Feedback when the JDK is being downloaded
         val initGradle = workingDir.resolve("init.gradle.kts").apply {
             val content = """
                 beforeSettings{
                     pluginManagement {
+                        plugins {
+                            id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+                        }
                         repositories {
                             maven("$repository")
                             gradlePluginPortal()
@@ -219,9 +223,6 @@ class GradleJob(
         val arguments = mutableListOf("--init-script", initGradle.toAbsolutePath().toString())
         // Hide Gradle output from the console if not in debug mode
         if(!DEBUG) arguments += "--quiet"
-        // TODO: Fix continuous mode for the hot reload
-        arguments += "-t"
-
         if(copy) arguments += listOf("--project-dir", sketchFolder.absolutePath)
 
         arguments += variables.entries
