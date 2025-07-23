@@ -239,7 +239,16 @@ public class Base {
 
 //    long t2 = System.currentTimeMillis();
 
-    if (DEBUG || !SingleInstance.alreadyRunning(args)) {
+    // boolean flag indicating whether to create new server instance or not
+    boolean createNewInstance = DEBUG || !SingleInstance.alreadyRunning(args);
+
+    // free up resources by terminating the JVM
+    if(!createNewInstance){
+      System.exit(0);
+      return;
+    }
+
+    if (createNewInstance) {
       // Set the look and feel before opening the window
       try {
         Platform.setLookAndFeel();

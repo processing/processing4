@@ -5,6 +5,10 @@ import org.junit.Before;
 import org.junit.Test;
 import processing.event.KeyEvent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 public class PAppletKeyEventTest {
 
     private static final int SHIFT_MASK = 1;
@@ -136,5 +140,38 @@ public class PAppletKeyEventTest {
 
         Assert.assertFalse("keyPressed should be false after focus lost", applet.keyPressed);
         Assert.assertEquals("pressedKeys should be empty after focus lost", true, applet.pressedKeys.isEmpty());
+    }
+
+    @Test
+    public void testShiftAndPageUpKeyCodesAreDifferent() {
+        final int VK_SHIFT   = java.awt.event.KeyEvent.VK_SHIFT;
+        final int VK_PAGE_UP = java.awt.event.KeyEvent.VK_PAGE_UP;    
+
+        long shiftHash  = ((long)VK_SHIFT   << Character.SIZE);
+        long pageUpHash = ((long)VK_PAGE_UP << Character.SIZE);    
+
+        KeyEvent shiftPressEvent = new KeyEvent(null, 0L, KeyEvent.PRESS, SHIFT_MASK, '\0', VK_SHIFT, false);
+        applet.handleKeyEvent(shiftPressEvent);
+
+        assertTrue("keyPressed must be true", applet.keyPressed);
+        assertTrue("SHIFT should be in pressedKeys", applet.pressedKeys.contains(shiftHash));
+
+        KeyEvent pageUpPressEvent = new KeyEvent(null, 0L, KeyEvent.PRESS, 0, '\0', VK_PAGE_UP, false);
+        applet.handleKeyEvent(pageUpPressEvent);
+
+        assertEquals("pressedKeys must contain exactly two keys", 2, applet.pressedKeys.size());
+        assertTrue("PAGE_UP should be in pressedKeys", applet.pressedKeys.contains(pageUpHash));
+
+        KeyEvent shiftRelease = new KeyEvent(null, 0L, KeyEvent.RELEASE, 0, '\0', VK_SHIFT, false);
+        applet.handleKeyEvent(shiftRelease);
+        assertFalse("SHIFT should have been removed", applet.pressedKeys.contains(shiftHash));
+        assertTrue ("PAGE_UP should still be down", applet.pressedKeys.contains(pageUpHash));
+        assertTrue ("keyPressed must still be true", applet.keyPressed);
+        assertEquals("pressedKeys must now have one key", 1, applet.pressedKeys.size());
+
+        KeyEvent pageUpRelease = new KeyEvent(null, 0L, KeyEvent.RELEASE, 0, '\0', VK_PAGE_UP, false);
+        applet.handleKeyEvent(pageUpRelease);
+        assertTrue ("pressedKeys must now be empty", applet.pressedKeys.isEmpty());
+        assertFalse("keyPressed must be false", applet.keyPressed);
     }
 }
