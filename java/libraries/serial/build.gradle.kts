@@ -2,33 +2,35 @@ plugins {
     java
 }
 
-java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
-    }
-}
-
-val coreJar = file("../../../core/library/core.jar")
-
-dependencies {
-
-    implementation(project(":core"))
-    implementation(files("library/jssc.jar"))
-}
-
-tasks.register("checkCore") {
-    doFirst {
-
-        if (!coreJar.exists()) {
-            throw GradleException("Missing core.jar at $coreJar. Please build the core module first.")
+sourceSets {
+    main {
+        java {
+            srcDirs("src")
         }
     }
 }
 
-tasks.register<Jar>("serialJar") {
-    dependsOn("checkCore", "classes")
-    archiveBaseName.set("serial")
-    destinationDirectory.set(file("library"))
-    from(sourceSets.main.get().output)
+repositories {
+    mavenCentral()
 }
 
+dependencies {
+    compileOnly(project(":core"))
+    // TODO: https://github.com/java-native/jssc
+    implementation(files("library/jssc.jar"))
+}
+
+tasks.register<Copy>("createLibrary") {
+    dependsOn("jar")
+    into(layout.buildDirectory.dir("library"))
+    from(layout.projectDirectory) {
+        include("library.properties")
+        include("examples/**")
+    }
+    from(configurations.runtimeClasspath) {
+        into("library")
+    }
+    from(tasks.jar) {
+        into("library")
+    }
+}
