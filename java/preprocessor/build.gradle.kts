@@ -26,6 +26,7 @@ dependencies{
     implementation(libs.eclipseJDT)
 
     implementation(project(":core"))
+    implementation(project(":app:utils"))
 }
 
 mavenPublishing{

@@ -62,6 +62,8 @@ import processing.mode.java.preproc.TextTransform.OffsetMapper;
 import processing.data.IntList;
 import processing.data.StringList;
 
+import processing.utils.SketchException;
+
 
 /**
  * Service which preprocesses code to check for and report on issues.
