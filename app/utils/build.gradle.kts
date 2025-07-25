@@ -1,4 +1,6 @@
-version = "unspecified"
+plugins {
+    id("java")
+}
 
 repositories {
     mavenCentral()
