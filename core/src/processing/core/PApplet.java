@@ -913,7 +913,7 @@ public class PApplet implements PConstants {
    * Processing Development Environment (PDE). For example, when
    * using the Eclipse code editor, it's necessary to use
    * <b>settings()</b> to define the <b>size()</b> and
-   * <b>smooth()</b> values for a sketch.</b>.
+   * <b>smooth()</b> values for a sketch.
    * <br /> <br />
    * The <b>settings()</b> method runs before the sketch has been
    * set up, so other Processing functions cannot be used at that
@@ -10104,6 +10104,8 @@ public class PApplet implements PConstants {
 
     sketch.present = present;
     sketch.fullScreen = fullScreen;
+
+    sketch.pixelDensity = sketch.displayDensity();
 
     // For 3.0.1, moved this above handleSettings() so that loadImage() can be
     // used inside settings(). Sets a terrible precedent, but the alternative

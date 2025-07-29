@@ -1,12 +1,25 @@
 import processing.core.PApplet;
 
+import java.io.IOException;
+
 public class Basic extends PApplet {
     public void settings(){
         size(500, 500);
+
+        try {
+            Runtime.getRuntime().exec("echo Hello World");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void draw(){
-        ellipse(width / 2f, height / 2f, 125f, 125f);
+        background(255);
+        fill(0);
+        ellipse(mouseX, mouseY, 125f, 125f);
+        println(frameRate);
+
+
     }
 
 
