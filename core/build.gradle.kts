@@ -31,11 +31,8 @@ sourceSets{
 dependencies {
     implementation(libs.jogl)
     implementation(libs.gluegen)
-    implementation(files("library/JavaANGLE.jar"))
-
 
     testImplementation(libs.junit)
-
 }
 
 mavenPublishing{
