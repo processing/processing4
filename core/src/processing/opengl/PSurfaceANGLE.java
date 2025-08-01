@@ -5,7 +5,7 @@ import java.awt.FileDialog;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 
-import javaangle.JavaANGLE;
+import javaangle.GL;
 
 import java.awt.DisplayMode;
 import java.io.File;
@@ -93,7 +93,7 @@ public class PSurfaceANGLE implements PSurface {
         initWindow();
       }
 
-      if (JavaANGLE.glfwWindowShouldClose(glfwwindow) == 1) {
+      if (GL.glfwWindowShouldClose(glfwwindow) == 1) {
         sketch.exit();
       }
 //
@@ -104,6 +104,11 @@ public class PSurfaceANGLE implements PSurface {
         PGraphicsOpenGL.completeFinishedPixelTransfers();
 //        Util.endTmr("completeFinishedPixelTransfers");
       }
+
+      GL.glfwSwapBuffers(glfwwindow);
+      
+      GL.glfwPollEvents();
+
       if (sketch.exitCalled()) {
         sketch.dispose();
         sketch.exitActual();
@@ -245,7 +250,7 @@ public class PSurfaceANGLE implements PSurface {
     if (!isPCodedKey(key)) {
       key = Character.toLowerCase(key);
 
-      if (modifiers == JavaANGLE.GLFW_MOD_SHIFT) {
+      if (modifiers == GL.GLFW_MOD_SHIFT) {
         key = Character.toUpperCase(key);
       }
 
@@ -279,15 +284,15 @@ public class PSurfaceANGLE implements PSurface {
 
 
     int peButton = switch (button) {
-    case JavaANGLE.GLFW_MOUSE_BUTTON_LEFT -> PConstants.LEFT;
-    case JavaANGLE.GLFW_MOUSE_BUTTON_MIDDLE -> PConstants.CENTER;
-    case JavaANGLE.GLFW_MOUSE_BUTTON_RIGHT -> PConstants.RIGHT;
+    case GL.GLFW_MOUSE_BUTTON_LEFT -> PConstants.LEFT;
+    case GL.GLFW_MOUSE_BUTTON_MIDDLE -> PConstants.CENTER;
+    case GL.GLFW_MOUSE_BUTTON_RIGHT -> PConstants.RIGHT;
     default -> 0;
     };
 
     int peaction = switch (action) {
-    case JavaANGLE.GLFW_PRESS -> MouseEvent.PRESS;
-    case JavaANGLE.GLFW_RELEASE -> MouseEvent.RELEASE;
+    case GL.GLFW_PRESS -> MouseEvent.PRESS;
+    case GL.GLFW_RELEASE -> MouseEvent.RELEASE;
     case 99 -> MouseEvent.MOVE;
     default -> 0;
     };
@@ -334,15 +339,15 @@ public class PSurfaceANGLE implements PSurface {
 
   private void initWindow() {
 
-    JavaANGLE.glfwInitHint(JavaANGLE.GLFW_ANGLE_PLATFORM_TYPE, JavaANGLE.GLFW_ANGLE_PLATFORM_TYPE_VULKAN);
-    if(JavaANGLE.glfwInit() == 0) {
+    GL.glfwInitHint(GL.GLFW_ANGLE_PLATFORM_TYPE, GL.GLFW_ANGLE_PLATFORM_TYPE_VULKAN);
+    if(GL.glfwInit() == 0) {
       throw new RuntimeException("Cannot initialize GLFW");
     }
 
-    JavaANGLE.glfwWindowHint(JavaANGLE.GLFW_CONTEXT_CREATION_API, JavaANGLE.GLFW_EGL_CONTEXT_API);
-    JavaANGLE.glfwWindowHint(JavaANGLE.GLFW_CONTEXT_VERSION_MAJOR, 3);
-    JavaANGLE.glfwWindowHint(JavaANGLE.GLFW_CONTEXT_VERSION_MINOR, 2);
-    JavaANGLE.glfwWindowHint(JavaANGLE.GLFW_CLIENT_API, JavaANGLE.GLFW_OPENGL_ES_API);
+    GL.glfwWindowHint(GL.GLFW_CONTEXT_CREATION_API, GL.GLFW_EGL_CONTEXT_API);
+    GL.glfwWindowHint(GL.GLFW_CONTEXT_VERSION_MAJOR, 3);
+    GL.glfwWindowHint(GL.GLFW_CONTEXT_VERSION_MINOR, 2);
+    GL.glfwWindowHint(GL.GLFW_CLIENT_API, GL.GLFW_OPENGL_ES_API);
 
     // TODO: Update this.
     String title = "Sketch";
@@ -350,9 +355,9 @@ public class PSurfaceANGLE implements PSurface {
     glfwwidth = graphics.width;
     glfwheight = graphics.height;
 
-    glfwwindow = JavaANGLE.glfwCreateWindow(800, 600, title, null, 0);
+    glfwwindow = GL.glfwCreateWindow(800, 600, title, null, 0);
     
-    JavaANGLE.glfwMakeContextCurrent(glfwwindow);
+    GL.glfwMakeContextCurrent(glfwwindow);
 
     if(glfwwindow == 0) {
         throw new RuntimeException("Cannot create window");
@@ -447,7 +452,7 @@ public class PSurfaceANGLE implements PSurface {
   }
 
   public void swapBuffers() {
-    JavaANGLE.glfwSwapBuffers(glfwwindow);
+    GL.glfwSwapBuffers(glfwwindow);
   }
 
   public float getPixelScale() {
