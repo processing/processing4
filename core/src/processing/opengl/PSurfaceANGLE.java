@@ -1,20 +1,39 @@
 package processing.opengl;
 
+import java.awt.DisplayMode;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-
-import javaangle.GL;
-
-import java.awt.DisplayMode;
 import java.io.File;
-import java.nio.BufferOverflowException;
-import java.nio.LongBuffer;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.lwjgl.glfw.GLFW.GLFW_ANGLE_PLATFORM_TYPE;
+import static org.lwjgl.glfw.GLFW.GLFW_ANGLE_PLATFORM_TYPE_VULKAN;
+import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_CREATION_API;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
+import static org.lwjgl.glfw.GLFW.GLFW_EGL_CONTEXT_API;
+import static org.lwjgl.glfw.GLFW.GLFW_MOD_SHIFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_MIDDLE;
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_RIGHT;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_ES_API;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwInitHint;
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
+import static org.lwjgl.glfw.GLFW.glfwWindowHint;
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import org.lwjgl.opengles.GLES;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 import processing.awt.ShimAWT;
 import processing.core.PApplet;
@@ -24,7 +43,6 @@ import processing.core.PImage;
 import processing.core.PSurface;
 import processing.event.KeyEvent;
 import processing.event.MouseEvent;
-import processing.opengl.PGraphicsOpenGL;
 
 // NEXT TODO:
 // Create a function which creates a surface with a specified width and height, puts it into
@@ -49,7 +67,7 @@ public class PSurfaceANGLE implements PSurface {
 
   /////////////////////////////////
   // GLFW window variables
-  public int glfwwindow;
+  public long glfwwindow;
   public int glfwwidth = 1200;
   public int glfwheight = 800;
   public long glfwsurface;
@@ -93,7 +111,7 @@ public class PSurfaceANGLE implements PSurface {
         initWindow();
       }
 
-      if (GL.glfwWindowShouldClose(glfwwindow) == 1) {
+      if (glfwWindowShouldClose(glfwwindow)) {
         sketch.exit();
       }
 //
@@ -105,9 +123,9 @@ public class PSurfaceANGLE implements PSurface {
 //        Util.endTmr("completeFinishedPixelTransfers");
       }
 
-      GL.glfwSwapBuffers(glfwwindow);
+      // glfwSwapBuffers(glfwwindow);
       
-      GL.glfwPollEvents();
+      glfwPollEvents();
 
       if (sketch.exitCalled()) {
         sketch.dispose();
@@ -250,7 +268,7 @@ public class PSurfaceANGLE implements PSurface {
     if (!isPCodedKey(key)) {
       key = Character.toLowerCase(key);
 
-      if (modifiers == GL.GLFW_MOD_SHIFT) {
+      if (modifiers == GLFW_MOD_SHIFT) {
         key = Character.toUpperCase(key);
       }
 
@@ -284,15 +302,15 @@ public class PSurfaceANGLE implements PSurface {
 
 
     int peButton = switch (button) {
-    case GL.GLFW_MOUSE_BUTTON_LEFT -> PConstants.LEFT;
-    case GL.GLFW_MOUSE_BUTTON_MIDDLE -> PConstants.CENTER;
-    case GL.GLFW_MOUSE_BUTTON_RIGHT -> PConstants.RIGHT;
+    case GLFW_MOUSE_BUTTON_LEFT -> PConstants.LEFT;
+    case GLFW_MOUSE_BUTTON_MIDDLE -> PConstants.CENTER;
+    case GLFW_MOUSE_BUTTON_RIGHT -> PConstants.RIGHT;
     default -> 0;
     };
 
     int peaction = switch (action) {
-    case GL.GLFW_PRESS -> MouseEvent.PRESS;
-    case GL.GLFW_RELEASE -> MouseEvent.RELEASE;
+    case GLFW_PRESS -> MouseEvent.PRESS;
+    case GLFW_RELEASE -> MouseEvent.RELEASE;
     case 99 -> MouseEvent.MOVE;
     default -> 0;
     };
@@ -338,16 +356,15 @@ public class PSurfaceANGLE implements PSurface {
   }
 
   private void initWindow() {
-
-    GL.glfwInitHint(GL.GLFW_ANGLE_PLATFORM_TYPE, GL.GLFW_ANGLE_PLATFORM_TYPE_VULKAN);
-    if(GL.glfwInit() == 0) {
+    glfwInitHint(GLFW_ANGLE_PLATFORM_TYPE, GLFW_ANGLE_PLATFORM_TYPE_VULKAN);
+    if(!glfwInit()) {
       throw new RuntimeException("Cannot initialize GLFW");
     }
 
-    GL.glfwWindowHint(GL.GLFW_CONTEXT_CREATION_API, GL.GLFW_EGL_CONTEXT_API);
-    GL.glfwWindowHint(GL.GLFW_CONTEXT_VERSION_MAJOR, 3);
-    GL.glfwWindowHint(GL.GLFW_CONTEXT_VERSION_MINOR, 2);
-    GL.glfwWindowHint(GL.GLFW_CLIENT_API, GL.GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
 
     // TODO: Update this.
     String title = "Sketch";
@@ -355,13 +372,15 @@ public class PSurfaceANGLE implements PSurface {
     glfwwidth = graphics.width;
     glfwheight = graphics.height;
 
-    glfwwindow = GL.glfwCreateWindow(800, 600, title, null, 0);
+    glfwwindow = glfwCreateWindow(glfwwidth, glfwheight, title, NULL, NULL);
     
-    GL.glfwMakeContextCurrent(glfwwindow);
+    glfwMakeContextCurrent(glfwwindow);
 
     if(glfwwindow == 0) {
         throw new RuntimeException("Cannot create window");
     }
+    
+    GLES.createCapabilities();
 
     // glfwSetFramebufferSizeCallback(glfwwindow, this::framebufferResizeCallback);
     // glfwSetCursorPosCallback(glfwwindow, this::cursorMoveCallback);
@@ -452,7 +471,7 @@ public class PSurfaceANGLE implements PSurface {
   }
 
   public void swapBuffers() {
-    GL.glfwSwapBuffers(glfwwindow);
+    glfwSwapBuffers(glfwwindow);
   }
 
   public float getPixelScale() {
