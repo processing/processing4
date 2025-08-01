@@ -10,7 +10,7 @@ import processing.app.Preferences;
 import processing.mode.java.preproc.PdePreprocessor;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.PdePreprocessIssueException;
-import processing.mode.java.preproc.SketchException;
+import processing.utils.SketchException;
 
 
 public class ProcessingTestUtil {

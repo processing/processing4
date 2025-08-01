@@ -43,7 +43,7 @@ import com.sun.jdi.connect.*;
 import com.sun.jdi.connect.Connector.Argument;
 import com.sun.jdi.event.*;
 import com.sun.jdi.request.*;
-import processing.mode.java.preproc.SketchException;
+import processing.utils.SketchException;
 
 
 /**
