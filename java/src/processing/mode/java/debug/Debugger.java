@@ -1444,6 +1444,47 @@ public class Debugger {
 
 
   /**
+   * Translate a line (index) from PDE space to sketch space.
+   * @param pdeLine the PDE line id
+   * @return the corresponding sketch line id or null if failed to translate
+   */
+  public LineID pdeToSketchLine(LineID pdeLine) {
+    Sketch sketch = editor.getSketch();
+
+
+    // it may belong to a pde file created in the sketch
+    // try to find an exact filename match and check the extension
+    SketchCode tab = editor.getTab(pdeLine.fileName());
+    if (tab != null && tab.isExtension("pde")) {
+      // can translate 1:1
+      return originalToRuntimeLine(pdeLine);
+    }
+
+
+    // check if it is the preprocessed/assembled file for this sketch
+    // pde file name needs to match the sketches filename
+    if (!pdeLine.fileName().equals(sketch.getName() + ".pde")) {
+      return null;
+    }
+
+
+    // find the tab (.java file) this line belongs to
+    // get the last tab that has an offset not greater than the pde line number
+    for (int i = sketch.getCodeCount() - 1; i >= 0; i--) {
+      tab = sketch.getCode(i);
+      // ignore .pde files
+      // the tab's offset must not be greater than the pde line number
+      if (tab.isExtension("java") && tab.getPreprocOffset() <= pdeLine.lineIdx()) {
+        final int index = pdeLine.lineIdx() - tab.getPreprocOffset();
+        return originalToRuntimeLine(new LineID(tab.getFileName(), index));
+      }
+    }
+    return null;
+  }
+
+
+
+  /**
    * Get the runtime-changed line id for an original sketch line. Used to
    * translate line numbers from the VM (which runs on the original line
    * numbers) to their current (possibly changed) counterparts.
