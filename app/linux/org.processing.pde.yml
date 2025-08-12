@@ -1,0 +1,44 @@
+id: org.processing.processingide
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: processing
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --device=all
+  - --filesystem=home
+  - --socket=pulseaudio
+  - --share=network
+modules:
+    - name: "processing"
+      buildsystem: "simple"
+      build-commands:
+        - install -d /app/share/processing
+        - cp -r app/* /app/share/processing
+        - install -D processing.sh /app/bin/processing
+        - install -D src/build/linux/desktop.template /app/share/applications/org.processing.processingide.desktop
+        - install -D src/build/linux/processing.svg /app/share/icons/hicolor/scalable/apps/org.processing.processingide.svg
+        - install -D app/lib/app/resources/lib/icons/app-16.png /app/share/icons/hicolor/16x16/apps/org.processing.processingide.png
+#       # TODO: Add mimetype icons and app icon
+      sources:
+        - type: git
+          url: https://github.com/processing/processing4.git
+          tag: processing-1304-4.4.4
+          dest: src
+        - type: archive
+          url: https://github.com/processing/processing4/releases/download/processing-1304-4.4.4/processing-4.4.4-linux-x64-portable.zip
+          sha256: 8f5141d09c06bc68a3c58ec3bd0e707003a347ea96e742f83f1868b9c460bb6f
+          only-arches:
+            - x86_64
+          dest: app
+        - type: archive
+          url: https://github.com/processing/processing4/releases/download/processing-1304-4.4.4/processing-4.4.4-linux-aarch64-portable.zip
+          only-arches:
+            - aarch64
+          dest: app
+        - type: script
+          dest-filename: "processing.sh"
+          commands: [
+            "exec /app/share/processing/bin/Processing"
+          ]
