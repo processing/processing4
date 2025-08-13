@@ -89,10 +89,10 @@ compose.desktop {
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
 
-                fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-1024.png"))
+                fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"))
+                fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"))
+                fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-512.png"))
+                fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-512.png"))
             }
         }
     }
