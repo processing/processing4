@@ -23,7 +23,7 @@ class Sketch {
             val sketches: List<Sketch> = emptyList()
         )
 
-        fun getSketches(file: File, filter: (File) -> Boolean = { true }): Folder {
+        fun getSketches(file: File, filter: (File) -> Boolean = { true }): Folder? {
             val name = file.name
             val (sketchesFolders, childrenFolders) = file.listFiles()?.filter (File::isDirectory)?.partition { isSketchFolder(it) } ?: return Folder(
                 name = name,
@@ -31,9 +31,11 @@ class Sketch {
                 sketches = emptyList(),
                 children = emptyList()
             )
-
-            val children = childrenFolders.filter(filter) .map { getSketches(it) }
+            val children = childrenFolders.filter(filter).mapNotNull { getSketches(it) }
             val sketches = sketchesFolders.map { Sketch(name = it.name, path = it.absolutePath) }
+            if(sketches.isEmpty() && children.isEmpty()) {
+                return null
+            }
             return Folder(
                 name = name,
                 path = file.absolutePath,
