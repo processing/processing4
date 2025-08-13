@@ -2,7 +2,7 @@ id: org.processing.pde
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
-command: processing
+command: Processing
 finish-args:
   - --socket=x11
   - --share=ipc
@@ -11,55 +11,29 @@ finish-args:
   - --socket=pulseaudio
   - --share=network
 
-env:
-  PROCESSING_ID: "org.processing.pde"
-
 modules:
-    - name: "processing"
-      buildsystem: "simple"
+    - name: Processing
+      buildsystem: simple
       build-commands:
-        - install -d /app/share/processing
-        - cp -r app/* /app/share/processing
-        - install -D processing.sh /app/bin/processing
+        # Unpack Processing deb
+        - ar x processing.deb
+        - tar --zstd -xf data.tar.zst
+        - mv opt/processing/* /app/
+        - find /app/lib/app/resources/jdk/bin -type f -exec chmod +x {} +
+
 
         # Install the desktop file and icon
-        - install -D src/build/linux/desktop.template /app/share/applications/${PROCESSING_ID}.desktop
-        - sed -i 's/^Icon=.*/Icon=${PROCESSING_ID}/' /app/share/applications/${PROCESSING_ID}.desktop
+        - install -D /app/lib/processing-Processing.desktop /app/share/applications/org.processing.pde.desktop
+        - sed -i 's/^Icon=.*/Icon=org.processing.pde/' /app/share/applications/org.processing.pde.desktop
+        - sed -i 's/^Exec=.*/Exec=\/app\/bin\/Processing/' /app/share/applications/org.processing.pde.desktop
 
-        # Install icons in various sizes
-        - install -D src/build/linux/processing.svg /app/share/icons/hicolor/scalable/apps/${PROCESSING_ID}.svg
-        - install -D app/lib/app/resources/lib/icons/app-16.png /app/share/icons/hicolor/16x16/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-32.png /app/share/icons/hicolor/32x32/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-48.png /app/share/icons/hicolor/48x48/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-64.png /app/share/icons/hicolor/64x64/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-128.png /app/share/icons/hicolor/128x128/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-256.png /app/share/icons/hicolor/256x256/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/app-512.png /app/share/icons/hicolor/512x512/apps/${PROCESSING_ID}.png
-        - install -D app/lib/app/resources/lib/icons/pde-16.png /app/share/icons/hicolor/16x16/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-32.png /app/share/icons/hicolor/32x32/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-48.png /app/share/icons/hicolor/48x48/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-64.png /app/share/icons/hicolor/64x64/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-128.png /app/share/icons/hicolor/128x128/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-256.png /app/share/icons/hicolor/256x256/mimetypes/${PROCESSING_ID}-text-x-processing.png
-        - install -D app/lib/app/resources/lib/icons/pde-512.png /app/share/icons/hicolor/512x512/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        # Install the mimetype info
+        - install -D /app/lib/processing-Processing-MimeInfo.xml /app/share/mime/packages/org.processing.pde.xml
+
+#        - install -D /app/lib/Processing.png /app/share/icons/hicolor/512x512/apps/org.processing.pde.png
+#        - install -D /app/lib/application-x-processing.png /app/share/icons/hicolor/512x512/mimetypes/org.processing.pde-text-x-processing.png
+
       sources:
-        - type: git
-          url: https://github.com/processing/processing4.git
-          tag: processing-1304-4.4.4
-          dest: src
-        - type: archive
-          url: https://github.com/processing/processing4/releases/download/processing-1304-4.4.4/processing-4.4.4-linux-x64-portable.zip
-          sha256: 8f5141d09c06bc68a3c58ec3bd0e707003a347ea96e742f83f1868b9c460bb6f
-          only-arches:
-            - x86_64
-          dest: app
-        - type: archive
-          url: https://github.com/processing/processing4/releases/download/processing-1304-4.4.4/processing-4.4.4-linux-aarch64-portable.zip
-          only-arches:
-            - aarch64
-          dest: app
-        - type: script
-          dest-filename: "processing.sh"
-          commands: [
-            "exec /app/share/processing/bin/Processing"
-          ]
+        - type: file
+          path: ../build/compose/binaries/main/deb/processing_1.0.0-1_amd64.deb
+          dest-filename: processing.deb
