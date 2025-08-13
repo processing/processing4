@@ -1,4 +1,4 @@
-id: org.processing.processingide
+id: org.processing.pde
 runtime: org.freedesktop.Platform
 runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
@@ -10,6 +10,10 @@ finish-args:
   - --filesystem=home
   - --socket=pulseaudio
   - --share=network
+
+env:
+  PROCESSING_ID: "org.processing.pde"
+
 modules:
     - name: "processing"
       buildsystem: "simple"
@@ -17,10 +21,27 @@ modules:
         - install -d /app/share/processing
         - cp -r app/* /app/share/processing
         - install -D processing.sh /app/bin/processing
-        - install -D src/build/linux/desktop.template /app/share/applications/org.processing.processingide.desktop
-        - install -D src/build/linux/processing.svg /app/share/icons/hicolor/scalable/apps/org.processing.processingide.svg
-        - install -D app/lib/app/resources/lib/icons/app-16.png /app/share/icons/hicolor/16x16/apps/org.processing.processingide.png
-#       # TODO: Add mimetype icons and app icon
+
+        # Install the desktop file and icon
+        - install -D src/build/linux/desktop.template /app/share/applications/${PROCESSING_ID}.desktop
+        - sed -i 's/^Icon=.*/Icon=${PROCESSING_ID}/' /app/share/applications/${PROCESSING_ID}.desktop
+
+        # Install icons in various sizes
+        - install -D src/build/linux/processing.svg /app/share/icons/hicolor/scalable/apps/${PROCESSING_ID}.svg
+        - install -D app/lib/app/resources/lib/icons/app-16.png /app/share/icons/hicolor/16x16/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-32.png /app/share/icons/hicolor/32x32/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-48.png /app/share/icons/hicolor/48x48/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-64.png /app/share/icons/hicolor/64x64/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-128.png /app/share/icons/hicolor/128x128/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-256.png /app/share/icons/hicolor/256x256/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/app-512.png /app/share/icons/hicolor/512x512/apps/${PROCESSING_ID}.png
+        - install -D app/lib/app/resources/lib/icons/pde-16.png /app/share/icons/hicolor/16x16/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-32.png /app/share/icons/hicolor/32x32/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-48.png /app/share/icons/hicolor/48x48/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-64.png /app/share/icons/hicolor/64x64/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-128.png /app/share/icons/hicolor/128x128/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-256.png /app/share/icons/hicolor/256x256/mimetypes/${PROCESSING_ID}-text-x-processing.png
+        - install -D app/lib/app/resources/lib/icons/pde-512.png /app/share/icons/hicolor/512x512/mimetypes/${PROCESSING_ID}-text-x-processing.png
       sources:
         - type: git
           url: https://github.com/processing/processing4.git
