@@ -153,6 +153,7 @@ jobs:
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.password: ${{ secrets.PROCESSING_APP_PASSWORD }}
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.teamID: ${{ secrets.PROCESSING_TEAM_ID }}
           ORG_GRADLE_PROJECT_snapname: ${{ vars.SNAP_NAME }}
+          ORG_GRADLE_PROJECT_snapconfinement: ${{ vars.SNAP_CONFINEMENT }}
       
       - name: Sign files with Trusted Signing
         if: runner.os == 'Windows'
