@@ -82,16 +82,17 @@ compose.desktop {
                 upgradeUuid = "89d8d7fe-5602-4b12-ba10-0fe78efbd602"
             }
             linux {
-                appCategory = "Programming"
+                debMaintainer = "hello@processing.org"
                 menuGroup = "Development;Programming;"
+                appCategory = "Programming"
                 iconFile = rootProject.file("build/linux/processing.png")
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
 
-                fileAssociation("pde", "Processing Source Code", "application/x-processing",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("pyde", "Processing Python Source Code", "application/x-processing",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("pdez", "Processing Sketch Bundle", "application/x-processing",rootProject.file("build/shared/lib/icons/pde-1024.png"))
-                fileAssociation("pdex", "Processing Contribution Bundle", "application/x-processing", rootProject.file("build/shared/lib/icons/pde-1024.png"))
+                fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-1024.png"))
+                fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-1024.png"))
+                fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-1024.png"))
+                fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-1024.png"))
             }
         }
     }
