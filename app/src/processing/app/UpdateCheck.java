@@ -35,6 +35,7 @@ import processing.app.ui.WelcomeToBeta;
 import processing.core.PApplet;
 
 
+
 /**
  * Threaded class to check for updates in the background.
  * <p/>
@@ -125,7 +126,6 @@ public class UpdateCheck {
     Preferences.set("update.last", String.valueOf(now));
 
     if (base.activeEditor != null) {
-//      boolean offerToUpdateContributions = true;
 
       if (latest > Base.getRevision()) {
         System.out.println("You are running Processing revision 0" +
@@ -135,8 +135,20 @@ public class UpdateCheck {
 //        offerToUpdateContributions = !promptToVisitDownloadPage();
         promptToVisitDownloadPage();
       }
-      if(latest < Base.getRevision()){
-        WelcomeToBeta.showWelcomeToBeta();
+
+      String lastBetaSeenStr = Preferences.get("beta.last_beta_welcome_seen");
+      int lastBetaSeen = 0;
+      if (lastBetaSeenStr != null) {
+          lastBetaSeen = Integer.parseInt(lastBetaSeenStr);
+      }
+      int revision = Base.getRevision();
+      System.err.println("MOON DEBUG" +
+              Base.getRevision() + ", and lastBetaSeen is " +
+              lastBetaSeen + ".");
+
+
+      if(latest < revision && revision != lastBetaSeen ) {
+          WelcomeToBeta.showWelcomeToBeta();
       }
 
       /*

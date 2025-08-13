@@ -35,6 +35,7 @@ import com.mikepenz.markdown.m2.markdownColor
 import com.mikepenz.markdown.m2.markdownTypography
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
+import processing.app.Preferences
 import processing.app.Base.getRevision
 import processing.app.Base.getVersionName
 import processing.app.ui.theme.LocalLocale
@@ -61,7 +62,10 @@ class WelcomeToBeta {
             val mac = SystemInfo.isMacFullWindowContentSupported
             SwingUtilities.invokeLater {
                 JFrame(windowTitle).apply {
-                    val close = { dispose() }
+                    val close = {
+                       Preferences.set("beta.last_beta_welcome_seen", getRevision().toString())
+                       dispose()
+                    }
                     rootPane.putClientProperty("apple.awt.transparentTitleBar", mac)
                     rootPane.putClientProperty("apple.awt.fullWindowContent", mac)
                     defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
