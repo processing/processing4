@@ -113,6 +113,7 @@ public class UpdateCheck {
                                     System.getProperty("os.arch"));
 
     int latest = readInt(LATEST_URL + "?" + info);
+    int revision = Base.getRevision();
 
     String lastString = Preferences.get("update.last");
     long now = System.currentTimeMillis();
@@ -127,27 +128,17 @@ public class UpdateCheck {
 
     if (base.activeEditor != null) {
 
-      if (latest > Base.getRevision()) {
+      if (latest > revision) {
         System.out.println("You are running Processing revision 0" +
-                           Base.getRevision() + ", the latest build is 0" +
+                           revision + ", the latest build is 0" +
                            latest + ".");
         // Assume the person is busy downloading the latest version
 //        offerToUpdateContributions = !promptToVisitDownloadPage();
         promptToVisitDownloadPage();
       }
 
-      String lastBetaSeenStr = Preferences.get("beta.last_beta_welcome_seen");
-      int lastBetaSeen = 0;
-      if (lastBetaSeenStr != null) {
-          lastBetaSeen = Integer.parseInt(lastBetaSeenStr);
-      }
-      int revision = Base.getRevision();
-      System.err.println("MOON DEBUG" +
-              Base.getRevision() + ", and lastBetaSeen is " +
-              lastBetaSeen + ".");
-
-
-      if(latest < revision && revision != lastBetaSeen ) {
+      int lastBetaWelcomeSeen = Preferences.getInteger("update.beta_welcome");
+      if(latest < revision && revision != lastBetaWelcomeSeen ) {
           WelcomeToBeta.showWelcomeToBeta();
       }
 

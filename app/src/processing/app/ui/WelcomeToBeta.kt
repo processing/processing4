@@ -63,7 +63,7 @@ class WelcomeToBeta {
             SwingUtilities.invokeLater {
                 JFrame(windowTitle).apply {
                     val close = {
-                       Preferences.set("beta.last_beta_welcome_seen", getRevision().toString())
+                       Preferences.set("update.beta_welcome", getRevision().toString())
                        dispose()
                     }
                     rootPane.putClientProperty("apple.awt.transparentTitleBar", mac)
