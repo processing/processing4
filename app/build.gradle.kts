@@ -229,61 +229,44 @@ tasks.register<Exec>("packageCustomMsi"){
 
 
 tasks.register("generateSnapConfiguration"){
-    val name = findProperty("snapname") ?: rootProject.name
+    onlyIf { OperatingSystem.current().isLinux }
+
+    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
+    dependsOn(distributable)
+
+    val name = findProperty("snapname") as String? ?: rootProject.name
     val arch = when (System.getProperty("os.arch")) {
         "amd64", "x86_64" -> "amd64"
         "aarch64" -> "arm64"
         else -> System.getProperty("os.arch")
     }
-
-    onlyIf { OperatingSystem.current().isLinux }
-    val distributable = tasks.named<AbstractJPackageTask>("createDistributable").get()
-    dependsOn(distributable)
-
+    val confinement = findProperty("snapconfinement") as String? ?: "strict"
     val dir = distributable.destinationDir.get()
-    val content = """
-    name: $name
-    version: $version
-    base: core22
-    summary: A creative coding editor
-    description: |
-      Processing is a flexible software sketchbook and a programming language designed for learning how to code.
-    confinement: strict
-    
-    apps:
-      processing:
-        command: opt/processing/bin/Processing
-        desktop: opt/processing/lib/processing-Processing.desktop
-        environment:
-            LD_LIBRARY_PATH: ${'$'}SNAP/opt/processing/lib/runtime/lib:${'$'}LD_LIBRARY_PATH
-            LIBGL_DRIVERS_PATH: ${'$'}SNAP/usr/lib/${'$'}SNAPCRAFT_ARCH_TRIPLET/dri
-        plugs:
-          - desktop
-          - desktop-legacy
-          - wayland
-          - x11
-          - network
-          - opengl
-          - home
-          - removable-media
-          - audio-playback
-          - audio-record
-          - pulseaudio
-          - gpio
-    
-    parts:
-      processing:
-        plugin: dump
-        source: deb/processing_$version-1_$arch.deb
-        source-type: deb
-        stage-packages:
-          - openjdk-17-jre
-        override-prime: |
-          snapcraftctl prime
-          rm -vf usr/lib/jvm/java-17-openjdk-*/lib/security/cacerts
-          chmod -R +x opt/processing/lib/app/resources/jdk
-    """.trimIndent()
-    dir.file("../snapcraft.yaml").asFile.writeText(content)
+    val base = layout.projectDirectory.file("linux/snapcraft.base.yml")
+
+    doFirst {
+
+        var content = base
+            .asFile
+            .readText()
+            .replace("\$name", name)
+            .replace("\$arch", arch)
+            .replace("\$version", version as String)
+            .replace("\$confinement", confinement)
+            .let {
+                if (confinement != "classic") return@let it
+                // If confinement is not strict, remove the PLUGS section
+                val start = it.indexOf("# PLUGS START")
+                val end = it.indexOf("# PLUGS END")
+                if (start != -1 && end != -1) {
+                    val before = it.substring(0, start)
+                    val after = it.substring(end + "# PLUGS END".length)
+                    return@let before + after
+                }
+                return@let it
+            }
+        dir.file("../snapcraft.yaml").asFile.writeText(content)
+    }
 }
 
 tasks.register<Exec>("packageSnap"){
