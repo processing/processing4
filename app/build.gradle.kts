@@ -124,6 +124,7 @@ dependencies {
     testImplementation(libs.junitJupiterParams)
 
     implementation(libs.clikt)
+    implementation(libs.kotlinxSerializationJson)
 }
 
 tasks.test {
@@ -424,7 +425,6 @@ tasks.register<Copy>("renameWindres") {
 }
 tasks.register("includeProcessingResources"){
     dependsOn(
-        "includeJdk",
         "includeCore",
         "includeJavaMode",
         "includeSharedAssets",
@@ -433,6 +433,7 @@ tasks.register("includeProcessingResources"){
         "includeJavaModeResources",
         "renameWindres"
     )
+    mustRunAfter("includeJdk")
     finalizedBy("signResources")
 }
 
@@ -539,6 +540,7 @@ afterEvaluate {
         dependsOn("includeProcessingResources")
     }
     tasks.named("createDistributable").configure {
+        dependsOn("includeJdk")
         finalizedBy("setExecutablePermissions")
     }
 }
