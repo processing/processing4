@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
@@ -323,6 +326,34 @@ public class JavaEditor extends Editor {
 //      "menu.help.reference.update" : "menu.help.reference.download");
     item = new JMenuItem(Language.text("menu.help.reference.download"));
     item.addActionListener(e -> new Thread(this::downloadReference).start());
+    menu.add(item);
+
+    menu.addSeparator();
+
+    // Report a bug link opener
+    item = new JMenuItem(Language.text("menu.help.report"));
+    item.addActionListener(e -> {
+      Desktop desktop = java.awt.Desktop.getDesktop();
+      try {
+        URI oURL = new URI(Language.text("menu.help.report.url"));
+        desktop.browse(oURL);
+      } catch (IOException | URISyntaxException ex) {
+        throw new RuntimeException(ex);
+      }
+    });
+    menu.add(item);
+
+    // Ask on the Forum link opener
+    item = new JMenuItem(Language.text("menu.help.ask"));
+    item.addActionListener(e -> {
+      Desktop desktop = java.awt.Desktop.getDesktop();
+      try {
+        URI oURL = new URI(Language.text("menu.help.ask.url"));
+        desktop.browse(oURL);
+      } catch (IOException | URISyntaxException ex) {
+        throw new RuntimeException(ex);
+      }
+    });
     menu.add(item);
 
     menu.addSeparator();
