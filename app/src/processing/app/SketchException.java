@@ -1,13 +1,13 @@
 // temporary band-aid class to support modes which are still looking here for the now-refactored class.
-// (would be good to delete this file once all modes are updated to use processing.utils.SketchException)
 //  - josh giesbrecht
 
 package processing.app;
 
-// extends the refactored class, to defer functionality there and also to hopefully play nicely when
-// exception-handling goes to see if this is a processing.utils.SketchException or not!
+@Deprecated
+// please migrate to using processing.utils.SketchException instead! all class functionality is the same as before.
 public class SketchException extends processing.utils.SketchException {
 
+    // Idea complained without all these super wrappers for constructors. ¯\_(ツ)_/¯ sure, why not?
     public SketchException(String message) {
         super(message);
     }
