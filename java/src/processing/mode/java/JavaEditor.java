@@ -332,28 +332,12 @@ public class JavaEditor extends Editor {
 
     // Report a bug link opener
     item = new JMenuItem(Language.text("menu.help.report"));
-    item.addActionListener(e -> {
-      Desktop desktop = java.awt.Desktop.getDesktop();
-      try {
-        URI oURL = new URI(Language.text("menu.help.report.url"));
-        desktop.browse(oURL);
-      } catch (IOException | URISyntaxException ex) {
-        throw new RuntimeException(ex);
-      }
-    });
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.report.url")));
     menu.add(item);
 
     // Ask on the Forum link opener
     item = new JMenuItem(Language.text("menu.help.ask"));
-    item.addActionListener(e -> {
-      Desktop desktop = java.awt.Desktop.getDesktop();
-      try {
-        URI oURL = new URI(Language.text("menu.help.ask.url"));
-        desktop.browse(oURL);
-      } catch (IOException | URISyntaxException ex) {
-        throw new RuntimeException(ex);
-      }
-    });
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.getting_started.url")));
     menu.add(item);
 
     menu.addSeparator();
