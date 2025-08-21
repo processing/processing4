@@ -36,9 +36,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
