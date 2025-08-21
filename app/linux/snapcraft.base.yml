@@ -1,0 +1,42 @@
+name: $name
+version: $version
+base: core22
+summary: A creative coding editor
+description: |
+  Processing is a flexible software sketchbook and a programming language designed for learning how to code.
+confinement: $confinement
+
+apps:
+  processing:
+    command: opt/processing/bin/Processing
+    desktop: opt/processing/lib/processing-Processing.desktop
+    environment:
+      LD_LIBRARY_PATH: $SNAP/opt/processing/lib/runtime/lib:$LD_LIBRARY_PATH
+      LIBGL_DRIVERS_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/dri
+    # PLUGS START
+    plugs:
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - network
+      - opengl
+      - home
+      - removable-media
+      - audio-playback
+      - audio-record
+      - pulseaudio
+      - gpio
+    # PLUGS END
+
+parts:
+  processing:
+    plugin: dump
+    source: deb/processing_$version-1_$arch.deb
+    source-type: deb
+    stage-packages:
+      - openjdk-17-jre
+    override-prime: |
+      snapcraftctl prime
+      rm -vf usr/lib/jvm/java-17-openjdk-*/lib/security/cacerts
+      chmod -R +x opt/processing/lib/app/resources/jdk
