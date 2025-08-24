@@ -1,0 +1,25 @@
+{
+  "name": "processing4-visual-testing",
+  "version": "1.0.0",
+  "description": "Visual regression testing tools for Processing 4",
+  "private": true,
+  "bin": {
+    "compare-images": "./bin/compare-images.js"
+  },
+  "scripts": {
+    "test": "node tests/run-visual-tests.js",
+    "compare": "node bin/compare-images.js",
+    "generate-baselines": "node scripts/generate-baselines.js",
+    "report": "node scripts/generate-report.js",
+    "clean": "rimraf test-results screenshots"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0",
+    "glob": "^10.3.3"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.1"
+  }
+}
