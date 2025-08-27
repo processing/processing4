@@ -65,6 +65,14 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
+
+
+
+            fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pde.ico"), rootProject.file("build/macos/pde.icns"))
+            fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pde.ico"), rootProject.file("build/macos/pde.icns"))
+            fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pdze.ico"), rootProject.file("build/macos/pdez.icns"))
+            fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pdex.ico"), rootProject.file("build/macos/pdex.icns"))
+
             macOS{
                 bundleID = "${rootProject.group}.app"
                 iconFile = rootProject.file("build/macos/processing.icns")
@@ -89,10 +97,6 @@ compose.desktop {
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
 
-                fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"))
-                fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"))
-                fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-512.png"))
-                fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-512.png"))
             }
         }
     }
