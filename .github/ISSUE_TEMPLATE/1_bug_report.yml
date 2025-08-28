@@ -42,7 +42,7 @@ body:
 - type: input
   attributes:
     label: Operating system
-    description: "Ex: Windows/MacOSX/Linux/Android/iOS along with version"
+    description: "Ex: Windows/macOS/Linux/Android/iOS along with version"
   validations:
     required: true
 
@@ -60,11 +60,11 @@ body:
     label: Steps to reproduce this
     description: Describe what steps will produce the bug.
     value: |
-      "1.
+      1.
 
       2.
 
-      3."
+      3.
   validations:
     required: true
 
