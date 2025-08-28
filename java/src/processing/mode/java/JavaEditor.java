@@ -334,7 +334,7 @@ public class JavaEditor extends Editor {
 
     // Ask on the Forum link opener
     item = new JMenuItem(Language.text("menu.help.ask"));
-    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.getting_started.url")));
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.ask.url")));
     menu.add(item);
 
     menu.addSeparator();
