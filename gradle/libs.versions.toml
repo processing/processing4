@@ -3,6 +3,7 @@ kotlin = "2.0.20"
 compose-plugin = "1.7.1"
 jogl = "2.5.0"
 jupiter = "5.12.0"
+versions = "0.52.0"
 
 [libraries]
 jogl = { module = "org.jogamp.jogl:jogl-all-main", version.ref = "jogl" }
@@ -37,3 +38,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 download = { id = "de.undercouch.download", version = "5.6.0" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.30.0" }
+versions = { id = "com.github.ben-manes.versions", version.ref = "versions" }
