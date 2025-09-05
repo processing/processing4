@@ -207,8 +207,8 @@ public class LineBreakpoint implements ClassLoadListener {
    */
   protected String className() {
     if (line.fileName().endsWith(".pde")) {
-      // standard tab
-      return dbg.getEditor().getSketch().getName();
+      // pure pde tab
+        return line.fileName().substring(0, line.fileName().lastIndexOf(".pde"));
     }
 
     if (line.fileName().endsWith(".java")) {
