@@ -27,15 +27,12 @@ package processing.core;
 
 // Used for color conversion functions
 import java.awt.Color;
-
-// Used for the 'image' object that's been here forever
 import java.awt.Font;
 import java.awt.Image;
-
 import java.io.File;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -7589,6 +7586,7 @@ public class PGraphics extends PImage implements PConstants {
     colorModeDefault = (colorMode == RGB) &&
       (colorModeA == 255) && (colorModeX == 255) &&
       (colorModeY == 255) && (colorModeZ == 255);
+
   }
 
 

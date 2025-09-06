@@ -70,7 +70,7 @@ public class PGLANGLE extends PGL {
         RGB565  = GL_RGB565;
         RGB8    = GL_RGB8;
         RGBA8   = GL_RGBA8;
-        ALPHA8  = 0;                // TODO
+        // ALPHA8  = 0;                // TODO
 
         READ_ONLY  = GL_READ_ONLY;
         WRITE_ONLY = GL_WRITE_ONLY;
@@ -80,7 +80,7 @@ public class PGLANGLE extends PGL {
         TESS_WINDING_ODD     = GLU.GLU_TESS_WINDING_ODD;
         TESS_EDGE_FLAG       = GLU.GLU_TESS_EDGE_FLAG;
 
-        GENERATE_MIPMAP_HINT = GL_GENERATE_MIPMAP_HINT;   // TODO
+        // GENERATE_MIPMAP_HINT = GL_GENERATE_MIPMAP_HINT;   // TODO
         FASTEST              = GL_FASTEST;
         NICEST               = GL_NICEST;
         DONT_CARE            = GL_DONT_CARE;
@@ -138,14 +138,14 @@ public class PGLANGLE extends PGL {
         PACK_ALIGNMENT   = GL_PACK_ALIGNMENT;
 
         TEXTURE_2D        = GL_TEXTURE_2D;
-        TEXTURE_RECTANGLE = 0;  // TODO
+        // TEXTURE_RECTANGLE = 0;  // TODO
 
         TEXTURE_BINDING_2D        = GL_TEXTURE_BINDING_2D;
-        TEXTURE_BINDING_RECTANGLE = 0;  // TODO
+        // TEXTURE_BINDING_RECTANGLE = 0;  // TODO
 
         MAX_TEXTURE_SIZE           = GL_MAX_TEXTURE_SIZE;
-        TEXTURE_MAX_ANISOTROPY     = 0;  // TODO
-        MAX_TEXTURE_MAX_ANISOTROPY = 0;  // TODO
+        // TEXTURE_MAX_ANISOTROPY     = 0;  // TODO
+        // MAX_TEXTURE_MAX_ANISOTROPY = 0;  // TODO
 
         MAX_VERTEX_TEXTURE_IMAGE_UNITS   = GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS;
         MAX_TEXTURE_IMAGE_UNITS          = GL_MAX_TEXTURE_IMAGE_UNITS;
@@ -292,10 +292,10 @@ public class PGLANGLE extends PGL {
         DEPTH_COMPONENT   = GL_DEPTH_COMPONENT;
         DEPTH_COMPONENT16 = GL_DEPTH_COMPONENT16;
         DEPTH_COMPONENT24 = GL_DEPTH_COMPONENT24;
-        DEPTH_COMPONENT32 = 0;   // TODO
+        // DEPTH_COMPONENT32 = 0;   // TODO
         STENCIL_INDEX  = GL_STENCIL_INDEX;
-        STENCIL_INDEX1 = 0;  // TODO
-        STENCIL_INDEX4 = 0;  // TODO
+        // STENCIL_INDEX1 = 0;  // TODO
+        // STENCIL_INDEX4 = 0;  // TODO
         STENCIL_INDEX8 = GL_STENCIL_INDEX8;
 
         DEPTH_STENCIL = GL_DEPTH_STENCIL;
@@ -305,9 +305,9 @@ public class PGLANGLE extends PGL {
         FRAMEBUFFER_INCOMPLETE_ATTACHMENT         = GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
         FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
         FRAMEBUFFER_INCOMPLETE_DIMENSIONS         = GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
-        FRAMEBUFFER_INCOMPLETE_FORMATS            = 0;  // TODO
-        FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER        = 0;  // TODO
-        FRAMEBUFFER_INCOMPLETE_READ_BUFFER        = 0;  // TODO
+        // FRAMEBUFFER_INCOMPLETE_FORMATS            = 0;  // TODO
+        // FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER        = 0;  // TODO
+        // FRAMEBUFFER_INCOMPLETE_READ_BUFFER        = 0;  // TODO
         FRAMEBUFFER_UNSUPPORTED                   = GL_FRAMEBUFFER_UNSUPPORTED;
         FRAMEBUFFER_INCOMPLETE_MULTISAMPLE        = GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE;
         FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS      = GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS;
@@ -327,9 +327,9 @@ public class PGLANGLE extends PGL {
         RENDERBUFFER_STENCIL_SIZE    = GL_RENDERBUFFER_STENCIL_SIZE;
         RENDERBUFFER_INTERNAL_FORMAT = GL_RENDERBUFFER_INTERNAL_FORMAT;
 
-        MULTISAMPLE    = 0;   // TODO
-        LINE_SMOOTH    = 0;
-        POLYGON_SMOOTH = 0;
+        // MULTISAMPLE    = 0;   // TODO
+        // LINE_SMOOTH    = 0;
+        // POLYGON_SMOOTH = 0;
 
         SYNC_GPU_COMMANDS_COMPLETE = GL_SYNC_GPU_COMMANDS_COMPLETE;
         ALREADY_SIGNALED           = GL_ALREADY_SIGNALED;
@@ -340,11 +340,26 @@ public class PGLANGLE extends PGL {
     protected FloatBuffer projMatrixBuffer;
     protected float[] mvMatrix;
 
-    private HashMap<Integer, Buffer> buffers = new HashMap<Integer, Buffer>();
+    private HashMap<Integer, ByteBuffer> buffers = new HashMap<Integer, ByteBuffer>();
     private int boundBuffer = -1;
 
+    private ByteBuffer getBoundBuffer(int offset) {
+        ByteBuffer buff = buffers.get(boundBuffer);
+        
+        if (buff == null) {
+            System.err.println("unbound buffer");
+            return null;
+        }
+
+        if (offset > 0) {
+            return buff.slice(offset, buff.capacity()-offset);
+        }
+
+        return buff;
+    }
+
     private void report(String m) {
-        // System.out.println(m);
+        System.out.println(m);
     }
 
     public static ByteBuffer convertToByteBuffer(Buffer outputBuffer) {
@@ -411,6 +426,79 @@ public class PGLANGLE extends PGL {
         report("Object getNative");
         return null;
     }
+    
+    @Override
+    protected void initFBOLayer() {
+        if (0 < sketch.frameCount) {
+        // if (isES()) initFBOLayerES();
+        initFBOLayerES();
+        // else
+        // initFBOLayerGL();
+        }
+    }
+    
+    @Override
+    protected boolean isES() {
+        return true;
+    }
+
+
+    
+    private void initFBOLayerGL() {
+        // Copy the contents of the front and back screen buffers to the textures
+        // of the FBO, so they are properly initialized. Note that the front buffer
+        // of the default framebuffer (the screen) contains the previous frame:
+        // https://www.opengl.org/wiki/Default_Framebuffer
+        // so it is copied to the front texture of the FBO layer:
+        if (pclearColor || 0 < pgeomCount || !sketch.isLooping()) {
+        if (hasReadBuffer()) readBuffer(FRONT);
+        } else {
+        // ...except when the previous frame has not been cleared and nothing was
+        // rendered while looping. In this case the back buffer, which holds the
+        // initial state of the previous frame, still contains the most up-to-date
+        // screen state.
+        readBuffer(BACK);
+        }
+        bindFramebufferImpl(DRAW_FRAMEBUFFER, glColorFbo.get(0));
+        framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0,
+                            TEXTURE_2D, glColorTex.get(frontTex), 0);
+        if (hasDrawBuffer()) drawBuffer(COLOR_ATTACHMENT0);
+        blitFramebuffer(0, 0, fboWidth, fboHeight,
+                        0, 0, fboWidth, fboHeight,
+                        COLOR_BUFFER_BIT, NEAREST);
+
+        readBuffer(BACK);
+        bindFramebufferImpl(DRAW_FRAMEBUFFER, glColorFbo.get(0));
+        framebufferTexture2D(FRAMEBUFFER, COLOR_ATTACHMENT0,
+                            TEXTURE_2D, glColorTex.get(backTex), 0);
+        drawBuffer(COLOR_ATTACHMENT0);
+        blitFramebuffer(0, 0, fboWidth, fboHeight,
+                        0, 0, fboWidth, fboHeight,
+                        COLOR_BUFFER_BIT, NEAREST);
+
+        bindFramebufferImpl(FRAMEBUFFER, 0);
+    }
+    
+
+    private void initFBOLayerES() {
+        IntBuffer buf = allocateDirectIntBuffer(fboWidth * fboHeight);
+
+        if (hasReadBuffer()) readBuffer(BACK);
+        readPixelsImpl(0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
+        bindTexture(TEXTURE_2D, glColorTex.get(frontTex));
+        texSubImage2D(TEXTURE_2D, 0, 0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
+
+        bindTexture(TEXTURE_2D, glColorTex.get(backTex));
+        texSubImage2D(TEXTURE_2D, 0, 0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
+
+        bindTexture(TEXTURE_2D, 0);
+        bindFramebufferImpl(FRAMEBUFFER, 0);
+    }
+
+    @Override
+    public boolean threadIsCurrent()  {
+        return true;  // TODO: actual check instead of always true.
+    }
 
     @Override
     protected void setFrameRate(float fps) {
@@ -455,8 +543,10 @@ public class PGLANGLE extends PGL {
         if (surf == null) {
         return graphics.pixelDensity;
         } else if (surf instanceof PSurfaceJOGL) {
+        return ((PSurfaceJOGL)surf).getPixelScale();
+        } else if (surf instanceof PSurfaceANGLE) {
         return ((PSurfaceANGLE)surf).getPixelScale();
-        } else {
+        }else {
         throw new RuntimeException("Renderer cannot find a JOGL surface");
         }
         
@@ -491,6 +581,7 @@ public class PGLANGLE extends PGL {
         report("void swapBuffers");
         PSurfaceANGLE surf = (PSurfaceANGLE)sketch.getSurface();
         surf.swapBuffers();
+        System.out.println("SWAP!!");
     }
 
     @Override
@@ -571,29 +662,13 @@ public class PGLANGLE extends PGL {
         return super.hasShaders();
     }
     
-    @Override
-    protected void initFBOLayer() {
-        report("void initFBOLayer");
-        IntBuffer buf = allocateDirectIntBuffer(fboWidth * fboHeight);
-
-        if (hasReadBuffer()) readBuffer(BACK);
-        readPixelsImpl(0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
-        bindTexture(TEXTURE_2D, glColorTex.get(frontTex));
-        texSubImage2D(TEXTURE_2D, 0, 0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
-
-        bindTexture(TEXTURE_2D, glColorTex.get(backTex));
-        texSubImage2D(TEXTURE_2D, 0, 0, 0, fboWidth, fboHeight, RGBA, UNSIGNED_BYTE, buf);
-
-        bindTexture(TEXTURE_2D, 0);
-        bindFramebufferImpl(FRAMEBUFFER, 0);
-    }
     
     @Override
     protected void enableTexturing(int target) {
         report("void enableTexturing");
         if (target == TEXTURE_2D) {
         texturingTargets[0] = true;
-        } else if (target == TEXTURE_RECTANGLE) {
+        } else if (target == TEXTURE_RECTANGLE()) {
         texturingTargets[1] = true;
         }
     }
@@ -604,7 +679,7 @@ public class PGLANGLE extends PGL {
         report("void disableTexturing");
         if (target == TEXTURE_2D) {
         texturingTargets[0] = false;
-        } else if (target == TEXTURE_RECTANGLE) {
+        } else if (target == TEXTURE_RECTANGLE()) {
         texturingTargets[1] = false;
         }
     }
@@ -683,16 +758,14 @@ public class PGLANGLE extends PGL {
     @Override
     protected int getGLSLVersion() {
         report("int getGLSLVersion");
-        // TODO: This is incorrect.
-        // return ;
-        System.out.println("getGLSLVersion "+glGetString( GL_SHADING_LANGUAGE_VERSION ));
-        return 0;
+        return 30020;
+        // return 0;
     }
 
     @Override
     protected String getGLSLVersionSuffix() {
         report("String getGLSLVersionSuffix");
-        return "";
+        return " es";
     }
     
     @SuppressWarnings("deprecation")
@@ -988,7 +1061,7 @@ public class PGLANGLE extends PGL {
             glBufferData(target, sizel, usage);
             return;
         }
-        buffers.put(boundBuffer, data);
+        buffers.put(boundBuffer, convertToByteBuffer(data));
 
         // Thread.dumpStack();
         
@@ -1149,6 +1222,11 @@ public class PGLANGLE extends PGL {
     @Override
     public void vertexAttribPointer(int index, int size, int type, boolean normalized, int stride, int offset) {
         report("void vertexAttribPointer");
+
+        System.out.println("Stride: "+stride);
+
+        // ByteBuffer buff = getBoundBuffer(offset);
+        // if (buff == null) return;
         glVertexAttribPointer(index, size, type, normalized, stride, offset);
     }
 
@@ -1173,35 +1251,13 @@ public class PGLANGLE extends PGL {
     @Override
     public void drawElementsImpl(int mode, int count, int type, int offset) {
         report("void drawElementsImpl");
-        Buffer buff = buffers.get(boundBuffer);
-        System.out.println("drawElements buffer "+boundBuffer);
-        if (buff == null) {
-            System.err.println("drawElementsImpl: unbound buffer");
-            return;
-        }
-        ByteBuffer bytebuff = convertToByteBuffer(buff).slice(offset, buff.capacity()-offset);
+        // ByteBuffer buff = getBoundBuffer(offset);
+        // if (buff == null) return;
+        
+        // // System.out.println("drawElements buffer "+boundBuffer);
+        // System.out.println("Requested count: "+count+"  Expected count: 256  Capacity count: "+(buff.capacity()/2)+"  Limit count: "+(buff.limit()/2));
 
-
-        // From ChatGPT:
-
-        // Buffer Size Mismatch:
-        // The size of the vertex buffer or index buffer may not match the number of vertices or indices you are 
-        // trying to draw. Ensure that the buffer contains enough data for the number of elements specified in your
-        // glDrawElements call.
-
-        // Incorrect Buffer Binding:
-        // Make sure that the correct buffer is bound before calling glDrawElements. If you have multiple buffers, 
-        // you might be referencing the wrong one.
-
-        // Data Not Initialized:
-        // If the buffer was created but not filled with data, or if the data was cleared or not properly uploaded, 
-        // you will encounter this error.
-
-        // Index Buffer Issues:
-        // If you are using an index buffer, ensure that the indices are within the range of the vertex buffer. 
-        // If an index points to a vertex that doesn't exist, it can lead to this error.
-
-        glDrawElements(mode, type, bytebuff);
+        glDrawElements(mode, count, type, offset);
     }
 
     @Override

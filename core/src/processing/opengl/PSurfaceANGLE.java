@@ -119,11 +119,12 @@ public class PSurfaceANGLE implements PSurface {
         // pvk.getGL(pvk);
 
         sketch.handleDraw();
+        
         PGraphicsOpenGL.completeFinishedPixelTransfers();
 //        Util.endTmr("completeFinishedPixelTransfers");
       }
+      swapBuffers();
 
-      // glfwSwapBuffers(glfwwindow);
       
       glfwPollEvents();
 

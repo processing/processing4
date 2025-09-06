@@ -1149,7 +1149,7 @@ public class Texture implements PConstants {
     pgl.texParameteri(glTarget, PGL.TEXTURE_WRAP_S, glWrapS);
     pgl.texParameteri(glTarget, PGL.TEXTURE_WRAP_T, glWrapT);
     if (PGraphicsOpenGL.anisoSamplingSupported) {
-      pgl.texParameterf(glTarget, PGL.TEXTURE_MAX_ANISOTROPY,
+      pgl.texParameterf(glTarget, PGL.TEXTURE_MAX_ANISOTROPY(),
                         PGraphicsOpenGL.maxAnisoAmount);
     }
 
