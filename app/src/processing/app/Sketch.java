@@ -50,6 +50,8 @@ import javax.swing.border.EmptyBorder;
  * Stores information about files in the current sketch.
  */
 public class Sketch {
+  public static final String PROPERTIES_NAME = "sketch.properties";
+
   private final Editor editor;
   private final Mode mode;
 
@@ -1305,7 +1307,7 @@ public class Sketch {
     }
     return null;
     */
-    return new Settings(new File(folder, "sketch.properties"));
+    return new Settings(new File(folder, PROPERTIES_NAME));
   }
 
 

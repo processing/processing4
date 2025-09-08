@@ -393,6 +393,8 @@ public class Preferences {
 
 
   static protected void setSketchbookPath(String path) {
+    // Unify path seperator for all platforms
+    path = path.replace(File.separatorChar, '/');
     set("sketchbook.path.four", path); //$NON-NLS-1$
   }
 }
