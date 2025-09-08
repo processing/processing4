@@ -1,6 +1,8 @@
 import org.gradle.internal.jvm.Jvm
+import org.gradle.kotlin.dsl.support.zipTo
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
@@ -49,14 +51,18 @@ compose.desktop {
     application {
         mainClass = "processing.app.ProcessingKt"
 
-        jvmArgs(*listOf(
-            Pair("processing.version", rootProject.version),
-            Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
-            Pair("processing.download.page", "https://processing.org/download/"),
-            Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
-            Pair("processing.tutorials", "https://processing.org/tutorials/"),
-        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+
+        val variables = mapOf(
+            "processing.group" to (rootProject.group.takeIf { it != "" } ?: "processing"),
+            "processing.version" to rootProject.version,
+            "processing.revision" to (findProperty("revision") ?: Int.MAX_VALUE),
+            "processing.contributions.source" to "https://contributions.processing.org/contribs",
+            "processing.download.page" to "https://processing.org/download/",
+            "processing.download.latest" to "https://processing.org/download/latest.txt",
+            "processing.tutorials" to "https://processing.org/tutorials/"
+        )
+
+        jvmArgs(*variables.entries.map { "-D${it.key}=${it.value}" }.toTypedArray())
 
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.accessibility", "java.management.rmi", "java.scripting", "jdk.httpserver")
@@ -111,6 +117,7 @@ dependencies {
     implementation(compose.ui)
     implementation(compose.components.resources)
     implementation(compose.components.uiToolingPreview)
+    implementation(compose.materialIconsExtended)
 
     implementation(compose.desktop.currentOs)
 
@@ -118,14 +125,14 @@ dependencies {
     implementation(libs.kaml)
     implementation(libs.markdown)
     implementation(libs.markdownJVM)
+    implementation(gradleApi())
+    implementation(libs.clikt)
+    implementation(libs.kotlinxSerializationJson)
 
     testImplementation(kotlin("test"))
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
-
-    implementation(libs.clikt)
-    implementation(libs.kotlinxSerializationJson)
 }
 
 tasks.test {
@@ -390,23 +397,6 @@ tasks.register<Copy>("includeJavaModeResources") {
     from(java.layout.buildDirectory.dir("resources-bundled"))
     into(composeResources("../"))
 }
-// TODO: Move to java mode
-tasks.register<Copy>("renameWindres") {
-    dependsOn("includeSharedAssets","includeJavaModeResources")
-    val dir = composeResources("modes/java/application/launch4j/bin/")
-    val os = DefaultNativePlatform.getCurrentOperatingSystem()
-    val platform = when {
-        os.isWindows -> "windows"
-        os.isMacOsX -> "macos"
-        else -> "linux"
-    }
-    from(dir) {
-        include("*-$platform*")
-        rename("(.*)-$platform(.*)", "$1$2")
-    }
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    into(dir)
-}
 tasks.register("includeProcessingResources"){
     dependsOn(
         "includeCore",
@@ -414,8 +404,7 @@ tasks.register("includeProcessingResources"){
         "includeSharedAssets",
         "includeProcessingExamples",
         "includeProcessingWebsiteExamples",
-        "includeJavaModeResources",
-        "renameWindres"
+        "includeJavaModeResources"
     )
     mustRunAfter("includeJdk")
     finalizedBy("signResources")
@@ -495,9 +484,9 @@ tasks.register("signResources"){
         }
         file(composeResources("Info.plist")).delete()
     }
-
-
 }
+
+
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
     group = "compose desktop"
@@ -522,6 +511,8 @@ tasks.register("setExecutablePermissions") {
 afterEvaluate {
     tasks.named("prepareAppResources").configure {
         dependsOn("includeProcessingResources")
+        // Make sure all libraries are bundled in the maven repository distributed with the app
+        dependsOn(listOf("core","java:preprocessor", "java:gradle", "java:gradle:hotreload").map { project(":$it").tasks.named("publishAllPublicationsToAppRepository") })
     }
     tasks.named("createDistributable").configure {
         dependsOn("includeJdk")

@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id("java")
 }
@@ -49,23 +51,33 @@ tasks.compileJava{
 // Most of these are shims to be compatible with the old build system
 // They should be removed in the future, as we work towards making things more Gradle-native
 tasks.register<Copy>("extraResources"){
-    dependsOn(":java:copyCore")
-    from(".")
-    include("keywords.txt")
-    include("theme/**/*")
-    include("application/**/*")
-    into( layout.buildDirectory.dir("resources-bundled/common/modes/java"))
+    dependsOn("copyCore")
+    val os = DefaultNativePlatform.getCurrentOperatingSystem()
+    val platform = when {
+        os.isWindows -> "windows"
+        os.isMacOsX -> "macos"
+        else -> "linux"
+    }
+    from(layout.projectDirectory){
+        include("keywords.txt")
+        include("theme/**/*")
+        include("application/**/*")
+        exclude("application/launch4j/bin/*")
+    }
+    from(layout.projectDirectory){
+        include ("application/launch4j/bin/*$platform")
+        rename("(.*)-$platform(.*)", "$1$2")
+    }
+    into(layout.buildDirectory.dir("resources-bundled/common/modes/java"))
 }
 tasks.register<Copy>("copyCore"){
     val coreProject = project(":core")
     dependsOn(coreProject.tasks.jar)
-    from(coreProject.tasks.jar) {
-        include("core*.jar")
-    }
+    from(coreProject.tasks.jar)
+    include("core*.jar")
     rename("core.+\\.jar", "core.jar")
     into(coreProject.layout.projectDirectory.dir("library"))
 }
-
 val libraries = arrayOf("dxf","io","net","pdf","serial","svg")
 libraries.forEach { library ->
     tasks.register<Copy>("library-$library-extraResources"){
@@ -78,7 +90,7 @@ libraries.forEach { library ->
         include("*.properties")
         include("library/**/*")
         include("examples/**/*")
-        into( layout.buildDirectory.dir("resources-bundled/common/modes/java/libraries/$library"))
+        into(layout.buildDirectory.dir("resources-bundled/common/modes/java/libraries/$library"))
     }
     tasks.named("extraResources"){ dependsOn("library-$library-extraResources") }
 }

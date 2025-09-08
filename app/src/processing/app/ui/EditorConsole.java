@@ -254,7 +254,14 @@ public class EditorConsole extends JScrollPane {
         // "java.lang.NoSuchMethodError: accessibilityHitTest"
         // https://github.com/processing/processing4/issues/368
         return true;
+      } else if (what.contains("__MOVE__")) {
+        // Don't display the "Move" message that is used to position the sketch window
+        return true;
+      }else if (what.startsWith("SLF4J: ")) {
+        // Don't display the SLF4J messages
+        return true;
       }
+
     } else {  // !err
       if (what.contains("Listening for transport dt_socket at address")) {
         // Message from the JVM about the socket launch for debug

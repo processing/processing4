@@ -152,13 +152,19 @@ public class EditorFooter extends Box {
   public void addPanel(Component comp, String name, String icon) {
     tabs.add(new Tab(comp, name, icon));
     cardPanel.add(name, comp);
+    repaint();
   }
 
-
-//  public void setPanel(int index) {
-//    cardLayout.show(cardPanel, tabs.get(index).name);
-//  }
-
+  /**
+   * Remove a panel from the footer.
+   * @param comp Component that links to this tab.
+   * */
+  public void removePanel(Component comp){
+    cardLayout.show(cardPanel, tabs.get(0).title);
+    tabs.removeIf(tab -> tab.comp == comp);
+    cardPanel.remove(comp);
+    repaint();
+  }
 
   public void setPanel(Component comp) {
     for (Tab tab : tabs) {

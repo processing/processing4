@@ -9,3 +9,12 @@ plugins {
 // Set the build directory to not /build to prevent accidental deletion through the clean action
 // Can be deleted after the migration to Gradle is complete
 layout.buildDirectory = file(".build")
+
+allprojects{
+    tasks.withType<JavaCompile> {
+        options.encoding = "UTF-8"
+    }
+    tasks.withType<Javadoc> {
+        options.encoding = "UTF-8"
+    }
+}

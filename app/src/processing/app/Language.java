@@ -183,7 +183,6 @@ public class Language {
     return instance;
   }
 
-
   static private String get(String key) {
     LanguageBundle bundle = init().bundle;
 

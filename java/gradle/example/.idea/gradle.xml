@@ -11,7 +11,6 @@
                 <projects>
                   <project path="$PROJECT_DIR$/../../.." />
                   <project path="$PROJECT_DIR$/../../../app" />
-                  <project path="$PROJECT_DIR$/../../../app/utils" />
                   <project path="$PROJECT_DIR$/../../../core" />
                   <project path="$PROJECT_DIR$/../../../core/examples" />
                   <project path="$PROJECT_DIR$/../.." />
@@ -34,7 +33,6 @@
           <set>
             <option value="$PROJECT_DIR$/../../.." />
             <option value="$PROJECT_DIR$/../../../app" />
-            <option value="$PROJECT_DIR$/../../../app/utils" />
             <option value="$PROJECT_DIR$/../../../core" />
             <option value="$PROJECT_DIR$/../../../core/examples" />
             <option value="$PROJECT_DIR$/../.." />

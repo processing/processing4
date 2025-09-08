@@ -34,6 +34,7 @@ fun loadPreferences(): Properties{
     }
 }
 
+// TODO: Move this to a more appropriate place
 @Composable
 fun watchFile(file: File): Any? {
     val scope = rememberCoroutineScope()
