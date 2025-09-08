@@ -76,6 +76,10 @@ theme.gradient.method = rgb
 # on how many people are using Processing)
 update.check = true
 
+# default value for beta_welcome
+# -1 means no beta has been run
+update.beta_welcome = -1
+
 # on windows, automatically associate .pde files with processing.exe
 platform.auto_file_type_associations = true
 

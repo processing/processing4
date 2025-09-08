@@ -11,7 +11,12 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.gradle.api.Sketch
+import processing.app.api.Contributions
+import processing.app.api.Sketchbook
 import processing.app.ui.Start
+import java.io.File
+import java.util.prefs.Preferences
+import kotlin.concurrent.thread
 
 class Processing: SuspendingCliktCommand("processing"){
     val version by option("-v","--version")
@@ -30,6 +35,11 @@ class Processing: SuspendingCliktCommand("processing"){
             return
         }
 
+        thread {
+            // Update the install locations in preferences
+            updateInstallLocations()
+        }
+
         val subcommand = currentContext.invokedSubcommand
         if (subcommand == null) {
             Start.main(sketches.toTypedArray())
@@ -42,7 +52,9 @@ suspend fun main(args: Array<String>){
         .subcommands(
             LSP(),
             LegacyCLI(args),
-            Sketch()
+            Sketch(),
+            Contributions(),
+            Sketchbook()
         )
         .main(args)
 }
@@ -51,6 +63,9 @@ class LSP: SuspendingCliktCommand("lsp"){
     override fun help(context: Context) = "Start the Processing Language Server"
     override suspend fun run(){
         try {
+            // run in headless mode
+            System.setProperty("java.awt.headless", "true")
+
             // Indirect invocation since app does not depend on java mode
             Class.forName("processing.mode.java.lsp.PdeLanguageServer")
                 .getMethod("main", Array<String>::class.java)
@@ -61,32 +76,69 @@ class LSP: SuspendingCliktCommand("lsp"){
     }
 }
 
-class LegacyCLI(val args: Array<String>): SuspendingCliktCommand( "cli"){
-    override fun help(context: Context) = "Legacy processing-java command line interface"
+
+class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
+    override val treatUnknownOptionsAsArgs = true
 
     val help by option("--help").flag()
-    val build by option("--build").flag()
-    val run by option("--run").flag()
-    val present by option("--present").flag()
-    val sketch: String? by option("--sketch")
-    val force by option("--force").flag()
-    val output: String? by option("--output")
-    val export by option("--export").flag()
-    val noJava by option("--no-java").flag()
-    val variant: String? by option("--variant")
+    val arguments by argument().multiple(default = emptyList())
 
-    override suspend fun run(){
-        val cliArgs = args.filter { it != "cli" }
+    override suspend fun run() {
         try {
-            if(build){
-                System.setProperty("java.awt.headless", "true")
-            }
+            System.setProperty("java.awt.headless", "true")
+
             // Indirect invocation since app does not depend on java mode
             Class.forName("processing.mode.java.Commander")
                 .getMethod("main", Array<String>::class.java)
-                .invoke(null, *arrayOf<Any>(cliArgs.toTypedArray()))
+                .invoke(null, arguments.toTypedArray())
         } catch (e: Exception) {
             throw InternalError("Failed to invoke main method", e)
         }
     }
+}
+
+fun updateInstallLocations(){
+    val preferences = Preferences.userRoot().node("org/processing/app")
+    val installLocations = preferences.get("installLocations", "")
+        .split(",")
+        .dropLastWhile { it.isEmpty() }
+        .filter { install ->
+            try{
+                val (path, version) = install.split("^")
+                val file = File(path)
+                if(!file.exists() || file.isDirectory){
+                    return@filter false
+                }
+                // call the path to check if it is a valid install location
+                val process = ProcessBuilder(path, "--version")
+                    .redirectErrorStream(true)
+                    .start()
+                val exitCode = process.waitFor()
+                if(exitCode != 0){
+                    return@filter false
+                }
+                val output = process.inputStream.bufferedReader().readText()
+                return@filter output.contains(version)
+            } catch (e: Exception){
+                false
+            }
+        }
+        .toMutableList()
+    val command = ProcessHandle.current().info().command()
+    if(command.isEmpty) {
+        return
+    }
+    val installLocation = "${command.get()}^${Base.getVersionName()}"
+
+
+    // Check if the installLocation is already in the list
+    if (installLocations.contains(installLocation)) {
+        return
+    }
+
+    // Add the installLocation to the list
+    installLocations.add(installLocation)
+
+    // Save the updated list back to preferences
+    preferences.put("installLocations", java.lang.String.join(",", installLocations))
 }

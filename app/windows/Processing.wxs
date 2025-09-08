@@ -13,6 +13,7 @@
     <Feature Id="MainApplication" Title="Processing" Level="1">
         <Files Include="..\build\compose\binaries\main\app\Processing\**" />
         <ComponentRef Id="ApplicationShortcut" />
+        <ComponentRef Id="PathComponent" />
     </Feature>
     <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="Processing"/>
@@ -30,6 +31,14 @@
                   WorkingDirectory="INSTALLFOLDER"/>
         <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
         <RegistryValue Root="HKCU" Key="Software\Processing Foundation\Processing" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+    </Component>
+    <Component Id="PathComponent" Guid="795b17d1-6e67-4581-9588-1f80a73c1428">
+        <Environment Id="AddProcessingToPath"
+                     Action="set"
+                     Name="Path"
+                     Part="last"
+                     Value="[INSTALLFOLDER]">
+        </Environment>
     </Component>
   </Package>
 </Wix>

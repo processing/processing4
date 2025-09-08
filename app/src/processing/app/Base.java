@@ -166,18 +166,6 @@ public class Base {
   static private void createAndShowGUI(String[] args) {
     // these times are fairly negligible relative to Base.<init>
 //    long t1 = System.currentTimeMillis();
-    var preferences = java.util.prefs.Preferences.userRoot().node("org/processing/app");
-    var installLocations = new ArrayList<>(List.of(preferences.get("installLocations", "").split(",")));
-    var installLocation = System.getProperty("user.dir") + "^" + Base.getVersionName();
-
-    // Check if the installLocation is already in the list
-    if (!installLocations.contains(installLocation)) {
-      // Add the installLocation to the list
-      installLocations.add(installLocation);
-
-      // Save the updated list back to preferences
-      preferences.put("installLocations", String.join(",", installLocations));
-    }
     // TODO: Cleanup old locations if no longer installed
     // TODO: Cleanup old locations if current version is installed in the same location
 
@@ -251,7 +239,16 @@ public class Base {
 
 //    long t2 = System.currentTimeMillis();
 
-    if (DEBUG || !SingleInstance.alreadyRunning(args)) {
+    // boolean flag indicating whether to create new server instance or not
+    boolean createNewInstance = DEBUG || !SingleInstance.alreadyRunning(args);
+
+    // free up resources by terminating the JVM
+    if(!createNewInstance){
+      System.exit(0);
+      return;
+    }
+
+    if (createNewInstance) {
       // Set the look and feel before opening the window
       try {
         Platform.setLookAndFeel();

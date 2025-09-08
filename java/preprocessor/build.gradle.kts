@@ -28,6 +28,9 @@ afterEvaluate{
 }
 
 dependencies{
+    implementation(project(":core"))
+    implementation(project(":app:utils"))
+
     implementation(libs.antlr)
     implementation(libs.eclipseJDT)
 

@@ -34,6 +34,7 @@ kotlinComposePlugin = { module = "org.jetbrains.kotlin.plugin.compose:org.jetbra
 markdown = { module = "com.mikepenz:multiplatform-markdown-renderer-m2", version = "0.31.0" }
 markdownJVM = { module = "com.mikepenz:multiplatform-markdown-renderer-jvm", version = "0.31.0" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version = "5.0.2" }
+kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }

@@ -38,7 +38,7 @@ import com.google.classpath.ClassPathFactory;
 
 import processing.app.*;
 import processing.mode.java.preproc.ImportStatement;
-
+import processing.utils.SketchException;
 
 /**
  * Builder which generates runtime paths using a series of caches.

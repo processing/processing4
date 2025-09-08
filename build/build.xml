@@ -420,7 +420,7 @@
   <!-- - - - - - - - - -->
   <target name="revision-check">
     <!-- figure out the revision number -->
-    <loadfile srcfile="../todo.txt" property="revision">
+    <loadfile srcfile="revision" property="revision">
       <filterchain>
         <headfilter lines="1"/>
         <tokenfilter>
