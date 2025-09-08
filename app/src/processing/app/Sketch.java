@@ -1320,10 +1320,13 @@ public class Sketch {
       String main = props.get("main");
       if (main != null) {
         File mainFile = new File(folder, main);
-        if (!mainFile.exists()) {
+        if (mainFile.exists()) {
+          return mainFile;
+        }
+        else {
           System.err.println(main + " does not exist inside " + folder);
           // Fall through to the code below in case we can recover.
-          // Not removing the bad entry since this is a find() method.
+
         }
       }
     } catch (IOException e) {
