@@ -11,11 +11,26 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.api.Contributions
+import processing.app.api.SketchCommand
 import processing.app.api.Sketchbook
 import processing.app.ui.Start
 import java.io.File
 import java.util.prefs.Preferences
 import kotlin.concurrent.thread
+
+
+
+suspend fun main(args: Array<String>){
+    Processing()
+        .subcommands(
+            LSP(),
+            LegacyCLI(args),
+            Contributions(),
+            Sketchbook(),
+            SketchCommand()
+        )
+        .main(args)
+}
 
 class Processing: SuspendingCliktCommand("processing"){
     val version by option("-v","--version")
@@ -46,16 +61,6 @@ class Processing: SuspendingCliktCommand("processing"){
     }
 }
 
-suspend fun main(args: Array<String>){
-   Processing()
-        .subcommands(
-            LSP(),
-            LegacyCLI(args),
-            Contributions(),
-            Sketchbook()
-        )
-        .main(args)
-}
 
 class LSP: SuspendingCliktCommand("lsp"){
     override fun help(context: Context) = "Start the Processing Language Server"
@@ -73,7 +78,6 @@ class LSP: SuspendingCliktCommand("lsp"){
         }
     }
 }
-
 
 class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
     override val treatUnknownOptionsAsArgs = true
