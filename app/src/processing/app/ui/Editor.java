@@ -2256,19 +2256,25 @@ public abstract class Editor extends JFrame implements RunnerListener {
    * shouldn't rely on any of its variables being initialized already.
    */
   protected void handleOpenInternal(String path) throws EditorException {
-    // Prior to 4.0 beta 6, a lot of logic happened here that was
-    // instead moved into Base. Probably was here so that other Modes
-    // could override the behavior, but that was too messy. [fry 220206]
+  try {
+    File sketchFolder = new File(path);
 
-    try {
-      sketch = new Sketch(path, this);
-    } catch (IOException e) {
-      throw new EditorException("Could not create the sketch.", e);
+    // Try to locate main file using sketch.properties or fallback
+    File mainFile = Sketch.findMain(sketchFolder, Base.getModeList());
+    if (mainFile == null) {
+      throw new EditorException("No valid main .pde file found in " + sketchFolder);
     }
 
-    header.rebuild();
-    updateTitle();
+    // Use the parent folder of the main file
+    sketch = new Sketch(mainFile.getParentFile(), this);
+
+  } catch (IOException e) {
+    throw new EditorException("Could not create the sketch.", e);
   }
+
+  header.rebuild();
+  updateTitle();
+}
 
 
   /**
