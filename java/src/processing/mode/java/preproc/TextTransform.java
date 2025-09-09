@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
 
-import processing.core.PApplet;
-
 
 public class TextTransform {
 
@@ -256,7 +254,7 @@ public class TextTransform {
         i = -(i + 1);
         i -= 1;
       }
-      i = PApplet.constrain(i, 0, outMap.size()-1);
+      i = constrain(i, 0, outMap.size()-1);
       Edit edit = outMap.get(i);
       int diff = outputOffset - edit.toOffset;
       return edit.fromOffset + Math.min(diff, Math.max(0, edit.fromLength - 1));
@@ -271,7 +269,7 @@ public class TextTransform {
         i = -(i + 1);
         i -= 1;
       }
-      i = PApplet.constrain(i, 0, inMap.size()-1);
+      i = constrain(i, 0, inMap.size()-1);
       Edit edit = inMap.get(i);
       int diff = inputOffset - edit.fromOffset;
       return edit.toOffset + Math.min(diff, Math.max(0, edit.toLength - 1));
@@ -281,6 +279,10 @@ public class TextTransform {
     public OffsetMapper thenMapping(OffsetMapper mapper) {
       return CompositeOffsetMapper.of(this, mapper);
     }
+  }
+
+  static public final int constrain(int amt, int low, int high) {
+    return (amt < low) ? low : ((amt > high) ? high : amt);
   }
 
 
