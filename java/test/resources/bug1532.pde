@@ -20,7 +20,7 @@ flatCube[][] grid;
 
 void setup() {
   try {
-    quicktime.QTSession.open();
+    // quicktime.QTSession.open();
   } 
   catch (quicktime.QTException qte) { 
     qte.printStackTrace();

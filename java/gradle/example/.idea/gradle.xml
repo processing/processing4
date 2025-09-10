@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
+  <component name="GradleSettings">
+    <option name="linkedExternalProjectsSettings">
+      <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/../../.." name="processing">
+                <projects>
+                  <project path="$PROJECT_DIR$/../../.." />
+                  <project path="$PROJECT_DIR$/../../../app" />
+                  <project path="$PROJECT_DIR$/../../../app/utils" />
+                  <project path="$PROJECT_DIR$/../../../core" />
+                  <project path="$PROJECT_DIR$/../../../core/examples" />
+                  <project path="$PROJECT_DIR$/../.." />
+                  <project path="$PROJECT_DIR$/.." />
+                  <project path="$PROJECT_DIR$/../../libraries" />
+                  <project path="$PROJECT_DIR$/../../libraries/dxf" />
+                  <project path="$PROJECT_DIR$/../../libraries/io" />
+                  <project path="$PROJECT_DIR$/../../libraries/net" />
+                  <project path="$PROJECT_DIR$/../../libraries/pdf" />
+                  <project path="$PROJECT_DIR$/../../libraries/serial" />
+                  <project path="$PROJECT_DIR$/../../libraries/svg" />
+                  <project path="$PROJECT_DIR$/../../preprocessor" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/../../.." />
+            <option value="$PROJECT_DIR$/../../../app" />
+            <option value="$PROJECT_DIR$/../../../app/utils" />
+            <option value="$PROJECT_DIR$/../../../core" />
+            <option value="$PROJECT_DIR$/../../../core/examples" />
+            <option value="$PROJECT_DIR$/../.." />
+            <option value="$PROJECT_DIR$/.." />
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/../../libraries" />
+            <option value="$PROJECT_DIR$/../../libraries/dxf" />
+            <option value="$PROJECT_DIR$/../../libraries/io" />
+            <option value="$PROJECT_DIR$/../../libraries/net" />
+            <option value="$PROJECT_DIR$/../../libraries/pdf" />
+            <option value="$PROJECT_DIR$/../../libraries/serial" />
+            <option value="$PROJECT_DIR$/../../libraries/svg" />
+            <option value="$PROJECT_DIR$/../../preprocessor" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+    </option>
+  </component>
+</project>
