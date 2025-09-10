@@ -124,3 +124,4 @@ generated/
 /app/windows/obj
 /java/gradle/build
 /java/gradle/example/.processing
+node_modules
