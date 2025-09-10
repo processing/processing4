@@ -1,0 +1,38 @@
+id: $identifier
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: Processing
+finish-args:
+  - --socket=x11
+  - --share=ipc
+  - --device=all
+  - --filesystem=home
+  - --socket=pulseaudio
+  - --share=network
+
+modules:
+    - name: Processing
+      buildsystem: simple
+      build-commands:
+        # Unpack Processing deb
+        - ar x processing.deb
+        - tar --zstd -xf data.tar.zst
+        - mv opt/processing/* /app/
+        - find /app/lib/app/resources/jdk/bin -type f -exec chmod +x {} +
+
+        # Install the desktop file and icon
+        - install -D /app/lib/processing-Processing.desktop /app/share/applications/$identifier.desktop
+        - sed -i 's/^Icon=.*/Icon=$identifier/' /app/share/applications/$identifier.desktop
+        - sed -i 's/^Exec=.*/Exec=\/app\/bin\/Processing/' /app/share/applications/$identifier.desktop
+
+        # Install the mimetype info
+        - install -D /app/lib/processing-Processing-MimeInfo.xml /app/share/mime/packages/$identifier.xml
+
+#        - install -D /app/lib/Processing.png /app/share/icons/hicolor/512x512/apps/$identifier.png
+        - install -D /app/lib/application-x-processing.png /app/share/icons/hicolor/512x512/mimetypes/$identifier-text-x-processing.png
+
+      sources:
+        - type: file
+          path: $deb
+          dest-filename: processing.deb
