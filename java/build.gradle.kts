@@ -1,11 +1,11 @@
 plugins {
-    id("java")
+    java
 }
 
 repositories{
     mavenCentral()
     google()
-    maven { url = uri("https://jogamp.org/deployment/maven") }
+    maven("https://jogamp.org/deployment/maven")
 }
 
 sourceSets{
@@ -48,13 +48,15 @@ tasks.compileJava{
 // LEGACY TASKS
 // Most of these are shims to be compatible with the old build system
 // They should be removed in the future, as we work towards making things more Gradle-native
-tasks.register<Copy>("extraResources"){
-    dependsOn(":java:copyCore")
+val javaMode = { path : String -> layout.buildDirectory.dir("resources-bundled/common/modes/java/$path") }
+
+val bundle = tasks.register<Copy>("extraResources"){
+    dependsOn("copyCore")
     from(".")
     include("keywords.txt")
     include("theme/**/*")
     include("application/**/*")
-    into( layout.buildDirectory.dir("resources-bundled/common/modes/java"))
+    into(javaMode(""))
 }
 tasks.register<Copy>("copyCore"){
     val coreProject = project(":core")
@@ -66,8 +68,8 @@ tasks.register<Copy>("copyCore"){
     into(coreProject.layout.projectDirectory.dir("library"))
 }
 
-val libraries = arrayOf("dxf","io","net","pdf","serial","svg")
-libraries.forEach { library ->
+val legacyLibraries = arrayOf("dxf","io","net","serial","svg")
+legacyLibraries.forEach { library ->
     tasks.register<Copy>("library-$library-extraResources"){
         val build = project(":java:libraries:$library").tasks.named("build")
         build.configure {
@@ -78,10 +80,30 @@ libraries.forEach { library ->
         include("*.properties")
         include("library/**/*")
         include("examples/**/*")
-        into( layout.buildDirectory.dir("resources-bundled/common/modes/java/libraries/$library"))
+        into( javaMode("/libraries/$library"))
     }
-    tasks.named("extraResources"){ dependsOn("library-$library-extraResources") }
+    bundle.configure {
+        dependsOn("library-$library-extraResources")
+    }
 }
+
+val libraries = arrayOf("pdf")
+libraries.forEach { library ->
+    val name = "create-$library-library"
+    tasks.register<Copy>(name) {
+        group = "libraries"
+        val project = project(":java:libraries:$library")
+        val libraryTask = project.tasks.named("createLibrary")
+        dependsOn(libraryTask)
+
+        from(project.layout.buildDirectory.dir("library"))
+        into(javaMode("/libraries/$library"))
+    }
+    bundle.configure {
+        dependsOn(name)
+    }
+}
+
 tasks.jar { dependsOn("extraResources") }
 tasks.processResources{ finalizedBy("extraResources") }
 tasks.compileTestJava{ finalizedBy("extraResources") }
