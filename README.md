@@ -315,6 +315,9 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/manoellribeiro"><img src="https://avatars.githubusercontent.com/u/59377764?v=4?s=120" width="120px;" alt="Manoel Ribeiro"/><br /><sub><b>Manoel Ribeiro</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=manoellribeiro" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://softmoon.world"><img src="https://avatars.githubusercontent.com/u/15107?v=4?s=120" width="120px;" alt="Moon"/><br /><sub><b>Moon</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=catilac" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/npNSU"><img src="https://avatars.githubusercontent.com/u/179620963?v=4?s=120" width="120px;" alt="Nia Perez"/><br /><sub><b>Nia Perez</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=npNSU" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
