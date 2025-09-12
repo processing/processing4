@@ -87,7 +87,8 @@ legacyLibraries.forEach { library ->
     }
 }
 
-val libraries = arrayOf("pdf")
+val libraries = arrayOf("dxf", "pdf")
+
 libraries.forEach { library ->
     val name = "create-$library-library"
     tasks.register<Copy>(name) {
