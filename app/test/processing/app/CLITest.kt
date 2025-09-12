@@ -47,4 +47,20 @@ class CLITest {
         println("Done running CLI with arguments: $args (Result: $result)")
 
     }
+    fun runCLIAndCapture(vararg args: String): String {
+        val argLine = args.joinToString(" ")
+        println("Running CLI with arguments: $argLine")
+
+        val process = ProcessBuilder("./gradlew", "run", "--args=$argLine", "--quiet")
+            .directory(File(System.getProperty("user.dir")).resolve("../../../"))
+            .redirectErrorStream(true)
+            .start()
+
+        val output = process.inputStream.bufferedReader().readText()
+        val exitCode = process.waitFor()
+
+        println("Done running CLI with arguments: $argLine (Exit code: $exitCode)")
+        return output
+    }
+
 }
