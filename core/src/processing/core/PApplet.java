@@ -2055,7 +2055,7 @@ public class PApplet implements PConstants {
       setup();
 
       if(pixelDensityWarning){
-        System.err.println("Warning: pixelDensity() now defaults to 2x to align with your display's pixel density. To avoid this warning, please explicitly set pixelDensity() in settings().");
+        System.err.println("Warning: Processing now sets pixelDensity(2) by default on high-density screens. This may change how your sketch looks. To revert to the old behavior, set pixelDensity(1) in setup().");
       }
 
     } else {  // frameCount > 0, meaning an actual draw()
