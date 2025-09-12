@@ -116,6 +116,7 @@ public class EditorFooter extends Box {
       public void mousePressed(MouseEvent e) {
         if(e.getClickCount() == 5){
           Base.DEBUG = !Base.DEBUG;
+          editor.updateDevelopMenu();
         }
         var debugInformation = String.join("\n",
             "Version: " + Base.getVersionName(),
