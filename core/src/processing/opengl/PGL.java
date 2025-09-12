@@ -1119,7 +1119,7 @@ public abstract class PGL {
       if (0 < depthBits) {
         int depthComponent = DEPTH_COMPONENT16;
         if (depthBits == 32) {
-          depthComponent = DEPTH_COMPONENT32;
+          depthComponent = DEPTH_COMPONENT32();
         } else if (depthBits == 24) {
           depthComponent = DEPTH_COMPONENT24;
         //} else if (depthBits == 16) {
@@ -1141,11 +1141,11 @@ public abstract class PGL {
       }
 
       if (0 < stencilBits) {
-        int stencilIndex = STENCIL_INDEX1;
+        int stencilIndex = STENCIL_INDEX1();
         if (stencilBits == 8) {
           stencilIndex = STENCIL_INDEX8;
         } else if (stencilBits == 4) {
-          stencilIndex = STENCIL_INDEX4;
+          stencilIndex = STENCIL_INDEX4();
         //} else if (stencilBits == 1) {
           //stencilIndex = STENCIL_INDEX1;
         }
@@ -1195,7 +1195,7 @@ public abstract class PGL {
   protected void enableTexturing(int target) {
     if (target == TEXTURE_2D) {
       texturingTargets[0] = true;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       texturingTargets[1] = true;
     }
   }
@@ -1204,7 +1204,7 @@ public abstract class PGL {
   protected void disableTexturing(int target) {
     if (target == TEXTURE_2D) {
       texturingTargets[0] = false;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       texturingTargets[1] = false;
     }
   }
@@ -1213,7 +1213,7 @@ public abstract class PGL {
   protected boolean texturingIsEnabled(int target) {
     if (target == TEXTURE_2D) {
       return texturingTargets[0];
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       return texturingTargets[1];
     } else {
       return false;
@@ -1226,7 +1226,7 @@ public abstract class PGL {
 
     if (target == TEXTURE_2D) {
       return boundTextures[activeTexUnit][0] == id;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       return boundTextures[activeTexUnit][1] == id;
     } else {
       return false;
@@ -1317,7 +1317,7 @@ public abstract class PGL {
                     viewX, viewY, viewW, viewH, viewF,
                     texX0, texY0, texX1, texY1,
                     scrX0, scrY0, scrX1, scrY1);
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       drawTextureRect(id, texW, texH,
                       viewX, viewY, viewW, viewH, viewF,
                       texX0, texY0, texX1, texY1,
@@ -1550,11 +1550,11 @@ public abstract class PGL {
 
       activeTexture(TEXTURE0);
       boolean enabledTex = false;
-      if (!texturingIsEnabled(TEXTURE_RECTANGLE)) {
-        enableTexturing(TEXTURE_RECTANGLE);
+      if (!texturingIsEnabled(TEXTURE_RECTANGLE())) {
+        enableTexturing(TEXTURE_RECTANGLE());
         enabledTex = true;
       }
-      bindTexture(TEXTURE_RECTANGLE, id);
+      bindTexture(TEXTURE_RECTANGLE(), id);
       uniform1i(ppgl.texRectSamplerLoc, 0);
 
       texData.position(0);
@@ -1568,9 +1568,9 @@ public abstract class PGL {
 
       bindBuffer(ARRAY_BUFFER, 0); // Making sure that no VBO is bound at this point.
 
-      bindTexture(TEXTURE_RECTANGLE, 0);
+      bindTexture(TEXTURE_RECTANGLE(), 0);
       if (enabledTex) {
-        disableTexturing(TEXTURE_RECTANGLE);
+        disableTexturing(TEXTURE_RECTANGLE());
       }
 
       disableVertexAttribArray(ppgl.texRectVertLoc);
@@ -2122,11 +2122,11 @@ public abstract class PGL {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "incomplete missing attachment");
     } else if (status == FRAMEBUFFER_INCOMPLETE_DIMENSIONS) {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "incomplete dimensions");
-    } else if (status == FRAMEBUFFER_INCOMPLETE_FORMATS) {
+    } else if (status == FRAMEBUFFER_INCOMPLETE_FORMATS()) {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "incomplete formats");
-    } else if (status == FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
+    } else if (status == FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER()) {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "incomplete draw buffer");
-    } else if (status == FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
+    } else if (status == FRAMEBUFFER_INCOMPLETE_READ_BUFFER()) {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "incomplete read buffer");
     } else if (status == FRAMEBUFFER_UNSUPPORTED) {
       System.err.printf((FRAMEBUFFER_ERROR) + "%n", "framebuffer unsupported");
@@ -2789,6 +2789,74 @@ public abstract class PGL {
     void next();
   }
 
+  public static int ALPHA8() {
+    System.out.println("UNAVAILABLE ENUM  ALPHA8");
+    return 0;
+  }
+  public static int GENERATE_MIPMAP_HINT() {
+    System.out.println("UNAVAILABLE ENUM  GENERATE_MIPMAP_HINT");
+    return 0;
+  }
+  public static int TEXTURE_RECTANGLE() {
+    System.out.println("UNAVAILABLE ENUM  TEXTURE_RECTANGLE");
+    return 0;
+  }
+  public static int TEXTURE_MAX_ANISOTROPY() {
+    System.out.println("UNAVAILABLE ENUM  TEXTURE_MAX_ANISOTROPY");
+    return 0;
+  }
+  public static int MAX_TEXTURE_MAX_ANISOTROPY() {
+    System.out.println("UNAVAILABLE ENUM  MAX_TEXTURE_MAX_ANISOTROPY");
+    return 0;
+  }
+
+  public static int DEPTH_COMPONENT32() {
+    System.out.println("UNAVAILABLE ENUM  DEPTH_COMPONENT32");
+    return 0;
+  }
+
+  public static int STENCIL_INDEX1() {
+    System.out.println("UNAVAILABLE ENUM  STENCIL_INDEX1");
+    return 0;
+  }
+
+  public static int STENCIL_INDEX4() {
+    System.out.println("UNAVAILABLE ENUM  STENCIL_INDEX4");
+    return 0;
+  }
+  public static int FRAMEBUFFER_INCOMPLETE_FORMATS() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_FORMATS");
+    return 0;
+  }
+
+  public static int FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+    return 0;
+  }
+
+  public static int FRAMEBUFFER_INCOMPLETE_READ_BUFFER() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+    return 0;
+  }
+
+  
+  public static int MULTISAMPLE() {
+    System.out.println("UNAVAILABLE ENUM  MULTISAMPLE");
+    return 0;
+  }
+
+  public static int LINE_SMOOTH() {
+    System.out.println("UNAVAILABLE ENUM  LINE_SMOOTH");
+    return 0;
+  }
+
+  public static int POLYGON_SMOOTH() {
+    System.out.println("UNAVAILABLE ENUM  POLYGON_SMOOTH");
+    return 0;
+  }
+
+
+
 
   //////////////////////////////////////////////////////////////////////////////
   //
@@ -2852,7 +2920,7 @@ public abstract class PGL {
   public static int RGB565;
   public static int RGB8;
   public static int RGBA8;
-  public static int ALPHA8;
+  // public static int ALPHA8;
 
   public static int READ_ONLY;
   public static int WRITE_ONLY;
@@ -2862,7 +2930,7 @@ public abstract class PGL {
   public static int TESS_WINDING_ODD;
   public static int TESS_EDGE_FLAG;
 
-  public static int GENERATE_MIPMAP_HINT;
+  // public static int GENERATE_MIPMAP_HINT;
   public static int FASTEST;
   public static int NICEST;
   public static int DONT_CARE;
@@ -2920,14 +2988,14 @@ public abstract class PGL {
   public static int PACK_ALIGNMENT;
 
   public static int TEXTURE_2D;
-  public static int TEXTURE_RECTANGLE;
+  // public static int TEXTURE_RECTANGLE;
 
   public static int TEXTURE_BINDING_2D;
   public static int TEXTURE_BINDING_RECTANGLE;
 
   public static int MAX_TEXTURE_SIZE;
-  public static int TEXTURE_MAX_ANISOTROPY;
-  public static int MAX_TEXTURE_MAX_ANISOTROPY;
+  // public static int TEXTURE_MAX_ANISOTROPY;
+  // public static int MAX_TEXTURE_MAX_ANISOTROPY;
 
   public static int MAX_VERTEX_TEXTURE_IMAGE_UNITS;
   public static int MAX_TEXTURE_IMAGE_UNITS;
@@ -3074,11 +3142,11 @@ public abstract class PGL {
   public static int DEPTH_COMPONENT;
   public static int DEPTH_COMPONENT16;
   public static int DEPTH_COMPONENT24;
-  public static int DEPTH_COMPONENT32;
+  // public static int DEPTH_COMPONENT32;
 
   public static int STENCIL_INDEX;
-  public static int STENCIL_INDEX1;
-  public static int STENCIL_INDEX4;
+  // public static int STENCIL_INDEX1;
+  // public static int STENCIL_INDEX4;
   public static int STENCIL_INDEX8;
 
   public static int DEPTH_STENCIL;
@@ -3088,9 +3156,9 @@ public abstract class PGL {
   public static int FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
   public static int FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
   public static int FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
-  public static int FRAMEBUFFER_INCOMPLETE_FORMATS;
-  public static int FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
-  public static int FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
+  // public static int FRAMEBUFFER_INCOMPLETE_FORMATS;
+  // public static int FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
+  // public static int FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
   public static int FRAMEBUFFER_UNSUPPORTED;
   public static int FRAMEBUFFER_INCOMPLETE_MULTISAMPLE;
   public static int FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS;
@@ -3110,9 +3178,9 @@ public abstract class PGL {
   public static int RENDERBUFFER_STENCIL_SIZE;
   public static int RENDERBUFFER_INTERNAL_FORMAT;
 
-  public static int MULTISAMPLE;
-  public static int LINE_SMOOTH;
-  public static int POLYGON_SMOOTH;
+  // public static int MULTISAMPLE;
+  // public static int LINE_SMOOTH;
+  // public static int POLYGON_SMOOTH;
 
   public static int SYNC_GPU_COMMANDS_COMPLETE;
   public static int ALREADY_SIGNALED;
@@ -3307,7 +3375,7 @@ public abstract class PGL {
 
     if (target == TEXTURE_2D) {
       boundTextures[activeTexUnit][0] = texture;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       boundTextures[activeTexUnit][1] = texture;
     }
   }
