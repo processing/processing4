@@ -327,6 +327,18 @@ public class JavaEditor extends Editor {
 
     menu.addSeparator();
 
+    // Report a bug link opener
+    item = new JMenuItem(Language.text("menu.help.report"));
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.report.url")));
+    menu.add(item);
+
+    // Ask on the Forum link opener
+    item = new JMenuItem(Language.text("menu.help.ask"));
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.ask.url")));
+    menu.add(item);
+
+    menu.addSeparator();
+
     final JMenu libRefSubmenu = new JMenu(Language.text("menu.help.libraries_reference"));
 
     // Adding this in case references are included in a core library,

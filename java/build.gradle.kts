@@ -26,6 +26,7 @@ dependencies{
     implementation(project(":app"))
     implementation(project(":core"))
     implementation(project(":java:preprocessor"))
+    implementation(project(":app:utils"))
 
     implementation(libs.eclipseJDT)
     implementation(libs.eclipseJDTCompiler)
@@ -86,7 +87,8 @@ legacyLibraries.forEach { library ->
     }
 }
 
-val libraries = arrayOf("dxf")
+val libraries = arrayOf("dxf", "pdf")
+
 libraries.forEach { library ->
     val name = "create-$library-library"
     tasks.register<Copy>(name) {
