@@ -23,25 +23,61 @@
 
 package processing.app;
 
-import java.awt.*;
+import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
-import javax.swing.*;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import processing.app.contrib.*;
+
+import processing.app.contrib.AvailableContribution;
+import processing.app.contrib.ContribProgress;
+import processing.app.contrib.Contribution;
+import processing.app.contrib.ContributionListing;
+import processing.app.contrib.ContributionManager;
+import processing.app.contrib.ContributionType;
+import processing.app.contrib.ExamplesContribution;
+import processing.app.contrib.IgnorableException;
+import processing.app.contrib.LocalContribution;
+import processing.app.contrib.ModeContribution;
+import processing.app.contrib.ToolContribution;
 import processing.app.tools.Tool;
-import processing.app.ui.*;
+import processing.app.ui.Editor;
+import processing.app.ui.EditorConsole;
+import processing.app.ui.EditorException;
+import processing.app.ui.EditorState;
+import processing.app.ui.PreferencesFrame;
+import processing.app.ui.Recent;
+import processing.app.ui.SketchbookFrame;
+import processing.app.ui.Splash;
+import processing.app.ui.Theme;
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.app.ui.Welcome;
+import processing.core.PApplet;
 import processing.data.StringList;
 
 /**
@@ -65,7 +101,7 @@ public class Base {
    * if an empty file named 'debug' is found in the settings folder.
    * See implementation in createAndShowGUI().
    */
-  static public boolean DEBUG = System.getenv().containsKey("DEBUG");
+  static public boolean DEBUG = Boolean.parseBoolean(System.getenv("DEBUG"));
 
   /** True if running via Commander. */
   static private boolean commandLine;
