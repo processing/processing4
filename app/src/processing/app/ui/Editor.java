@@ -48,19 +48,8 @@ import javax.swing.text.*;
 import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
-import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.util.SystemInfo;
-import processing.app.Base;
-import processing.app.Formatter;
-import processing.app.Language;
-import processing.app.Messages;
-import processing.app.Mode;
-import processing.app.Platform;
-import processing.app.Preferences;
-import processing.app.Problem;
-import processing.app.RunnerListener;
-import processing.app.Sketch;
-import processing.app.SketchCode;
+import processing.app.*;
 import processing.utils.SketchException;
 import processing.app.contrib.ContributionManager;
 import processing.app.laf.PdeMenuItemUI;
@@ -147,6 +136,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
   private FindReplace find;
   JMenu toolsMenu;
   JMenu modePopup;
+  JMenu developMenu;
 
   protected List<Problem> problems = Collections.emptyList();
 
@@ -680,6 +670,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       helpMenu.setText(helpMenu.getText() + " ");
     }
     menubar.add(helpMenu);
+    updateDevelopMenu(menubar);
 
     Toolkit.setMenuMnemonics(menubar);
     setJMenuBar(menubar);
@@ -1059,6 +1050,37 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
 
   abstract public JMenu buildHelpMenu();
+
+  public void buildDevelopMenu(){
+    developMenu = new JMenu(Language.text("menu.develop"));
+
+    var updateTrigger = new JMenuItem(Language.text("menu.develop.check_for_updates"));
+    updateTrigger.addActionListener(e -> {
+        Preferences.unset("update.last");
+        new UpdateCheck(base);
+    });
+    developMenu.add(updateTrigger);
+
+  }
+
+  public void updateDevelopMenu(){
+    updateDevelopMenu(null);
+  }
+
+  void updateDevelopMenu(JMenuBar menu){
+      if(menu == null){
+          menu = getJMenuBar();
+      }
+      if(developMenu == null){
+          buildDevelopMenu();
+      }
+      if(Base.DEBUG){
+        menu.add(developMenu);
+      }else{
+        menu.remove(developMenu);
+      }
+
+  }
 
 
   public void showReference(String filename) {
