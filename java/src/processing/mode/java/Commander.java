@@ -88,18 +88,8 @@ public class Commander implements RunnerListener {
     int task = HELP;
     boolean embedJava = true;
 
-    if (Platform.isWindows()) {
-      // On Windows, it needs to use the default system encoding.
-      // https://github.com/processing/processing/issues/1633
-      systemOut = new PrintStream(System.out, true);
-      systemErr = new PrintStream(System.err, true);
-    } else {
-      // OS X formerly used MacRoman or something else useless.
-      // (Not sure about Linux, but this has worked since 2.0)
-      // https://github.com/processing/processing/issues/1456
-      systemOut = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-      systemErr = new PrintStream(System.err, true, StandardCharsets.UTF_8);
-    }
+    systemOut = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+    systemErr = new PrintStream(System.err, true, StandardCharsets.UTF_8);
 
     int argOffset = 0;
     for (String arg : args) {
