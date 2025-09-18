@@ -65,7 +65,9 @@ public class Base {
    * if an empty file named 'debug' is found in the settings folder.
    * See implementation in createAndShowGUI().
    */
-  static public boolean DEBUG = System.getenv().containsKey("DEBUG");
+  
+  static public boolean DEBUG = Boolean.parseBoolean(System.getenv().getOrDefault("DEBUG", "false"));
+
 
   /** True if running via Commander. */
   static private boolean commandLine;
