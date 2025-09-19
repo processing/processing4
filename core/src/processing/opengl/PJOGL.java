@@ -50,8 +50,8 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
 import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLDrawable;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.GLRendererQuirks;
+import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUtessellator;
 import com.jogamp.opengl.glu.GLUtessellatorCallbackAdapter;
@@ -440,7 +440,7 @@ public class PJOGL extends PGL {
   protected void enableTexturing(int target) {
     if (target == TEXTURE_2D) {
       texturingTargets[0] = true;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       texturingTargets[1] = true;
     }
   }
@@ -450,7 +450,7 @@ public class PJOGL extends PGL {
   protected void disableTexturing(int target) {
     if (target == TEXTURE_2D) {
       texturingTargets[0] = false;
-    } else if (target == TEXTURE_RECTANGLE) {
+    } else if (target == TEXTURE_RECTANGLE()) {
       texturingTargets[1] = false;
     }
   }
@@ -507,6 +507,7 @@ public class PJOGL extends PGL {
   @Override
   protected int getGLSLVersion() {
     VersionNumber vn = context.getGLSLVersionNumber();
+    System.out.println("GLSL version: "+vn.getMajor() * 100 + vn.getMinor());
     return vn.getMajor() * 100 + vn.getMinor();
   }
 
@@ -742,6 +743,69 @@ public class PJOGL extends PGL {
     }
   }
 
+  public static int ALPHA8() {
+    System.out.println("UNAVAILABLE ENUM  ALPHA8");
+    return GL.GL_ALPHA8;
+  }
+  public static int GENERATE_MIPMAP_HINT() {
+    System.out.println("UNAVAILABLE ENUM  GENERATE_MIPMAP_HINT");
+    return GL.GL_GENERATE_MIPMAP_HINT;
+  }
+  public static int TEXTURE_RECTANGLE() {
+    System.out.println("UNAVAILABLE ENUM  TEXTURE_RECTANGLE");
+    return GL2GL3.GL_TEXTURE_RECTANGLE;
+  }
+  public static int TEXTURE_MAX_ANISOTROPY() {
+    System.out.println("UNAVAILABLE ENUM  TEXTURE_MAX_ANISOTROPY");
+    return GL2GL3.GL_TEXTURE_RECTANGLE;
+  }
+  public static int MAX_TEXTURE_MAX_ANISOTROPY() {
+    System.out.println("UNAVAILABLE ENUM  MAX_TEXTURE_MAX_ANISOTROPY");
+    return GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT;
+  }
+
+  public static int DEPTH_COMPONENT32() {
+    System.out.println("UNAVAILABLE ENUM  DEPTH_COMPONENT32");
+    return GL.GL_DEPTH_COMPONENT32;
+  }
+
+  public static int STENCIL_INDEX1() {
+    System.out.println("UNAVAILABLE ENUM  STENCIL_INDEX1");
+    return GL.GL_STENCIL_INDEX1;
+  }
+
+  public static int STENCIL_INDEX4() {
+    System.out.println("UNAVAILABLE ENUM  STENCIL_INDEX4");
+    return GL.GL_STENCIL_INDEX4;
+  }
+  public static int FRAMEBUFFER_INCOMPLETE_FORMATS() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_FORMATS");
+    return GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS;
+  }
+
+  public static int FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER");
+    return GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
+  }
+
+  public static int FRAMEBUFFER_INCOMPLETE_READ_BUFFER() {
+    System.out.println("UNAVAILABLE ENUM  FRAMEBUFFER_INCOMPLETE_READ_BUFFER");
+    return GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
+  }
+
+  public static int MULTISAMPLE() {
+
+    return GL.GL_MULTISAMPLE;
+  }
+
+  public static int LINE_SMOOTH() {
+    return GL.GL_LINE_SMOOTH;
+  }
+
+  public static int POLYGON_SMOOTH() {
+    return GL2GL3.GL_POLYGON_SMOOTH;
+  }
+
 
   ///////////////////////////////////////////////////////////
 
@@ -775,7 +839,7 @@ public class PJOGL extends PGL {
     RGB565  = GL.GL_RGB565;
     RGB8    = GL.GL_RGB8;
     RGBA8   = GL.GL_RGBA8;
-    ALPHA8  = GL.GL_ALPHA8;
+    // ALPHA8  = GL.GL_ALPHA8;
 
     READ_ONLY  = GL2ES3.GL_READ_ONLY;
     WRITE_ONLY = GL.GL_WRITE_ONLY;
@@ -785,7 +849,7 @@ public class PJOGL extends PGL {
     TESS_WINDING_ODD     = GLU.GLU_TESS_WINDING_ODD;
     TESS_EDGE_FLAG       = GLU.GLU_TESS_EDGE_FLAG;
 
-    GENERATE_MIPMAP_HINT = GL.GL_GENERATE_MIPMAP_HINT;
+    // GENERATE_MIPMAP_HINT = GL.GL_GENERATE_MIPMAP_HINT;
     FASTEST              = GL.GL_FASTEST;
     NICEST               = GL.GL_NICEST;
     DONT_CARE            = GL.GL_DONT_CARE;
@@ -843,14 +907,14 @@ public class PJOGL extends PGL {
     PACK_ALIGNMENT   = GL.GL_PACK_ALIGNMENT;
 
     TEXTURE_2D        = GL.GL_TEXTURE_2D;
-    TEXTURE_RECTANGLE = GL2GL3.GL_TEXTURE_RECTANGLE;
+    // TEXTURE_RECTANGLE = GL2GL3.GL_TEXTURE_RECTANGLE;
 
     TEXTURE_BINDING_2D        = GL.GL_TEXTURE_BINDING_2D;
     TEXTURE_BINDING_RECTANGLE = GL2GL3.GL_TEXTURE_BINDING_RECTANGLE;
 
     MAX_TEXTURE_SIZE           = GL.GL_MAX_TEXTURE_SIZE;
-    TEXTURE_MAX_ANISOTROPY     = GL.GL_TEXTURE_MAX_ANISOTROPY_EXT;
-    MAX_TEXTURE_MAX_ANISOTROPY = GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT;
+    // TEXTURE_MAX_ANISOTROPY     = GL.GL_TEXTURE_MAX_ANISOTROPY_EXT;
+    // MAX_TEXTURE_MAX_ANISOTROPY = GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT;
 
     MAX_VERTEX_TEXTURE_IMAGE_UNITS   = GL2ES2.GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS;
     MAX_TEXTURE_IMAGE_UNITS          = GL2ES2.GL_MAX_TEXTURE_IMAGE_UNITS;
@@ -997,11 +1061,11 @@ public class PJOGL extends PGL {
     DEPTH_COMPONENT   = GL2ES2.GL_DEPTH_COMPONENT;
     DEPTH_COMPONENT16 = GL.GL_DEPTH_COMPONENT16;
     DEPTH_COMPONENT24 = GL.GL_DEPTH_COMPONENT24;
-    DEPTH_COMPONENT32 = GL.GL_DEPTH_COMPONENT32;
+    // DEPTH_COMPONENT32 = GL.GL_DEPTH_COMPONENT32;
 
     STENCIL_INDEX  = GL2ES2.GL_STENCIL_INDEX;
-    STENCIL_INDEX1 = GL.GL_STENCIL_INDEX1;
-    STENCIL_INDEX4 = GL.GL_STENCIL_INDEX4;
+    // STENCIL_INDEX1 = GL.GL_STENCIL_INDEX1;
+    // STENCIL_INDEX4 = GL.GL_STENCIL_INDEX4;
     STENCIL_INDEX8 = GL.GL_STENCIL_INDEX8;
 
     DEPTH_STENCIL = GL.GL_DEPTH_STENCIL;
@@ -1011,9 +1075,9 @@ public class PJOGL extends PGL {
     FRAMEBUFFER_INCOMPLETE_ATTACHMENT         = GL.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;
     FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT = GL.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;
     FRAMEBUFFER_INCOMPLETE_DIMENSIONS         = GL.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS;
-    FRAMEBUFFER_INCOMPLETE_FORMATS            = GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS;
-    FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER        = GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
-    FRAMEBUFFER_INCOMPLETE_READ_BUFFER        = GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
+    // FRAMEBUFFER_INCOMPLETE_FORMATS            = GL.GL_FRAMEBUFFER_INCOMPLETE_FORMATS;
+    // FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER        = GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;
+    // FRAMEBUFFER_INCOMPLETE_READ_BUFFER        = GL2GL3.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;
     FRAMEBUFFER_UNSUPPORTED                   = GL.GL_FRAMEBUFFER_UNSUPPORTED;
     FRAMEBUFFER_INCOMPLETE_MULTISAMPLE        = GL.GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE;
     FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS      = GL3ES3.GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS;
@@ -1033,9 +1097,9 @@ public class PJOGL extends PGL {
     RENDERBUFFER_STENCIL_SIZE    = GL.GL_RENDERBUFFER_STENCIL_SIZE;
     RENDERBUFFER_INTERNAL_FORMAT = GL.GL_RENDERBUFFER_INTERNAL_FORMAT;
 
-    MULTISAMPLE    = GL.GL_MULTISAMPLE;
-    LINE_SMOOTH    = GL.GL_LINE_SMOOTH;
-    POLYGON_SMOOTH = GL2GL3.GL_POLYGON_SMOOTH;
+    // MULTISAMPLE    = GL.GL_MULTISAMPLE;
+    // LINE_SMOOTH    = GL.GL_LINE_SMOOTH;
+    // POLYGON_SMOOTH = GL2GL3.GL_POLYGON_SMOOTH;
 
     SYNC_GPU_COMMANDS_COMPLETE = GL3ES3.GL_SYNC_GPU_COMMANDS_COMPLETE;
     ALREADY_SIGNALED           = GL3ES3.GL_ALREADY_SIGNALED;
@@ -1307,6 +1371,7 @@ public class PJOGL extends PGL {
 
   @Override
   public void vertexAttribPointer(int index, int size, int type, boolean normalized, int stride, int offset) {
+    // System.out.println("Stride: "+stride);
     gl2.glVertexAttribPointer(index, size, type, normalized, stride, offset);
   }
 
