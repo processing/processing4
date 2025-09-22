@@ -12,14 +12,28 @@ import com.github.ajalt.clikt.parameters.options.help
 import com.github.ajalt.clikt.parameters.options.option
 import processing.app.gradle.api.Sketch
 import processing.app.api.Contributions
+import processing.app.api.SketchCommand
 import processing.app.api.Sketchbook
 import processing.app.ui.Start
 import java.io.File
 import java.util.prefs.Preferences
 import kotlin.concurrent.thread
 
-class Processing: SuspendingCliktCommand("processing"){
-    val version by option("-v","--version")
+
+suspend fun main(args: Array<String>) {
+    Processing()
+        .subcommands(
+            LSP(),
+            LegacyCLI(args),
+            Contributions(),
+            Sketchbook(),
+            SketchCommand()
+        )
+        .main(args)
+}
+
+class Processing : SuspendingCliktCommand("processing") {
+    val version by option("-v", "--version")
         .flag()
         .help("Print version information")
 
@@ -30,7 +44,7 @@ class Processing: SuspendingCliktCommand("processing"){
     override fun help(context: Context) = "Start the Processing IDE"
     override val invokeWithoutSubcommand = true
     override suspend fun run() {
-        if(version){
+        if (version) {
             println("processing-${Base.getVersionName()}-${Base.getRevision()}")
             return
         }
@@ -47,21 +61,10 @@ class Processing: SuspendingCliktCommand("processing"){
     }
 }
 
-suspend fun main(args: Array<String>){
-   Processing()
-        .subcommands(
-            LSP(),
-            LegacyCLI(args),
-            Sketch(),
-            Contributions(),
-            Sketchbook()
-        )
-        .main(args)
-}
 
-class LSP: SuspendingCliktCommand("lsp"){
+class LSP : SuspendingCliktCommand("lsp") {
     override fun help(context: Context) = "Start the Processing Language Server"
-    override suspend fun run(){
+    override suspend fun run() {
         try {
             // run in headless mode
             System.setProperty("java.awt.headless", "true")
@@ -76,8 +79,7 @@ class LSP: SuspendingCliktCommand("lsp"){
     }
 }
 
-
-class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
+class LegacyCLI(val args: Array<String>) : SuspendingCliktCommand("cli") {
     override val treatUnknownOptionsAsArgs = true
 
     val help by option("--help").flag()
@@ -97,16 +99,16 @@ class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
     }
 }
 
-fun updateInstallLocations(){
+fun updateInstallLocations() {
     val preferences = Preferences.userRoot().node("org/processing/app")
     val installLocations = preferences.get("installLocations", "")
         .split(",")
         .dropLastWhile { it.isEmpty() }
         .filter { install ->
-            try{
+            try {
                 val (path, version) = install.split("^")
                 val file = File(path)
-                if(!file.exists() || file.isDirectory){
+                if (!file.exists() || file.isDirectory) {
                     return@filter false
                 }
                 // call the path to check if it is a valid install location
@@ -114,18 +116,18 @@ fun updateInstallLocations(){
                     .redirectErrorStream(true)
                     .start()
                 val exitCode = process.waitFor()
-                if(exitCode != 0){
+                if (exitCode != 0) {
                     return@filter false
                 }
                 val output = process.inputStream.bufferedReader().readText()
                 return@filter output.contains(version)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 false
             }
         }
         .toMutableList()
     val command = ProcessHandle.current().info().command()
-    if(command.isEmpty) {
+    if (command.isEmpty) {
         return
     }
     val installLocation = "${command.get()}^${Base.getVersionName()}"

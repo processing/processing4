@@ -66,6 +66,8 @@ class PdeAdapter {
     this.rootPath = rootPath;
     this.client = client;
 
+    Base.locateSketchbookFolder();
+
     File location = Platform.getContentFile("modes/java");
     ModeContribution mc =
       ModeContribution.load(null, location, JavaMode.class.getName());

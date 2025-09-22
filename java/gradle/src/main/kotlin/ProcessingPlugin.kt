@@ -165,9 +165,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 srcDir("$workingDir/unsaved")
             }
             sourceSet.allSource.source(pdeSourceSet)
-//            sourceSet.java.srcDir(project.layout.projectDirectory).apply {
-//                include("*.java")
-//            }
+            sourceSet.java.srcDir(project.layout.projectDirectory).apply {
+                include("/*.java")
+            }
 
             val librariesTaskName = sourceSet.getTaskName("scanLibraries", "PDE")
             val librariesScan = project.tasks.register(librariesTaskName, LibrariesTask::class.java) { task ->
