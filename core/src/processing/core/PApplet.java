@@ -705,7 +705,7 @@ public class PApplet implements PConstants {
   protected boolean exitCalled;
 
   // ok to be static because it's not possible to mix enabled/disabled
-  static protected boolean disableAWT;
+  static protected boolean disableAWT = System.getProperty("processing.awt.disable", "false").equals("true");;
 
   // messages to send if attached as an external vm
 
@@ -9940,19 +9940,21 @@ public class PApplet implements PConstants {
       System.exit(1);
     }
 
-    boolean external = false;
-    int[] location = null;
-    int[] editorLocation = null;
+    boolean external = System.getProperty("processing.external", "false").equals("true");;
+    int[] location = System.getProperty("processing.location", null) != null ?
+      parseInt(split(System.getProperty("processing.location"), ',')) : null;
 
+    int[] editorLocation = System.getProperty("processing.editor.location", null) != null ?
+      parseInt(split(System.getProperty("processing.editor.location"), ',')) : null;
     String name = null;
     int windowColor = 0;
     int stopColor = 0xff808080;
-    boolean hideStop = false;
+    boolean hideStop = System.getProperty("processing.stop.hide", "false").equals("true");
 
     int displayNum = -1;  // use default
-    boolean present = false;
-    boolean fullScreen = false;
-    float uiScale = 0;
+    boolean present = System.getProperty("processing.present", "false").equals("true");
+    boolean fullScreen = System.getProperty("processing.fullscreen", "false").equals("true");
+    float uiScale = parseInt(System.getProperty("processing.uiScale", "0"), 0);
 
     String param, value;
     String folder = calcSketchPath();
