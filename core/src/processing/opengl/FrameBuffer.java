@@ -445,7 +445,7 @@ public class FrameBuffer implements PConstants {
     } else if (depthBits == 24) {
       glConst = PGL.DEPTH_COMPONENT24;
     } else if (depthBits == 32) {
-      glConst = PGL.DEPTH_COMPONENT32;
+      glConst = PGL.DEPTH_COMPONENT32();
     }
 
     if (multisample) {
@@ -474,11 +474,11 @@ public class FrameBuffer implements PConstants {
 
     pgl.bindRenderbuffer(PGL.RENDERBUFFER, glStencil);
 
-    int glConst = PGL.STENCIL_INDEX1;
+    int glConst = PGL.STENCIL_INDEX1();
     if (stencilBits == 1) {
-      glConst = PGL.STENCIL_INDEX1;
+      glConst = PGL.STENCIL_INDEX1();
     } else if (stencilBits == 4) {
-      glConst = PGL.STENCIL_INDEX4;
+      glConst = PGL.STENCIL_INDEX4();
     } else if (stencilBits == 8) {
       glConst = PGL.STENCIL_INDEX8;
     }

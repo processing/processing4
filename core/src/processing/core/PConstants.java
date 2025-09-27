@@ -61,6 +61,8 @@ public interface PConstants {
 
   String P2D = "processing.opengl.PGraphics2D";
   String P3D = "processing.opengl.PGraphics3D";
+  String P2DANGLE = "processing.opengl.PGraphicsANGLE2D";
+  String P3DANGLE = "processing.opengl.PGraphicsANGLE3D";
 
   // When will it be time to remove this?
   @Deprecated
