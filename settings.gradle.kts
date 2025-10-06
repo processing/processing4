@@ -11,5 +11,7 @@ include(
     "java:libraries:pdf",
     "java:libraries:serial",
     "java:libraries:svg",
+    ":visual-tests"
 )
 include("app:utils")
+include(":visual-tests")
