@@ -1,10 +1,10 @@
-// Processing Visual Test Runner - Modular test execution infrastructure
-// Uses ImageComparator for sophisticated pixel matching
-
 import processing.core.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 // Core visual tester class
 public class VisualTestRunner {
@@ -108,29 +108,72 @@ public class VisualTestRunner {
         return screenshotDir + "/" + sanitizedName + "-" + platform + ".png";
     }
 
+    // Replace loadBaseline method:
     private PImage loadBaseline(String path) {
         File file = new File(path);
-        if (!file.exists()) return null;
+        if (!file.exists()) {
+            System.out.println("loadBaseline: File doesn't exist: " + file.getAbsolutePath());
+            return null;
+        }
 
-        // Create a temporary PApplet to load the image
-        PApplet tempApplet = new PApplet();
-        return tempApplet.loadImage(path);
+        try {
+            System.out.println("loadBaseline: Loading from " + file.getAbsolutePath());
+
+            // Use Java ImageIO instead of PApplet
+            BufferedImage img = ImageIO.read(file);
+
+            if (img == null) {
+                System.out.println("loadBaseline: ImageIO returned null");
+                return null;
+            }
+
+            // Convert BufferedImage to PImage
+            PImage pImg = new PImage(img.getWidth(), img.getHeight(), PImage.RGB);
+            img.getRGB(0, 0, pImg.width, pImg.height, pImg.pixels, 0, pImg.width);
+            pImg.updatePixels();
+
+            System.out.println("loadBaseline: ✓ Loaded " + pImg.width + "x" + pImg.height);
+            return pImg;
+
+        } catch (Exception e) {
+            System.err.println("loadBaseline: Error loading image: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
     }
 
+    // Replace saveBaseline method:
     private void saveBaseline(String testName, PImage image) {
         String path = getBaselinePath(testName);
-        image.save(path);
-        System.out.println("Baseline created: " + path);
+
+        if (image == null) {
+            System.out.println("saveBaseline: ✗ Image is null!");
+            return;
+        }
+
+        try {
+            // Convert PImage to BufferedImage
+            BufferedImage bImg = new BufferedImage(image.width, image.height, BufferedImage.TYPE_INT_RGB);
+            image.loadPixels();
+            bImg.setRGB(0, 0, image.width, image.height, image.pixels, 0, image.width);
+
+            // Use Java ImageIO to save
+            File outputFile = new File(path);
+            outputFile.getParentFile().mkdirs(); // Ensure directory exists
+
+            ImageIO.write(bImg, "PNG", outputFile);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
-
-// Test runner that executes Processing sketches
 class SketchRunner extends PApplet {
 
     private ProcessingSketch userSketch;
     private TestConfig config;
     private PImage capturedImage;
-    private boolean rendered = false;
+    private volatile boolean rendered = false;
 
     public SketchRunner(ProcessingSketch userSketch, TestConfig config) {
         this.userSketch = userSketch;
@@ -142,7 +185,6 @@ class SketchRunner extends PApplet {
     }
 
     public void setup() {
-        // Disable animations for consistent testing
         noLoop();
 
         // Set background if specified
@@ -156,11 +198,8 @@ class SketchRunner extends PApplet {
 
     public void draw() {
         if (!rendered) {
-            // Call user draw function
             userSketch.draw(this);
-
-            // Capture the frame
-            capturedImage = get(); // get() returns a PImage of the entire canvas
+            capturedImage = get();
             rendered = true;
         }
     }
@@ -169,25 +208,36 @@ class SketchRunner extends PApplet {
         String[] args = {"SketchRunner"};
         PApplet.runSketch(args, this);
 
-        // Wait for rendering to complete
-        while (!rendered) {
+        // Simple polling with timeout
+        int maxWait = 100; // 10 seconds max
+        int waited = 0;
+
+        while (!rendered && waited < maxWait) {
             try {
-                Thread.sleep(10);
+                Thread.sleep(100);
+                waited++;
+
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }
         }
 
-        // Additional wait time for any processing
+        // Additional wait time
         try {
             Thread.sleep(config.renderWaitTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
 
-        // Clean up
-        exit();
+        if (surface != null) {
+            surface.setVisible(false);
+        }
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public PImage getImage() {
@@ -206,7 +256,7 @@ class TestConfig {
     public int width = 800;
     public int height = 600;
     public int[] backgroundColor = {255, 255, 255}; // RGB
-    public long renderWaitTime = 2000; // milliseconds
+    public long renderWaitTime = 100; // milliseconds
     public double threshold = 0.1;
 
     public TestConfig() {}
@@ -416,219 +466,4 @@ class TestExecutor {
         BaselineManager manager = new BaselineManager(tester);
         manager.updateBaseline(testName, sketch, config);
     }
-}
-
-// Example usage and test implementations
-class ProcessingVisualTestExamples {
-
-    public static void main(String[] args) {
-        // Initialize with your sophisticated pixel matching algorithm
-        PApplet tempApplet = new PApplet();
-
-        ImageComparator comparator = new ImageComparator(tempApplet);
-        VisualTestRunner tester = new VisualTestRunner(comparator);
-        ProcessingTestSuite suite = new ProcessingTestSuite(tester);
-
-        // Add example tests
-        suite.addTest("red-circle", new RedCircleSketch());
-        suite.addTest("blue-square", new BlueSquareSketch());
-        suite.addTest("gradient-background", new GradientBackgroundSketch(),
-            new TestConfig(600, 400));
-        suite.addTest("complex-pattern", new ComplexPatternSketch(),
-            new TestConfig(800, 600).setThreshold(0.15));
-
-        // Run all tests
-        List<TestResult> results = suite.runAll();
-
-        // Print detailed summary
-        printTestSummary(results);
-
-        // Handle command line arguments
-        if (args.length > 0) {
-            handleCommandLineArgs(args, suite);
-        }
-    }
-
-    private static void printTestSummary(List<TestResult> results) {
-        long passed = results.stream().filter(r -> r.passed).count();
-        long failed = results.size() - passed;
-        long baselines = results.stream().filter(r -> r.isFirstRun).count();
-        long errors = results.stream().filter(r -> r.error != null).count();
-
-        System.out.println("\n=== Test Summary ===");
-        System.out.println("Total: " + results.size());
-        System.out.println("Passed: " + passed);
-        System.out.println("Failed: " + failed);
-        System.out.println("Baselines Created: " + baselines);
-        System.out.println("Errors: " + errors);
-
-        // Print detailed failure information
-        results.stream()
-            .filter(r -> !r.passed && !r.isFirstRun && r.error == null)
-        .forEach(r -> {
-            System.out.println("\n--- Failed Test: " + r.testName + " ---");
-            if (r.details != null) {
-                r.details.printDetails();
-            }
-        });
-    }
-
-    private static void handleCommandLineArgs(String[] args, ProcessingTestSuite suite) {
-        if (args[0].equals("--update")) {
-            // Update specific baselines or all
-            BaselineManager manager = new BaselineManager(null); // Will need tester reference
-            if (args.length > 1) {
-                for (int i = 1; i < args.length; i++) {
-                    System.out.println("Updating baseline: " + args[i]);
-                    // Update specific test baseline
-                }
-            } else {
-                System.out.println("Updating all baselines...");
-                manager.updateAllBaselines(suite);
-            }
-        } else if (args[0].equals("--run")) {
-            // Run specific test
-            if (args.length > 1) {
-                String testName = args[1];
-                TestResult result = suite.runTest(testName);
-                result.printResult();
-            }
-        }
-    }
-
-    // Example sketch: Red circle
-    static class RedCircleSketch implements ProcessingSketch {
-        public void setup(PApplet p) {
-            p.noStroke();
-        }
-
-        public void draw(PApplet p) {
-            p.background(255);
-            p.fill(255, 0, 0);
-            p.ellipse(p.width/2, p.height/2, 100, 100);
-        }
-    }
-
-    // Example sketch: Blue square
-    static class BlueSquareSketch implements ProcessingSketch {
-        public void setup(PApplet p) {
-            p.stroke(0);
-            p.strokeWeight(2);
-        }
-
-        public void draw(PApplet p) {
-            p.background(255);
-            p.fill(0, 0, 255);
-            p.rect(p.width/2 - 50, p.height/2 - 50, 100, 100);
-        }
-    }
-
-    // Example sketch: Gradient background
-    static class GradientBackgroundSketch implements ProcessingSketch {
-        public void setup(PApplet p) {
-            p.noStroke();
-        }
-
-        public void draw(PApplet p) {
-            for (int y = 0; y < p.height; y++) {
-            float inter = PApplet.map(y, 0, p.height, 0, 1);
-            int c = p.lerpColor(p.color(255, 0, 0), p.color(0, 0, 255), inter);
-            p.stroke(c);
-            p.line(0, y, p.width, y);
-        }
-        }
-    }
-
-    // Example sketch: Complex pattern (more likely to have minor differences)
-    static class ComplexPatternSketch implements ProcessingSketch {
-        public void setup(PApplet p) {
-            p.noStroke();
-        }
-
-        public void draw(PApplet p) {
-            p.background(20, 20, 40);
-
-            for (int x = 0; x < p.width; x += 15) {
-            for (int y = 0; y < p.height; y += 15) {
-            float noise = (float) (Math.sin(x * 0.02) * Math.cos(y * 0.02));
-            int brightness = (int) ((noise + 1) * 127.5);
-
-            p.fill(brightness, brightness * 0.7f, brightness * 1.2f);
-            p.rect(x, y, 12, 12);
-
-            // Add some text that might cause line shifts
-            if (x % 60 == 0 && y % 60 == 0) {
-                p.fill(255);
-                p.textSize(8);
-                p.text(brightness, x + 2, y + 10);
-            }
-        }
-        }
-        }
-    }
-}
-
-// CI Integration helper
-class ProcessingCIHelper {
-
-    public static void main(String[] args) {
-        if (args.length > 0 && args[0].equals("--ci")) {
-            runCITests();
-        }  else {
-            ProcessingVisualTestExamples.main(args);
-        }
-    }
-
-    public static void runCITests() {
-        System.out.println("Running visual tests in CI mode...");
-
-        // Initialize comparator
-        PApplet tempApplet = new PApplet();
-
-        ImageComparator comparator = new ImageComparator(tempApplet);
-        VisualTestRunner tester = new VisualTestRunner(comparator);
-        ProcessingTestSuite suite = new ProcessingTestSuite(tester);
-
-        // Add your actual test cases here
-        suite.addTest("ci-test-1", new ProcessingVisualTestExamples.RedCircleSketch());
-        suite.addTest("ci-test-2", new ProcessingVisualTestExamples.BlueSquareSketch());
-
-        // Run tests
-        List<TestResult> results = suite.runAll();
-
-        // Check for failures
-        boolean hasFailures = results.stream().anyMatch(r -> !r.passed && !r.isFirstRun);
-        boolean hasErrors = results.stream().anyMatch(r -> r.error != null);
-
-        if (hasFailures || hasErrors) {
-            System.err.println("Visual tests failed!");
-            System.exit(1);
-        } else {
-            System.out.println("All visual tests passed!");
-            System.exit(0);
-        }
-    }
-
-//    public static void updateCIBaselines(String[] testNames) {
-//        System.out.println("Updating baselines in CI mode...");
-//
-//        // Initialize components
-//        PApplet tempApplet = new PApplet();
-//
-//        ImageComparator comparator = new ImageComparator(tempApplet);
-//        VisualTestRunner = new VisualTestRunner(comparator);
-//        BaselineManager manager = new BaselineManager(tester);
-//
-//        if (testNames.length == 0) {
-//            System.out.println("No specific tests specified, updating all...");
-//            // Update all baselines - you'd need to implement this based on your test discovery
-//        } else {
-//            for (String testName : testNames) {
-//                System.out.println("Updating baseline for: " + testName);
-//                // Update specific baseline - you'd need the corresponding sketch
-//            }
-//        }
-//
-//        System.out.println("Baseline update completed!");
-//    }
 }
