@@ -8,20 +8,14 @@ repositories {
     maven { url = uri("https://jogamp.org/deployment/maven") }
 }
 
-//dependencies {
-//    // Reference to Processing core
-//    implementation(project(":core"))
-//    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-//}
 dependencies {
     implementation(project(":core"))
 
     // JUnit BOM to manage versions
     testImplementation(platform("org.junit:junit-bom:5.9.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
-    //testRuntimeOnly("org.junit.platform:test-platform-launcher:1.9.3")
+    testImplementation("org.junit.platform:junit-platform-suite:1.9.3")
 
-    // Optional: AssertJ for better assertions
     testImplementation("org.assertj:assertj-core:3.24.2")
 }
 
@@ -34,45 +28,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
-
-//// Visual testing tasks
-//tasks.register<JavaExec>("runVisualTests") {
-//    description = "Run all visual tests"
-//    classpath = sourceSets.main.get().runtimeClasspath
-//    mainClass.set("ProcessingVisualTestExamples")
-//}
-//
-//tasks.register<JavaExec>("runSimpleTest") {
-//    description = "Verify visual testing setup"
-//    classpath = sourceSets.main.get().runtimeClasspath
-//    mainClass.set("SimpleTest")
-//}
-//
-//tasks.register<JavaExec>("updateBaselines") {
-//    description = "Update visual test baselines"
-//    classpath = sourceSets.main.get().runtimeClasspath
-//    mainClass.set("ProcessingCIHelper")
-//    args("--update")
-//}
-//
-//tasks.register<JavaExec>("runCITests") {
-//    description = "Run visual tests in CI"
-//    classpath = sourceSets.main.get().runtimeClasspath
-//    mainClass.set("ProcessingCIHelper")
-//    args("--ci")
-//    systemProperty("java.awt.headless", "true")
-//}
-//
-//tasks.register<Delete>("cleanVisualTestFiles") {
-//    delete(fileTree(".") {
-//        include("__screenshots__/**")
-//        include("diff_*.png")
-//    })
-//}
-//
-//tasks.named("clean") {
-//    dependsOn("cleanVisualTestFiles")
-//}
 
 tasks.test {
     useJUnitPlatform()
@@ -108,19 +63,6 @@ tasks.register<Test>("updateBaselines") {
     }
 }
 
-// Task to run only visual tests (excluding slow tests)
-tasks.register<Test>("visualTest") {
-    description = "Run visual tests (excluding slow tests)"
-    group = "verification"
-
-    useJUnitPlatform {
-        excludeTags("slow")
-    }
-
-    maxParallelForks = 1
-}
-
-// Task to run tests for specific feature
 tasks.register<Test>("testShapes") {
     description = "Run shape-related visual tests"
     group = "verification"
@@ -132,28 +74,93 @@ tasks.register<Test>("testShapes") {
     maxParallelForks = 1
 }
 
-// Legacy task - keep for backward compatibility during migration
-tasks.register<JavaExec>("runSimpleTest") {
-    description = "[DEPRECATED] Use 'test' instead - Verify visual testing setup"
+tasks.register<Test>("testBasicShapes") {
+    description = "Run basic shapes visual tests"
     group = "verification"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("SimpleTest")
 
-    doFirst {
-        println("⚠️  WARNING: This task is deprecated. Please use './gradlew test' instead")
+    useJUnitPlatform {
+        includeTags("basic")
+    }
+
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+
+    // Add test logging to see what's happening
+    testLogging {
+        events("passed", "skipped", "failed", "started")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
 }
 
-// Legacy task - keep for backward compatibility
-tasks.register<JavaExec>("runVisualTests") {
-    description = "[DEPRECATED] Use 'test' instead - Run all visual tests"
+// Task to run ONLY visual tests (no other test types)
+tasks.register<Test>("visualTests") {
+    description = "Run all visual tests"
     group = "verification"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("ProcessingVisualTestExamples")
 
-    doFirst {
-        println("⚠️  WARNING: This task is deprecated. Please use './gradlew test' instead")
+    useJUnitPlatform {
+        // Include all tests in the visual test package
+        includeEngines("junit-jupiter")
     }
+
+    filter {
+        includeTestsMatching("visual.*")
+    }
+
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+
+    testLogging {
+        events("passed", "skipped", "failed", "started")
+        showStandardStreams = true
+        displayGranularity = 2
+    }
+}
+
+tasks.register<Test>("testRendering") {
+    description = "Run rendering visual tests"
+    group = "verification"
+
+    useJUnitPlatform {
+        includeTags("rendering")
+    }
+
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+
+    testLogging {
+        events("passed", "skipped", "failed", "started")
+        showStandardStreams = true
+    }
+}
+
+tasks.register<Test>("runSuite") {
+    description = "Run specific test suite (use -PsuiteClass=SuiteName)"
+    group = "verification"
+
+    useJUnitPlatform {
+        val suiteClass = project.findProperty("suiteClass") as String?
+            ?: "visual.suites.AllVisualTests"
+        includeTags(suiteClass)
+    }
+
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+}
+
+// Update baselines for specific suite
+tasks.register<Test>("updateBaselinesForSuite") {
+    description = "Update baselines for specific suite (use -Psuite=tag)"
+    group = "verification"
+
+    useJUnitPlatform {
+        val suite = project.findProperty("suite") as String? ?: "baseline"
+        includeTags(suite, "baseline")
+    }
+
+    systemProperty("update.baselines", "true")
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
 }
 
 // CI-specific test task
