@@ -8,9 +8,5 @@ plugins {
 
 // Set the build directory to not /build to prevent accidental deletion through the clean action
 // Can be deleted after the migration to Gradle is complete
-tasks.register("visualTests") {
-    description = "Run visual regression tests"
-    dependsOn(":visual-testing:runVisualTests")
-}
 
 layout.buildDirectory = file(".build")
