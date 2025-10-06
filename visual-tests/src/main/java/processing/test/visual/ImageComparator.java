@@ -1,4 +1,4 @@
-package 
+package processing.test.visual;
 
 import processing.core.*;
 import java.util.*;

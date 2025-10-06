@@ -1,3 +1,5 @@
+package processing.test.visual;
+
 import processing.core.*;
 import java.io.*;
 import java.nio.file.*;
@@ -82,7 +84,16 @@ public class VisualTestRunner {
     // Save diff image for debugging
     private void saveDiffImage(String testName, PImage diffImage) {
         String sanitizedName = testName.replaceAll("[^a-zA-Z0-9-_]", "-");
-        String diffPath = "diff_" + sanitizedName + "-" + platform + ".png";
+        String diffPath;
+        if (sanitizedName.contains("/")) {
+            diffPath = "diff_" + sanitizedName.replace("/", "_") + "-" + platform + ".png";
+        } else {
+            diffPath = "diff_" + sanitizedName + "-" + platform + ".png";
+        }
+
+        File diffFile = new File(diffPath);
+        diffFile.getParentFile().mkdirs();
+
         diffImage.save(diffPath);
         System.out.println("Diff image saved: " + diffPath);
     }
@@ -104,8 +115,9 @@ public class VisualTestRunner {
     }
 
     private String getBaselinePath(String testName) {
-        String sanitizedName = testName.replaceAll("[^a-zA-Z0-9-_]", "-");
-        return screenshotDir + "/" + sanitizedName + "-" + platform + ".png";
+        String sanitizedName = testName.replaceAll("[^a-zA-Z0-9-_/]", "-");
+
+       return screenshotDir + "/" + sanitizedName + "-" + platform + ".png";
     }
 
     // Replace loadBaseline method:
@@ -157,13 +169,17 @@ public class VisualTestRunner {
             image.loadPixels();
             bImg.setRGB(0, 0, image.width, image.height, image.pixels, 0, image.width);
 
-            // Use Java ImageIO to save
+            // Create File object and ensure parent directories exist
             File outputFile = new File(path);
-            outputFile.getParentFile().mkdirs(); // Ensure directory exists
+            outputFile.getParentFile().mkdirs(); // This creates nested directories
 
+            // Use Java ImageIO to save
             ImageIO.write(bImg, "PNG", outputFile);
 
+            System.out.println("Baseline saved: " + path);
+
         } catch (Exception e) {
+            System.err.println("Failed to save baseline: " + path);
             e.printStackTrace();
         }
     }
@@ -201,6 +217,7 @@ class SketchRunner extends PApplet {
             userSketch.draw(this);
             capturedImage = get();
             rendered = true;
+            noLoop();
         }
     }
 
@@ -242,88 +259,6 @@ class SketchRunner extends PApplet {
 
     public PImage getImage() {
         return capturedImage;
-    }
-}
-
-// Interface for user sketches
-interface ProcessingSketch {
-    void setup(PApplet p);
-    void draw(PApplet p);
-}
-
-// Test configuration class
-class TestConfig {
-    public int width = 800;
-    public int height = 600;
-    public int[] backgroundColor = {255, 255, 255}; // RGB
-    public long renderWaitTime = 100; // milliseconds
-    public double threshold = 0.1;
-
-    public TestConfig() {}
-
-    public TestConfig(int width, int height) {
-        this.width = width;
-        this.height = height;
-    }
-
-    public TestConfig(int width, int height, int[] backgroundColor) {
-        this.width = width;
-        this.height = height;
-        this.backgroundColor = backgroundColor;
-    }
-
-    public TestConfig setThreshold(double threshold) {
-        this.threshold = threshold;
-        return this;
-    }
-
-    public TestConfig setRenderWaitTime(long waitTime) {
-        this.renderWaitTime = waitTime;
-        return this;
-    }
-}
-
-// Enhanced test result with detailed information
-class TestResult {
-    public String testName;
-    public boolean passed;
-    public double mismatchRatio;
-    public String error;
-    public boolean isFirstRun;
-    public ComparisonDetails details;
-
-    public TestResult(String testName, ComparisonResult comparison) {
-        this.testName = testName;
-        this.passed = comparison.passed;
-        this.mismatchRatio = comparison.mismatchRatio;
-        this.isFirstRun = comparison.isFirstRun;
-        this.details = comparison.details;
-    }
-
-    public static TestResult createError(String testName, String error) {
-        TestResult result = new TestResult();
-        result.testName = testName;
-        result.passed = false;
-        result.error = error;
-        return result;
-    }
-
-    private TestResult() {} // For error constructor
-
-    public void printResult() {
-        System.out.print(testName + ": ");
-        if (error != null) {
-            System.out.println("ERROR - " + error);
-        } else if (isFirstRun) {
-            System.out.println("BASELINE CREATED");
-        } else if (passed) {
-            System.out.println("PASSED");
-        } else {
-            System.out.println("FAILED (mismatch: " + String.format("%.4f", mismatchRatio * 100) + "%)");
-            if (details != null) {
-                details.printDetails();
-            }
-        }
     }
 }
 
@@ -382,88 +317,5 @@ class ProcessingTestSuite {
             this.sketch = sketch;
             this.config = config;
         }
-    }
-}
-
-// Baseline manager for updating reference images
-class BaselineManager {
-    private VisualTestRunner tester;
-
-    public BaselineManager(VisualTestRunner tester) {
-        this.tester = tester;
-    }
-
-    public void updateBaseline(String testName, ProcessingSketch sketch) {
-        updateBaseline(testName, sketch, new TestConfig());
-    }
-
-    public void updateBaseline(String testName, ProcessingSketch sketch, TestConfig config) {
-        System.out.println("Updating baseline for: " + testName);
-
-        // Capture new image
-        SketchRunner runner = new SketchRunner(sketch, config);
-        runner.run();
-        PImage newImage = runner.getImage();
-
-        // Save as baseline
-        String baselinePath = "__screenshots__/" +
-        testName.replaceAll("[^a-zA-Z0-9-_]", "-") +
-                "-" + detectPlatform() + ".png";
-        newImage.save(baselinePath);
-
-        System.out.println("Baseline updated: " + baselinePath);
-    }
-
-    public void updateAllBaselines(ProcessingTestSuite suite) {
-        System.out.println("Updating all baselines...");
-        List<String> testNames = suite.getTestNames();
-
-        for (String testName : testNames) {
-            // Re-run the test to get the sketch and config
-            TestResult result = suite.runTest(testName);
-            // Note: In a real implementation, you'd need to store the sketch reference
-            // This is a simplified version
-        }
-    }
-
-    private String detectPlatform() {
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("mac")) return "darwin";
-        if (os.contains("win")) return "win32";
-        return "linux";
-    }
-}
-
-// Test execution utilities
-class TestExecutor {
-
-    public static void runSingleTest(String testName, ProcessingSketch sketch) {
-        runSingleTest(testName, sketch, new TestConfig());
-    }
-
-    public static void runSingleTest(String testName, ProcessingSketch sketch, TestConfig config) {
-        // Initialize comparator
-        PApplet tempApplet = new PApplet();
-        ImageComparator comparator = new ImageComparator(tempApplet);
-
-        // Run test
-        VisualTestRunner tester = new VisualTestRunner(comparator);
-        TestResult result = tester.runVisualTest(testName, sketch, config);
-        result.printResult();
-    }
-
-    public static void updateSingleBaseline(String testName, ProcessingSketch sketch) {
-        updateSingleBaseline(testName, sketch, new TestConfig());
-    }
-
-    public static void updateSingleBaseline(String testName, ProcessingSketch sketch, TestConfig config) {
-        // Initialize comparator
-        PApplet tempApplet = new PApplet();
-        ImageComparator comparator = new ImageComparator(tempApplet);
-
-        // Update baseline
-        VisualTestRunner tester = new VisualTestRunner(comparator);
-        BaselineManager manager = new BaselineManager(tester);
-        manager.updateBaseline(testName, sketch, config);
     }
 }
