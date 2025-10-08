@@ -239,7 +239,6 @@ Float	KEYWORD5
 Integer	KEYWORD5
 HashMap	KEYWORD5	HashMap
 PrintWriter	KEYWORD5	PrintWriter
-Short	KEYWORD5	Short
 String	KEYWORD5	String
 StringBuffer	KEYWORD5
 StringBuilder	KEYWORD5
