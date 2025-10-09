@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Locale;
 
 import processing.app.Base;
 import processing.app.Platform;
@@ -51,6 +53,7 @@ public class Commander implements RunnerListener {
   static final String runArg = "--run";
   static final String presentArg = "--present";
   static final String sketchArg = "--sketch=";
+  static final String mainArg = "--main=";
   static final String forceArg = "--force";
   static final String outputArg = "--output=";
   static final String exportApplicationArg = "--export";
@@ -77,6 +80,7 @@ public class Commander implements RunnerListener {
     String sketchPath = null;
     File sketchFolder = null;
     String pdePath = null;  // path to the .pde file
+    String mainFilename = null;  // custom main .pde file (optional)
     String outputPath = null;
     File outputFolder = null;
     boolean outputSet = false;  // set an output folder
@@ -145,14 +149,14 @@ public class Commander implements RunnerListener {
         if (!sketchFolder.exists()) {
           complainAndQuit(sketchFolder + " does not exist.", false);
         }
-        File pdeFile = new File(sketchFolder, sketchFolder.getName() + ".pde");
-        if (!pdeFile.exists()) {
-          complainAndQuit("Not a valid sketch folder. " + pdeFile + " does not exist.", true);
-        }
-        pdePath = pdeFile.getAbsolutePath();
+        // Will be set later after checking for --main argument
+        // or default to folder name convention
 
 //      } else if (arg.startsWith(preferencesArg)) {
 //        preferencesPath = arg.substring(preferencesArg.length());
+
+      } else if (arg.startsWith(mainArg)) {
+        mainFilename = arg.substring(mainArg.length());
 
       } else if (arg.startsWith(outputArg)) {
         outputSet = true;
@@ -208,6 +212,38 @@ public class Commander implements RunnerListener {
 //      complainAndQuit("Sketch path must point to the main .pde file.", false);
 
     } else {
+      // Determine the main .pde file to use
+      File pdeFile;
+      if (mainFilename != null) {
+        // User specified a custom main file with --main
+        pdeFile = new File(sketchFolder, mainFilename);
+        try {
+          Path pdeFilePath = pdeFile.toPath().toRealPath();
+          Path sketchFolderPath = sketchFolder.toPath().toRealPath();
+          if (!pdeFilePath.startsWith(sketchFolderPath)) {
+            complainAndQuit("The main file must be inside the sketch folder.", true);
+          }
+        } catch (IOException e) {
+          complainAndQuit("Error resolving file paths: " + e.getMessage(), true);
+        }
+        if (!pdeFile.exists()) {
+          complainAndQuit("The main file does not exist: " + pdeFile.getAbsolutePath(), true);
+        }
+        int dotIndex = mainFilename.lastIndexOf('.');
+        String extension = (dotIndex != -1 && dotIndex < mainFilename.length() - 1)
+          ? mainFilename.substring(dotIndex + 1).toLowerCase(Locale.ROOT)
+          : "";
+        if (!extension.equals("pde")) {
+          complainAndQuit("The main file must be a .pde file.", true);
+        }
+      } else {
+        // Default behavior: look for <foldername>.pde
+        pdeFile = new File(sketchFolder, sketchFolder.getName() + ".pde");
+        if (!pdeFile.exists()) {
+          complainAndQuit("Not a valid sketch folder. " + pdeFile + " does not exist.", true);
+        }
+      }
+      pdePath = pdeFile.getAbsolutePath();
 
       if (outputSet) {
         if (outputPath.equals(sketchPath)) {
@@ -331,6 +367,9 @@ public class Commander implements RunnerListener {
     out.println("--help               Show this help text. Congratulations.");
     out.println();
     out.println("--sketch=<name>      Specify the sketch folder (required)");
+    out.println("--main=<file>        Specify the main .pde file if not using the default");
+    out.println("                     naming convention (optional). The file should be");
+    out.println("                     inside the sketch folder, e.g. --main=MySketch.pde");
     out.println("--output=<name>      Specify the output folder (optional and");
     out.println("                     cannot be the same as the sketch folder.)");
     out.println();
