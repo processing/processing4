@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Locale;
 
@@ -215,26 +216,32 @@ public class Commander implements RunnerListener {
       // Determine the main .pde file to use
       File pdeFile;
       if (mainFilename != null) {
+        // Validate file extension first (fail fast)
+        int dotIndex = mainFilename.lastIndexOf('.');
+        if (dotIndex == -1 || dotIndex == mainFilename.length() - 1) {
+          // No extension or dot at end (e.g., "file" or "file.")
+          complainAndQuit("The main file must be a .pde file.", true);
+        }
+        String extension = mainFilename.substring(dotIndex + 1).toLowerCase(Locale.ENGLISH);
+        if (!extension.equals("pde")) {
+          complainAndQuit("The main file must be a .pde file.", true);
+        }
+        
         // User specified a custom main file with --main
         pdeFile = new File(sketchFolder, mainFilename);
+        Path pdeFilePath;
+        Path sketchFolderPath;
         try {
-          Path pdeFilePath = pdeFile.toPath().toRealPath();
-          Path sketchFolderPath = sketchFolder.toPath().toRealPath();
-          if (!pdeFilePath.startsWith(sketchFolderPath)) {
-            complainAndQuit("The main file must be inside the sketch folder.", true);
-          }
+          pdeFilePath = pdeFile.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
+          sketchFolderPath = sketchFolder.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
         } catch (IOException e) {
-          complainAndQuit("Error resolving file paths: " + e.getMessage(), true);
+          complainAndQuit("Could not resolve real path for main file or sketch folder: " + e.getMessage(), true);
+        }
+        if (!pdeFilePath.startsWith(sketchFolderPath)) {
+          complainAndQuit("The main file must be inside the sketch folder.", true);
         }
         if (!pdeFile.exists()) {
           complainAndQuit("The main file does not exist: " + pdeFile.getAbsolutePath(), true);
-        }
-        int dotIndex = mainFilename.lastIndexOf('.');
-        String extension = (dotIndex != -1 && dotIndex < mainFilename.length() - 1)
-          ? mainFilename.substring(dotIndex + 1).toLowerCase(Locale.ROOT)
-          : "";
-        if (!extension.equals("pde")) {
-          complainAndQuit("The main file must be a .pde file.", true);
         }
       } else {
         // Default behavior: look for <foldername>.pde
