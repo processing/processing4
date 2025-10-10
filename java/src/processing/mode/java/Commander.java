@@ -229,16 +229,14 @@ public class Commander implements RunnerListener {
         
         // User specified a custom main file with --main
         pdeFile = new File(sketchFolder, mainFilename);
-        Path pdeFilePath;
-        Path sketchFolderPath;
         try {
-          pdeFilePath = pdeFile.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
-          sketchFolderPath = sketchFolder.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
+          Path pdeFilePath = pdeFile.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
+          Path sketchFolderPath = sketchFolder.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS);
+          if (!pdeFilePath.startsWith(sketchFolderPath)) {
+            complainAndQuit("The main file must be inside the sketch folder.", true);
+          }
         } catch (IOException e) {
           complainAndQuit("Could not resolve real path for main file or sketch folder: " + e.getMessage(), true);
-        }
-        if (!pdeFilePath.startsWith(sketchFolderPath)) {
-          complainAndQuit("The main file must be inside the sketch folder.", true);
         }
         if (!pdeFile.exists()) {
           complainAndQuit("The main file does not exist: " + pdeFile.getAbsolutePath(), true);
