@@ -8,7 +8,6 @@ public class PShapeSVGPathTest {
 
   @Test
   public void testCompactPathNotation() {
-    // Test the failing SVG from issue #1244
     String svgContent = "<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.0\" viewBox=\"0 0 29 29\">" +
       "<path d=\"m0 6 3-2 15 4 7-7a2 2 0 013 3l-7 7 4 15-2 3-7-13-5 5v4l-2 2-2-5-5-2 2-2h4l5-5z\"/>" +
       "</svg>";
@@ -17,6 +16,11 @@ public class PShapeSVGPathTest {
       XML xml = XML.parse(svgContent);
       PShapeSVG shape = new PShapeSVG(xml);
       Assert.assertNotNull(shape);
+      Assert.assertTrue(shape.getChildCount() > 0);
+      
+      PShape path = shape.getChild(0);
+      Assert.assertNotNull(path);
+      Assert.assertTrue(path.getVertexCount() > 5);
     } catch (Exception e) {
       Assert.fail("Encountered exception " + e);
     }
@@ -40,22 +44,47 @@ public class PShapeSVGPathTest {
   
   @Test
   public void testCompactArcNotationVariations() {
-    // Test various compact arc notations
-    String[] testCases = {
-      // Flags only concatenated (e.g., "01")
-      "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M10 10 A30 30 0 0110 50\"/></svg>",
-      // Flags and coordinate concatenated (e.g., "013")
-      "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M10 10 A30 30 0 013 50\"/></svg>",
-      // Standard notation (should still work)
-      "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><path d=\"M10 10 A30 30 0 0 1 10 50\"/></svg>"
-    };
+    String svgContent1 = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">" +
+      "<path d=\"M10 10 A30 30 0 013 50\"/></svg>";
     
     try {
-      for (String svgContent : testCases) {
-        XML xml = XML.parse(svgContent);
-        PShapeSVG shape = new PShapeSVG(xml);
-        Assert.assertNotNull(shape);
-      }
+      XML xml = XML.parse(svgContent1);
+      PShapeSVG shape = new PShapeSVG(xml);
+      PShape path = shape.getChild(0);
+      int vertexCount = path.getVertexCount();
+      PVector lastVertex = path.getVertex(vertexCount - 1);
+      Assert.assertEquals(3.0f, lastVertex.x, 0.0001f);
+      Assert.assertEquals(50.0f, lastVertex.y, 0.0001f);
+    } catch (Exception e) {
+      Assert.fail("Encountered exception " + e);
+    }
+    
+    String svgContent2 = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">" +
+      "<path d=\"M10 10 A30 30 0 0110 50\"/></svg>";
+    
+    try {
+      XML xml = XML.parse(svgContent2);
+      PShapeSVG shape = new PShapeSVG(xml);
+      PShape path = shape.getChild(0);
+      int vertexCount = path.getVertexCount();
+      PVector lastVertex = path.getVertex(vertexCount - 1);
+      Assert.assertEquals(10.0f, lastVertex.x, 0.0001f);
+      Assert.assertEquals(50.0f, lastVertex.y, 0.0001f);
+    } catch (Exception e) {
+      Assert.fail("Encountered exception " + e);
+    }
+    
+    String svgContent3 = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">" +
+      "<path d=\"M10 10 A30 30 0 0 1 10 50\"/></svg>";
+    
+    try {
+      XML xml = XML.parse(svgContent3);
+      PShapeSVG shape = new PShapeSVG(xml);
+      PShape path = shape.getChild(0);
+      int vertexCount = path.getVertexCount();
+      PVector lastVertex = path.getVertex(vertexCount - 1);
+      Assert.assertEquals(10.0f, lastVertex.x, 0.0001f);
+      Assert.assertEquals(50.0f, lastVertex.y, 0.0001f);
     } catch (Exception e) {
       Assert.fail("Encountered exception " + e);
     }
@@ -63,15 +92,17 @@ public class PShapeSVGPathTest {
   
   @Test
   public void testCompactArcWithNegativeCoordinates() {
-    // Test compact arc notation with negative coordinates
     String svgContent = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">" +
-      "<path d=\"M50 50 a20 20 0 01-10 20\"/>" +
-      "</svg>";
+      "<path d=\"M50 50 a20 20 0 01-10 20\"/></svg>";
     
     try {
       XML xml = XML.parse(svgContent);
       PShapeSVG shape = new PShapeSVG(xml);
-      Assert.assertNotNull(shape);
+      PShape path = shape.getChild(0);
+      int vertexCount = path.getVertexCount();
+      PVector lastVertex = path.getVertex(vertexCount - 1);
+      Assert.assertEquals(40.0f, lastVertex.x, 0.0001f);
+      Assert.assertEquals(70.0f, lastVertex.y, 0.0001f);
     } catch (Exception e) {
       Assert.fail("Encountered exception " + e);
     }
