@@ -3,4 +3,12 @@ name = "ffi"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "processing"
+crate-type = ["cdylib"]
+
 [dependencies]
+renderer = { path = "../renderer" }
+
+[build-dependencies]
+cbindgen = "0.29"

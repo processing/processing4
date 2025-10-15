@@ -1,6 +1,6 @@
 [versions]
-kotlin = "2.0.20"
-compose-plugin = "1.7.1"
+kotlin = "2.3.0-Beta1"
+compose-plugin = "1.9.0"
 jogl = "2.5.0"
 antlr = "4.13.2"
 jupiter = "5.12.0"
