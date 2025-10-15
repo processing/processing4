@@ -12,7 +12,6 @@ sourceSets {
 repositories{
     mavenCentral()
     maven("https://jogamp.org/deployment/maven/")
-    maven("https://maven.pkg.jetbrains.space/public/p/kotlin/p/kotlin/bootstrap") // Kotlin EAP repository
 }
 
 dependencies{
