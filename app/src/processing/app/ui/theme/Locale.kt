@@ -21,7 +21,7 @@ import java.util.*
  * val localizedString = locale["someKey"]
  * ```
  */
-class Locale(language: String = "", val setLocale: (java.util.Locale) -> Unit) : Properties() {
+class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)? = null) : Properties() {
     var locale: java.util.Locale = java.util.Locale.getDefault()
 
     init {
@@ -46,7 +46,7 @@ class Locale(language: String = "", val setLocale: (java.util.Locale) -> Unit) :
     }
     operator fun get(key: String): String = getProperty(key, key)
     fun set(locale: java.util.Locale) {
-        setLocale(locale)
+        setLocale?.invoke(locale)
     }
 }
 /**
@@ -104,7 +104,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
     val update = watchFile(languageFile)
     var code by remember(languageFile, update){ mutableStateOf(languageFile.readText().substring(0, 2)) }
     remember(code) {
-        val locale = Locale(code)
+        val locale = java.util.Locale(code)
         java.util.Locale.setDefault(locale)
     }
 
