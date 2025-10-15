@@ -40,7 +40,7 @@ val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
  * @param fullWindowContent If true, the content will extend into the title bar area on macOS.
  * @param content The composable content to be displayed in the window.
  */
-class PDESwingWindow(titleKey: String = "", fullWindowContent: Boolean = false, content: @Composable BoxScope.() -> Unit): JFrame(){
+class PDESwingWindow(titleKey: String = "", fullWindowContent: Boolean = false, onClose: () -> Unit = {}, content: @Composable BoxScope.() -> Unit): JFrame(){
     init{
         val window = this
         defaultCloseOperation = DISPOSE_ON_CLOSE
@@ -54,7 +54,10 @@ class PDESwingWindow(titleKey: String = "", fullWindowContent: Boolean = false, 
         setLocationRelativeTo(null)
         addKeyListener(object : KeyAdapter() {
             override fun keyPressed(e: KeyEvent) {
-                if (e.keyCode == KeyEvent.VK_ESCAPE) window.dispose()
+                if (e.keyCode != KeyEvent.VK_ESCAPE) return
+
+                window.dispose()
+                onClose()
             }
         })
         isResizable = false
