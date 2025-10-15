@@ -28,7 +28,7 @@ class LocaleKtTest {
                 Text(locale["menu.file.new"], modifier = Modifier.testTag("localisedText"))
 
                 Button(onClick = {
-                    locale.setLocale(java.util.Locale("es"))
+                    locale.set(java.util.Locale("es"))
                 }, modifier = Modifier.testTag("button")) {
                     Text("Change")
                 }
