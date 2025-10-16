@@ -16,14 +16,14 @@ val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: true
 
 allprojects {
     tasks.withType<JavaCompile>().configureEach {
-        val javaVersion = if (project.name == "core" && enableWebGPU) "24" else "17"
+        val javaVersion = if (enableWebGPU) "24" else "17"
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
-            val kotlinTarget = if (project.name == "core" && enableWebGPU) {
+            val kotlinTarget = if (enableWebGPU) {
                 org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
             } else {
                 org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
