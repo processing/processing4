@@ -85,7 +85,7 @@ public class PGraphicsSVG extends PGraphicsJava2D {
 
     // Create an instance of the SVG Generator.
     g2 = new SVGGraphics2D(document);
-    ((SVGGraphics2D) g2).setSVGCanvasSize(new Dimension(width, height));
+    ((SVGGraphics2D) g2).setSVGCanvasSize(new Dimension(width * pixelDensity, height * pixelDensity));
 
     //set the extension handler to allow linear and radial gradients to be exported as svg
     GradientExtensionHandler gradH = new GradientExtensionHandler();
