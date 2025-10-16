@@ -24,14 +24,36 @@
 
 package processing.opengl;
 
-import processing.core.*;
-
 import java.io.File;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.nio.*;
-import java.util.*;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
+
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PFont;
+import processing.core.PGraphics;
+import processing.core.PImage;
+import processing.core.PMatrix;
+import processing.core.PMatrix2D;
+import processing.core.PMatrix3D;
+import processing.core.PShape;
+import processing.core.PSurface;
+import processing.core.PVector;
 
 
 /**
@@ -1402,6 +1424,8 @@ public class PGraphicsOpenGL extends PGraphics {
     // surfaces will have a null gl object.
     report("top beginDraw()");
 
+    System.out.println("TOP BEGINDRAW()");
+
     if (!checkGLThread()) {
       return;
     }
@@ -1532,12 +1556,12 @@ public class PGraphicsOpenGL extends PGraphics {
     if (pgl.isES()) {
       // neither GL_MULTISAMPLE nor GL_POLYGON_SMOOTH are part of GLES2 or GLES3
     } else if (smooth < 1) {
-      pgl.disable(PGL.MULTISAMPLE);
+      pgl.disable(PGL.MULTISAMPLE());
     } else {
-      pgl.enable(PGL.MULTISAMPLE);
+      pgl.enable(PGL.MULTISAMPLE());
     }
     if (!pgl.isES()) {
-      pgl.disable(PGL.POLYGON_SMOOTH);
+      pgl.disable(PGL.POLYGON_SMOOTH());
     }
 
     pgl.viewport(viewport.get(0), viewport.get(1),
@@ -5259,6 +5283,7 @@ public class PGraphicsOpenGL extends PGraphics {
     flush();
     pgl.clearBackground(backgroundR, backgroundG, backgroundB, backgroundA,
                         !hints[DISABLE_DEPTH_MASK], true);
+    // System.out.println(backgroundR+" "+backgroundG+" "+backgroundB+" "+backgroundA);
     loaded = false;
   }
 
@@ -6764,12 +6789,12 @@ public class PGraphicsOpenGL extends PGraphics {
     if (pgl.isES()) {
       // neither GL_MULTISAMPLE nor GL_POLYGON_SMOOTH are part of GLES2 or GLES3
     } else if (smooth < 1) {
-      pgl.disable(PGL.MULTISAMPLE);
+      pgl.disable(PGL.MULTISAMPLE());
     } else {
-      pgl.enable(PGL.MULTISAMPLE);
+      pgl.enable(PGL.MULTISAMPLE());
     }
     if (!pgl.isES()) {
-      pgl.disable(PGL.POLYGON_SMOOTH);
+      pgl.disable(PGL.POLYGON_SMOOTH());
     }
 
     if (sized) {
@@ -6875,8 +6900,9 @@ public class PGraphicsOpenGL extends PGraphics {
       maxSamples = intBuffer.get(0);
     }
 
+    anisoSamplingSupported = false;  // TODO: temporary
     if (anisoSamplingSupported) {
-      pgl.getFloatv(PGL.MAX_TEXTURE_MAX_ANISOTROPY, floatBuffer);
+      pgl.getFloatv(PGL.MAX_TEXTURE_MAX_ANISOTROPY(), floatBuffer);
       maxAnisoAmount = floatBuffer.get(0);
     }
 
