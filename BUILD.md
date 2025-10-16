@@ -12,9 +12,9 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in IntelliJ IDEA CE
 1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
+1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 25.
 1. In the main menu, go to File > Project Structure > Project Settings > Project.
-1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
+1. In the SDK Dropdown option, select a JDK version 25 or Download the jdk
 1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
 1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
 
@@ -46,18 +46,43 @@ If you don't have them installed, you will need to install [Git](https://git-scm
     cd processing4
     ```
 
-2. **Install Temurin JDK 17:**
-    
-    Download and install the appropriate version for your platform:
+2. **Install Temurin JDK 25:**
+   
+Processing requires the Temurin distribution of OpenJDK. 
 
-    - [Linux (x86)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz)
-    - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
-    - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
+You can download it from [Adoptium](https://adoptium.net/), from [GitHub releases](https://github.com/adoptium/temurin25-binaries/releases),
+or find it in the package manager for your platform.
+
+### macOS:
+```bash
+brew install --cask temurin@25
+````
+
+### Windows (using winget):
+```bash
+winget install --id=EclipseAdoptium.Temurin.25.JDK  -e
+```
+
+### SDKMAN!
+
+[SDKMAN!](https://sdkman.io/) is a useful tool for developers working on multiple versions of the JVM.
+
+## Install `jextract`
+
+`jextract` is a tool included in the JDK that generates Java bindings from C header files. 
+It is required to build Processing when using WebGPU. You can download it [here](https://jdk.java.net/jextract/)
+or install it using SDKMAN!:
+
+```bash
+sdk install jextract
+````
 
 3. **Set the `JAVA_HOME` environment variable:**
 
+It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK 25 installation.
+
     ```bash
-    export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
+    export JAVA_HOME=/path/to/temurin/jdk-25/
     ```
 
 ### Build, Run, and Package Processing
@@ -136,25 +161,24 @@ If you are specifically trying to run the `Processing CLI`, you can test command
 
 If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
 
-### Use the Correct JDK (temurin-17)
+### Use the Correct JDK (temurin-25)
 
-Make sure IntelliJ is using **temurin-17**, not another version. Some users have reported issues with ms-17.
+Make sure IntelliJ is using **temurin-25**, not another version.
 
 1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+2. Set the **Project SDK** to:    `temurin-25"`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
 If it is not already installed, you can download it by:
 1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
-2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+2. Select Version: `25`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
 
 ![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
 
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
-
 
 ### “Duplicate content roots detected”
 

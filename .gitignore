@@ -124,3 +124,5 @@ generated/
 /app/windows/obj
 /java/gradle/build
 /java/gradle/example/.processing
+
+libProcessing/ffi/include/*

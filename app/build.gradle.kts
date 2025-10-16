@@ -4,9 +4,7 @@ import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
+import processing.gradle.SignResourcesTask
 
 // TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
 
@@ -49,14 +47,17 @@ compose.desktop {
     application {
         mainClass = "processing.app.ProcessingKt"
 
-        jvmArgs(*listOf(
-            Pair("processing.version", rootProject.version),
-            Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
-            Pair("processing.download.page", "https://processing.org/download/"),
-            Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
-            Pair("processing.tutorials", "https://processing.org/tutorials/"),
-        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+        jvmArgs(
+            "--enable-native-access=ALL-UNNAMED",  // Required for Java 25 native library access
+            *listOf(
+                Pair("processing.version", rootProject.version),
+                Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
+                Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
+                Pair("processing.download.page", "https://processing.org/download/"),
+                Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
+                Pair("processing.tutorials", "https://processing.org/tutorials/"),
+            ).map { "-D${it.first}=${it.second}" }.toTypedArray()
+        )
 
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.accessibility", "java.management.rmi", "java.scripting", "jdk.httpserver")
@@ -421,82 +422,14 @@ tasks.register("includeProcessingResources"){
     finalizedBy("signResources")
 }
 
-tasks.register("signResources"){
+tasks.register<SignResourcesTask>("signResources") {
     onlyIf {
         OperatingSystem.current().isMacOsX
             &&
         compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
     }
     group = "compose desktop"
-    val resourcesPath = composeResources("")
-
-    // find jars in the resources directory
-    val jars = mutableListOf<File>()
-    doFirst{
-        fileTree(resourcesPath)
-            .matching { include("**/Info.plist") }
-            .singleOrNull()
-            ?.let { file ->
-                copy {
-                    from(file)
-                    into(resourcesPath)
-                }
-            }
-        fileTree(resourcesPath) {
-            include("**/*.jar")
-            exclude("**/*.jar.tmp/**")
-        }.forEach { file ->
-            val tempDir = file.parentFile.resolve("${file.name}.tmp")
-            copy {
-                from(zipTree(file))
-                into(tempDir)
-            }
-            file.delete()
-            jars.add(tempDir)
-        }
-        fileTree(resourcesPath){
-            include("**/bin/**")
-            include("**/*.jnilib")
-            include("**/*.dylib")
-            include("**/*aarch64*")
-            include("**/*x86_64*")
-            include("**/*ffmpeg*")
-            include("**/ffmpeg*/**")
-            exclude("jdk/**")
-            exclude("*.jar")
-            exclude("*.so")
-            exclude("*.dll")
-        }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
-            }
-        }
-        jars.forEach { file ->
-            FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->
-                ZipOutputStream(fos).use { zos ->
-                    file.walkTopDown().forEach { fileEntry ->
-                        if (fileEntry.isFile) {
-                            // Calculate the relative path for the zip entry
-                            val zipEntryPath = fileEntry.relativeTo(file).path
-                            val entry = ZipEntry(zipEntryPath)
-                            zos.putNextEntry(entry)
-
-                            // Copy file contents to the zip
-                            fileEntry.inputStream().use { input ->
-                                input.copyTo(zos)
-                            }
-                            zos.closeEntry()
-                        }
-                    }
-                }
-            }
-
-            file.deleteRecursively()
-        }
-        file(composeResources("Info.plist")).delete()
-    }
-
-
+    resourcesPath.set(composeResources(""))
 }
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
