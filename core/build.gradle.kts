@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import processing.gradle.*
 
 plugins {
     id("java")
@@ -11,10 +12,16 @@ repositories {
     maven { url = uri("https://jogamp.org/deployment/maven") }
 }
 
+val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: true
+
 sourceSets{
     main{
         java{
             srcDirs("src")
+            if (!enableWebGPU) {
+                exclude("processing/webgpu/**")
+                exclude("processing/ffi/**")
+            }
         }
         resources{
             srcDirs("src")
@@ -35,136 +42,120 @@ dependencies {
     testImplementation(libs.junit)
 }
 
-val osName = System.getProperty("os.name").lowercase()
-val osArch = System.getProperty("os.arch").lowercase()
+if (enableWebGPU) {
+    val currentPlatform = PlatformUtils.detect()
+    val libProcessingDir = file("${project.rootDir}/libProcessing")
+    val rustTargetDir = file("$libProcessingDir/target")
+    val nativeOutputDir = file("${layout.buildDirectory.get()}/native/${currentPlatform.target}")
 
-val platformName = when {
-    osName.contains("mac") || osName.contains("darwin") -> "macos"
-    osName.contains("win") -> "windows"
-    osName.contains("linux") -> "linux"
-    else -> throw GradleException("Unsupported OS: $osName")
-}
+    val buildRustRelease by tasks.registering(CargoBuildTask::class) {
+        cargoWorkspaceDir.set(libProcessingDir)
+        manifestPath.set("ffi/Cargo.toml")
+        release.set(true)
+        cargoPath.set(PlatformUtils.getCargoPath())
+        outputLibrary.set(file("$rustTargetDir/release/${currentPlatform.libName}"))
 
-val archName = when {
-    osArch.contains("aarch64") || osArch.contains("arm") -> "aarch64"
-    osArch.contains("x86_64") || osArch.contains("amd64") -> "x86_64"
-    else -> throw GradleException("Unsupported architecture: $osArch")
-}
-
-val libExtension = when (platformName) {
-    "macos" -> "dylib"
-    "windows" -> "dll"
-    "linux" -> "so"
-    else -> throw GradleException("Unknown platform: $platformName")
-}
-
-val libName = when (platformName) {
-    "windows" -> "processing.$libExtension"
-    else -> "libprocessing.$libExtension"
-}
-
-val platformTarget = "$platformName-$archName"
-val libProcessingDir = file("${project.rootDir}/libProcessing")
-val rustTargetDir = file("$libProcessingDir/target")
-val nativeOutputDir = file("${layout.buildDirectory.get()}/native/$platformTarget")
-
-val cargoPath = System.getenv("CARGO_HOME")?.let { "$it/bin/cargo" }
-    ?: "${System.getProperty("user.home")}/.cargo/bin/cargo"
-
-val buildRustRelease by tasks.registering(Exec::class) {
-    group = "rust"
-    description = "Build Rust FFI library in release mode for current platform"
-
-    workingDir = libProcessingDir
-    commandLine = listOf(cargoPath, "build", "--release", "--manifest-path", "ffi/Cargo.toml")
-
-    inputs.files(fileTree("$libProcessingDir/ffi/src"))
-    inputs.file("$libProcessingDir/ffi/Cargo.toml")
-    inputs.file("$libProcessingDir/Cargo.toml")
-    inputs.file("$libProcessingDir/ffi/build.rs")
-    inputs.file("$libProcessingDir/ffi/cbindgen.toml")
-
-    outputs.file("$rustTargetDir/release/$libName")
-    outputs.file("$libProcessingDir/ffi/include/processing.h")
-
-    doFirst {
-        logger.lifecycle("Building Rust library for $platformTarget...")
-    }
-}
-
-val copyNativeLibs by tasks.registering(Copy::class) {
-    group = "rust"
-    description = "Copy processing library to build directory"
-
-    dependsOn(buildRustRelease)
-
-    from("$rustTargetDir/release") {
-        include("libprocessing.a")
-        include("libprocessing.$libExtension")
+        inputs.files(fileTree("$libProcessingDir/ffi/src"))
+        inputs.file("$libProcessingDir/ffi/Cargo.toml")
+        inputs.file("$libProcessingDir/ffi/build.rs")
+        inputs.file("$libProcessingDir/ffi/cbindgen.toml")
+        inputs.files(fileTree("$libProcessingDir/renderer/src"))
+        inputs.file("$libProcessingDir/renderer/Cargo.toml")
+        inputs.file("$libProcessingDir/Cargo.toml")
+        outputs.file("$libProcessingDir/ffi/include/processing.h")
     }
 
-    into(nativeOutputDir)
+    val copyNativeLibs by tasks.registering(Copy::class) {
+        group = "rust"
+        description = "Copy processing library to build directory"
 
-    doFirst {
-        logger.lifecycle("Copying native libraries to $nativeOutputDir")
-    }
-}
+        dependsOn(buildRustRelease)
 
-val bundleNativeLibs by tasks.registering(Copy::class) {
-    group = "rust"
-    description = "Bundle native library into resources"
+        from("$rustTargetDir/release") {
+            include(currentPlatform.libName)
+        }
 
-    dependsOn(copyNativeLibs)
-
-    from(nativeOutputDir)
-    into("${sourceSets.main.get().output.resourcesDir}/native/$platformTarget")
-
-    doFirst {
-        logger.lifecycle("Bundling libraries for $platformTarget into resources")
-    }
-}
-
-val jextractPath = "${System.getProperty("user.home")}/jextract-22/bin/jextract"
-val generatedJavaDir = file("${layout.buildDirectory.get()}/generated/sources/jextract/java")
-val headerFile = file("$libProcessingDir/ffi/include/processing.h")
-
-sourceSets.main {
-    java.srcDirs(generatedJavaDir)
-}
-
-val generateJavaBindings by tasks.registering(Exec::class) {
-    group = "rust"
-    description = "Generate Java bindings from libProcessing headers using jextract"
-
-    dependsOn(buildRustRelease)
-
-    inputs.file(headerFile)
-
-    outputs.dir(generatedJavaDir)
-
-    doFirst {
-        generatedJavaDir.mkdirs()
-        logger.lifecycle("Generating Java bindings from $headerFile...")
+        into(nativeOutputDir)
     }
 
-    commandLine = listOf(
-        jextractPath,
-        "--output", generatedJavaDir.absolutePath,
-        "--target-package", "processing.ffi",
-        headerFile.absolutePath
-    )
-}
+    val bundleNativeLibs by tasks.registering(Copy::class) {
+        group = "rust"
+        description = "Bundle native library into resources"
 
-tasks.named("compileJava") {
-    dependsOn(generateJavaBindings)
-}
+        dependsOn(copyNativeLibs)
 
-tasks.named("compileKotlin") {
-    dependsOn(generateJavaBindings)
-}
+        from(nativeOutputDir)
+        into("${sourceSets.main.get().output.resourcesDir}/native/${currentPlatform.target}")
+    }
 
-tasks.named("processResources") {
-    dependsOn(bundleNativeLibs)
+    val cleanRust by tasks.registering(CargoCleanTask::class) {
+        cargoWorkspaceDir.set(libProcessingDir)
+        manifestPath.set("ffi/Cargo.toml")
+        cargoPath.set(PlatformUtils.getCargoPath())
+
+        mustRunAfter(buildRustRelease)
+    }
+
+    tasks.named("clean") {
+        dependsOn(cleanRust)
+    }
+
+    val generatedJavaDir = file("${layout.buildDirectory.get()}/generated/sources/jextract/java")
+
+    sourceSets.main {
+        java.srcDirs(generatedJavaDir)
+    }
+
+    val jextractVersionString = "22-jextract+6-47"
+    val jextractDirectory = file("${gradle.gradleUserHomeDir}/jextract-22")
+    val jextractTarballFile = file("${gradle.gradleUserHomeDir}/jextract-$jextractVersionString.tar.gz")
+
+    val downloadJextract by tasks.registering(DownloadJextractTask::class) {
+        jextractVersion.set(jextractVersionString)
+        platform.set(currentPlatform.jextractPlatform)
+        jextractDir.set(jextractDirectory)
+        downloadTarball.set(jextractTarballFile)
+
+        onlyIf { !jextractDirectory.exists() }
+    }
+
+    val makeJextractExecutable by tasks.registering(Exec::class) {
+        group = "rust"
+        description = "Make jextract binary executable on Unix systems"
+
+        dependsOn(downloadJextract)
+        onlyIf { !System.getProperty("os.name").lowercase().contains("windows") }
+
+        val jextractBin = file("$jextractDirectory/bin/jextract")
+        commandLine("chmod", "+x", jextractBin.absolutePath)
+    }
+
+    val generateJavaBindings by tasks.registering(GenerateJextractBindingsTask::class) {
+        dependsOn(buildRustRelease)
+
+        val userJextract = JextractUtils.findUserJextract()
+        if (userJextract == null) {
+            dependsOn(downloadJextract, makeJextractExecutable)
+        }
+
+        headerFile.set(file("$libProcessingDir/ffi/include/processing.h"))
+        outputDirectory.set(generatedJavaDir)
+        targetPackage.set("processing.ffi")
+
+        jextractPath.set(userJextract ?: "$jextractDirectory/bin/${JextractUtils.getExecutableName()}")
+    }
+
+    tasks.named("compileJava") {
+        dependsOn(generateJavaBindings)
+    }
+
+    tasks.named("compileKotlin") {
+        dependsOn(generateJavaBindings)
+    }
+
+    tasks.named("processResources") {
+        dependsOn(bundleNativeLibs)
+    }
 }
 
 mavenPublishing{

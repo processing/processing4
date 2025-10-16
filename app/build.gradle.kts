@@ -1,93 +1,12 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import org.gradle.process.ExecOperations
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
-import java.io.FileOutputStream
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-import javax.inject.Inject
+import processing.gradle.SignResourcesTask
 
 // TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
-
-abstract class SignResourcesTask : DefaultTask() {
-    @get:Inject
-    abstract val execOperations: ExecOperations
-
-    @get:InputDirectory
-    abstract val resourcesPath: DirectoryProperty
-
-    @TaskAction
-    fun signResources() {
-        val resourcesDir = resourcesPath.get().asFile
-        val jars = mutableListOf<File>()
-
-        // Copy Info.plist if present
-        project.fileTree(resourcesDir)
-            .matching { include("**/Info.plist") }
-            .singleOrNull()
-            ?.let { file ->
-                project.copy {
-                    from(file)
-                    into(resourcesDir)
-                }
-            }
-
-        project.fileTree(resourcesDir) {
-            include("**/*.jar")
-            exclude("**/*.jar.tmp/**")
-        }.forEach { file ->
-            val tempDir = file.parentFile.resolve("${file.name}.tmp")
-            project.copy {
-                from(project.zipTree(file))
-                into(tempDir)
-            }
-            file.delete()
-            jars.add(tempDir)
-        }
-
-        project.fileTree(resourcesDir) {
-            include("**/bin/**")
-            include("**/*.jnilib")
-            include("**/*.dylib")
-            include("**/*aarch64*")
-            include("**/*x86_64*")
-            include("**/*ffmpeg*")
-            include("**/ffmpeg*/**")
-            exclude("jdk/**")
-            exclude("*.jar")
-            exclude("*.so")
-            exclude("*.dll")
-        }.forEach { file ->
-            execOperations.exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--sign", "Developer ID Application", file)
-            }
-        }
-
-        jars.forEach { file ->
-            FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->
-                ZipOutputStream(fos).use { zos ->
-                    file.walkTopDown().forEach { fileEntry ->
-                        if (fileEntry.isFile) {
-                            val zipEntryPath = fileEntry.relativeTo(file).path
-                            val entry = ZipEntry(zipEntryPath)
-                            zos.putNextEntry(entry)
-                            fileEntry.inputStream().use { input ->
-                                input.copyTo(zos)
-                            }
-                            zos.closeEntry()
-                        }
-                    }
-                }
-            }
-            file.deleteRecursively()
-        }
-
-        File(resourcesDir, "Info.plist").delete()
-    }
-}
 
 plugins{
     id("java")
