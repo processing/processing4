@@ -68,7 +68,7 @@ tasks.register<Copy>("copyCore"){
     into(coreProject.layout.projectDirectory.dir("library"))
 }
 
-val legacyLibraries = arrayOf("io","net","svg")
+val legacyLibraries = arrayOf("io","net")
 legacyLibraries.forEach { library ->
     tasks.register<Copy>("library-$library-extraResources"){
         val build = project(":java:libraries:$library").tasks.named("build")
@@ -87,7 +87,7 @@ legacyLibraries.forEach { library ->
     }
 }
 
-val libraries = arrayOf("dxf", "pdf", "serial")
+val libraries = arrayOf("dxf", "pdf", "serial", "svg")
 
 libraries.forEach { library ->
     val name = "create-$library-library"
