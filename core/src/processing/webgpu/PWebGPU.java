@@ -1,7 +1,12 @@
 package processing.webgpu;
 
 import processing.core.NativeLibrary;
-import processing.ffi.processing_h;
+
+import java.lang.foreign.MemorySegment;
+
+import static java.lang.foreign.MemorySegment.NULL;
+import static processing.ffi.processing_h.processing_check_error;
+import static processing.ffi.processing_h.processing_init;
 
 /**
  * PWebGPU provides the native interface layer for libProcessing's WebGPU support.
@@ -9,7 +14,8 @@ import processing.ffi.processing_h;
 public class PWebGPU {
 
     static {
-        NativeLibrary.ensureLoaded();
+        ensureLoaded();
+        init();
     }
 
     /**
@@ -20,9 +26,25 @@ public class PWebGPU {
     }
 
     /**
-     * It's just math, silly!
+     * Initializes the WebGPU subsystem. Must be called before any other WebGPU methods.
      */
-    public static long add(long left, long right) {
-        return processing_h.processing_add(left, right);
+    public static void init() {
+        processing_init();
+        checkError();
+    }
+
+    /**
+     * Checks for errors from the native library and throws a PWebGPUException if an error occurred.
+     */
+    private static void checkError() {
+        MemorySegment ret = processing_check_error();
+        if (ret.equals(NULL)) {
+            return;
+        }
+
+        String errorMsg = ret.getString(0);
+        if (errorMsg != null && !errorMsg.isEmpty()) {
+            throw new PWebGPUException(errorMsg);
+        }
     }
 }
