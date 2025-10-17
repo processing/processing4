@@ -1,6 +1,7 @@
 import org.gradle.internal.jvm.Jvm
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
@@ -119,6 +120,8 @@ dependencies {
     implementation(libs.markdown)
     implementation(libs.markdownJVM)
 
+    @OptIn(ExperimentalComposeLibrary::class)
+    testImplementation(compose.uiTest)
     testImplementation(kotlin("test"))
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
