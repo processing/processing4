@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -123,6 +124,7 @@ public class DiagnosticsDialog extends JDialog {
     
     String[] lines = jsonData.split("\n");
     int indentLevel = 0;
+    Set<String> skipTokens = Set.of("{", "}", "[", "]", "},", "],");
     
     for (String line : lines) {
       String trimmed = line.trim();
@@ -131,9 +133,7 @@ public class DiagnosticsDialog extends JDialog {
         indentLevel--;
       }
       
-      if (trimmed.length() > 0 && !trimmed.equals("{") && !trimmed.equals("}") 
-          && !trimmed.equals("[") && !trimmed.equals("]") 
-          && !trimmed.equals("},") && !trimmed.equals("],")) {
+      if (trimmed.length() > 0 && !skipTokens.contains(trimmed)) {
         
         String display = trimmed.replaceAll("\"", "")
                                .replaceAll(",", "")

@@ -494,7 +494,8 @@ public class Debugger {
       
       ObjectReference appletRef = currentThread.frame(0).thisObject();
       if (appletRef == null) {
-        editor.statusError("Could not find PApplet instance.");
+        editor.statusError("Could not find PApplet instance. This may happen if the sketch " +
+                          "is paused in a static method. Try pausing in an instance method instead.");
         return;
       }
       
@@ -504,7 +505,15 @@ public class Debugger {
         return;
       }
       
-      Method diagnosticsMethod = ((ClassType) appletType).concreteMethodByName("getDiagnostics", "()Ljava/lang/String;");
+      // Walk the class hierarchy to find the getDiagnostics method
+      Method diagnosticsMethod = null;
+      ClassType currentClass = (ClassType) appletType;
+      while (currentClass != null && diagnosticsMethod == null) {
+        diagnosticsMethod = currentClass.concreteMethodByName("getDiagnostics", "()Ljava/lang/String;");
+        if (diagnosticsMethod == null) {
+          currentClass = currentClass.superclass();
+        }
+      }
       
       if (diagnosticsMethod == null) {
         editor.statusError("getDiagnostics() method not found. Make sure core library is up to date.");
