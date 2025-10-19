@@ -173,6 +173,16 @@ public class Debugger {
 
     debugMenu.addSeparator();
 
+    item = Toolkit.newJMenuItemExt("menu.debug.gather_diagnostics");
+    item.addActionListener(new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          Messages.log("Invoked 'Gather Diagnostics' menu item");
+          gatherDiagnostics();
+        }
+      });
+    debugMenu.add(item);
+    item.setEnabled(false);
+
     item =
       Toolkit.newJMenuItem(Language.text("menu.debug.toggle_breakpoint"), 'B');
     item.addActionListener(new ActionListener() {
@@ -455,6 +465,92 @@ public class Debugger {
   /** Step out of current statement. */
   public synchronized void stepOut() {
     step(StepRequest.STEP_OUT);
+  }
+
+
+  /**
+   * Gather system diagnostics from the running sketch.
+   * <p>
+   * Calls the getDiagnostics() method on the sketch's PApplet instance
+   * via JDWP and displays the results in a dialog.
+   * </p>
+   */
+  public synchronized void gatherDiagnostics() {
+    if (!isStarted()) {
+      editor.statusNotice("Sketch must be running in debug mode to gather diagnostics.");
+      return;
+    }
+    
+    if (!isPaused()) {
+      editor.statusNotice("Please pause the sketch first (at a breakpoint or use Continue/Step).");
+      return;
+    }
+    
+    try {
+      if (currentThread == null || currentThread.frameCount() == 0) {
+        editor.statusError("No valid stack frame available.");
+        return;
+      }
+      
+      ObjectReference appletRef = currentThread.frame(0).thisObject();
+      if (appletRef == null) {
+        editor.statusError("Could not find PApplet instance.");
+        return;
+      }
+      
+      ReferenceType appletType = appletRef.referenceType();
+      if (!(appletType instanceof ClassType)) {
+        editor.statusError("PApplet reference is not a ClassType.");
+        return;
+      }
+      
+      Method diagnosticsMethod = ((ClassType) appletType).concreteMethodByName("getDiagnostics", "()Ljava/lang/String;");
+      
+      if (diagnosticsMethod == null) {
+        editor.statusError("getDiagnostics() method not found. Make sure core library is up to date.");
+        return;
+      }
+      
+      editor.statusNotice("Gathering diagnostics from sketch...");
+      Value resultValue = appletRef.invokeMethod(
+        currentThread, 
+        diagnosticsMethod, 
+        new ArrayList<>(), 
+        ObjectReference.INVOKE_SINGLE_THREADED
+      );
+      
+      if (resultValue == null) {
+        editor.statusError("getDiagnostics() returned null.");
+        return;
+      }
+      
+      if (!(resultValue instanceof StringReference)) {
+        editor.statusError("getDiagnostics() returned unexpected type: " + resultValue.getClass().getName());
+        return;
+      }
+      
+      StringReference result = (StringReference) resultValue;
+      String diagnosticData = result.value();
+      
+      javax.swing.SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+          DiagnosticsDialog dialog = new DiagnosticsDialog(editor, diagnosticData);
+          dialog.setVisible(true);
+        }
+      });
+      
+      editor.statusNotice("Diagnostics gathered successfully.");
+      
+    } catch (IncompatibleThreadStateException e) {
+      editor.statusError("Thread is not suspended.");
+      logitse(e);
+    } catch (ClassCastException e) {
+      editor.statusError("Unexpected return type from getDiagnostics().");
+      e.printStackTrace();
+    } catch (Exception e) {
+      editor.statusError("Error gathering diagnostics: " + e.getMessage());
+      e.printStackTrace();
+    }
   }
 
 
