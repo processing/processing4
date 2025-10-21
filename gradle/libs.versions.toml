@@ -1,6 +1,6 @@
 [versions]
-kotlin = "2.0.20"
-compose-plugin = "1.7.1"
+kotlin = "2.2.20"
+compose-plugin = "1.9.1"
 jogl = "2.5.0"
 antlr = "4.13.2"
 jupiter = "5.12.0"
@@ -35,10 +35,10 @@ markdown = { module = "com.mikepenz:multiplatform-markdown-renderer-m2", version
 markdownJVM = { module = "com.mikepenz:multiplatform-markdown-renderer-jvm", version = "0.31.0" }
 clikt = { module = "com.github.ajalt.clikt:clikt", version = "5.0.2" }
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.6.3" }
+material3 = { module = "org.jetbrains.compose.material3:material3", version = "1.9.0" }
 
 [plugins]
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 download = { id = "de.undercouch.download", version = "5.6.0" }
