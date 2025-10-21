@@ -15,7 +15,21 @@ public class Platform {
             }
             settingsFolder = new File(appData + "\\Processing");
         } else {
-            settingsFolder = new File(System.getProperty("user.home") + "/.processing");
+            // Check to see if the user has set a different location for their config
+            String configHomeEnv = System.getenv("XDG_CONFIG_HOME");
+            if (configHomeEnv != null && !configHomeEnv.isBlank()) {
+                settingsFolder = new File(configHomeEnv);
+                if (!settingsFolder.exists()) {
+                    settingsFolder = null;  // don't use non-existent folder
+                }
+            }
+            String snapUserCommon = System.getenv("SNAP_USER_COMMON");
+            if (snapUserCommon != null && !snapUserCommon.isBlank()) {
+                settingsFolder = new File(snapUserCommon);
+            }
+            if (settingsFolder == null) {
+                settingsFolder = new File(System.getProperty("user.home"), ".config");
+            }
         }
         return settingsFolder;
     }
