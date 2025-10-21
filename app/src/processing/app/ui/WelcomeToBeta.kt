@@ -31,8 +31,8 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
 import com.mikepenz.markdown.compose.Markdown
-import com.mikepenz.markdown.m2.markdownColor
-import com.mikepenz.markdown.m2.markdownTypography
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
 import processing.app.Preferences
@@ -53,7 +53,7 @@ import javax.swing.SwingUtilities
 
 class WelcomeToBeta {
     companion object{
-        val windowSize = Dimension(400, 200)
+        val windowSize = Dimension(400, 250)
         val windowTitle = Locale()["beta.window.title"]
 
         @JvmStatic
@@ -98,7 +98,7 @@ class WelcomeToBeta {
             Row(
                 modifier = Modifier
                     .padding(20.dp, 10.dp)
-                    .size(windowSize.width.dp, windowSize.height.dp),
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement
                     .spacedBy(20.dp)
             ){
@@ -108,7 +108,7 @@ class WelcomeToBeta {
                     contentDescription = locale["beta.logo"],
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .size(100.dp, 100.dp)
+                        .size(120.dp)
                         .offset(0.dp, (-25).dp)
                 )
                 Column(
@@ -130,7 +130,7 @@ class WelcomeToBeta {
                     Markdown(
                         text,
                         colors = markdownColor(),
-                        typography = markdownTypography(text = typography.bodyMedium, link = typography.bodyMedium.copy(color = MaterialTheme.colorScheme.primary)),
+                        typography = markdownTypography(),
                         modifier = Modifier.background(Color.Transparent).padding(bottom = 10.dp)
                     )
                     Row {
@@ -152,7 +152,7 @@ class WelcomeToBeta {
         fun main(args: Array<String>) {
             application {
                 val windowState = rememberWindowState(
-                    size = DpSize.Unspecified,
+                    size = windowSize.let { DpSize(it.width.dp, it.height.dp) },
                     position = WindowPosition(Alignment.Center)
                 )
 

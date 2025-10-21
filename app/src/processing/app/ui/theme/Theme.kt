@@ -93,7 +93,7 @@ fun PDETheme(
                 colorScheme = if(darkTheme) PDEDarkColor else PDELightColor,
                 typography = PDETypography
             ){
-                Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+                Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background).fillMaxSize()) {
                     CompositionLocalProvider(
                         LocalContentColor provides MaterialTheme.colorScheme.onBackground,
                         LocalDensity provides Density(1.25f, 1.25f),
