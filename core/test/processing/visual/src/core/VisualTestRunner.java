@@ -198,7 +198,6 @@ class SketchRunner extends PApplet {
 
     public void settings() {
         size(config.width, config.height);
-        pixelDensity(1);
     }
 
     public void setup() {
