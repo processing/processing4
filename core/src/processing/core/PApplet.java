@@ -9981,10 +9981,6 @@ public class PApplet implements PConstants {
             }
             break;
 
-          case ARGS_DISABLE_AWT:
-            disableAWT = true;
-            break;
-
           case ARGS_WINDOW_COLOR:
             if (value.charAt(0) == '#' && value.length() == 7) {
               value = value.substring(1);
@@ -10034,6 +10030,10 @@ public class PApplet implements PConstants {
 
           case ARGS_FULL_SCREEN:
             fullScreen = true;
+            break;
+
+          case ARGS_DISABLE_AWT:
+            disableAWT = true;
             break;
 
           default:

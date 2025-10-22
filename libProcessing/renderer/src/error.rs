@@ -9,4 +9,10 @@ pub enum ProcessingError {
     AppAccess,
     #[error("Error initializing tracing: {0}")]
     Tracing(#[from] tracing::subscriber::SetGlobalDefaultError),
+    #[error("Window not found")]
+    WindowNotFound,
+    #[error("Handle error: {0}")]
+    HandleError(#[from] raw_window_handle::HandleError),
+    #[error("Invalid window handle provided")]
+    InvalidWindowHandle,
 }

@@ -39,6 +39,26 @@ dependencies {
     implementation(libs.jogl)
     implementation(libs.gluegen)
 
+    val lwjglVersion = "3.3.6"
+    val lwjglNatives = when {
+        System.getProperty("os.name").lowercase().contains("mac") -> {
+            if (System.getProperty("os.arch").contains("aarch64")) {
+                "natives-macos-arm64"
+            } else {
+                "natives-macos"
+            }
+        }
+        System.getProperty("os.name").lowercase().contains("win") -> "natives-windows"
+        System.getProperty("os.name").lowercase().contains("linux") -> "natives-linux"
+        else -> "natives-linux"
+    }
+
+    implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+    implementation("org.lwjgl", "lwjgl")
+    implementation("org.lwjgl", "lwjgl-glfw")
+    runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
+    runtimeOnly("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
+
     testImplementation(libs.junit)
 }
 
