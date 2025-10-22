@@ -84,7 +84,7 @@ private fun PDEWindowContent(window: JFrame, titleKey: String, fullWindowContent
     }
 
     CompositionLocalProvider(LocalWindow provides window) {
-        ProcessingTheme {
+        PDETheme {
             val locale = LocalLocale.current
             window.title = locale[titleKey]
             LaunchedEffect(locale) {
