@@ -32,5 +32,6 @@ tasks.register<Copy>("createLibrary") {
     }
     from(tasks.jar) {
         into("library")
+        rename { "serial.jar" }
     }
 }

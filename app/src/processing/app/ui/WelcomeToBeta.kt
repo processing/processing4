@@ -5,11 +5,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.MaterialTheme.colors
-import androidx.compose.material.MaterialTheme.typography
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -31,15 +31,14 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
 import com.mikepenz.markdown.compose.Markdown
-import com.mikepenz.markdown.m2.markdownColor
-import com.mikepenz.markdown.m2.markdownTypography
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.MarkdownColors
 import com.mikepenz.markdown.model.MarkdownTypography
 import processing.app.Preferences
 import processing.app.Base.getRevision
 import processing.app.Base.getVersionName
 import processing.app.ui.theme.LocalLocale
-import processing.app.ui.theme.LocalTheme
 import processing.app.ui.theme.Locale
 import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
@@ -75,7 +74,7 @@ class WelcomeToBeta {
             Row(
                 modifier = Modifier
                     .padding(20.dp, 10.dp)
-                    .size(windowSize.width.dp, windowSize.height.dp),
+                    .fillMaxSize(),
                 horizontalArrangement = Arrangement
                     .spacedBy(20.dp)
             ){
@@ -85,7 +84,7 @@ class WelcomeToBeta {
                     contentDescription = locale["beta.logo"],
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                        .size(100.dp, 100.dp)
+                        .size(120.dp)
                         .offset(0.dp, (-25).dp)
                 )
                 Column(
@@ -99,7 +98,7 @@ class WelcomeToBeta {
                 ) {
                     Text(
                         text = locale["beta.title"],
-                        style = typography.subtitle1,
+                        style = typography.titleLarge,
                     )
                     val text = locale["beta.message"]
                         .replace('$' + "version", getVersionName())
@@ -107,65 +106,23 @@ class WelcomeToBeta {
                     Markdown(
                         text,
                         colors = markdownColor(),
-                        typography = markdownTypography(text = typography.body1, link = typography.body1.copy(color = colors.primary)),
+                        typography = markdownTypography(),
                         modifier = Modifier.background(Color.Transparent).padding(bottom = 10.dp)
                     )
                     Row {
                         Spacer(modifier = Modifier.weight(1f))
-                        PDEButton(onClick = {
+                        Button(onClick = {
                             close()
                         }) {
                             Text(
                                 text = locale["beta.button"],
-                                color = colors.onPrimary
+                                color = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
                 }
             }
         }
-        @OptIn(ExperimentalComposeUiApi::class)
-        @Composable
-        fun PDEButton(onClick: () -> Unit, content: @Composable BoxScope.() -> Unit) {
-            val theme = LocalTheme.current
-
-            var hover by remember { mutableStateOf(false) }
-            var clicked by remember { mutableStateOf(false) }
-            val offset by animateFloatAsState(if (hover) -5f else 5f)
-            val color by animateColorAsState(if(clicked) colors.primaryVariant else colors.primary)
-
-            Box(modifier = Modifier.padding(end = 5.dp, top = 5.dp)) {
-                Box(
-                    modifier = Modifier
-                        .offset((-offset).dp, (offset).dp)
-                        .background(theme.getColor("toolbar.button.pressed.field"))
-                        .matchParentSize()
-                )
-                Box(
-                    modifier = Modifier
-                        .onPointerEvent(PointerEventType.Press) {
-                            clicked = true
-                        }
-                        .onPointerEvent(PointerEventType.Release) {
-                            clicked = false
-                            onClick()
-                        }
-                        .onPointerEvent(PointerEventType.Enter) {
-                            hover = true
-                        }
-                        .onPointerEvent(PointerEventType.Exit) {
-                            hover = false
-                        }
-                        .pointerHoverIcon(PointerIcon(Cursor(Cursor.HAND_CURSOR)))
-                        .background(color)
-                        .padding(10.dp)
-                        .sizeIn(minWidth = 100.dp),
-                    contentAlignment = Alignment.Center,
-                    content = content
-                )
-            }
-        }
-
 
         @JvmStatic
         fun main(args: Array<String>) {

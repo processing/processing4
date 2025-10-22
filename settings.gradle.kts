@@ -3,6 +3,7 @@ include(
     "core",
     "core:examples",
     "app",
+    "app:utils",
     "java",
     "java:preprocessor",
     "java:libraries:dxf",
@@ -12,4 +13,3 @@ include(
     "java:libraries:serial",
     "java:libraries:svg",
 )
-include("app:utils")
