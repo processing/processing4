@@ -17,6 +17,7 @@ plugins{
 
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.jetbrainsCompose)
+
     alias(libs.plugins.serialization)
     alias(libs.plugins.download)
 }
@@ -60,7 +61,7 @@ compose.desktop {
         ).map { "-D${it.first}=${it.second}" }.toTypedArray())
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "java.management.rmi", "java.scripting", "jdk.httpserver")
+            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi", "java.scripting", "jdk.httpserver")
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
@@ -108,17 +109,21 @@ dependencies {
 
     implementation(compose.runtime)
     implementation(compose.foundation)
-    implementation(compose.material)
     implementation(compose.ui)
     implementation(compose.components.resources)
     implementation(compose.components.uiToolingPreview)
+    implementation(compose.materialIconsExtended)
 
     implementation(compose.desktop.currentOs)
+    implementation(libs.material3)
 
     implementation(libs.compottie)
     implementation(libs.kaml)
     implementation(libs.markdown)
     implementation(libs.markdownJVM)
+
+    implementation(libs.clikt)
+    implementation(libs.kotlinxSerializationJson)
 
     @OptIn(ExperimentalComposeLibrary::class)
     testImplementation(compose.uiTest)
@@ -126,9 +131,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
-
-    implementation(libs.clikt)
-    implementation(libs.kotlinxSerializationJson)
+    
 }
 
 tasks.test {
