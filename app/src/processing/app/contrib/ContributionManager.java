@@ -694,15 +694,9 @@ public class ContributionManager {
 
 
   static public void init(Base base) throws Exception {
-//    long t1 = System.currentTimeMillis();
-    // Moved here to make sure it runs on EDT [jv 170121]
     contribListing = ContributionListing.getInstance();
-//    long t2 = System.currentTimeMillis();
     managerFrame = new ManagerFrame(base);
-//    long t3 = System.currentTimeMillis();
     cleanup(base);
-//    long t4 = System.currentTimeMillis();
-//    System.out.println("ContributionManager.init() " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3));
   }
 
 
