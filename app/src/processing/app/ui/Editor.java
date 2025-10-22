@@ -1057,6 +1057,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     var updateTrigger = new JMenuItem(Language.text("menu.develop.check_for_updates"));
     updateTrigger.addActionListener(e -> {
         Preferences.unset("update.last");
+        Preferences.setInteger("update.beta_welcome", 0);
         new UpdateCheck(base);
     });
     developMenu.add(updateTrigger);

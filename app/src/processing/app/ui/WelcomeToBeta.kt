@@ -40,7 +40,9 @@ import processing.app.Base.getRevision
 import processing.app.Base.getVersionName
 import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.Locale
-import processing.app.ui.theme.PDETheme
+import processing.app.ui.theme.PDEComposeWindow
+import processing.app.ui.theme.PDESwingWindow
+import processing.app.ui.theme.ProcessingTheme
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
@@ -53,46 +55,20 @@ import javax.swing.SwingUtilities
 
 class WelcomeToBeta {
     companion object{
-        val windowSize = Dimension(400, 250)
-        val windowTitle = Locale()["beta.window.title"]
-
         @JvmStatic
         fun showWelcomeToBeta() {
-            val mac = SystemInfo.isMacFullWindowContentSupported
             SwingUtilities.invokeLater {
-                JFrame(windowTitle).apply {
-                    val close = {
-                       Preferences.set("update.beta_welcome", getRevision().toString())
-                       dispose()
-                    }
-                    rootPane.putClientProperty("apple.awt.transparentTitleBar", mac)
-                    rootPane.putClientProperty("apple.awt.fullWindowContent", mac)
-                    defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
-                    contentPane.add(ComposePanel().apply {
-                        size = windowSize
-                        setContent {
-                            PDETheme(darkTheme = false) {
-                                Box(modifier = Modifier.padding(top = if (mac) 22.dp else 0.dp)) {
-                                    welcomeToBeta(close)
-                                }
-                            }
-                        }
-                    })
-                    pack()
-                    background = java.awt.Color.white
-                    setLocationRelativeTo(null)
-                    addKeyListener(object : KeyAdapter() {
-                        override fun keyPressed(e: KeyEvent) {
-                            if (e.keyCode == KeyEvent.VK_ESCAPE) close()
-                        }
-                    })
-                    isResizable = false
-                    isVisible = true
-                    requestFocus()
+                val close = {
+                    Preferences.set("update.beta_welcome", getRevision().toString())
+                }
+
+                PDESwingWindow("beta.window.title", onClose = close) {
+                    welcomeToBeta(close)
                 }
             }
         }
 
+        val windowSize = Dimension(400, 200)
         @Composable
         fun welcomeToBeta(close: () -> Unit = {}) {
             Row(
@@ -151,16 +127,9 @@ class WelcomeToBeta {
         @JvmStatic
         fun main(args: Array<String>) {
             application {
-                val windowState = rememberWindowState(
-                    size = windowSize.let { DpSize(it.width.dp, it.height.dp) },
-                    position = WindowPosition(Alignment.Center)
-                )
-
-                Window(onCloseRequest = ::exitApplication, state = windowState, title = windowTitle) {
-                    PDETheme(darkTheme = false) {
-                        welcomeToBeta {
-                            exitApplication()
-                        }
+                PDEComposeWindow(titleKey = "beta.window.title", onClose = ::exitApplication){
+                    welcomeToBeta {
+                        exitApplication()
                     }
                 }
             }
