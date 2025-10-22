@@ -36,4 +36,3 @@ tasks.register("visualTests") {
 }
 
 layout.buildDirectory = file(".build")
-
