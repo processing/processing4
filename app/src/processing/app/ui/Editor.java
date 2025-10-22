@@ -189,7 +189,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
     timer = new Timer();
 
-    buildMenuBar();
+    new Thread(this::buildMenuBar).start();
 
     JPanel contentPain = new JPanel();
     setContentPane(contentPain);

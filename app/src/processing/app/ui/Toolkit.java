@@ -44,16 +44,19 @@ import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.image.ImageObserver;
+import java.awt.image.RenderedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -68,14 +71,12 @@ import javax.swing.KeyStroke;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import processing.app.Language;
-import processing.app.Messages;
-import processing.app.Platform;
-import processing.app.Preferences;
-import processing.app.Util;
+import processing.app.*;
 import processing.awt.PGraphicsJava2D;
 import processing.awt.PShapeJava2D;
+import processing.awt.ShimAWT;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PShape;
 import processing.data.StringDict;
 import processing.data.StringList;
@@ -794,6 +795,7 @@ public class Toolkit {
   */
 
 
+
   static public Image svgToImageMult(String xmlStr, int wide, int high, StringDict replacements) {
     /*
     for (StringDict.Entry entry : replacements.entries()) {
@@ -823,7 +825,24 @@ public class Toolkit {
     pg.setSize(wide, high);
     pg.smooth();
 
+
+
+
+
     pg.beginDraw();
+
+    var cacheKey = (xmlStr + "|" + wide + "x" + high).hashCode();
+    var cachePath = Base.getSettingsFolder().toPath().resolve("svg_cache").resolve(String.valueOf(cacheKey) + ".png");
+    if(!Base.DEBUG || true){
+      if(Files.exists(cachePath)){
+        byte[] bytes = PApplet.loadBytes(cachePath.toFile());
+        if (bytes == null) {
+          return null;
+        } else {
+          return new ImageIcon(bytes).getImage();
+        }
+      }
+    }
 
     try {
       XML xml = XML.parse(xmlStr);
@@ -835,6 +854,12 @@ public class Toolkit {
     }
 
     pg.endDraw();
+    try {
+      Files.createDirectories(cachePath.getParent());
+      pg.save(cachePath.toString());
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     return pg.image;
   }
 
@@ -1361,8 +1386,9 @@ public class Toolkit {
     Font font = Font.createFont(Font.TRUETYPE_FONT, input);
     input.close();
 
-    // Register the font to be available for other function calls
-    GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+    new Thread(() -> {
+      GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+    }).start();
 
     return font.deriveFont((float) size);
   }

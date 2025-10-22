@@ -56,7 +56,7 @@ class Processing: SuspendingCliktCommand("processing"){
 
         val subcommand = currentContext.invokedSubcommand
         if (subcommand == null) {
-            Start.main(sketches.toTypedArray())
+            Base.main(sketches.toTypedArray())
         }
     }
 }

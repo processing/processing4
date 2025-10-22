@@ -302,7 +302,7 @@ public class Base {
 //        t6 = System.currentTimeMillis();
 
         // Prevent more than one copy of the PDE from running.
-        SingleInstance.startServer(base);
+        new Thread(() -> { SingleInstance.startServer(base); } ).start();
 
         handleWelcomeScreen(base);
         handleCrustyDisplay();
@@ -485,12 +485,18 @@ public class Base {
 
   public Base(String[] args) throws Exception {
     long t1 = System.currentTimeMillis();
-    ContributionManager.init(this);
+    new Thread(() -> {
+        try {
+            ContributionManager.init(this);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }).start();
 
     long t2 = System.currentTimeMillis();
     buildCoreModes();
     long t2b = System.currentTimeMillis();
-    rebuildContribModes();
+    new Thread(this::rebuildContribModes).start();
     long t2c = System.currentTimeMillis();
     rebuildContribExamples();
 
@@ -498,7 +504,7 @@ public class Base {
     // Needs to happen after the sketchbook folder has been located.
     // Also relies on the modes to be loaded, so it knows what can be
     // marked as an example.
-    Recent.init(this);
+    new Thread(() -> { Recent.init(this); }).start();
 
     long t4 = System.currentTimeMillis();
     String lastModeIdentifier = Preferences.get("mode.last"); //$NON-NLS-1$
@@ -523,7 +529,7 @@ public class Base {
     long t5 = System.currentTimeMillis();
 
     // Make sure ThinkDifferent has library examples too
-    nextMode.rebuildLibraryList();
+//    nextMode.rebuildLibraryList();
 
     // Put this after loading the examples, so that building the default file
     // menu works on Mac OS X (since it needs examplesFolder to be set).
@@ -863,7 +869,7 @@ public class Base {
     return contribTools;
   }
 
-
+  private List<Tool> toolsToInit = new ArrayList<>();
   public void rebuildToolList() {
     // Only do these once because the list of internal tools will never change
     if (internalTools == null) {
@@ -883,43 +889,12 @@ public class Base {
     // Only init() these the first time they're loaded
     if (coreTools == null) {
       coreTools = ToolContribution.loadAll(Base.getToolsFolder());
-      for (Tool tool : coreTools) {
-        tool.init(this);
-      }
+      toolsToInit.addAll(coreTools);
     }
 
     // Reset the contributed tools and re-init() all of them.
     contribTools = ToolContribution.loadAll(Base.getSketchbookToolsFolder());
-    for (Tool tool : contribTools) {
-      try {
-        tool.init(this);
-
-        // With the exceptions, we can't call statusError because the window
-        // isn't completely set up yet. Also not gonna pop up a warning because
-        // people may still be running different versions of Processing.
-
-      } catch (VerifyError | AbstractMethodError ve) {
-        System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
-                           "compatible with this version of Processing");
-        Messages.err("Incompatible Tool found during tool.init()", ve);
-
-      } catch (NoSuchMethodError nsme) {
-        System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
-                           "compatible with this version of Processing");
-        System.err.println("The " + nsme.getMessage() + " method no longer exists.");
-        Messages.err("Incompatible Tool found during tool.init()", nsme);
-
-      } catch (NoClassDefFoundError ncdfe) {
-        System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
-                           "compatible with this version of Processing");
-        System.err.println("The " + ncdfe.getMessage() + " class is no longer available.");
-        Messages.err("Incompatible Tool found during tool.init()", ncdfe);
-
-      } catch (Error | Exception e) {
-        System.err.println("An error occurred inside \"" + tool.getMenuTitle() + "\"");
-        e.printStackTrace();
-      }
-    }
+    toolsToInit.addAll(contribTools);
   }
 
 
@@ -928,7 +903,7 @@ public class Base {
       final Tool tool = (Tool)
         toolClass.getDeclaredConstructor().newInstance();
 
-      tool.init(this);
+      toolsToInit.add(tool);
       internalTools.add(tool);
 
     } catch (Exception e) {
@@ -976,12 +951,40 @@ public class Base {
     toolsMenu.add(manageTools);
   }
 
+  void initTool(Tool tool) {
+    if(!toolsToInit.contains(tool)) {return;}
+    try {
+      tool.init(this);
+      toolsToInit.remove(tool);
+    } catch (VerifyError | AbstractMethodError ve) {
+      System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
+              "compatible with this version of Processing");
+      Messages.err("Incompatible Tool found during tool.init()", ve);
+
+    } catch (NoSuchMethodError nsme) {
+      System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
+              "compatible with this version of Processing");
+      System.err.println("The " + nsme.getMessage() + " method no longer exists.");
+      Messages.err("Incompatible Tool found during tool.init()", nsme);
+
+    } catch (NoClassDefFoundError ncdfe) {
+      System.err.println("\"" + tool.getMenuTitle() + "\" is not " +
+              "compatible with this version of Processing");
+      System.err.println("The " + ncdfe.getMessage() + " class is no longer available.");
+      Messages.err("Incompatible Tool found during tool.init()", ncdfe);
+
+    } catch (Error | Exception e) {
+      System.err.println("An error occurred inside \"" + tool.getMenuTitle() + "\"");
+      e.printStackTrace();
+    }
+  }
 
   JMenuItem createToolItem(final Tool tool) { //, Map<String, JMenuItem> toolItems) {
     String title = tool.getMenuTitle();
     final JMenuItem item = new JMenuItem(title);
     item.addActionListener(e -> {
       try {
+        initTool(tool);
         tool.run();
 
       } catch (NoSuchMethodError | NoClassDefFoundError ne) {
