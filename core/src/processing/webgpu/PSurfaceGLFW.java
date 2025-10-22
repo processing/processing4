@@ -121,7 +121,7 @@ public class PSurfaceGLFW implements PSurface {
         if (Platform.get() == Platform.MACOSX) {
             return GLFWNativeCocoa.glfwGetCocoaWindow(window);
         } else {
-            return window;
+            throw new UnsupportedOperationException("Window handle retrieval not implemented for this platform");
         }
     }
 
