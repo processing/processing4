@@ -101,7 +101,6 @@ class PDEPreferences {
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(top = 42.dp)
                             )
-
                         },
                         modifier = Modifier
                             .defaultMinSize(minWidth = 200.dp)
@@ -289,7 +288,6 @@ private fun PDEPreference.showControl() {
             show()
         }
     }
-
 }
 
 /**

@@ -18,13 +18,41 @@
 */
 package processing.app
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Alarm
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.awt.ComposeDialog
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import com.formdev.flatlaf.FlatLightLaf
 import processing.app.ui.Toolkit
+import processing.app.ui.theme.PDETheme
+import java.awt.Dimension
 import java.awt.EventQueue
 import java.awt.Frame
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.swing.JFrame
 import javax.swing.JOptionPane
+import javax.swing.UIManager
 
 class Messages {
     companion object {
@@ -37,10 +65,21 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.INFORMATION_MESSAGE
-                )
+                showDialog(title) { dismiss ->
+                    AlertDialog(
+                        onDismissRequest = {  },
+                        icon = { Icon(Icons.Default.Info, contentDescription = "Info!") },
+                        title = { Text(title) },
+                        text = { Text(message) },
+                        confirmButton = {
+                            Button(
+                                onClick = { dismiss() }
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
             }
         }
 
@@ -57,10 +96,25 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.WARNING_MESSAGE
-                )
+                showDialog(title){ dismiss ->
+                    AlertDialog(
+                        onDismissRequest = {  },
+                        icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
+                        iconContentColor = MaterialTheme.colorScheme.tertiary,
+                        title = { Text(title) },
+                        text = { Text(message) },
+                        confirmButton = {
+                            Button(
+                                onClick = { dismiss() },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
             }
             e?.printStackTrace()
         }
@@ -80,11 +134,28 @@ class Messages {
                 //      proper parsing on the command line. Many have \n in them.
                 println("$title: $primary\n$secondary")
             } else {
-                EventQueue.invokeLater {
-                    JOptionPane.showMessageDialog(
-                        JFrame(),
-                        Toolkit.formatMessage(primary, secondary),
-                        title, JOptionPane.WARNING_MESSAGE
+                showDialog(title){ dismiss ->
+                    AlertDialog(
+                        onDismissRequest = {  },
+                        icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
+                        iconContentColor = MaterialTheme.colorScheme.tertiary,
+                        title = { Text(title) },
+                        text = {
+                            Column {
+                                Text(primary, fontWeight = FontWeight.Bold)
+                                Text(secondary)
+                            }
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = { dismiss() },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.tertiary
+                                )
+                            ) {
+                                Text("OK")
+                            }
+                        }
                     )
                 }
             }
@@ -102,10 +173,26 @@ class Messages {
             if (Base.isCommandLine()) {
                 System.err.println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.ERROR_MESSAGE
-                )
+                showDialog(title){ dismiss ->
+                    AlertDialog(
+                        onDismissRequest = {  },
+                        icon = { Icon(Icons.Default.Error, contentDescription = "Alert!") },
+                        iconContentColor = MaterialTheme.colorScheme.error,
+                        title = { Text(title) },
+                        text = { Text(message) },
+                        confirmButton = {
+                            Button(
+                                onClick = { dismiss() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                )
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
             }
             e?.printStackTrace()
             System.exit(1)
@@ -138,6 +225,8 @@ class Messages {
                     title,
                     if (fatal) JOptionPane.ERROR_MESSAGE else JOptionPane.WARNING_MESSAGE
                 )
+
+
 
                 if (fatal) {
                     System.exit(1)
@@ -269,6 +358,56 @@ class Messages {
             }
         }
     }
+}
+
+fun showDialog(title: String, content: @Composable (dismiss: () -> Unit) -> Unit) {
+    ComposeDialog().apply {
+//        isUndecorated = true
+//        isTransparent = true
+        isModal = true
+        setTitle(title)
+        size = Dimension(400, 200)
+
+        setContent {
+            PDETheme {
+                content(::dispose)
+            }
+        }
+        setLocationRelativeTo(null)
+        isVisible = true
+    }
+}
+
+fun main(){
+    val types = mapOf(
+        "message" to { Messages.showMessage("Test Title", "This is a test message.") },
+        "warning" to { Messages.showWarning("Test Warning", "This is a test warning.", Exception("dfdsfjk")) },
+        "trace" to { Messages.showTrace("Test Trace", "This is a test trace.", Exception("Test Exception"), false) },
+        "tiered_warning" to { Messages.showWarningTiered("Test Tiered Warning", "Primary message", "Secondary message", null) },
+        "yes_no" to { Messages.showYesNoQuestion(null, "Test Yes/No", "Do you want to continue?", "Choose yes or no.") },
+        "custom_question" to { Messages.showCustomQuestion(null, "Test Custom Question", "Choose an option:", "Select one of the options below.", 1, "Option 1", "Option 2", "Option 3") },
+        "error" to { Messages.showError("Test Error", "This is a test error.", null) },
+    )
+    Platform.init()
+    UIManager.setLookAndFeel(FlatLightLaf())
+    application {
+        val state = rememberWindowState(
+            size = DpSize(500.dp, 300.dp)
+        )
+        Window(state = state, onCloseRequest = ::exitApplication, title = "Test Messages") {
+            PDETheme {
+                Column {
+                    for ((type, action) in types) {
+                        Button(onClick = { action() }, modifier = Modifier.padding(8.dp)) {
+                            Text("Show $type dialog")
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }
 
 // Helper functions to give the base classes a color
