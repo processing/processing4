@@ -99,7 +99,7 @@ fun PDETheme(
                 Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {
                     CompositionLocalProvider(
                         LocalContentColor provides MaterialTheme.colorScheme.onSurface,
-                        LocalDensity provides Density(1.25f, 1.25f),
+//                        LocalDensity provides Density(1.25f, 1.25f),
                         content = content
                     )
                 }
