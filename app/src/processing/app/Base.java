@@ -40,6 +40,7 @@ import com.formdev.flatlaf.FlatLightLaf;
 import processing.app.contrib.*;
 import processing.app.tools.Tool;
 import processing.app.ui.*;
+import processing.app.ui.PreferencesKt;
 import processing.app.ui.Toolkit;
 import processing.core.*;
 import processing.data.StringList;
@@ -2190,10 +2191,11 @@ public class Base {
    * Show the Preferences window.
    */
   public void handlePrefs() {
-    if (preferencesFrame == null) {
-      preferencesFrame = new PreferencesFrame(this);
-    }
-    preferencesFrame.showFrame();
+//    if (preferencesFrame == null) {
+//      preferencesFrame = new PreferencesFrame(this);
+//    }
+//    preferencesFrame.showFrame();
+      PreferencesKt.show();
   }
 
 
