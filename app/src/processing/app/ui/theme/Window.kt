@@ -51,7 +51,6 @@ val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
  * @param fullWindowContent If true, the content will extend into the title bar area on macOS.
  * @param content The composable content to be displayed in the window.
  */
-// TODO: Add support for onClose callback
 class PDESwingWindow(
     titleKey: String = "",
     size: Dimension? = null,
