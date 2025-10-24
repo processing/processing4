@@ -332,4 +332,168 @@ public class TypographyTest extends VisualTest {
             }, new TestConfig(100, 100));
         }
     }
+
+    @Nested
+    @Tag("pfont")
+    @DisplayName("PFont Methods Tests")
+    class PFontMethodsTests {
+
+        @Test
+        @DisplayName("Text ascent and descent")
+        public void testTextAscentDescent() {
+            assertVisualMatch("typography/pfont/ascent-descent", new ProcessingSketch() {
+                @Override
+                public void setup(PApplet p) {
+                    p.textSize(32);
+                }
+
+                @Override
+                public void draw(PApplet p) {
+                    p.background(255);
+
+                    float baseline = 50;
+                    p.text("Typography", 10, baseline);
+
+                    // Show baseline
+                    p.stroke(0, 255, 0);
+                    p.line(0, baseline, p.width, baseline);
+
+                    // Show ascent
+                    p.stroke(255, 0, 0);
+                    float ascent = p.textAscent();
+                    p.line(0, baseline - ascent, p.width, baseline - ascent);
+
+                    // Show descent
+                    p.stroke(0, 0, 255);
+                    float descent = p.textDescent();
+                    p.line(0, baseline + descent, p.width, baseline + descent);
+                }
+            }, new TestConfig(200, 100));
+        }
+
+        @Test
+        @DisplayName("Character availability check")
+        public void testCharacterAvailability() {
+            assertVisualMatch("typography/pfont/char-availability", new ProcessingSketch() {
+                PFont font;
+
+                @Override
+                public void setup(PApplet p) {
+                    font = p.createFont("SansSerif", 24);
+                    p.textFont(font);
+                }
+
+                @Override
+                public void draw(PApplet p) {
+                    p.background(255);
+
+                    String testChars = "ABCabc123!@#";
+                    float x = 10;
+                    float y = 30;
+
+                    for (int i = 0; i < testChars.length(); i++) {
+                        char c = testChars.charAt(i);
+
+                        if (font.getGlyph(c) != null) {
+                            p.fill(0);
+                        } else {
+                            p.fill(255, 0, 0);
+                        }
+
+                        p.text(c, x, y);
+                        x += p.textWidth(c) + 2;
+                    }
+                }
+            }, new TestConfig(200, 80));
+        }
+    }
+
+    @Nested
+    @Tag("complex")
+    @DisplayName("Complex Text Rendering")
+    class ComplexTextRenderingTests {
+
+        @Test
+        @DisplayName("Text with rotation")
+        public void testRotatedText() {
+            assertVisualMatch("typography/complex/rotated-text", new ProcessingSketch() {
+                @Override
+                public void setup(PApplet p) {
+                    p.textSize(24);
+                    p.textAlign(PApplet.CENTER, PApplet.CENTER);
+                }
+
+                @Override
+                public void draw(PApplet p) {
+                    p.background(255);
+
+                    p.pushMatrix();
+                    p.translate(p.width / 2, p.height / 2);
+
+                    for (int i = 0; i < 12; i++) {
+                        p.pushMatrix();
+                        p.rotate(PApplet.TWO_PI * i / 12);
+                        p.translate(0, -40);
+                        p.fill(0);
+                        p.text(i, 0, 0);
+                        p.popMatrix();
+                    }
+
+                    p.popMatrix();
+                }
+            }, new TestConfig(150, 150));
+        }
+
+        @Test
+        @DisplayName("Text with transparency")
+        public void testTransparentText() {
+            assertVisualMatch("typography/complex/transparent-text", new ProcessingSketch() {
+                @Override
+                public void setup(PApplet p) {
+                    p.textSize(48);
+                    p.textAlign(PApplet.CENTER, PApplet.CENTER);
+                }
+
+                @Override
+                public void draw(PApplet p) {
+                    p.background(255);
+
+                    for (int i = 0; i < 5; i++) {
+                        int alpha = 255 - (i * 50);
+                        p.fill(0, 0, 255, alpha);
+                        p.text("Layer " + i, p.width / 2 + i * 5, p.height / 2 + i * 5);
+                    }
+                }
+            }, new TestConfig(200, 150));
+        }
+
+        @Test
+        @DisplayName("Text with different colors")
+        public void testColoredText() {
+            assertVisualMatch("typography/complex/colored-text", new ProcessingSketch() {
+                @Override
+                public void setup(PApplet p) {
+                    p.textSize(20);
+                    p.textAlign(PApplet.LEFT, PApplet.TOP);
+                }
+
+                @Override
+                public void draw(PApplet p) {
+                    p.background(255);
+
+                    p.fill(255, 0, 0);
+                    p.text("Red Text", 10, 10);
+
+                    p.fill(0, 255, 0);
+                    p.text("Green Text", 10, 35);
+
+                    p.fill(0, 0, 255);
+                    p.text("Blue Text", 10, 60);
+
+                    p.fill(255, 0, 255);
+                    p.text("Magenta Text", 10, 85);
+                }
+            }, new TestConfig(150, 120));
+        }
+    }
 }
