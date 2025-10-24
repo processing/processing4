@@ -136,6 +136,14 @@ public class Preferences {
     initialized = true;
   }
 
+  /**
+   * Check whether Preferences.init() has been called. If not, we are probably not running the full application.
+   * @return true if Preferences has been initialized
+   */
+  static public boolean isInitialized() {
+    return initialized;
+  }
+
 
   static void handleProxy(String protocol, String hostProp, String portProp) {
     String proxyHost = get("proxy." + protocol + ".host");

@@ -42,7 +42,6 @@ import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.Locale
 import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
-import processing.app.ui.theme.ProcessingTheme
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.event.KeyAdapter
