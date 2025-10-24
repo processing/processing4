@@ -80,7 +80,7 @@ public class PreprocService {
   protected final JavaMode javaMode;
   protected final Sketch sketch;
 
-  protected final ASTParser parser = ASTParser.newParser(AST.JLS11);
+  protected ASTParser parser;
 
   private final Thread preprocessingThread;
   private final BlockingQueue<Boolean> requestQueue = new ArrayBlockingQueue<>(1);
@@ -116,6 +116,9 @@ public class PreprocService {
    * The "main loop" for the background thread that checks for code issues.
    */
   private void mainLoop() {
+    if(parser == null) {
+      parser = ASTParser.newParser(AST.JLS11);
+    }
     running = true;
     PreprocSketch prevResult = null;
     CompletableFuture<?> runningCallbacks = null;

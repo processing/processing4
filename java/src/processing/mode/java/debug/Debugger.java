@@ -111,7 +111,7 @@ public class Debugger {
 
   public Debugger(JavaEditor editor) {
     this.editor = editor;
-    inspector = new VariableInspector(editor);
+//    inspector = new VariableInspector(editor);
   }
 
 
@@ -206,6 +206,9 @@ public class Debugger {
     } else {
       debugItem.setText(Language.text("menu.debug.enable"));
     }
+    if(inspector == null) {
+      inspector = new VariableInspector(editor);
+    }
     inspector.setVisible(enabled);
 
     for (Component item : debugMenu.getMenuComponents()) {
@@ -297,6 +300,7 @@ public class Debugger {
 
 
   public void dispose() {
+    if(inspector == null) return;
     inspector.dispose();
   }
 
