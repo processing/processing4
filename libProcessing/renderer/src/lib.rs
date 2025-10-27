@@ -4,23 +4,26 @@ use crate::error::Result;
 use bevy::app::{App, AppExit};
 use bevy::log::tracing_subscriber;
 use bevy::prelude::*;
-use bevy::window::{
-    RawHandleWrapper, Window, WindowResolution, WindowWrapper,
-};
+use bevy::window::{RawHandleWrapper, Window, WindowRef, WindowResolution, WindowWrapper};
 use raw_window_handle::{
     DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, RawDisplayHandle,
     RawWindowHandle, WindowHandle,
 };
 use std::cell::RefCell;
 use std::num::NonZero;
+use std::sync::atomic::AtomicU32;
 use std::sync::OnceLock;
+use bevy::camera::RenderTarget;
+use bevy::camera::visibility::RenderLayers;
 use tracing::debug;
 
 static IS_INIT: OnceLock<()> = OnceLock::new();
+static WINDOW_COUNT: AtomicU32 = AtomicU32::new(0);
 
 thread_local! {
     static APP: OnceLock<RefCell<App>> = OnceLock::default();
 }
+
 
 fn app<T>(cb: impl FnOnce(&App) -> Result<T>) -> Result<T> {
     let res = APP.with(|app_lock| {
@@ -144,7 +147,7 @@ pub fn create_surface(
     let handle_wrapper = RawHandleWrapper::new(&window_wrapper)?;
 
     let entity_id = app_mut(|app| {
-        let entity = app
+        let mut window = app
             .world_mut()
             .spawn((
                 Window {
@@ -153,22 +156,44 @@ pub fn create_surface(
                     ..default()
                 },
                 handle_wrapper,
-            ))
-            .id();
+            ));
 
-        // TODO: spawn a camera for this window with a render target of this window
+        let count = WINDOW_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let render_layer = RenderLayers::none().with(count as usize);
 
-        Ok(entity.to_bits())
+        let window_entity = window.id();
+        window.with_children(|parent| {
+            parent.spawn((
+                Camera3d::default(),
+                Camera {
+                    target: RenderTarget::Window(WindowRef::Entity(window_entity)),
+                    ..default()
+                },
+                Projection::Orthographic(OrthographicProjection::default_3d()),
+                render_layer,
+            ));
+        });
+
+        Ok(window_entity.to_bits())
     })?;
 
     Ok(entity_id)
 }
 
-/// Update window size when resized.
-pub fn window_resized(window_id: u64, width: u32, height: u32) -> Result<()> {
+pub fn destroy_surface(window_entity: Entity) -> Result<()>{
     app_mut(|app| {
-        let entity = Entity::from_bits(window_id);
-        if let Some(mut window) = app.world_mut().get_mut::<Window>(entity) {
+        if app.world_mut().get::<Window>(window_entity).is_some() {
+            app.world_mut().despawn(window_entity);
+            WINDOW_COUNT.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+        }
+        Ok(())
+    })
+}
+
+/// Update window size when resized.
+pub fn resize_surface(window_entity: Entity, width: u32, height: u32) -> Result<()> {
+    app_mut(|app| {
+        if let Some(mut window) = app.world_mut().get_mut::<Window>(window_entity) {
             window.resolution.set_physical_resolution(width, height);
             Ok(())
         } else {
@@ -236,6 +261,18 @@ pub fn exit(exit_code: u8) -> Result<()> {
 
         // one final update to process the exit message
         app.update();
+        Ok(())
+    })
+}
+
+pub fn background_color(window_entity: Entity, color: Color) -> Result<()> {
+    app_mut(|app| {
+        let mut camera_query = app.world_mut().query::<(&mut Camera, &ChildOf)>();
+        for (mut camera, parent) in camera_query.iter_mut(&mut app.world_mut()) {
+            if parent.parent() == window_entity {
+                camera.clear_color = ClearColorConfig::Custom(color);
+            }
+        }
         Ok(())
     })
 }

@@ -6,9 +6,7 @@ edition = "2024"
 [dependencies]
 tracing = "0.1"
 tracing-subscriber = "0.3"
-bevy = { version = "0.17", no-default-features = true, features = [
-    "bevy_render"
-] }
+bevy = { workspace = true }
 thiserror = "2"
 raw-window-handle = "0.6"
 

@@ -27,6 +27,12 @@ public class PGraphicsWebGPU extends PGraphics {
     }
 
     @Override
+    public void beginDraw() {
+        super.beginDraw();
+        checkSettings();
+    }
+
+    @Override
     public void endDraw() {
         super.endDraw();
         PWebGPU.update();
@@ -35,7 +41,18 @@ public class PGraphicsWebGPU extends PGraphics {
     @Override
     public void dispose() {
         super.dispose();
-
+        if (windowId != 0) {
+            PWebGPU.destroySurface(windowId);
+            windowId = 0;
+        }
         PWebGPU.exit();
+    }
+
+    @Override
+    protected void backgroundImpl() {
+        if (windowId == 0) {
+            return;
+        }
+        PWebGPU.backgroundColor(windowId, backgroundR, backgroundG, backgroundB, backgroundA);
     }
 }

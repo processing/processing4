@@ -2302,6 +2302,7 @@ dependencies = [
 name = "ffi"
 version = "0.1.0"
 dependencies = [
+ "bevy",
  "cbindgen",
  "renderer",
 ]

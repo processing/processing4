@@ -1,3 +1,7 @@
+use crate::color::Color;
+use bevy::prelude::Entity;
+
+mod color;
 mod error;
 
 /// Initialize libProcessing.
@@ -31,6 +35,19 @@ pub extern "C" fn processing_create_surface(
         .unwrap_or(0)
 }
 
+/// Destroy the surface associated with the given window ID.
+///
+/// SAFETY:
+/// - Init and create_surface have been called.
+/// - window_id is a valid ID returned from create_surface.
+/// - This is called from the same thread as init.
+#[unsafe(no_mangle)]
+pub extern "C" fn processing_destroy_surface(window_id: u64) {
+    error::clear_error();
+    let window_entity = Entity::from_bits(window_id);
+    error::check(|| renderer::destroy_surface(window_entity));
+}
+
 /// Update window size when resized.
 ///
 /// SAFETY:
@@ -38,9 +55,21 @@ pub extern "C" fn processing_create_surface(
 /// - window_id is a valid ID returned from create_surface.
 /// - This is called from the same thread as init.
 #[unsafe(no_mangle)]
-pub extern "C" fn processing_window_resized(window_id: u64, width: u32, height: u32) {
+pub extern "C" fn processing_resize_surface(window_id: u64, width: u32, height: u32) {
     error::clear_error();
-    error::check(|| renderer::window_resized(window_id, width, height));
+    let window_entity = Entity::from_bits(window_id);
+    error::check(|| renderer::resize_surface(window_entity, width, height));
+}
+
+/// Set the background color for the given window.
+///
+/// SAFETY:
+/// - This is called from the same thread as init.
+#[unsafe(no_mangle)]
+pub extern "C" fn processing_background_color(window_id: u64, color: Color) {
+    error::clear_error();
+    let window_entity = Entity::from_bits(window_id);
+    error::check(|| renderer::background_color(window_entity, color.into()));
 }
 
 /// Step the application forward.
