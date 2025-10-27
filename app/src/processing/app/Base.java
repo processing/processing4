@@ -375,7 +375,7 @@ public class Base {
     // Needs to be shown after the first editor window opens, so that it
     // shows up on top, and doesn't prevent an editor window from opening.
     if (Preferences.getBoolean("welcome.four.show")) {
-        PDEWelcomeKt.showWelcomeScreen();
+        PDEWelcomeKt.showWelcomeScreen(base);
     }
   }
 
@@ -603,7 +603,7 @@ public class Base {
     defaultFileMenu.add(item);
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.examples"), 'O');
-    item.addActionListener(e -> thinkDifferentExamples());
+    item.addActionListener(e -> showExamplesFrame());
     defaultFileMenu.add(item);
 
     return defaultFileMenu;
@@ -1879,7 +1879,7 @@ public class Base {
 //  }
 
 
-  public void thinkDifferentExamples() {
+  public void showExamplesFrame() {
     nextMode.showExamplesFrame();
   }
 

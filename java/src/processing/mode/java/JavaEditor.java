@@ -288,7 +288,7 @@ public class JavaEditor extends Editor {
 
     item = new JMenuItem(Language.text("menu.help.welcome"));
     item.addActionListener(e -> {
-        PDEWelcomeKt.showWelcomeScreen();
+        PDEWelcomeKt.showWelcomeScreen(base);
     });
     menu.add(item);
 

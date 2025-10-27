@@ -1,14 +1,13 @@
 package processing.app.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,10 +18,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Drafts
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.FolderOpen
+import androidx.compose.material.icons.outlined.FolderSpecial
+import androidx.compose.material.icons.outlined.NoteAdd
+import androidx.compose.material.icons.outlined.PinDrop
+import androidx.compose.material.icons.outlined.School
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SmartDisplay
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,16 +45,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
+import processing.app.Base
+import processing.app.LocalPreferences
+import processing.app.Messages
+import processing.app.Platform
 import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
 import processing.app.ui.theme.PDETheme
-import java.awt.Dimension
+import processing.app.ui.theme.toDimension
 
 @Composable
-fun PDEWelcome() {
+fun PDEWelcome(base: Base? = null) {
     Row(
         modifier = Modifier.fillMaxSize(),
     ){
@@ -56,6 +65,7 @@ fun PDEWelcome() {
         val xsModifier = Modifier
             .defaultMinSize(minHeight = 1.dp)
             .height(32.dp)
+        val textColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
 
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
@@ -82,7 +92,7 @@ fun PDEWelcome() {
                 Text(
                     text = "Welcome to Processing!",
                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = textColor,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 )
@@ -90,13 +100,12 @@ fun PDEWelcome() {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-//                    .background(Color.Blue)
                     .fillMaxWidth()
                     .height(IntrinsicSize.Min)
                     .padding(vertical = 12.dp)
             ) {
                 val colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    contentColor = textColor
                 )
                 Column(
                     verticalArrangement = Arrangement.SpaceBetween,
@@ -105,22 +114,28 @@ fun PDEWelcome() {
                 ) {
                     ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                base?.handleNew() ?: noBaseWarning()
+                            },
                             colors = colors,
                             modifier = Modifier
                                 .sizeIn(minHeight = 56.dp)
                         ) {
-                            Icon(Icons.Default.Drafts, contentDescription = "")
+                            Icon(Icons.Outlined.NoteAdd, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
                             Text("New Empty Sketch")
                         }
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                base?.let{
+                                    base.showExamplesFrame()
+                                } ?: noBaseWarning()
+                            },
                             colors = colors,
                             modifier = Modifier
                                 .sizeIn(minHeight = 56.dp)
                         ) {
-                            Icon(Icons.Default.Image, contentDescription = "")
+                            Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
                             Text("Open Examples")
                         }
@@ -132,37 +147,48 @@ fun PDEWelcome() {
                         .fillMaxHeight()
                 ) {
                     ProvideTextStyle(MaterialTheme.typography.labelLarge) {
-
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                base?.let{
+                                    base.showSketchbookFrame()
+                                } ?: noBaseWarning()
+                            },
                             contentPadding = xsPadding,
                             colors = colors,
                             modifier = xsModifier
                         ) {
-                            Icon(Icons.Default.Folder, contentDescription = "")
+                            Icon(Icons.Outlined.FolderOpen, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
                             Text("Sketchbook", modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                base?.let{
+                                    base.handlePrefs()
+                                } ?: noBaseWarning()
+                            },
                             contentPadding = xsPadding,
                             colors = colors,
                             modifier = xsModifier
                         ) {
-                            Icon(Icons.Default.Folder, contentDescription = "")
+                            Icon(Icons.Outlined.Settings, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
                             Text("Settings", modifier = Modifier.align(Alignment.CenterVertically))
                         }
+                        val preferences = LocalPreferences.current
+                        val showOnStartup = preferences["welcome.four.show"].toBoolean()
                         Button(
-                            onClick = {},
+                            onClick = {
+                                preferences["welcome.four.show"] = (!showOnStartup).toString()
+                            },
                             contentPadding = xsPadding,
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                contentColor = MaterialTheme.colorScheme.onTertiary
+                                containerColor = if(showOnStartup) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.surfaceContainer,
+                                contentColor = if (showOnStartup) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onSurface
                             ),
                             modifier = xsModifier
                         ) {
-                            Icon(Icons.Default.Folder, contentDescription = "")
+                            Icon(if(showOnStartup) Icons.Default.Check else Icons.Default.Close, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
                             Text("Show this window on startup", modifier = Modifier.align(Alignment.CenterVertically))
                         }
@@ -191,7 +217,7 @@ fun PDEWelcome() {
                     val colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    ProvideTextStyle(MaterialTheme .typography.labelLarge) {
+                    ProvideTextStyle(MaterialTheme.typography.labelLarge) {
                         Column {
                             Text(
                                 "Resources",
@@ -199,42 +225,50 @@ fun PDEWelcome() {
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                             TextButton(
-                                onClick = {},
+                                onClick = {
+                                    Platform.openURL("https://hello.processing.org")
+                                },
                                 contentPadding = xsPadding,
                                 modifier = xsModifier,
                                 colors = colors
                             ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
+                                Icon(Icons.Outlined.SmartDisplay, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Video Course")
                             }
                             TextButton(
-                                onClick = {},
+                                onClick = {
+                                    Platform.openURL("https://processing.org/tutorials/gettingstarted")
+                                },
                                 contentPadding = xsPadding,
                                 modifier = xsModifier,
                                 colors = colors
                             ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
+                                Icon(Icons.Outlined.PinDrop, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Get Started")
                             }
                             TextButton(
-                                onClick = {},
+                                onClick = {
+                                    Platform.openURL("https://processing.org/tutorials")
+                                },
                                 contentPadding = xsPadding,
                                 modifier = xsModifier,
                                 colors = colors
                             ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
+                                Icon(Icons.Outlined.School, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Tutorials")
                             }
                             TextButton(
-                                onClick = {},
+                                onClick = {
+                                    Platform.openURL("https://processing.org/reference")
+                                },
                                 contentPadding = xsPadding,
                                 modifier = xsModifier,
                                 colors = colors
                             ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
+                                Icon(Icons.Outlined.Book, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
                                 Text("Documentation")
                             }
@@ -245,45 +279,79 @@ fun PDEWelcome() {
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
-                            TextButton(
-                                onClick = {},
-                                contentPadding = xsPadding,
-                                modifier = xsModifier,
-                                colors = colors
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
                             ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Video Course")
-                            }
-                            TextButton(
-                                onClick = {},
-                                contentPadding = xsPadding,
-                                modifier = xsModifier,
-                                colors = colors
-                            ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Get Started")
-                            }
-                            TextButton(
-                                onClick = {},
-                                contentPadding = xsPadding,
-                                modifier = xsModifier,
-                                colors = colors
-                            ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Tutorials")
-                            }
-                            TextButton(
-                                onClick = {},
-                                contentPadding = xsPadding,
-                                modifier = xsModifier,
-                                colors = colors
-                            ) {
-                                Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(4.dp))
-                                Text("Documentation")
+                                Column {
+                                    TextButton(
+                                        onClick = {
+                                            Platform.openURL("https://discourse.processing.org")
+                                        },
+                                        contentPadding = xsPadding,
+                                        modifier = xsModifier,
+                                        colors = colors
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.ChatBubbleOutline,
+                                            contentDescription = "",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("Forum")
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            Platform.openURL("https://discord.processing.org")
+                                        },
+                                        contentPadding = xsPadding,
+                                        modifier = xsModifier,
+                                        colors = colors
+                                    ) {
+                                        Icon(
+                                            painterResource("icons/Discord.svg"),
+                                            contentDescription = "",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("Discord")
+                                    }
+                                }
+                                Column {
+                                    TextButton(
+                                        onClick = {
+                                            Platform.openURL("https://www.instagram.com/processing_core/")
+                                        },
+                                        contentPadding = xsPadding,
+                                        modifier = xsModifier,
+                                        colors = colors
+                                    ) {
+                                        Icon(
+                                            painterResource("icons/GitHub.svg"),
+                                            contentDescription = "",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("GitHub")
+                                    }
+                                    TextButton(
+                                        onClick = {
+                                            Platform.openURL("https://github.com/processing/processing4")
+                                        },
+                                        contentPadding = xsPadding,
+                                        modifier = xsModifier,
+                                        colors = colors
+                                    ) {
+                                        Icon(
+                                            painterResource("icons/Instagram.svg"),
+                                            contentDescription = "",
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(Modifier.width(4.dp))
+                                        Text("Instagram")
+                                    }
+                                }
                             }
                         }
                     }
@@ -299,17 +367,30 @@ fun PDEWelcome() {
     }
 }
 
+fun noBaseWarning() {
+    Messages.showWarning(
+        "No Base",
+        "No Base instance provided, this ui is likely being previewed."
+    )
+}
 
-fun showWelcomeScreen(){
-    PDESwingWindow(titleKey = "welcome.title", size = Dimension(970, 570), fullWindowContent = true) {
-        PDEWelcome()
+val size = DpSize(970.dp, 550.dp)
+
+fun showWelcomeScreen(base: Base? = null) {
+    PDESwingWindow(titleKey = "welcome.title", size = size.toDimension(), fullWindowContent = true) {
+        PDEWelcome(base)
     }
 }
 
 
 fun main(){
     application {
-        PDEComposeWindow(titleKey = "welcome.title", size = DpSize(970.dp, 570.dp), fullWindowContent = true) {
+        PDEComposeWindow(titleKey = "welcome.title", size = size, fullWindowContent = true) {
+            PDETheme(darkTheme = true) {
+                PDEWelcome()
+            }
+        }
+        PDEComposeWindow(titleKey = "welcome.title", size = size, fullWindowContent = true) {
             PDETheme(darkTheme = false) {
                 PDEWelcome()
             }
