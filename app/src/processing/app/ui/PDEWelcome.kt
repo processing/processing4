@@ -1,13 +1,16 @@
 package processing.app.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -33,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -40,8 +47,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.decodeToImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
@@ -55,6 +67,8 @@ import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
 import processing.app.ui.theme.PDETheme
 import processing.app.ui.theme.toDimension
+import java.io.File
+import java.nio.file.Path
 
 @Composable
 fun PDEWelcome(base: Base? = null) {
@@ -362,10 +376,62 @@ fun PDEWelcome(base: Base? = null) {
         Column(modifier = Modifier
             .sizeIn(minWidth = 350.dp)
         ) {
-            Text("Right Side Content", style = MaterialTheme.typography.bodyLarge)
+            val examples = listOf(
+                Example(Platform.getContentFile("modes/java/examples/Basics/Arrays/Array")),
+                Example(Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective")),
+                Example(Platform.getContentFile("modes/java/examples/Basics/Color/Brightness")),
+                Example(Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")),
+            )
+            LazyColumn(
+                state = rememberLazyListState(
+                    initialFirstVisibleItemScrollOffset = 150
+                ),
+                modifier = Modifier.width(350.dp)
+            ) {
+                items(examples) { example ->
+                    Box(Modifier
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .fillMaxSize()
+                        .aspectRatio(16 / 9f)
+                    ){
+                        val image = remember {
+                            val name = example.path.name
+                            File(example.path,"$name.png").takeIf { it.exists() }
+                        }
+                        if(image == null){
+                            Icon(
+                                painter = painterResource("logo.svg"),
+                                modifier = Modifier
+                                    .size(75.dp)
+                                    .align(Alignment.Center)
+                                ,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                contentDescription = "Processing Logo"
+                            )
+                            HorizontalDivider()
+                        }else {
+                            val imageBitmap: ImageBitmap = remember(image) {
+                                image.inputStream().readAllBytes().decodeToImageBitmap()
+                            }
+                            Image(
+                                painter = BitmapPainter(imageBitmap),
+                                modifier = Modifier
+//                                    .fillMaxSize()
+                                ,
+                                contentDescription = example.path.name
+                            )
+                        }
+
+                    }
+                }
+            }
         }
     }
 }
+
+data class Example(
+    val path: File,
+)
 
 fun noBaseWarning() {
     Messages.showWarning(
