@@ -375,13 +375,7 @@ public class Base {
     // Needs to be shown after the first editor window opens, so that it
     // shows up on top, and doesn't prevent an editor window from opening.
     if (Preferences.getBoolean("welcome.four.show")) {
-      try {
-        new Welcome(base);
-      } catch (IOException e) {
-        Messages.showTrace("Unwelcoming",
-          "Please report this error to\n" +
-            "https://github.com/processing/processing4/issues", e, false);
-      }
+        PDEWelcomeKt.showWelcomeScreen();
     }
   }
 

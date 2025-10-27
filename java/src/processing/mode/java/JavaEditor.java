@@ -288,13 +288,7 @@ public class JavaEditor extends Editor {
 
     item = new JMenuItem(Language.text("menu.help.welcome"));
     item.addActionListener(e -> {
-      try {
-        new Welcome(base);
-      } catch (IOException ioe) {
-        Messages.showWarning("Unwelcome Error",
-                             "Please report this error to\n" +
-                             "https://github.com/processing/processing4/issues", ioe);
-      }
+        PDEWelcomeKt.showWelcomeScreen();
     });
     menu.add(item);
 
