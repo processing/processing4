@@ -1,6 +1,7 @@
-use std::cell::RefCell;
-use std::ffi::{c_char, CString};
 use renderer::error::ProcessingError;
+use std::cell::RefCell;
+use std::ffi::{CString, c_char};
+use std::panic;
 
 thread_local! {
     static LAST_ERROR: RefCell<Option<CString>> = RefCell::new(None);
@@ -34,16 +35,28 @@ pub fn clear_error() {
     });
 }
 
-
 /// Check the result of an operation, setting the last error if there was one.
-pub fn check<T>(result: Result<T, ProcessingError>) -> Option<T> {
-    match result {
-        Ok(value) => {
-            Some(value)
-        }
+pub fn check<T, F>(f: F) -> Option<T>
+where
+    F: FnOnce() -> Result<T, ProcessingError> + panic::UnwindSafe,
+{
+    // we'll catch panics here to prevent unwinding across the FFI boundary
+    panic::catch_unwind(|| match f() {
+        Ok(value) => Some(value),
         Err(err) => {
             set_error(&err.to_string());
             None
         }
-    }
+    })
+    .unwrap_or_else(|e| {
+        let msg = if let Some(s) = e.downcast_ref::<String>() {
+            s.clone()
+        } else if let Some(s) = e.downcast_ref::<&'static str>() {
+            s.to_string()
+        } else {
+            "Unknown panic payload".to_string()
+        };
+        set_error(&format!("Panic occurred: {}", msg));
+        None
+    })
 }
