@@ -26,12 +26,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material.icons.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.PinDrop
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SmartDisplay
@@ -39,21 +41,33 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
@@ -70,6 +84,7 @@ import processing.app.ui.theme.toDimension
 import java.io.File
 import java.nio.file.Path
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PDEWelcome(base: Base? = null) {
     Row(
@@ -389,10 +404,17 @@ fun PDEWelcome(base: Base? = null) {
                 modifier = Modifier.width(350.dp)
             ) {
                 items(examples) { example ->
+                    var hovered by remember { mutableStateOf(false) }
                     Box(Modifier
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .fillMaxSize()
                         .aspectRatio(16 / 9f)
+                        .onPointerEvent(PointerEventType.Enter){
+                            hovered = true
+                        }
+                        .onPointerEvent(PointerEventType.Exit){
+                            hovered = false
+                        }
                     ){
                         val image = remember {
                             val name = example.path.name
@@ -421,7 +443,26 @@ fun PDEWelcome(base: Base? = null) {
                                 contentDescription = example.path.name
                             )
                         }
-
+                        if(hovered) {
+                            FilledTonalIconButton(
+                                onClick = {
+                                    base?.let {
+                                        base.handleOpen(example.path.resolve("${example.path.name}.pde").absolutePath)
+                                    } ?: noBaseWarning()
+                                }, modifier = Modifier
+                                    .align(Alignment.Center),
+                                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.tertiary,
+                                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Filled.PlayArrow,
+                                    contentDescription = "Open Example",
+                                    tint = Color.White
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -441,9 +482,10 @@ fun noBaseWarning() {
 }
 
 val size = DpSize(970.dp, 550.dp)
+val titleKey = "menu.help.welcome"
 
 fun showWelcomeScreen(base: Base? = null) {
-    PDESwingWindow(titleKey = "welcome.title", size = size.toDimension(), fullWindowContent = true) {
+    PDESwingWindow(titleKey = titleKey, size = size.toDimension(), fullWindowContent = true) {
         PDEWelcome(base)
     }
 }
@@ -451,12 +493,12 @@ fun showWelcomeScreen(base: Base? = null) {
 
 fun main(){
     application {
-        PDEComposeWindow(titleKey = "welcome.title", size = size, fullWindowContent = true) {
+        PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = true) {
                 PDEWelcome()
             }
         }
-        PDEComposeWindow(titleKey = "welcome.title", size = size, fullWindowContent = true) {
+        PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = false) {
                 PDEWelcome()
             }
