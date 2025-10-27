@@ -77,6 +77,7 @@ import processing.app.Base
 import processing.app.LocalPreferences
 import processing.app.Messages
 import processing.app.Platform
+import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
 import processing.app.ui.theme.PDETheme
@@ -95,6 +96,7 @@ fun PDEWelcome(base: Base? = null) {
             .defaultMinSize(minHeight = 1.dp)
             .height(32.dp)
         val textColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
+        val locale = LocalLocale.current
 
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
@@ -116,10 +118,10 @@ fun PDEWelcome(base: Base? = null) {
                     painter = painterResource("logo.svg"),
                     modifier = Modifier
                         .size(75.dp),
-                    contentDescription = "Processing Logo"
+                    contentDescription = locale["welcome.processing.logo"]
                 )
                 Text(
-                    text = "Welcome to Processing!",
+                    text = locale["welcome.processing.title"],
                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
                     color = textColor,
                     modifier = Modifier
@@ -152,7 +154,7 @@ fun PDEWelcome(base: Base? = null) {
                         ) {
                             Icon(Icons.Outlined.NoteAdd, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
-                            Text("New Empty Sketch")
+                            Text(locale["welcome.actions.sketch.new"])
                         }
                         TextButton(
                             onClick = {
@@ -166,7 +168,7 @@ fun PDEWelcome(base: Base? = null) {
                         ) {
                             Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
-                            Text("Open Examples")
+                            Text(locale["welcome.actions.examples"] )
                         }
                     }
                 }
@@ -188,7 +190,7 @@ fun PDEWelcome(base: Base? = null) {
                         ) {
                             Icon(Icons.Outlined.FolderOpen, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
-                            Text("Sketchbook", modifier = Modifier.align(Alignment.CenterVertically))
+                            Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         TextButton(
                             onClick = {
@@ -202,7 +204,7 @@ fun PDEWelcome(base: Base? = null) {
                         ) {
                             Icon(Icons.Outlined.Settings, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
-                            Text("Settings", modifier = Modifier.align(Alignment.CenterVertically))
+                            Text(locale["preferences"], modifier = Modifier.align(Alignment.CenterVertically))
                         }
                         val preferences = LocalPreferences.current
                         val showOnStartup = preferences["welcome.four.show"].toBoolean()
@@ -219,7 +221,7 @@ fun PDEWelcome(base: Base? = null) {
                         ) {
                             Icon(if(showOnStartup) Icons.Default.Check else Icons.Default.Close, contentDescription = "", modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(12.dp))
-                            Text("Show this window on startup", modifier = Modifier.align(Alignment.CenterVertically))
+                            Text(locale["welcome.actions.show_startup"], modifier = Modifier.align(Alignment.CenterVertically))
                         }
                     }
                 }
@@ -249,7 +251,7 @@ fun PDEWelcome(base: Base? = null) {
                     ProvideTextStyle(MaterialTheme.typography.labelLarge) {
                         Column {
                             Text(
-                                "Resources",
+                                text = locale["welcome.resources.title"],
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
@@ -263,7 +265,9 @@ fun PDEWelcome(base: Base? = null) {
                             ) {
                                 Icon(Icons.Outlined.SmartDisplay, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Video Course")
+                                Text(
+                                    text = locale["welcome.resources.video"],
+                                )
                             }
                             TextButton(
                                 onClick = {
@@ -275,7 +279,9 @@ fun PDEWelcome(base: Base? = null) {
                             ) {
                                 Icon(Icons.Outlined.PinDrop, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Get Started")
+                                Text(
+                                    text = locale["welcome.resources.get_started"],
+                                )
                             }
                             TextButton(
                                 onClick = {
@@ -287,7 +293,9 @@ fun PDEWelcome(base: Base? = null) {
                             ) {
                                 Icon(Icons.Outlined.School, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Tutorials")
+                                Text(
+                                    text = locale["welcome.resources.tutorials"],
+                                )
                             }
                             TextButton(
                                 onClick = {
@@ -299,12 +307,14 @@ fun PDEWelcome(base: Base? = null) {
                             ) {
                                 Icon(Icons.Outlined.Book, contentDescription = "", modifier = Modifier.size(20.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Documentation")
+                                Text(
+                                    text = locale["welcome.resources.documentation"],
+                                )
                             }
                         }
                         Column {
                             Text(
-                                "Join our community",
+                                text = locale["welcome.community.title"],
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
@@ -328,7 +338,9 @@ fun PDEWelcome(base: Base? = null) {
                                             modifier = Modifier.size(20.dp)
                                         )
                                         Spacer(Modifier.width(4.dp))
-                                        Text("Forum")
+                                        Text(
+                                            text = locale["welcome.community.forum"]
+                                        )
                                     }
                                     TextButton(
                                         onClick = {
@@ -462,6 +474,14 @@ fun PDEWelcome(base: Base? = null) {
                                     tint = Color.White
                                 )
                             }
+                            Text(
+                                text = example.path.name,
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(8.dp)
+                            )
                         }
                     }
                 }
