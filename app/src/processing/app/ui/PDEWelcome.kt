@@ -36,13 +36,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.FolderSpecial
-import androidx.compose.material.icons.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
@@ -87,12 +87,12 @@ import processing.app.api.Contributions.ExamplesList.Companion.listAllExamples
 import processing.app.api.Sketch.Companion.Sketch
 import processing.app.ui.preferences.Interface.Companion.languagesDropdown
 import processing.app.ui.theme.LocalLocale
+import processing.app.ui.theme.Locale
 import processing.app.ui.theme.PDEComposeWindow
 import processing.app.ui.theme.PDESwingWindow
 import processing.app.ui.theme.PDETheme
 import processing.app.ui.theme.toDimension
 import java.io.File
-import kotlin.concurrent.thread
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 
@@ -112,6 +112,9 @@ fun PDEWelcome(base: Base? = null) {
         val textColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
         val locale = LocalLocale.current
 
+        /**
+         * Left main column
+         */
         Column(
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
@@ -124,6 +127,9 @@ fun PDEWelcome(base: Base? = null) {
                     bottom = 56.dp
                 )
         ) {
+            /**
+             * Title row
+             */
             Row (
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -142,7 +148,9 @@ fun PDEWelcome(base: Base? = null) {
                         .align(Alignment.CenterVertically)
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.CenterVertically),
                     horizontalArrangement = Arrangement.End,
                 ){
                     val showLanguageMenu = remember { mutableStateOf(false) }
@@ -160,70 +168,63 @@ fun PDEWelcome(base: Base? = null) {
                         Icon(Icons.Default.ArrowDropDown, contentDescription = "", modifier = Modifier.size(20.dp))
                         languagesDropdown(showLanguageMenu)
                     }
-
                 }
-
             }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-            ) {
-                val colors = ButtonDefaults.textButtonColors(
-                    contentColor = textColor
-                )
-                Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier
-                        .fillMaxHeight()
-                ) {
-                    ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                        val medModifier = Modifier
-                            .sizeIn(minHeight = 56.dp)
-                        TextButton(
-                            onClick = {
-                                base?.handleNew() ?: noBaseWarning()
-                            },
-                            colors = colors,
-                            modifier = medModifier,
-                            shape = shape
-                        ) {
-                            Icon(Icons.Outlined.NoteAdd, contentDescription = "")
-                            Spacer(Modifier.width(12.dp))
-                            Text(locale["welcome.actions.sketch.new"])
-                        }
-                        TextButton(
-                            onClick = {
-                                base?.let{
-                                    base.showExamplesFrame()
-                                } ?: noBaseWarning()
-                            },
-                            colors = colors,
-                            modifier = medModifier,
-                            shape = shape
-                        ) {
-                            Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
-                            Spacer(Modifier.width(12.dp))
-                            Text(locale["welcome.actions.examples"] )
-                        }
-                        TextButton(
-                            onClick = {
-                                base?.let{
-                                    base.showSketchbookFrame()
-                                } ?: noBaseWarning()
-                            },
-                            colors = colors,
-                            modifier = medModifier,
-                            shape = shape
-                        ) {
-                            Icon(Icons.Outlined.FolderOpen, contentDescription = "")
-                            Spacer(Modifier.width(12.dp))
-                            Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
-                        }
+            /**
+             * New sketch, examples, sketchbook card
+             */
+            val colors = ButtonDefaults.textButtonColors(
+                contentColor = textColor
+            )
+            Column{
+                ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                    val medModifier = Modifier
+                        .sizeIn(minHeight = 56.dp)
+                    TextButton(
+                        onClick = {
+                            base?.handleNew() ?: noBaseWarning()
+                        },
+                        colors = colors,
+                        modifier = medModifier,
+                        shape = shape
+                    ) {
+                        Icon(Icons.AutoMirrored.Outlined.NoteAdd, contentDescription = "")
+                        Spacer(Modifier.width(12.dp))
+                        Text(locale["welcome.actions.sketch.new"])
+                    }
+                    TextButton(
+                        onClick = {
+                            base?.let{
+                                base.showExamplesFrame()
+                            } ?: noBaseWarning()
+                        },
+                        colors = colors,
+                        modifier = medModifier,
+                        shape = shape
+                    ) {
+                        Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
+                        Spacer(Modifier.width(12.dp))
+                        Text(locale["welcome.actions.examples"] )
+                    }
+                    TextButton(
+                        onClick = {
+                            base?.let{
+                                base.showSketchbookFrame()
+                            } ?: noBaseWarning()
+                        },
+                        colors = colors,
+                        modifier = medModifier,
+                        shape = shape
+                    ) {
+                        Icon(Icons.Outlined.FolderOpen, contentDescription = "")
+                        Spacer(Modifier.width(12.dp))
+                        Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
                     }
                 }
             }
+            /**
+             * Resources and community card
+             */
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -354,7 +355,7 @@ fun PDEWelcome(base: Base? = null) {
                                 ) {
                                     TextButton(
                                         onClick = {
-                                            Platform.openURL("https://www.instagram.com/processing_core/")
+                                            Platform.openURL("https://github.com/processing/processing4")
                                         },
                                         contentPadding = xsPadding,
                                         modifier = xsModifier,
@@ -370,7 +371,7 @@ fun PDEWelcome(base: Base? = null) {
                                     }
                                     TextButton(
                                         onClick = {
-                                            Platform.openURL("https://github.com/processing/processing4")
+                                            Platform.openURL("https://www.instagram.com/processing_core/")
                                         },
                                         contentPadding = xsPadding,
                                         modifier = xsModifier,
@@ -390,42 +391,54 @@ fun PDEWelcome(base: Base? = null) {
                     }
                 }
             }
-            val preferences = LocalPreferences.current
-            val showOnStartup = preferences["welcome.four.show"].toBoolean()
-            fun toggle(next: Boolean? = null){
-                preferences["welcome.four.show"] = (next ?: !showOnStartup).toString()
-            }
-            Row(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable(onClick = ::toggle)
-                    .padding(end = 8.dp)
-                    .height(32.dp)
-            ) {
-                Checkbox(
-                    checked = showOnStartup,
-                    onCheckedChange = ::toggle,
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = MaterialTheme.colorScheme.tertiary
-                    ),
+            /**
+             * Show on startup checkbox
+             */
+            Row{
+                val preferences = LocalPreferences.current
+                val showOnStartup = preferences["welcome.four.show"].toBoolean()
+                fun toggle(next: Boolean? = null) {
+                    preferences["welcome.four.show"] = (next ?: !showOnStartup).toString()
+                }
+                Row(
                     modifier = Modifier
-                        .defaultMinSize(minHeight = 1.dp)
-                )
-                Text(
-                    text = locale["welcome.actions.show_startup"],
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    style = MaterialTheme.typography.labelLarge
-                )
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable(onClick = ::toggle)
+                        .padding(end = 8.dp)
+                        .height(32.dp)
+                ) {
+                    Checkbox(
+                        checked = showOnStartup,
+                        onCheckedChange = ::toggle,
+                        colors = CheckboxDefaults.colors(
+                            checkedColor = MaterialTheme.colorScheme.tertiary
+                        ),
+                        modifier = Modifier
+                            .defaultMinSize(minHeight = 1.dp)
+                    )
+                    Text(
+                        text = locale["welcome.actions.show_startup"],
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
         }
-        Column(modifier = Modifier
-            .sizeIn(minWidth = 350.dp)
+        /**
+         * Examples list
+         */
+        val scrollMargin = 35.dp
+        Column(
+            modifier = Modifier
+                .width(350.dp + scrollMargin)
         ) {
             val examples = remember { mutableStateListOf(
-                Sketch(name = "Array", path = Platform.getContentFile("modes/java/examples/Basics/Arrays/Array").absolutePath),
-                Sketch(name = "Perspective", path = Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective").absolutePath),
-                Sketch(name = "Brightness", path = Platform.getContentFile("modes/java/examples/Basics/Color/Brightness").absolutePath),
-                Sketch(name = "LoadDisplayOBJ", path = Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ").absolutePath),
+                *listOf(
+                    Platform.getContentFile("modes/java/examples/Basics/Arrays/Array"),
+                    Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective"),
+                    Platform.getContentFile("modes/java/examples/Basics/Color/Brightness"),
+                    Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")
+                ).map{ Sketch(path = it.absolutePath, name = it.name) }.toTypedArray()
             )}
 
             remember {
@@ -452,124 +465,18 @@ fun PDEWelcome(base: Base? = null) {
             )
             Box(
                 modifier = Modifier
-                    .width(350.dp)
                     .padding(end = 4.dp)
             ) {
                 LazyColumn(
                     state = state,
-                    contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 20.dp),
+                    contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 20.dp, start = scrollMargin),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(examples) { example ->
-                        var hovered by remember { mutableStateOf(false) }
-                        Box(
-                            Modifier
-                            .border(
-                                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                            .clip(MaterialTheme.shapes.medium)
-                            .fillMaxSize()
-                            .aspectRatio(16 / 9f)
-                            .onPointerEvent(PointerEventType.Enter) {
-                                hovered = true
-                            }
-                            .onPointerEvent(PointerEventType.Exit) {
-                                hovered = false
-                            }
-                        ) {
-                            val image = remember {
-                                File(example.path, "${example.name}.png").takeIf { it.exists() }
-                            }
-                            if (image == null) {
-                                Icon(
-                                    painter = painterResource("logo.svg"),
-                                    modifier = Modifier
-                                        .size(75.dp)
-                                        .align(Alignment.Center),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                    contentDescription = "Processing Logo"
-                                )
-                                HorizontalDivider()
-                            } else {
-                                val imageBitmap: ImageBitmap = remember(image) {
-                                    image.inputStream().readAllBytes().decodeToImageBitmap()
-                                }
-                                Image(
-                                    painter = BitmapPainter(imageBitmap),
-                                    modifier = Modifier
-                                        .fillMaxSize(),
-                                    contentDescription = example.name
-                                )
-                            }
-                            Column(
-                                modifier = Modifier.align(Alignment.BottomCenter),
-                            ) {
-                                val duration = 150
-                                AnimatedVisibility(
-                                    visible = hovered,
-                                    enter = slideIn(
-                                        initialOffset = { fullSize -> IntOffset(0, fullSize.height) },
-                                        animationSpec = tween(
-                                            durationMillis = duration,
-                                            easing = EaseInOut
-                                        )
-                                    ),
-                                    exit = slideOut(
-                                        targetOffset = { fullSize -> IntOffset(0, fullSize.height) },
-                                        animationSpec = tween(
-                                            durationMillis = duration,
-                                            easing = LinearEasing
-                                        )
-                                    )
-                                ) {
-                                    Card(
-                                        modifier = Modifier
-                                    ) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(IntrinsicSize.Min)
-                                                .padding(12.dp)
-                                                .padding(start = 12.dp)
-                                        ) {
-                                            Text(
-                                                text = example.name,
-                                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                                modifier = Modifier
-                                                    .padding(8.dp)
-                                            )
-                                            Button(
-                                                onClick = {
-                                                    base?.let {
-                                                        base.handleOpen("${example.path}/${example.name}.pde")
-                                                    } ?: noBaseWarning()
-                                                },
-                                                colors = ButtonDefaults.buttonColors(
-                                                    containerColor = MaterialTheme.colorScheme.tertiary,
-                                                    contentColor = MaterialTheme.colorScheme.onTertiary
-                                                ),
-                                                contentPadding = PaddingValues(
-                                                    horizontal = 12.dp,
-                                                    vertical = 4.dp
-                                                ),
-                                            ) {
-                                                Text(
-                                                    text = locale["welcome.sketch.open"],
-                                                    style = MaterialTheme.typography.bodyLarge
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                        example.card{
+                            base?.let {
+                                base.handleOpen("${example.path}/${example.name}.pde")
+                            } ?: noBaseWarning()
                         }
                     }
                 }
@@ -584,9 +491,118 @@ fun PDEWelcome(base: Base? = null) {
     }
 }
 
-data class Example(
-    val path: File,
-)
+@Composable
+@OptIn(ExperimentalComposeUiApi::class)
+fun Sketch.card(onOpen: () -> Unit = {}) {
+    val locale = LocalLocale.current
+    val sketch = this
+    var hovered by remember { mutableStateOf(false) }
+    Box(
+        Modifier
+            .border(
+                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                shape = MaterialTheme.shapes.medium
+            )
+            .background(
+                MaterialTheme.colorScheme.surfaceVariant,
+                shape = MaterialTheme.shapes.medium
+            )
+            .clip(MaterialTheme.shapes.medium)
+            .fillMaxSize()
+            .aspectRatio(16 / 9f)
+            .onPointerEvent(PointerEventType.Enter) {
+                hovered = true
+            }
+            .onPointerEvent(PointerEventType.Exit) {
+                hovered = false
+            }
+    ) {
+        val image = remember {
+            File(sketch.path, "${sketch.name}.png").takeIf { it.exists() }
+        }
+        if (image == null) {
+            Icon(
+                painter = painterResource("logo.svg"),
+                modifier = Modifier
+                    .size(75.dp)
+                    .align(Alignment.Center),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                contentDescription = "Processing Logo"
+            )
+            HorizontalDivider()
+        } else {
+            val imageBitmap: ImageBitmap = remember(image) {
+                image.inputStream().readAllBytes().decodeToImageBitmap()
+            }
+            Image(
+                painter = BitmapPainter(imageBitmap),
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentDescription = sketch.name
+            )
+        }
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter),
+        ) {
+            val duration = 150
+            AnimatedVisibility(
+                visible = hovered,
+                enter = slideIn(
+                    initialOffset = { fullSize -> IntOffset(0, fullSize.height) },
+                    animationSpec = tween(
+                        durationMillis = duration,
+                        easing = EaseInOut
+                    )
+                ),
+                exit = slideOut(
+                    targetOffset = { fullSize -> IntOffset(0, fullSize.height) },
+                    animationSpec = tween(
+                        durationMillis = duration,
+                        easing = LinearEasing
+                    )
+                )
+            ) {
+                Card(
+                    modifier = Modifier
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Min)
+                            .padding(12.dp)
+                            .padding(start = 12.dp)
+                    ) {
+                        Text(
+                            text = sketch.name,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                        Button(
+                            onClick = onOpen,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onTertiary
+                            ),
+                            contentPadding = PaddingValues(
+                                horizontal = 12.dp,
+                                vertical = 4.dp
+                            ),
+                        ) {
+                            Text(
+                                text = locale["welcome.sketch.open"],
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 fun noBaseWarning() {
     Messages.showWarning(
@@ -596,7 +612,7 @@ fun noBaseWarning() {
 }
 
 val size = DpSize(970.dp, 600.dp)
-val titleKey = "menu.help.welcome"
+const val titleKey = "menu.help.welcome"
 
 fun showWelcomeScreen(base: Base? = null) {
     PDESwingWindow(titleKey = titleKey, size = size.toDimension(), fullWindowContent = true) {

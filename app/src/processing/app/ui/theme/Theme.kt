@@ -1,6 +1,9 @@
 package processing.app.ui.theme
 
+import androidx.compose.foundation.LocalScrollbarStyle
+import androidx.compose.foundation.ScrollbarStyle
 import androidx.compose.foundation.background
+import androidx.compose.foundation.defaultScrollbarStyle
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
@@ -48,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.Density
@@ -98,6 +103,14 @@ fun PDETheme(
             ){
                 Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {
                     CompositionLocalProvider(
+                        LocalScrollbarStyle provides ScrollbarStyle(
+                            minimalHeight = 16.dp,
+                            thickness = 8.dp,
+                            shape = MaterialTheme.shapes.extraSmall,
+                            hoverDurationMillis = 300,
+                            unhoverColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                            hoverColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
+                        ),
                         LocalContentColor provides MaterialTheme.colorScheme.onSurface,
 //                        LocalDensity provides Density(1.25f, 1.25f),
                         content = content
@@ -161,21 +174,6 @@ fun main() {
                             )
                             Column {
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-//                                    Button(
-//                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-//                                        onClick = {}) {
-//                                        Text("Primary", color = MaterialTheme.colorScheme.onPrimary)
-//                                    }
-//                                    Button(
-//                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-//                                        onClick = {}) {
-//                                        Text("Secondary", color = MaterialTheme.colorScheme.onSecondary)
-//                                    }
-//                                    Button(
-//                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
-//                                        onClick = {}) {
-//                                        Text("Tertiary", color = MaterialTheme.colorScheme.onTertiary)
-//                                    }
                                     val section = colors.subList(0,3)
                                     for((name, color, onColor) in section){
                                         Button(
