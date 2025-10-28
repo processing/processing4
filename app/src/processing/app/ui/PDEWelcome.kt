@@ -613,9 +613,15 @@ fun noBaseWarning() {
 
 val size = DpSize(970.dp, 600.dp)
 const val titleKey = "menu.help.welcome"
+class WelcomeScreen
 
 fun showWelcomeScreen(base: Base? = null) {
-    PDESwingWindow(titleKey = titleKey, size = size.toDimension(), fullWindowContent = true) {
+    PDESwingWindow(
+        titleKey = titleKey,
+        size = size.toDimension(),
+        unique = WelcomeScreen::class,
+        fullWindowContent = true
+    ) {
         PDEWelcome(base)
     }
 }

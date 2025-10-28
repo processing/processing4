@@ -5,28 +5,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.ComposeWindow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
 import java.awt.Dimension
 
-import java.awt.event.KeyAdapter
-import java.awt.event.KeyEvent
 import javax.swing.JFrame
-import javax.swing.UIManager
+import kotlin.reflect.KClass
 
 val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
 
@@ -48,6 +44,8 @@ val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
  * @param size The desired size of the window. If null, the window will use its default size.
  * @param minSize The minimum size of the window. If null, no minimum size is set.
  * @param maxSize The maximum size of the window. If null, no maximum size is set.
+ * @param unique An optional unique identifier for the window to prevent duplicates.
+ * @param onClose A lambda function to be called when the window is requested to close.
  * @param fullWindowContent If true, the content will extend into the title bar area on macOS.
  * @param content The composable content to be displayed in the window.
  */
@@ -56,6 +54,7 @@ class PDESwingWindow(
     size: Dimension? = null,
     minSize: Dimension? = null,
     maxSize: Dimension? = null,
+    unique: KClass<*>? = null,
     fullWindowContent: Boolean = false,
     onClose: () -> Unit = {},
     content: @Composable () -> Unit
@@ -75,7 +74,13 @@ class PDESwingWindow(
             }
             setLocationRelativeTo(null)
             setContent {
-                PDEWindowContent(window, titleKey, fullWindowContent, content)
+                PDEWindowContent(
+                    window = window,
+                    titleKey = titleKey,
+                    unique = unique,
+                    fullWindowContent = fullWindowContent,
+                    content = content
+                )
             }
             window.addWindowStateListener {
                 if(it.newState == JFrame.DISPOSE_ON_CLOSE){
@@ -87,12 +92,15 @@ class PDESwingWindow(
     }
 }
 
+private val windows = mutableMapOf<KClass<*>, ComposeWindow>()
+
 /**
  * Internal Composable function to set up the window content with theming and localization.
  * It also handles macOS specific properties for full window content.
  *
  * @param window The JFrame instance to be configured.
  * @param titleKey The key for the window title, which will be localized.
+ * @param unique An optional unique identifier for the window to prevent duplicates.
  * @param fullWindowContent If true, the content will extend into the title bar area on macOS.
  * @param content The composable content to be displayed in the window.
  */
@@ -100,6 +108,7 @@ class PDESwingWindow(
 private fun PDEWindowContent(
     window: ComposeWindow,
     titleKey: String,
+    unique: KClass<*>? = null,
     fullWindowContent: Boolean = false,
     content: @Composable () -> Unit
 ){
@@ -107,6 +116,20 @@ private fun PDEWindowContent(
     remember {
         window.rootPane.putClientProperty("apple.awt.fullWindowContent", mac && fullWindowContent)
         window.rootPane.putClientProperty("apple.awt.transparentTitleBar", mac && fullWindowContent)
+    }
+    if(unique != null && windows.contains(unique) && windows[unique] != null){
+        windows[unique]?.toFront()
+        window.dispose()
+        return
+    }
+
+    DisposableEffect(unique){
+        unique?.let {
+            windows[it] = window
+        }
+        onDispose {
+            windows.remove(unique)
+        }
     }
 
     CompositionLocalProvider(LocalWindow provides window) {
@@ -148,13 +171,10 @@ private fun PDEWindowContent(
  * fullscreen if it contains any of [fillMaxWidth]/[fillMaxSize]/[fillMaxHeight] etc.
  * @param minSize The minimum size of the window. Defaults to unspecified size which means no minimum size is set.
  * @param maxSize The maximum size of the window. Defaults to unspecified size which means no maximum size is set.
- * @param fullWindowContent If true, the content will extend into the title bar area on
- * macOS.
+ * @param unique An optional unique identifier for the window to prevent duplicates.
+ * @param fullWindowContent If true, the content will extend into the title bar area on macOS.
  * @param onClose A lambda function to be called when the window is requested to close.
  * @param content The composable content to be displayed in the window.
- *
- *
- *
  */
 @Composable
 fun PDEComposeWindow(
@@ -162,6 +182,7 @@ fun PDEComposeWindow(
     size: DpSize = DpSize.Unspecified,
     minSize: DpSize = DpSize.Unspecified,
     maxSize: DpSize = DpSize.Unspecified,
+    unique: KClass<*>? = null,
     fullWindowContent: Boolean = false,
     onClose: () -> Unit = {},
     content: @Composable () -> Unit
@@ -175,7 +196,13 @@ fun PDEComposeWindow(
             window.minimumSize = minSize.toDimension()
             window.maximumSize = maxSize.toDimension()
         }
-        PDEWindowContent(window, titleKey, fullWindowContent, content)
+        PDEWindowContent(
+            window = window,
+            titleKey = titleKey,
+            unique = unique,
+            fullWindowContent = fullWindowContent,
+            content = content
+        )
     }
 }
 
