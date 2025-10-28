@@ -12,6 +12,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,8 +47,7 @@ class Interface {
                 group = interfaceAndFonts,
                 control = { preference, updatePreference ->
                     val locale = LocalLocale.current
-                    var showOptions by remember { mutableStateOf(false) }
-                    val languages = if(Preferences.isInitialized()) Language.getLanguages() else mapOf("en" to "English")
+                    val showOptions = remember { mutableStateOf(false) }
                     TextField(
                         value = locale.locale.displayName,
                         readOnly = true,
@@ -57,27 +58,12 @@ class Interface {
                                 contentDescription = "Select Font Family",
                                 modifier = Modifier
                                     .clickable{
-                                        showOptions = true
+                                        showOptions.value = true
                                     }
                             )
                         }
                     )
-                    DropdownMenu(
-                        expanded = showOptions,
-                        onDismissRequest = {
-                            showOptions = false
-                        },
-                    ) {
-                        languages.forEach { family ->
-                            DropdownMenuItem(
-                                text = { Text(family.value) },
-                                onClick = {
-                                    locale.set(Locale(family.key))
-                                    showOptions = false
-                                }
-                            )
-                        }
-                    }
+                    languagesDropdown(showOptions)
                 }
             ))
 
@@ -163,6 +149,28 @@ class Interface {
                     }
                 }
             ))
+        }
+
+        @Composable
+        fun languagesDropdown(showOptions: MutableState<Boolean>) {
+            val locale = LocalLocale.current
+            val languages = if (Preferences.isInitialized()) Language.getLanguages() else mapOf("en" to "English")
+            DropdownMenu(
+                expanded = showOptions.value,
+                onDismissRequest = {
+                    showOptions.value = false
+                },
+            ) {
+                languages.forEach { family ->
+                    DropdownMenuItem(
+                        text = { Text(family.value) },
+                        onClick = {
+                            locale.set(Locale(family.key))
+                            showOptions.value = false
+                        }
+                    )
+                }
+            }
         }
     }
 }
