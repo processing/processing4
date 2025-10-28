@@ -8,6 +8,7 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
@@ -209,7 +211,7 @@ fun PDEWelcome(base: Base? = null) {
                             colors = colors,
                             modifier = medModifier
                         ) {
-                            Icon(Icons.Outlined.FolderOpen, contentDescription = "", modifier = Modifier.size(20.dp))
+                            Icon(Icons.Outlined.FolderOpen, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
                             Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
                         }
@@ -226,7 +228,7 @@ fun PDEWelcome(base: Base? = null) {
                 )
             ){
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(48.dp),
                     modifier = Modifier
                         .padding(
                             top = 18.dp,
@@ -239,7 +241,9 @@ fun PDEWelcome(base: Base? = null) {
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     ProvideTextStyle(MaterialTheme.typography.labelLarge) {
-                        Column {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
                             Text(
                                 text = locale["welcome.resources.title"],
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
@@ -288,18 +292,22 @@ fun PDEWelcome(base: Base? = null) {
                                 )
                             }
                         }
-                        Column {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
                             Text(
                                 text = locale["welcome.community.title"],
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                             Row(
-                                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                                horizontalArrangement = Arrangement.spacedBy(48.dp),
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) {
-                                Column {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
                                     TextButton(
                                         onClick = {
                                             Platform.openURL("https://discourse.processing.org")
@@ -335,7 +343,9 @@ fun PDEWelcome(base: Base? = null) {
                                         Text("Discord")
                                     }
                                 }
-                                Column {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                ) {
                                     TextButton(
                                         onClick = {
                                             Platform.openURL("https://www.instagram.com/processing_core/")
@@ -391,7 +401,9 @@ fun PDEWelcome(base: Base? = null) {
                     onCheckedChange = ::toggle,
                     colors = CheckboxDefaults.colors(
                         checkedColor = MaterialTheme.colorScheme.tertiary
-                    )
+                    ),
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = 1.dp)
                 )
                 Text(
                     text = locale["welcome.actions.show_startup"],
@@ -402,7 +414,6 @@ fun PDEWelcome(base: Base? = null) {
         }
         Column(modifier = Modifier
             .sizeIn(minWidth = 350.dp)
-            .padding(end = 12.dp)
         ) {
             val examples = remember { mutableStateListOf(
                 Sketch(name = "Array", path = Platform.getContentFile("modes/java/examples/Basics/Arrays/Array").absolutePath),
@@ -430,111 +441,125 @@ fun PDEWelcome(base: Base? = null) {
                 examples.clear()
                 examples.addAll(sketches.shuffled().take(20))
             }
-
-            LazyColumn(
-                state = rememberLazyListState(
-                    initialFirstVisibleItemScrollOffset = 150
-                ),
+            val state = rememberLazyListState(
+                initialFirstVisibleItemScrollOffset = 150
+            )
+            Box(
                 modifier = Modifier
-                    .width(350.dp),
-                contentPadding = PaddingValues(vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .width(350.dp)
+                    .padding(end = 4.dp)
             ) {
-                items(examples) { example ->
-                    var hovered by remember { mutableStateOf(false) }
-                    Box(Modifier
-                        .border(BorderStroke(2.dp, MaterialTheme.colorScheme.outlineVariant), shape = MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.medium)
-                        .clip(MaterialTheme.shapes.medium)
-                        .fillMaxSize()
-                        .aspectRatio(16 / 9f)
-                        .onPointerEvent(PointerEventType.Enter){
-                            hovered = true
-                        }
-                        .onPointerEvent(PointerEventType.Exit){
-                            hovered = false
-                        }
-                    ){
-                        val image = remember {
-                            File(example.path,"${example.name}.png").takeIf { it.exists() }
-                        }
-                        if(image == null){
-                            Icon(
-                                painter = painterResource("logo.svg"),
-                                modifier = Modifier
-                                    .size(75.dp)
-                                    .align(Alignment.Center)
-                                ,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                contentDescription = "Processing Logo"
+                LazyColumn(
+                    state = state,
+                    contentPadding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(examples) { example ->
+                        var hovered by remember { mutableStateOf(false) }
+                        Box(
+                            Modifier
+                            .border(
+                                BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                                shape = MaterialTheme.shapes.medium
                             )
-                            HorizontalDivider()
-                        }else {
-                            val imageBitmap: ImageBitmap = remember(image) {
-                                image.inputStream().readAllBytes().decodeToImageBitmap()
+                            .background(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                shape = MaterialTheme.shapes.medium
+                            )
+                            .clip(MaterialTheme.shapes.medium)
+                            .fillMaxSize()
+                            .aspectRatio(16 / 9f)
+                            .onPointerEvent(PointerEventType.Enter) {
+                                hovered = true
                             }
-                            Image(
-                                painter = BitmapPainter(imageBitmap),
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                contentDescription = example.name
-                            )
-                        }
-                        Column(
-                            modifier = Modifier.align(Alignment.BottomCenter),
+                            .onPointerEvent(PointerEventType.Exit) {
+                                hovered = false
+                            }
                         ) {
-                            val duration = 150
-                            AnimatedVisibility(
-                                visible = hovered,
-                                enter = slideIn(
-                                    initialOffset = { fullSize -> IntOffset(0, fullSize.height) },
-                                    animationSpec = tween(
-                                        durationMillis = duration,
-                                        easing = EaseInOut
-                                    )
-                                ),
-                                exit = slideOut (
-                                    targetOffset = { fullSize -> IntOffset(0, fullSize.height) },
-                                    animationSpec = tween(
-                                        durationMillis = duration,
-                                        easing = LinearEasing
-                                    )
-                                )
-                            ) {
-                                Card(
+                            val image = remember {
+                                File(example.path, "${example.name}.png").takeIf { it.exists() }
+                            }
+                            if (image == null) {
+                                Icon(
+                                    painter = painterResource("logo.svg"),
                                     modifier = Modifier
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(IntrinsicSize.Min)
-                                            .padding(12.dp)
-                                            .padding(start = 12.dp)
-                                    ) {
-                                        Text(
-                                            text = example.name,
-                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            modifier = Modifier
-                                                .padding(8.dp)
+                                        .size(75.dp)
+                                        .align(Alignment.Center),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                    contentDescription = "Processing Logo"
+                                )
+                                HorizontalDivider()
+                            } else {
+                                val imageBitmap: ImageBitmap = remember(image) {
+                                    image.inputStream().readAllBytes().decodeToImageBitmap()
+                                }
+                                Image(
+                                    painter = BitmapPainter(imageBitmap),
+                                    modifier = Modifier
+                                        .fillMaxSize(),
+                                    contentDescription = example.name
+                                )
+                            }
+                            Column(
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                            ) {
+                                val duration = 150
+                                AnimatedVisibility(
+                                    visible = hovered,
+                                    enter = slideIn(
+                                        initialOffset = { fullSize -> IntOffset(0, fullSize.height) },
+                                        animationSpec = tween(
+                                            durationMillis = duration,
+                                            easing = EaseInOut
                                         )
-                                        Button(
-                                            onClick = {
-                                                base?.let {
-                                                    base.handleOpen("${example.path}/${example.name}.pde")
-                                                } ?: noBaseWarning()
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.tertiary,
-                                                contentColor = MaterialTheme.colorScheme.onTertiary
-                                            )
+                                    ),
+                                    exit = slideOut(
+                                        targetOffset = { fullSize -> IntOffset(0, fullSize.height) },
+                                        animationSpec = tween(
+                                            durationMillis = duration,
+                                            easing = LinearEasing
+                                        )
+                                    )
+                                ) {
+                                    Card(
+                                        modifier = Modifier
+                                    ) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(IntrinsicSize.Min)
+                                                .padding(12.dp)
+                                                .padding(start = 12.dp)
                                         ) {
                                             Text(
-                                                text = locale["welcome.sketch.open"],
-                                                style = MaterialTheme.typography.bodyLarge
+                                                text = example.name,
+                                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier
+                                                    .padding(8.dp)
                                             )
+                                            Button(
+                                                onClick = {
+                                                    base?.let {
+                                                        base.handleOpen("${example.path}/${example.name}.pde")
+                                                    } ?: noBaseWarning()
+                                                },
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.tertiary,
+                                                    contentColor = MaterialTheme.colorScheme.onTertiary
+                                                ),
+                                                contentPadding = PaddingValues(
+                                                    horizontal = 12.dp,
+                                                    vertical = 4.dp
+                                                ),
+                                            ) {
+                                                Text(
+                                                    text = locale["welcome.sketch.open"],
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -542,6 +567,12 @@ fun PDEWelcome(base: Base? = null) {
                         }
                     }
                 }
+                VerticalScrollbar(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .align(Alignment.CenterEnd),
+                    adapter = rememberScrollbarAdapter(state)
+                )
             }
         }
     }
