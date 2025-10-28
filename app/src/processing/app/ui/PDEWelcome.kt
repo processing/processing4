@@ -405,10 +405,10 @@ fun PDEWelcome(base: Base? = null) {
             .padding(end = 12.dp)
         ) {
             val examples = remember { mutableStateListOf(
-                Example(Platform.getContentFile("modes/java/examples/Basics/Arrays/Array")),
-                Example(Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective")),
-                Example(Platform.getContentFile("modes/java/examples/Basics/Color/Brightness")),
-                Example(Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")),
+                Sketch(name = "Array", path = Platform.getContentFile("modes/java/examples/Basics/Arrays/Array").absolutePath),
+                Sketch(name = "Perspective", path = Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective").absolutePath),
+                Sketch(name = "Brightness", path = Platform.getContentFile("modes/java/examples/Basics/Color/Brightness").absolutePath),
+                Sketch(name = "LoadDisplayOBJ", path = Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ").absolutePath),
             )}
 
             remember {
@@ -427,12 +427,8 @@ fun PDEWelcome(base: Base? = null) {
                 if(sketches.isEmpty()) {
                     return@remember
                 }
-
-                val newExamples = sketches.shuffled().take(20).map { sketch ->
-                    Example(File(sketch.path))
-                }
                 examples.clear()
-                examples.addAll(newExamples)
+                examples.addAll(sketches.shuffled().take(20))
             }
 
             LazyColumn(
@@ -460,8 +456,7 @@ fun PDEWelcome(base: Base? = null) {
                         }
                     ){
                         val image = remember {
-                            val name = example.path.name
-                            File(example.path,"$name.png").takeIf { it.exists() }
+                            File(example.path,"${example.name}.png").takeIf { it.exists() }
                         }
                         if(image == null){
                             Icon(
@@ -482,7 +477,7 @@ fun PDEWelcome(base: Base? = null) {
                                 painter = BitmapPainter(imageBitmap),
                                 modifier = Modifier
                                     .fillMaxSize(),
-                                contentDescription = example.path.name
+                                contentDescription = example.name
                             )
                         }
                         Column(
@@ -519,7 +514,7 @@ fun PDEWelcome(base: Base? = null) {
                                             .padding(start = 12.dp)
                                     ) {
                                         Text(
-                                            text = example.path.name,
+                                            text = example.name,
                                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                             color = MaterialTheme.colorScheme.onSurface,
                                             modifier = Modifier
@@ -528,7 +523,7 @@ fun PDEWelcome(base: Base? = null) {
                                         Button(
                                             onClick = {
                                                 base?.let {
-                                                    base.handleOpen(example.path.resolve("${example.path.name}.pde").absolutePath)
+                                                    base.handleOpen("${example.path}/${example.name}.pde")
                                                 } ?: noBaseWarning()
                                             },
                                             colors = ButtonDefaults.buttonColors(
