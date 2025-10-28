@@ -4,8 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.foundation.BorderStroke
@@ -36,40 +34,30 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.FolderSpecial
 import androidx.compose.material.icons.outlined.NoteAdd
 import androidx.compose.material.icons.outlined.PinDrop
-import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.School
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.SmartDisplay
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,14 +65,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
@@ -95,6 +80,8 @@ import processing.app.Base
 import processing.app.LocalPreferences
 import processing.app.Messages
 import processing.app.Platform
+import processing.app.api.Contributions.ExamplesList.Companion.listAllExamples
+import processing.app.api.Sketch.Companion.Sketch
 import processing.app.ui.preferences.Interface.Companion.languagesDropdown
 import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.PDEComposeWindow
@@ -102,7 +89,9 @@ import processing.app.ui.theme.PDESwingWindow
 import processing.app.ui.theme.PDETheme
 import processing.app.ui.theme.toDimension
 import java.io.File
-import java.nio.file.Path
+import kotlin.concurrent.thread
+import kotlin.io.path.Path
+import kotlin.io.path.exists
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -415,12 +404,37 @@ fun PDEWelcome(base: Base? = null) {
             .sizeIn(minWidth = 350.dp)
             .padding(end = 12.dp)
         ) {
-            val examples = listOf(
+            val examples = remember { mutableStateListOf(
                 Example(Platform.getContentFile("modes/java/examples/Basics/Arrays/Array")),
                 Example(Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective")),
                 Example(Platform.getContentFile("modes/java/examples/Basics/Color/Brightness")),
                 Example(Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")),
-            )
+            )}
+
+            remember {
+                val sketches = mutableListOf<Sketch>()
+                val sketchFolders = listAllExamples()
+                fun gatherSketches(folder: processing.app.api.Sketch.Companion.Folder?) {
+                    if (folder == null) return
+                    sketches.addAll(folder.sketches.filter { it -> Path(it.path).resolve("${it.name}.png").exists() })
+                    folder.children.forEach { child ->
+                        gatherSketches(child)
+                    }
+                }
+                sketchFolders.forEach { folder ->
+                    gatherSketches(folder)
+                }
+                if(sketches.isEmpty()) {
+                    return@remember
+                }
+
+                val newExamples = sketches.shuffled().take(20).map { sketch ->
+                    Example(File(sketch.path))
+                }
+                examples.clear()
+                examples.addAll(newExamples)
+            }
+
             LazyColumn(
                 state = rememberLazyListState(
                     initialFirstVisibleItemScrollOffset = 150
@@ -467,8 +481,7 @@ fun PDEWelcome(base: Base? = null) {
                             Image(
                                 painter = BitmapPainter(imageBitmap),
                                 modifier = Modifier
-//                                    .fillMaxSize()
-                                ,
+                                    .fillMaxSize(),
                                 contentDescription = example.path.name
                             )
                         }
