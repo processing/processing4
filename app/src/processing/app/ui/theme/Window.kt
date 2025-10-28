@@ -19,9 +19,11 @@ import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
+import processing.app.ui.Toolkit
 import java.awt.Dimension
 
 import javax.swing.JFrame
+import javax.swing.JRootPane
 import kotlin.reflect.KClass
 
 val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
@@ -116,6 +118,7 @@ private fun PDEWindowContent(
     remember {
         window.rootPane.putClientProperty("apple.awt.fullWindowContent", mac && fullWindowContent)
         window.rootPane.putClientProperty("apple.awt.transparentTitleBar", mac && fullWindowContent)
+        Toolkit.setIcon(window)
     }
     if(unique != null && windows.contains(unique) && windows[unique] != null){
         windows[unique]?.toFront()

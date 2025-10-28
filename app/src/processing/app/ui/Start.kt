@@ -46,6 +46,8 @@ class Start {
                     var visible by remember { mutableStateOf(false) }
                     val composition = rememberCoroutineScope()
                     LaunchedEffect(Unit) {
+                        Toolkit.setIcon(window)
+
                         visible = true
                         composition.launch {
                             delay(duration.toLong() + timeMargin)
