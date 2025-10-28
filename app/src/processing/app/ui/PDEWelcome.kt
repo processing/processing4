@@ -34,6 +34,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
@@ -103,6 +104,7 @@ fun PDEWelcome(base: Base? = null) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainerLow),
     ){
+        val shape = RoundedCornerShape(12.dp)
         val xsPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         val xsModifier = Modifier
             .defaultMinSize(minHeight = 1.dp)
@@ -149,7 +151,8 @@ fun PDEWelcome(base: Base? = null) {
                             showLanguageMenu.value = !showLanguageMenu.value
                         },
                         contentPadding = xsPadding,
-                        modifier = xsModifier
+                        modifier = xsModifier,
+                        shape = shape
                     ){
                         Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(4.dp))
@@ -183,7 +186,8 @@ fun PDEWelcome(base: Base? = null) {
                                 base?.handleNew() ?: noBaseWarning()
                             },
                             colors = colors,
-                            modifier = medModifier
+                            modifier = medModifier,
+                            shape = shape
                         ) {
                             Icon(Icons.Outlined.NoteAdd, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
@@ -196,7 +200,8 @@ fun PDEWelcome(base: Base? = null) {
                                 } ?: noBaseWarning()
                             },
                             colors = colors,
-                            modifier = medModifier
+                            modifier = medModifier,
+                            shape = shape
                         ) {
                             Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
@@ -209,7 +214,8 @@ fun PDEWelcome(base: Base? = null) {
                                 } ?: noBaseWarning()
                             },
                             colors = colors,
-                            modifier = medModifier
+                            modifier = medModifier,
+                            shape = shape
                         ) {
                             Icon(Icons.Outlined.FolderOpen, contentDescription = "")
                             Spacer(Modifier.width(12.dp))
