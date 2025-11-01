@@ -82,7 +82,9 @@ public class NativeLibrary {
      */
     private static void loadNativeLibrary() throws IOException {
         String platformTarget = platform + "-" + architecture;
-        String libraryFileName = "lib" + LIBRARY_NAME + "." + libraryExtension;
+        String libraryFileName = platform.equals("windows")
+            ? LIBRARY_NAME + "." + libraryExtension
+            : "lib" + LIBRARY_NAME + "." + libraryExtension;
         String resourcePath = "/native/" + platformTarget + "/" + libraryFileName;
 
         // check classloader for resource in jar
