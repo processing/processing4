@@ -5,6 +5,10 @@ import processing.core.*;
 import processing.visual.src.test.base.VisualTest;
 import processing.visual.src.core.ProcessingSketch;
 import processing.visual.src.core.TestConfig;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import java.util.stream.Stream;
 
 @Tag("typography")
 @Tag("text")
@@ -86,120 +90,101 @@ public class TypographyTest extends VisualTest {
     @DisplayName("textAlign Tests")
     class TextAlignTests {
 
-        @Test
+        @ParameterizedTest(name = "Alignment: {0}-{1}")
+        @MethodSource("alignmentProvider")
         @DisplayName("All horizontal and vertical alignments with single word")
-        public void testAllAlignmentsSingleWord() {
-            int[][] alignments = {
-                    {PApplet.LEFT, PApplet.TOP},
-                    {PApplet.CENTER, PApplet.TOP},
-                    {PApplet.RIGHT, PApplet.TOP},
-                    {PApplet.LEFT, PApplet.CENTER},
-                    {PApplet.CENTER, PApplet.CENTER},
-                    {PApplet.RIGHT, PApplet.CENTER},
-                    {PApplet.LEFT, PApplet.BOTTOM},
-                    {PApplet.CENTER, PApplet.BOTTOM},
-                    {PApplet.RIGHT, PApplet.BOTTOM}
-            };
+        public void testAllAlignmentsSingleWord(int alignX, int alignY) {
+            final String alignName = getAlignmentName(alignX, alignY);
 
-            TestConfig config = new TestConfig(300, 300);
+            assertVisualMatch("typography/align/single-word-" + alignName,
+                    new ProcessingSketch() {
+                        PFont font;
 
-            for (int[] alignment : alignments) {
-                final int alignX = alignment[0];
-                final int alignY = alignment[1];
-                final String alignName = getAlignmentName(alignX, alignY);
+                        @Override
+                        public void setup(PApplet p) {
+                            font = p.createFont("SansSerif", 60);
+                            p.textFont(font);
+                        }
 
-                assertVisualMatch("typography/align/single-word-" + alignName,
-                        new ProcessingSketch() {
-                            PFont font;
+                        @Override
+                        public void draw(PApplet p) {
+                            p.background(255);
+                            p.textAlign(alignX, alignY);
+                            p.fill(0);
+                            p.text("Single Line", p.width / 2, p.height / 2);
 
-                            @Override
-                            public void setup(PApplet p) {
-                                font = p.createFont("SansSerif", 60);
-                                p.textFont(font);
-                            }
+                            // Draw bounding box
+                            p.noFill();
+                            p.stroke(255, 0, 0);
+                            p.strokeWeight(2);
 
-                            @Override
-                            public void draw(PApplet p) {
-                                p.background(255);
-                                p.textAlign(alignX, alignY);
-                                p.fill(0);  // ← Must be in draw()
-                                p.text("Single Line", p.width / 2, p.height / 2);
-
-                                // Draw bounding box
-                                p.noFill();
-                                p.stroke(255, 0, 0);
-                                p.strokeWeight(2);
-
-                                float tw = p.textWidth("Single Line");
-                                float th = p.textAscent() + p.textDescent();
-                                float x = calculateX(p, alignX, p.width / 2f, tw);
-                                float y = calculateY(p, alignY, p.height / 2f, th);
-                                p.rect(x, y, tw, th);
-                            }
-                        }, config);
-            }
+                            float tw = p.textWidth("Single Line");
+                            float th = p.textAscent() + p.textDescent();
+                            float x = calculateX(p, alignX, p.width / 2f, tw);
+                            float y = calculateY(p, alignY, p.height / 2f, th);
+                            p.rect(x, y, tw, th);
+                        }
+                    }, new TestConfig(600, 300));
         }
 
-        @Test
+        @ParameterizedTest(name = "Multi-line alignment: {0}-{1}")
+        @MethodSource("alignmentProvider")
         @DisplayName("Multi-line text with manual line breaks")
-        public void testMultiLineManualText() {
-            int[][] alignments = {
-                    {PApplet.LEFT, PApplet.TOP},
-                    {PApplet.CENTER, PApplet.TOP},
-                    {PApplet.RIGHT, PApplet.TOP},
-                    {PApplet.LEFT, PApplet.CENTER},
-                    {PApplet.CENTER, PApplet.CENTER},
-                    {PApplet.RIGHT, PApplet.CENTER},
-                    {PApplet.LEFT, PApplet.BOTTOM},
-                    {PApplet.CENTER, PApplet.BOTTOM},
-                    {PApplet.RIGHT, PApplet.BOTTOM}
-            };
+        public void testMultiLineManualText(int alignX, int alignY) {
+            final String alignName = getAlignmentName(alignX, alignY);
 
-            TestConfig config = new TestConfig(150, 100);
+            assertVisualMatch("typography/align/multi-line-" + alignName,
+                    new ProcessingSketch() {
+                        PFont font;
 
-            for (int[] alignment : alignments) {
-                final int alignX = alignment[0];
-                final int alignY = alignment[1];
-                final String alignName = getAlignmentName(alignX, alignY);
+                        @Override
+                        public void setup(PApplet p) {
+                            font = p.createFont("SansSerif", 12);
+                            p.textFont(font);
+                        }
 
-                assertVisualMatch("typography/align/multi-line-" + alignName,
-                        new ProcessingSketch() {
-                            PFont font;
+                        @Override
+                        public void draw(PApplet p) {
+                            p.background(255);
 
-                            @Override
-                            public void setup(PApplet p) {
-                                font = p.createFont("SansSerif", 12);
-                                p.textFont(font);
-                            }
+                            float xPos = 20;
+                            float yPos = 20;
+                            float boxWidth = 100;
+                            float boxHeight = 60;
 
-                            @Override
-                            public void draw(PApplet p) {
-                                p.background(255);
+                            // Draw box
+                            p.noFill();
+                            p.stroke(200);
+                            p.strokeWeight(2);
+                            p.rect(xPos, yPos, boxWidth, boxHeight);
 
-                                float xPos = 20;
-                                float yPos = 20;
-                                float boxWidth = 100;
-                                float boxHeight = 60;
+                            // Draw text
+                            p.fill(0);
+                            p.noStroke();
+                            p.textAlign(alignX, alignY);
+                            p.text("Line 1\nLine 2\nLine 3", xPos, yPos, boxWidth, boxHeight);
 
-                                // Draw box
-                                p.noFill();
-                                p.stroke(200);
-                                p.strokeWeight(2);
-                                p.rect(xPos, yPos, boxWidth, boxHeight);
+                            // Draw bounding box
+                            p.noFill();
+                            p.stroke(255, 0, 0);
+                            p.strokeWeight(1);
+                        }
+                    }, new TestConfig(150, 100));
+        }
 
-                                // Draw text
-                                p.fill(0);  // ← Must be before text
-                                p.noStroke();
-                                p.textAlign(alignX, alignY);
-                                p.text("Line 1\nLine 2\nLine 3", xPos, yPos, boxWidth, boxHeight);
-
-                                // Draw bounding box (optional)
-                                p.noFill();
-                                p.stroke(255, 0, 0);
-                                p.strokeWeight(1);
-                            }
-                        }, config);
-            }
+        // Provide alignment combinations
+        static Stream<Arguments> alignmentProvider() {
+            return Stream.of(
+                    Arguments.of(PApplet.LEFT, PApplet.TOP),
+                    Arguments.of(PApplet.CENTER, PApplet.TOP),
+                    Arguments.of(PApplet.RIGHT, PApplet.TOP),
+                    Arguments.of(PApplet.LEFT, PApplet.CENTER),
+                    Arguments.of(PApplet.CENTER, PApplet.CENTER),
+                    Arguments.of(PApplet.RIGHT, PApplet.CENTER),
+                    Arguments.of(PApplet.LEFT, PApplet.BOTTOM),
+                    Arguments.of(PApplet.CENTER, PApplet.BOTTOM),
+                    Arguments.of(PApplet.RIGHT, PApplet.BOTTOM)
+            );
         }
 
         // Helper methods
