@@ -1,0 +1,544 @@
+package processing.app.ui
+
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import com.mikepenz.markdown.compose.Markdown
+import com.mikepenz.markdown.m3.markdownColor
+import com.mikepenz.markdown.m3.markdownTypography
+import processing.app.LocalPreferences
+import processing.app.ui.PDEPreferences.Companion.preferences
+import processing.app.ui.preferences.*
+import processing.app.ui.theme.LocalLocale
+import processing.app.ui.theme.PDESwingWindow
+import processing.app.ui.theme.PDETheme
+import java.awt.Dimension
+import javax.swing.SwingUtilities
+
+fun show() {
+    SwingUtilities.invokeLater {
+        PDESwingWindow(
+            titleKey = "preferences",
+            fullWindowContent = true,
+            size = Dimension(800, 600)
+        ) {
+            PDETheme {
+                preferences()
+            }
+        }
+    }
+}
+
+class PDEPreferences {
+    companion object{
+        private val panes: PDEPreferencePanes = mutableStateMapOf()
+
+        /**
+         * Registers a new preference in the preferences' system.
+         * If the preference's pane does not exist, it will be created.
+         * Usage:
+         * ```
+         * PDEPreferences.register(
+         *    PDEPreference(
+         *     key = "preference.key",
+         *     descriptionKey = "preference.description",
+         *     pane = somePreferencePane,
+         *     control = { preference, updatePreference ->
+         *     // Composable UI to modify the preference
+         *     }
+         *   )
+         * )
+         * ```
+         *
+         * @param preferences The preference to register.
+         */
+        fun register(vararg preferences: PDEPreference) {
+            if (preferences.map { it.pane }.toSet().size != 1) {
+                throw IllegalArgumentException("All preferences must belong to the same pane")
+            }
+            val pane = preferences.first().pane
+
+            val group = mutableStateListOf<PDEPreference>()
+            group.addAll(preferences)
+
+            val groups = panes[pane] as? SnapshotStateList<PDEPreferenceGroup> ?: mutableStateListOf()
+            groups.add(group)
+            panes[pane] = groups
+        }
+
+        /**
+         * Static initializer to register default preference panes.
+         */
+        init{
+            General.register()
+            Interface.register()
+            Coding.register()
+            Sketches.register()
+            Other.register(panes)
+        }
+
+        /**
+         * Composable function to display the preferences UI.
+         */
+        @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+        @Composable
+        fun preferences(){
+            val locale = LocalLocale.current
+            var preferencesQuery by remember { mutableStateOf("") }
+
+            /**
+             * Filter panes based on the search query.
+             */
+            val panesQuierried = remember(preferencesQuery, panes) {
+                if (preferencesQuery.isBlank()) {
+                    panes.toMutableMap()
+                } else {
+                    panes.entries.associate { (pane, preferences) ->
+                        val matching = preferences.map { group ->
+                            group.filter { preference ->
+                                val description = locale[preference.descriptionKey]
+                                when {
+                                    preference.key == "other" -> true
+                                    preference.key.contains(preferencesQuery, ignoreCase = true) -> true
+                                    description.contains(preferencesQuery, ignoreCase = true) -> true
+                                    else -> false
+                                }
+                            }
+                        }
+                        pane to matching
+                    }.toMutableMap()
+                }
+            }
+
+            /**
+             * Sort panes based on their 'after' property and name.
+             */
+            val panesSorted = remember(panesQuierried) {
+                panesQuierried.keys.sortedWith { a, b ->
+                    when {
+                        a === b -> 0
+                        a.after == b -> 1
+                        b.after == a -> -1
+                        a.after == null && b.after != null -> -1
+                        b.after == null && a.after != null -> 1
+                        else -> a.nameKey.compareTo(b.nameKey)
+                    }
+                }
+            }
+
+
+            /**
+             * Pre-select a pane that has at least one preference to show
+             * Also reset the selection when the query changes
+             * */
+            var selected by remember(panesQuierried) {
+                mutableStateOf(panesSorted.firstOrNull() { panesQuierried[it].isNotEmpty() })
+            }
+
+            Column {
+                /**
+                 * Header
+                 */
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = locale["preferences"],
+                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
+                        )
+                        Text(
+                            text = locale["preferences.description"],
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    SearchBar(
+                        modifier = Modifier,
+                        inputField = {
+                            SearchBarDefaults.InputField(
+                                query = preferencesQuery,
+                                onQueryChange = {
+                                    preferencesQuery = it
+                                },
+                                onSearch = {
+
+                                },
+                                trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                expanded = false,
+                                onExpandedChange = { },
+                                placeholder = { Text("Search") }
+                            )
+                        },
+                        expanded = false,
+                        onExpandedChange = {},
+                    ) {
+
+                    }
+                }
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    /**
+                     * Sidebar
+                     */
+                    Column(
+                        modifier = Modifier
+                            .width(IntrinsicSize.Min)
+                            .padding(30.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                    ) {
+
+                        for (pane in panesSorted) {
+                            val shape = RoundedCornerShape(12.dp)
+                            val isSelected = selected == pane
+                            TextButton(
+                                onClick = {
+                                    selected = pane
+                                },
+                                enabled = panesQuierried[pane].isNotEmpty(),
+                                colors = if (isSelected) ButtonDefaults.buttonColors() else ButtonDefaults.textButtonColors(),
+                                shape = shape
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    pane.icon()
+                                    Text(locale[pane.nameKey])
+                                }
+                            }
+                        }
+                    }
+
+                    /**
+                     * Content Area
+                     */
+                    AnimatedContent(
+                        targetState = selected,
+                        transitionSpec = {
+                            fadeIn(
+                                animationSpec = tween(300)
+                            ) togetherWith fadeOut(
+                                animationSpec = tween(300)
+                            )
+                        }
+                    ) { selected ->
+                        if (selected == null) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(30.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = locale["preferences.no_results"],
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            return@AnimatedContent
+                        }
+
+                        val groups = panesQuierried[selected] ?: emptyList()
+                        selected.showPane(groups)
+                    }
+                }
+            }
+        }
+
+        /**
+         * Main function to run the preferences window standalone for testing & development.
+         */
+        @JvmStatic
+        fun main(args: Array<String>) {
+            application {
+                Window(onCloseRequest = ::exitApplication) {
+                    remember {
+                        window.rootPane.putClientProperty("apple.awt.fullWindowContent", true)
+                        window.rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
+                    }
+                    PDETheme(darkTheme = true) {
+                        preferences()
+                    }
+                }
+                Window(onCloseRequest = ::exitApplication) {
+                    remember {
+                        window.rootPane.putClientProperty("apple.awt.fullWindowContent", true)
+                        window.rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
+                    }
+                    PDETheme(darkTheme = false) {
+                        preferences()
+                    }
+                }
+            }
+        }
+    }
+}
+
+typealias PDEPreferencePanes = MutableMap<PDEPreferencePane, PDEPreferenceGroups>
+typealias PDEPreferenceGroups = List<PDEPreferenceGroup>
+typealias PDEPreferenceGroup = List<PDEPreference>
+typealias PDEPreferenceControl = @Composable (preference: String?, updatePreference: (newValue: String) -> Unit) -> Unit
+
+/**
+ * Data class representing a pane of preferences.
+ */
+data class PDEPreferencePane(
+    /**
+     * The name key of this pane from the Processing locale.
+     */
+    val nameKey: String,
+    /**
+     * The icon representing this pane.
+     */
+    val icon: @Composable () -> Unit,
+    /**
+     * The pane that comes before this one in the list.
+     */
+    val after: PDEPreferencePane? = null,
+)
+
+/**
+ * Composable function to display the contents of a preference pane.
+ */
+@Composable
+fun PDEPreferencePane.showPane(groups: PDEPreferenceGroups) {
+    Box {
+        val locale = LocalLocale.current
+        val state = rememberLazyListState()
+        LazyColumn(
+            state = state,
+            modifier = Modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(top = 30.dp, end = 30.dp, bottom = 30.dp)
+        ) {
+            item {
+                Text(
+                    text = locale[nameKey],
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                )
+            }
+            items(groups) { group ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                    ),
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    ),
+                ) {
+                    group.forEachIndexed { index, preference ->
+                        preference.showControl()
+                        if (index != group.lastIndex) {
+                            HorizontalDivider()
+                        }
+                    }
+
+                }
+            }
+            item {
+                val prefs = LocalPreferences.current
+                TextButton(
+                    onClick = {
+                        groups.forEach { group ->
+                            group.forEach { pref ->
+                                prefs.remove(pref.key)
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        text = locale["preferences.reset"],
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        }
+        VerticalScrollbar(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(12.dp)
+                .fillMaxHeight(),
+            adapter = rememberScrollbarAdapter(state)
+        )
+    }
+}
+
+/**
+ * Data class representing a single preference in the preferences' system.
+ *
+ * Usage:
+ * ```
+ * PDEPreferences.register(
+ *     PDEPreference(
+ *         key = "preference.key",
+ *         descriptionKey = "preference.description",
+ *         group = somePreferenceGroup,
+ *         control = { preference, updatePreference ->
+ *             // Composable UI to modify the preference
+ *         }
+ *     )
+ * )
+ * ```
+ */
+data class PDEPreference(
+    /**
+     * The key in the preferences file used to store this preference.
+     */
+    val key: String,
+    /**
+     * The key for the description of this preference, used for localization.
+     */
+    val descriptionKey: String,
+
+    /**
+     * The key for the label of this preference, used for localization.
+     * If null, the label will not be shown.
+     */
+    val labelKey: String? = null,
+    /**
+     * The group this preference belongs to.
+     */
+    val pane: PDEPreferencePane,
+    /**
+     * A Composable function that defines the control used to modify this preference.
+     * It takes the current preference value and a function to update the preference.
+     */
+    val control: PDEPreferenceControl = { preference, updatePreference -> },
+
+    /**
+     * If true, no padding will be applied around this preference's UI.
+     */
+    val noPadding: Boolean = false,
+    /**
+     * If true, the title will be omitted from this preference's UI.
+     */
+    val noTitle: Boolean = false,
+)
+
+/**
+ * Extension function to check if a list of preference groups is not empty.
+ */
+fun PDEPreferenceGroups?.isNotEmpty(): Boolean {
+    if (this == null) return false
+    for (group in this) {
+        if (group.isNotEmpty()) return true
+    }
+    return false
+}
+
+/**
+ * Composable function to display the preference's description and control.
+ */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun PDEPreference.showControl() {
+    val locale = LocalLocale.current
+    val prefs = LocalPreferences.current
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (!noTitle) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                ) {
+                    Text(
+                        text = locale[descriptionKey],
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    if (labelKey != null && locale.containsKey(labelKey)) {
+                        Card {
+                            Text(
+                                text = locale[labelKey],
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(8.dp, 4.dp)
+                            )
+                        }
+                    }
+                }
+                if (locale.containsKey("$descriptionKey.tip")) {
+                    Markdown(
+                        content = locale["$descriptionKey.tip"],
+                        colors = markdownColor(
+                            text = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                        typography = markdownTypography(
+                            text = MaterialTheme.typography.bodySmall,
+                            paragraph = MaterialTheme.typography.bodySmall,
+                            textLink = TextLinkStyles(
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.primary,
+                                    textDecoration = TextDecoration.Underline
+                                ).toSpanStyle()
+                            )
+                        ),
+                        modifier = Modifier
+                            .padding(horizontal = 20.dp, vertical = 4.dp)
+                    )
+                }
+            }
+        }
+        val show = @Composable {
+            control(prefs[key]) { newValue ->
+                prefs[key] = newValue
+            }
+        }
+
+        if (noPadding) {
+            show()
+        } else {
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+            ) {
+                show()
+            }
+        }
+    }
+}

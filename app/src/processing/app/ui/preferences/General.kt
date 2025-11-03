@@ -1,32 +1,29 @@
 package processing.app.ui.preferences
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import processing.app.Preferences
 import processing.app.SketchName
+import processing.app.ui.EditorFooter.copyDebugInformationToClipboard
 import processing.app.ui.PDEPreference
-import processing.app.ui.PDEPreferenceGroup
+import processing.app.ui.PDEPreferencePane
 import processing.app.ui.PDEPreferences
+import processing.app.ui.theme.LocalLocale
 
 
 class General {
     companion object{
-        val general = PDEPreferenceGroup(
-            name = "General",
+        val general = PDEPreferencePane(
+            nameKey = "preferences.pane.general",
             icon = {
-                Icon(Icons.Default.Settings, contentDescription = "A settings icon")
+                Icon(Icons.Default.Settings, contentDescription = "General Preferences")
             }
         )
 
@@ -35,35 +32,27 @@ class General {
                 PDEPreference(
                     key = "sketchbook.path.four",
                     descriptionKey = "preferences.sketchbook_location",
-                    group = general,
+                    pane = general,
+                    noTitle = true,
                     control = { preference, updatePreference ->
-                        Row (
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            TextField(
-                                value = preference ?: "",
-                                onValueChange = {
-                                    updatePreference(it)
-                                }
-                            )
-                            Button(
-                                onClick = {
-
-                                }
-                            ) {
-                                Text("Browse")
+                        val locale = LocalLocale.current
+                        OutlinedTextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(locale["preferences.sketchbook_location"]) },
+                            value = preference ?: "",
+                            onValueChange = {
+                                updatePreference(it)
+                            },
+                            trailingIcon = {
+                                Icon(Icons.Default.Folder, contentDescription = null)
                             }
-                        }
+                        )
                     }
-                )
-            )
-            PDEPreferences.register(
+                ),
                 PDEPreference(
                     key = "sketch.name.approach",
                     descriptionKey = "preferences.sketch_naming",
-                    group = general,
+                    pane = general,
                     control = { preference, updatePreference ->
                         Row{
                             for (option in if(Preferences.isInitialized()) SketchName.getOptions() else arrayOf(
@@ -84,13 +73,27 @@ class General {
                             }
                         }
                     }
+                ),
+                PDEPreference(
+                    key = "editor.sync_folder_and_filename",
+                    labelKey = "preferences.new",
+                    descriptionKey = "preferences.sync_folder_and_filename",
+                    pane = general,
+                    control = { preference, updatePreference ->
+                        Switch(
+                            checked = preference.toBoolean(),
+                            onCheckedChange = {
+                                updatePreference(it.toString())
+                            }
+                        )
+                    }
                 )
             )
             PDEPreferences.register(
                 PDEPreference(
                     key = "update.check",
-                    descriptionKey = "preferences.check_for_updates_on_startup",
-                    group = general,
+                    descriptionKey = "preferences.update_check",
+                    pane = general,
                     control = { preference, updatePreference ->
                         Switch(
                             checked = preference.toBoolean(),
@@ -104,8 +107,8 @@ class General {
             PDEPreferences.register(
                 PDEPreference(
                     key = "welcome.show",
-                    descriptionKey = "preferences.show_welcome_screen_on_startup",
-                    group = general,
+                    descriptionKey = "preferences.show_welcome_screen",
+                    pane = general,
                     control = { preference, updatePreference ->
                         Switch(
                             checked = preference.toBoolean(),
@@ -113,6 +116,20 @@ class General {
                                 updatePreference(it.toString())
                             }
                         )
+                    }
+                )
+            )
+            PDEPreferences.register(
+                PDEPreference(
+                    key = "welcome.show",
+                    descriptionKey = "preferences.diagnostics",
+                    pane = general,
+                    control = { preference, updatePreference ->
+                        Button(onClick = {
+                            copyDebugInformationToClipboard()
+                        }) {
+                            Text(LocalLocale.current["preferences.diagnostics.button"])
+                        }
                     }
                 )
             )

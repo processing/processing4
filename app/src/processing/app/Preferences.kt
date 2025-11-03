@@ -8,8 +8,11 @@ import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.InputStream
-import java.nio.file.*
-import java.util.Properties
+import java.nio.file.FileSystems
+import java.nio.file.Path
+import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchEvent
+import java.util.*
 
 /*
     The ReactiveProperties class extends the standard Java Properties class
@@ -26,6 +29,11 @@ class ReactiveProperties: Properties() {
 
     override fun getProperty(key: String): String? {
         return snapshotStateMap[key] ?: super.getProperty(key)
+    }
+
+    override fun remove(key: Any?): Any? {
+        snapshotStateMap.remove(key as String)
+        return super.remove(key)
     }
 
     operator fun get(key: String): String? = getProperty(key)
