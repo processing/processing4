@@ -20,19 +20,9 @@ package processing.app
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.ComposeDialog
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -41,10 +31,11 @@ import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.FlatLightLaf
 import processing.app.ui.Toolkit
 import processing.app.ui.theme.PDETheme
-import java.awt.Dimension
+import java.awt.EventQueue
 import java.awt.Frame
 import java.io.PrintWriter
 import java.io.StringWriter
+import javax.swing.JFrame
 import javax.swing.JOptionPane
 import javax.swing.UIManager
 
@@ -60,23 +51,10 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                showDialog(title) { modifier, dismiss ->
-                    AlertDialog(
-                        modifier = modifier,
-                        onDismissRequest = {  },
-                        shape = RectangleShape,
-                        icon = { Icon(Icons.Default.Info, contentDescription = "Info!") },
-                        title = { Text(title) },
-                        text = { Text(message) },
-                        confirmButton = {
-                            Button(
-                                onClick = { dismiss() }
-                            ) {
-                                Text("OK")
-                            }
-                        }
-                    )
-                }
+                JOptionPane.showMessageDialog(
+                    Frame(), message, title,
+                    JOptionPane.INFORMATION_MESSAGE
+                )
             }
         }
 
@@ -93,27 +71,10 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                showDialog(title){ modifier, dismiss ->
-                    AlertDialog(
-                        modifier = modifier,
-                        onDismissRequest = {  },
-                        shape = RectangleShape,
-                        icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
-                        iconContentColor = MaterialTheme.colorScheme.tertiary,
-                        title = { Text(title) },
-                        text = { Text(message) },
-                        confirmButton = {
-                            Button(
-                                onClick = { dismiss() },
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.tertiary
-                                )
-                            ) {
-                                Text("OK")
-                            }
-                        }
-                    )
-                }
+                JOptionPane.showMessageDialog(
+                    Frame(), message, title,
+                    JOptionPane.WARNING_MESSAGE
+                )
             }
             e?.printStackTrace()
         }
@@ -133,30 +94,11 @@ class Messages {
                 //      proper parsing on the command line. Many have \n in them.
                 println("$title: $primary\n$secondary")
             } else {
-                showDialog(title){ modifier, dismiss ->
-                    AlertDialog(
-                        modifier = modifier,
-                        onDismissRequest = {  },
-                        shape = RectangleShape,
-                        icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
-                        iconContentColor = MaterialTheme.colorScheme.tertiary,
-                        title = { Text(title) },
-                        text = {
-                            Column {
-                                Text(primary, fontWeight = FontWeight.Bold)
-                                Text(secondary)
-                            }
-                        },
-                        confirmButton = {
-                            Button(
-                                onClick = { dismiss() },
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    contentColor = MaterialTheme.colorScheme.tertiary
-                                )
-                            ) {
-                                Text("OK")
-                            }
-                        }
+                EventQueue.invokeLater {
+                    JOptionPane.showMessageDialog(
+                        JFrame(),
+                        Toolkit.formatMessage(primary, secondary),
+                        title, JOptionPane.WARNING_MESSAGE
                     )
                 }
             }
@@ -174,28 +116,10 @@ class Messages {
             if (Base.isCommandLine()) {
                 System.err.println("$title: $message")
             } else {
-                showDialog(title){ modifier, dismiss ->
-                    AlertDialog(
-                        modifier = modifier,
-                        onDismissRequest = {  },
-                        shape = RectangleShape,
-                        icon = { Icon(Icons.Default.Error, contentDescription = "Alert!") },
-                        iconContentColor = MaterialTheme.colorScheme.error,
-                        title = { Text(title) },
-                        text = { Text(message) },
-                        confirmButton = {
-                            Button(
-                                onClick = { dismiss() },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError
-                                )
-                            ) {
-                                Text("OK")
-                            }
-                        }
-                    )
-                }
+                JOptionPane.showMessageDialog(
+                    Frame(), message, title,
+                    JOptionPane.ERROR_MESSAGE
+                )
             }
             e?.printStackTrace()
             System.exit(1)
@@ -228,8 +152,6 @@ class Messages {
                     title,
                     if (fatal) JOptionPane.ERROR_MESSAGE else JOptionPane.WARNING_MESSAGE
                 )
-
-
 
                 if (fatal) {
                     System.exit(1)
@@ -362,32 +284,6 @@ class Messages {
         }
     }
 }
-
-@OptIn(ExperimentalComposeUiApi::class)
-fun showDialog(title: String, content: @Composable (modifier: Modifier,  dismiss: () -> Unit) -> Unit) {
-    ComposeDialog().apply {
-        isModal = true
-        setTitle(title)
-        size = Dimension(400, 400)
-        rootPane.putClientProperty("apple.awt.fullWindowContent", true)
-        rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
-        rootPane.putClientProperty("apple.awt.windowTitleVisible", false);
-
-
-       setContent {
-            PDETheme {
-                val density = LocalDensity.current
-                content(Modifier.onSizeChanged{
-                    size = Dimension((it.width / density.density).toInt(), (it.height / density.density).toInt())
-                    setLocationRelativeTo(null)
-                },::dispose)
-            }
-        }
-        setLocationRelativeTo(null)
-        isVisible = true
-    }
-}
-
 fun main(){
     val types = mapOf(
         "message" to { Messages.showMessage("Test Title", "This is a test message.") },
