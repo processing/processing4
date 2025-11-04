@@ -30,6 +30,7 @@ import static org.lwjgl.opengles.GLES30.*;
 import static org.lwjgl.opengles.GLES31.*;
 import static org.lwjgl.opengles.GLES32.*;
 
+
 import processing.core.PApplet;
 import processing.core.PGraphics;
 import processing.core.PMatrix3D;
@@ -359,7 +360,7 @@ public class PGLANGLE extends PGL {
     }
 
     private void report(String m) {
-        System.out.println(m);
+        // System.out.println(m);
     }
 
     public static ByteBuffer convertToByteBuffer(Buffer outputBuffer) {
@@ -1223,11 +1224,13 @@ public class PGLANGLE extends PGL {
     public void vertexAttribPointer(int index, int size, int type, boolean normalized, int stride, int offset) {
         report("void vertexAttribPointer");
 
-        System.out.println("Stride: "+stride);
-
-        // ByteBuffer buff = getBoundBuffer(offset);
+        ByteBuffer buff = getBoundBuffer(offset);
         // if (buff == null) return;
-        glVertexAttribPointer(index, size, type, normalized, stride, offset);
+        glVertexAttribPointer(index, size, type, normalized, stride, buff);
+        // glVertexAttribPointer()
+        // glVertexAttribPointer(int index, int size, int type, boolean normalized, int stride, ByteBuffer pointer) : void
+        // glVertexAttribPointer(int index, int size, int type, boolean normalized, int stride, long pointer) : void?
+
     }
 
     @Override
@@ -1251,13 +1254,15 @@ public class PGLANGLE extends PGL {
     @Override
     public void drawElementsImpl(int mode, int count, int type, int offset) {
         report("void drawElementsImpl");
-        // ByteBuffer buff = getBoundBuffer(offset);
+        ByteBuffer buff = getBoundBuffer(offset);
         // if (buff == null) return;
+        glBindBuffer(ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(ARRAY_BUFFER, 0);
         
         // // System.out.println("drawElements buffer "+boundBuffer);
         // System.out.println("Requested count: "+count+"  Expected count: 256  Capacity count: "+(buff.capacity()/2)+"  Limit count: "+(buff.limit()/2));
 
-        glDrawElements(mode, count, type, offset);
+        glDrawElements(mode, type, buff);
     }
 
     @Override

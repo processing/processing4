@@ -45,6 +45,7 @@ import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL2ES3;
 import com.jogamp.opengl.GL2GL3;
 import com.jogamp.opengl.GL3ES3;
+import com.jogamp.opengl.GL4;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLCapabilitiesImmutable;
@@ -101,6 +102,9 @@ public class PJOGL extends PGL {
 
   /** GL3 interface */
   protected GL2GL3 gl3;
+
+  protected GL4 gl4;
+
 
   /**
    * GL2 desktop functionality (blit framebuffer, map buffer range,
@@ -1371,7 +1375,7 @@ public class PJOGL extends PGL {
 
   @Override
   public void vertexAttribPointer(int index, int size, int type, boolean normalized, int stride, int offset) {
-    // System.out.println("Stride: "+stride);
+    System.out.println("Stride: "+stride);
     gl2.glVertexAttribPointer(index, size, type, normalized, stride, offset);
   }
 
