@@ -1,14 +1,12 @@
 package processing.app.ui.preferences
 
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import processing.app.Preferences
 import processing.app.SketchName
 import processing.app.ui.EditorFooter.copyDebugInformationToClipboard
@@ -54,7 +52,7 @@ class General {
                     descriptionKey = "preferences.sketch_naming",
                     pane = general,
                     control = { preference, updatePreference ->
-                        Row{
+                        Column {
                             for (option in if(Preferences.isInitialized()) SketchName.getOptions() else arrayOf(
                                 "timestamp",
                                 "untitled",
@@ -68,7 +66,6 @@ class General {
                                     label = {
                                         Text(option)
                                     },
-                                    modifier = Modifier.padding(4.dp),
                                 )
                             }
                         }
