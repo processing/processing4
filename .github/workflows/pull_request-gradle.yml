@@ -18,6 +18,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: Install Wayland Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwayland-dev libxkbcommon-dev
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -67,6 +71,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           architecture: ${{ matrix.arch }}
+      - name: Install Wayland Dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwayland-dev libxkbcommon-dev
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
