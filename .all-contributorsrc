@@ -1669,6 +1669,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "Qianqianye",
+      "name": "Qianqian Ye",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18587130?v=4",
+      "profile": "http://qianqian-ye.com",
+      "contributions": [
+        "fundingFinding"
+      ]
     }
   ],
   "repoType": "github",
