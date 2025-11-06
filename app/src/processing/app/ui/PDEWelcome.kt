@@ -48,7 +48,7 @@ fun PDEWelcome(base: Base? = null) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow),
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
     ){
         val shape = RoundedCornerShape(12.dp)
         val xsPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
