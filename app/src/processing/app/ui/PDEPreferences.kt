@@ -38,7 +38,7 @@ fun show() {
         PDESwingWindow(
             titleKey = "preferences",
             fullWindowContent = true,
-            size = Dimension(800, 600)
+            size = Dimension(850, 600)
         ) {
             PDETheme {
                 preferences()

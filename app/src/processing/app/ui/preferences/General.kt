@@ -1,13 +1,16 @@
 package processing.app.ui.preferences
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import processing.app.Preferences
 import processing.app.SketchName
 import processing.app.ui.EditorFooter.copyDebugInformationToClipboard
@@ -70,20 +73,25 @@ class General {
                     pane = general,
                     control = { preference, updatePreference ->
                         Column {
-                            for (option in if(Preferences.isInitialized()) SketchName.getOptions() else arrayOf(
+                            val options = if (Preferences.isInitialized()) SketchName.getOptions() else arrayOf(
                                 "timestamp",
                                 "untitled",
                                 "custom"
-                            )) {
-                                FilterChip(
-                                    selected = preference == option,
-                                    onClick = {
-                                        updatePreference(option)
-                                    },
-                                    label = {
-                                        Text(option)
-                                    },
-                                )
+                            )
+                            options.toList().chunked(2).forEach { row ->
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    row.forEach { option ->
+                                        FilterChip(
+                                            selected = preference == option,
+                                            onClick = {
+                                                updatePreference(option)
+                                            },
+                                            label = {
+                                                Text(option)
+                                            },
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
