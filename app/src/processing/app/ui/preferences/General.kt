@@ -1,5 +1,6 @@
 package processing.app.ui.preferences
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,8 @@ import processing.app.ui.PDEPreference
 import processing.app.ui.PDEPreferencePane
 import processing.app.ui.PDEPreferences
 import processing.app.ui.theme.LocalLocale
+import processing.awt.ShimAWT.selectFolder
+import java.io.File
 
 
 class General {
@@ -42,7 +45,21 @@ class General {
                                 updatePreference(it)
                             },
                             trailingIcon = {
-                                Icon(Icons.Default.Folder, contentDescription = null)
+                                Icon(
+                                    Icons.Default.Folder,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .clickable {
+                                            selectFolder(
+                                                locale["preferences.sketchbook_location.popup"],
+                                                File(preference ?: "")
+                                            ) { selectedFile: File? ->
+                                                if (selectedFile != null) {
+                                                    updatePreference(selectedFile.absolutePath)
+                                                }
+                                            }
+                                        }
+                                )
                             }
                         )
                     }
@@ -103,7 +120,7 @@ class General {
             )
             PDEPreferences.register(
                 PDEPreference(
-                    key = "welcome.show",
+                    key = "welcome.four.show",
                     descriptionKey = "preferences.show_welcome_screen",
                     pane = general,
                     control = { preference, updatePreference ->

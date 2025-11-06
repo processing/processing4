@@ -76,9 +76,19 @@ class Interface {
                     descriptionKey = "preferences.interface_scale",
                     pane = interfaceAndFonts,
                     control = { preference, updatePreference ->
+                        val range = 100f..300f
+
                         val prefs = LocalPreferences.current
-                        var currentZoom by remember(preference) { mutableStateOf(preference?.toFloatOrNull() ?: 100f) }
-                        val automatic = currentZoom == 100f
+                        var currentZoom by remember(preference) {
+                            mutableStateOf(
+                                preference
+                                    ?.replace("%", "")
+                                    ?.toFloatOrNull()
+                                    ?: range.start
+                            )
+                        }
+                        val automatic = currentZoom == range.start
+                        val zoomPerc = "${currentZoom.toInt()}%"
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
@@ -87,7 +97,7 @@ class Interface {
                                     .widthIn(max = 200.dp)
                             ) {
                                 Text(
-                                    text = if (automatic) "Auto" else "${currentZoom.toInt()}%",
+                                    text = if (automatic) "Auto" else zoomPerc,
                                 )
                                 Slider(
                                     value = currentZoom,
@@ -96,9 +106,9 @@ class Interface {
                                     },
                                     onValueChangeFinished = {
                                         prefs["editor.zoom.auto"] = automatic
-                                        updatePreference(String.format(Locale.US, "%.2f", currentZoom))
+                                        updatePreference(zoomPerc)
                                     },
-                                    valueRange = 100f..300f,
+                                    valueRange = range,
                                     steps = 3
                                 )
                             }

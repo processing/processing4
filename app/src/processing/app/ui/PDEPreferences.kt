@@ -100,7 +100,7 @@ class PDEPreferences {
          */
         @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
         @Composable
-        fun preferences(){
+        fun preferences() {
             val locale = LocalLocale.current
             var preferencesQuery by remember { mutableStateOf("") }
 
@@ -153,123 +153,144 @@ class PDEPreferences {
                 mutableStateOf(panesSorted.firstOrNull() { panesQuierried[it].isNotEmpty() })
             }
 
-            Column {
-                /**
-                 * Header
-                 */
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = locale["preferences"],
-                            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
-                        )
-                        Text(
-                            text = locale["preferences.description"],
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    SearchBar(
-                        modifier = Modifier,
-                        inputField = {
-                            SearchBarDefaults.InputField(
-                                query = preferencesQuery,
-                                onQueryChange = {
-                                    preferencesQuery = it
-                                },
-                                onSearch = {
+            /**
+             * Swapping primary and tertiary colors for the preferences window, probably should do that program-wide
+             */
+            val originalScheme = MaterialTheme.colorScheme
+            MaterialTheme(
+                colorScheme = originalScheme.copy(
+                    primary = originalScheme.tertiary,
+                    onPrimary = originalScheme.onTertiary,
+                    primaryContainer = originalScheme.tertiaryContainer,
+                    onPrimaryContainer = originalScheme.onTertiaryContainer,
 
-                                },
-                                trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                expanded = false,
-                                onExpandedChange = { },
-                                placeholder = { Text("Search") }
-                            )
-                        },
-                        expanded = false,
-                        onExpandedChange = {},
-                    ) {
-
-                    }
-                }
-                HorizontalDivider()
-                Row(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                ) {
+                    tertiary = originalScheme.primary,
+                    onTertiary = originalScheme.onPrimary,
+                    tertiaryContainer = originalScheme.primaryContainer,
+                    onTertiaryContainer = originalScheme.onPrimaryContainer,
+                )
+            ) {
+                Column {
                     /**
-                     * Sidebar
+                     * Header
                      */
-                    Column(
+                    Row(
                         modifier = Modifier
-                            .width(IntrinsicSize.Min)
-                            .padding(30.dp)
+                            .fillMaxWidth()
+                            .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Text(
+                                text = locale["preferences"],
+                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
+                            )
+                            Text(
+                                text = locale["preferences.description"],
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                        }
+                        SearchBar(
+                            modifier = Modifier,
+                            inputField = {
+                                SearchBarDefaults.InputField(
+                                    query = preferencesQuery,
+                                    onQueryChange = {
+                                        preferencesQuery = it
+                                    },
+                                    onSearch = {
+
+                                    },
+                                    trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                    expanded = false,
+                                    onExpandedChange = { },
+                                    placeholder = { Text("Search") }
+                                )
+                            },
+                            expanded = false,
+                            onExpandedChange = {},
+                        ) {
+
+                        }
+                    }
+                    HorizontalDivider()
+                    Row(
+                        modifier = Modifier
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
+                        /**
+                         * Sidebar
+                         */
+                        Column(
+                            modifier = Modifier
+                                .width(IntrinsicSize.Min)
+                                .padding(30.dp)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
 
-                        for (pane in panesSorted) {
-                            val shape = RoundedCornerShape(12.dp)
-                            val isSelected = selected == pane
-                            TextButton(
-                                onClick = {
-                                    selected = pane
-                                },
-                                enabled = panesQuierried[pane].isNotEmpty(),
-                                colors = if (isSelected) ButtonDefaults.buttonColors() else ButtonDefaults.textButtonColors(),
-                                shape = shape
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            for (pane in panesSorted) {
+                                val shape = RoundedCornerShape(12.dp)
+                                val isSelected = selected == pane
+                                TextButton(
+                                    onClick = {
+                                        selected = pane
+                                    },
+                                    enabled = panesQuierried[pane].isNotEmpty(),
+                                    colors = if (isSelected) ButtonDefaults.buttonColors() else ButtonDefaults.textButtonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    ),
+                                    shape = shape
                                 ) {
-                                    pane.icon()
-                                    Text(locale[pane.nameKey])
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        pane.icon()
+                                        Text(locale[pane.nameKey])
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    /**
-                     * Content Area
-                     */
-                    AnimatedContent(
-                        targetState = selected,
-                        transitionSpec = {
-                            fadeIn(
-                                animationSpec = tween(300)
-                            ) togetherWith fadeOut(
-                                animationSpec = tween(300)
-                            )
-                        }
-                    ) { selected ->
-                        if (selected == null) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(30.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = locale["preferences.no_results"],
-                                    style = MaterialTheme.typography.bodyMedium
+                        /**
+                         * Content Area
+                         */
+                        AnimatedContent(
+                            targetState = selected,
+                            transitionSpec = {
+                                fadeIn(
+                                    animationSpec = tween(300)
+                                ) togetherWith fadeOut(
+                                    animationSpec = tween(300)
                                 )
                             }
-                            return@AnimatedContent
-                        }
+                        ) { selected ->
+                            if (selected == null) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(30.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = locale["preferences.no_results"],
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                                return@AnimatedContent
+                            }
 
-                        val groups = panesQuierried[selected] ?: emptyList()
-                        selected.showPane(groups)
+                            val groups = panesQuierried[selected] ?: emptyList()
+                            selected.showPane(groups)
+                        }
                     }
                 }
             }

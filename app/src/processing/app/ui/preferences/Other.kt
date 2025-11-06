@@ -15,6 +15,7 @@ import processing.app.ui.PDEPreferencePane
 import processing.app.ui.PDEPreferencePanes
 import processing.app.ui.PDEPreferences
 import processing.app.ui.preferences.Sketches.Companion.sketches
+import processing.app.ui.theme.LocalLocale
 
 class Other {
     companion object{
@@ -45,6 +46,7 @@ class Other {
                             return@PDEPreference
                         }
                         val prefs = LocalPreferences.current
+                        val locale = LocalLocale.current
                         DisposableEffect(Unit) {
                             // add all the other options to the same group as the current one
                             val group =
@@ -54,9 +56,10 @@ class Other {
                             val keys = prefs.keys.mapNotNull { it as? String }.filter { it !in existing }.sorted()
 
                             for (prefKey in keys) {
+                                val descriptionKey = "preferences.$prefKey"
                                 val preference = PDEPreference(
                                     key = prefKey,
-                                    descriptionKey = prefKey,
+                                    descriptionKey = if (locale.containsKey(descriptionKey)) descriptionKey else prefKey,
                                     pane = other,
                                     control = { preference, updatePreference ->
                                         if (preference?.toBooleanStrictOrNull() != null) {

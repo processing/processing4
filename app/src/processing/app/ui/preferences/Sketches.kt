@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import processing.app.LocalPreferences
 import processing.app.ui.PDEPreference
 import processing.app.ui.PDEPreferencePane
 import processing.app.ui.PDEPreferences
@@ -48,14 +49,14 @@ class Sketches {
                                     devices.forEachIndexed { index, device ->
                                         val displayNum = (index + 1).toString()
                                         OutlinedButton(
-                                            colors = if (preference == displayNum) {
+                                            colors = if (preference == displayNum || (device == defaultDevice && preference == "-1")) {
                                                 ButtonDefaults.buttonColors()
                                             } else {
                                                 ButtonDefaults.outlinedButtonColors()
                                             },
                                             shape = RoundedCornerShape(12.dp),
                                             onClick = {
-                                                setPreference(displayNum)
+                                                setPreference(if (device == defaultDevice) "-1" else displayNum)
                                             }
                                         ) {
 
@@ -94,11 +95,25 @@ class Sketches {
                     }
                 ),
                 PDEPreference(
+                    key = "run.options.memory",
+                    descriptionKey = "preferences.increase_memory",
+                    pane = sketches,
+                    control = { preference, setPreference ->
+                        Switch(
+                            checked = preference?.toBoolean() ?: false,
+                            onCheckedChange = {
+                                setPreference(it.toString())
+                            }
+                        )
+                    }
+                ),
+                PDEPreference(
                     key = "run.options.memory.maximum",
                     descriptionKey = "preferences.increase_max_memory",
                     pane = sketches,
                     control = { preference, setPreference ->
                         OutlinedTextField(
+                            enabled = LocalPreferences.current["run.options.memory"]?.toBoolean() ?: false,
                             modifier = Modifier.widthIn(max = 300.dp),
                             value = preference ?: "",
                             trailingIcon = { Text("MB") },
@@ -120,7 +135,7 @@ class Sketches {
                         }
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(64.dp)
                                 .padding(4.dp)
                                 .background(
                                     color = Color(color.red, color.green, color.blue),
