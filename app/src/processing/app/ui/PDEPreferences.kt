@@ -374,7 +374,7 @@ fun PDEPreferencePane.showPane(groups: PDEPreferenceGroups) {
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
                     ),
                     border = BorderStroke(
                         width = 1.dp,
