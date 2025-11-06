@@ -19,6 +19,7 @@ import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import darkScheme
 import lightScheme
+import processing.app.LocalPreferences
 import processing.app.PreferencesProvider
 
 /**
@@ -52,8 +53,16 @@ fun PDETheme(
 ){
     PreferencesProvider {
         LocaleProvider {
+            val preferences = LocalPreferences.current
+            val theme = when {
+                preferences["editor.theme"] == "dark" -> darkScheme
+                preferences["editor.theme"] == "light" -> lightScheme
+                darkTheme -> darkScheme
+                else -> lightScheme
+
+            }
             MaterialTheme(
-                colorScheme = if(darkTheme) darkScheme else lightScheme,
+                colorScheme = theme,
                 typography = PDETypography
             ){
                 Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {

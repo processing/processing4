@@ -72,6 +72,45 @@ class Interface {
             )
             PDEPreferences.register(
                 PDEPreference(
+                    key = "editor.theme",
+                    descriptionKey = "preferences.editor.theme",
+                    pane = interfaceAndFonts,
+                    control = { preference, updatePreference ->
+                        val locale = LocalLocale.current
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            InputChip(
+                                selected = (preference ?: "") == "",
+                                onClick = {
+                                    updatePreference("")
+                                },
+                                label = {
+                                    Text(locale["preferences.editor.theme.system"])
+                                }
+                            )
+                            InputChip(
+                                selected = preference == "dark",
+                                onClick = {
+                                    updatePreference("dark")
+                                },
+                                label = {
+                                    Text(locale["preferences.editor.theme.dark"])
+                                }
+                            )
+                            InputChip(
+                                selected = preference == "light",
+                                onClick = {
+                                    updatePreference("light")
+                                },
+                                label = {
+                                    Text(locale["preferences.editor.theme.light"])
+                                }
+                            )
+                        }
+                    }
+                ),
+                PDEPreference(
                     key = "editor.zoom",
                     descriptionKey = "preferences.interface_scale",
                     pane = interfaceAndFonts,

@@ -9,8 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import processing.app.Preferences
 import processing.app.SketchName
 import processing.app.ui.EditorFooter.copyDebugInformationToClipboard
@@ -81,7 +83,7 @@ class General {
                             options.toList().chunked(2).forEach { row ->
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     row.forEach { option ->
-                                        FilterChip(
+                                        InputChip(
                                             selected = preference == option,
                                             onClick = {
                                                 updatePreference(option)
@@ -98,7 +100,7 @@ class General {
                 ),
                 PDEPreference(
                     key = "editor.sync_folder_and_filename",
-                    labelKey = "preferences.new",
+                    labelKey = "preferences.experimental",
                     descriptionKey = "preferences.sync_folder_and_filename",
                     pane = general,
                     control = { preference, updatePreference ->
@@ -147,10 +149,23 @@ class General {
                     descriptionKey = "preferences.diagnostics",
                     pane = general,
                     control = { preference, updatePreference ->
+                        var copied by remember { mutableStateOf(false) }
+                        LaunchedEffect(copied) {
+                            if (copied) {
+                                delay(2000)
+                                copied = false
+                            }
+                        }
                         Button(onClick = {
                             copyDebugInformationToClipboard()
+                            copied = true
+
                         }) {
-                            Text(LocalLocale.current["preferences.diagnostics.button"])
+                            if (!copied) {
+                                Text(LocalLocale.current["preferences.diagnostics.button"])
+                            } else {
+                                Text(LocalLocale.current["preferences.diagnostics.button.copied"])
+                            }
                         }
                     }
                 )

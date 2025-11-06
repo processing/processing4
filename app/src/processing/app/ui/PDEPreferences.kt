@@ -38,7 +38,8 @@ fun show() {
         PDESwingWindow(
             titleKey = "preferences",
             fullWindowContent = true,
-            size = Dimension(850, 600)
+            size = Dimension(850, 600),
+            minSize = Dimension(700, 500),
         ) {
             PDETheme {
                 preferences()
@@ -194,8 +195,10 @@ class PDEPreferences {
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
+                        Spacer(modifier = Modifier.width(96.dp))
                         SearchBar(
-                            modifier = Modifier,
+                            modifier = Modifier
+                                .widthIn(max = 250.dp),
                             inputField = {
                                 SearchBarDefaults.InputField(
                                     query = preferencesQuery,
