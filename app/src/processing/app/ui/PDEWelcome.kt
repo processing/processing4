@@ -141,20 +141,6 @@ fun PDEWelcome(base: Base? = null) {
                     TextButton(
                         onClick = {
                             base?.let{
-                                base.showExamplesFrame()
-                            } ?: noBaseWarning()
-                        },
-                        colors = colors,
-                        modifier = medModifier,
-                        shape = shape
-                    ) {
-                        Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
-                        Spacer(Modifier.width(12.dp))
-                        Text(locale["welcome.actions.examples"] )
-                    }
-                    TextButton(
-                        onClick = {
-                            base?.let{
                                 base.showSketchbookFrame()
                             } ?: noBaseWarning()
                         },
@@ -164,7 +150,21 @@ fun PDEWelcome(base: Base? = null) {
                     ) {
                         Icon(Icons.Outlined.FolderOpen, contentDescription = "")
                         Spacer(Modifier.width(12.dp))
-                        Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
+                        Text(locale["welcome.actions.sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
+                    }
+                    TextButton(
+                        onClick = {
+                            base?.let{
+                                base.showExamplesFrame()
+                            } ?: noBaseWarning()
+                        },
+                        colors = colors,
+                        modifier = medModifier,
+                        shape = shape
+                    ) {
+                        Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
+                        Spacer(Modifier.width(12.dp))
+                        Text(locale["welcome.actions.examples"])
                     }
                 }
             }
