@@ -30,6 +30,11 @@ We understand that contributing to open source can be intimidating, but mistakes
 
 While we assume good intentions, and will give everyone a chance to learn, we have zero tolerance for repeated harassment, harmful behavior, or toxicity of any kind. Please read our [Code of Conduct](https://github.com/processing/processing4?tab=coc-ov-file) and join us in creating a safe and supportive environment through your words and actions.
 
+## AI Usage Policy
+This project does *not* accept fully AI-generated contributions. AI tools may be used assistively only. As a contributor, you should be able to understand and take responsibility for changes you make to the codebase.
+
+More details can be found in our [AI Usage Policy](./AI_USAGE_POLICY.md) and [AGENTS.md](./AGENTS.md).
+
 ## Building Processing
 
 Building Processing locally on your machine will let you troubleshoot and make sure your contributions work as intended before submitting them to this repository. It also gives you the flexibility to experiment and learn more about how Processing is structured.
