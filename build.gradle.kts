@@ -29,10 +29,3 @@ tasks {
         }
     }
 }
-
-tasks.register("visualTests") {
-    description = "Run visual regression tests"
-    dependsOn(":visual-testing:runVisualTests")
-}
-
-layout.buildDirectory = file(".build")
