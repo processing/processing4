@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 renderer = { path = "../renderer" }
+bevy = { workspace = true }
 
 [build-dependencies]
 cbindgen = "0.29"

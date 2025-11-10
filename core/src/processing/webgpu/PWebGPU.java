@@ -2,10 +2,12 @@ package processing.webgpu;
 
 import processing.core.NativeLibrary;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 import static java.lang.foreign.MemorySegment.NULL;
 import static processing.ffi.processing_h.*;
+import processing.ffi.Color;
 
 /**
  * PWebGPU provides the native interface layer for libProcessing's WebGPU support.
@@ -48,6 +50,16 @@ public class PWebGPU {
     }
 
     /**
+     * Destroys a WebGPU surface.
+     *
+     * @param windowId The window ID returned from createSurface
+     */
+    public static void destroySurface(long windowId) {
+        processing_destroy_surface(windowId);
+        checkError();
+    }
+
+    /**
      * Updates a window's size.
      *
      * @param windowId The window ID returned from createSurface
@@ -55,7 +67,7 @@ public class PWebGPU {
      * @param height New physical window height in pixels
      */
     public static void windowResized(long windowId, int width, int height) {
-        processing_window_resized(windowId, width, height);
+        processing_resize_surface(windowId, width, height);
         checkError();
     }
 
@@ -73,6 +85,20 @@ public class PWebGPU {
     public static void exit() {
         processing_exit((byte) 0);
         checkError();
+    }
+
+    public static void backgroundColor(long windowId, float r, float g, float b, float a) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = Color.allocate(arena);
+
+            Color.r(color, r);
+            Color.g(color, g);
+            Color.b(color, b);
+            Color.a(color, a);
+
+            processing_background_color(windowId, color);
+            checkError();
+        }
     }
 
     /**
