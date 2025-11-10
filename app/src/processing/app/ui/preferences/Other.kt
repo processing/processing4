@@ -2,7 +2,7 @@ package processing.app.ui.preferences
 
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
@@ -22,13 +22,12 @@ class Other {
         val other = PDEPreferencePane(
             nameKey = "preferences.pane.other",
             icon = {
-                Icon(Icons.Default.Science, contentDescription = "Other Preferences")
+                Icon(Icons.Default.Lightbulb, contentDescription = "Other Preferences")
             },
             after = sketches
         )
 
         fun register(panes: PDEPreferencePanes) {
-            // TODO: Move to individual preferences
             PDEPreferences.register(
                 PDEPreference(
                     key = "preferences.show_other",

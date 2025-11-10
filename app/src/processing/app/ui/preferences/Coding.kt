@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Code
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -21,7 +21,7 @@ class Coding {
     companion object {
         val coding = PDEPreferencePane(
             nameKey = "preferences.pane.editor",
-            icon = { Icon(Icons.Default.EditNote, contentDescription = null) },
+            icon = { Icon(Icons.Default.Code, contentDescription = null) },
             after = interfaceAndFonts,
         )
 

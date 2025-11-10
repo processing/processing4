@@ -6,11 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Monitor
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import processing.app.LocalPreferences
 import processing.app.ui.PDEPreference
@@ -24,7 +26,7 @@ class Sketches {
     companion object {
         val sketches = PDEPreferencePane(
             nameKey = "preferences.pane.sketches",
-            icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) },
+            icon = { Icon(Select_window, contentDescription = null) },
             after = coding,
         )
 
@@ -157,5 +159,61 @@ class Sketches {
                 )
             )
         }
+        val Select_window: ImageVector
+            get() {
+                if (_Select_window != null) return _Select_window!!
+
+                _Select_window = ImageVector.Builder(
+                    name = "Select_window",
+                    defaultWidth = 24.dp,
+                    defaultHeight = 24.dp,
+                    viewportWidth = 960f,
+                    viewportHeight = 960f
+                ).apply {
+                    path(
+                        fill = SolidColor(Color(0xFF000000))
+                    ) {
+                        moveTo(160f, 880f)
+                        quadToRelative(-33f, 0f, -56.5f, -23.5f)
+                        reflectiveQuadTo(80f, 800f)
+                        verticalLineToRelative(-360f)
+                        quadToRelative(0f, -33f, 23.5f, -56.5f)
+                        reflectiveQuadTo(160f, 360f)
+                        horizontalLineToRelative(80f)
+                        verticalLineToRelative(-200f)
+                        quadToRelative(0f, -33f, 23.5f, -56.5f)
+                        reflectiveQuadTo(320f, 80f)
+                        horizontalLineToRelative(480f)
+                        quadToRelative(33f, 0f, 56.5f, 23.5f)
+                        reflectiveQuadTo(880f, 160f)
+                        verticalLineToRelative(360f)
+                        quadToRelative(0f, 33f, -23.5f, 56.5f)
+                        reflectiveQuadTo(800f, 600f)
+                        horizontalLineToRelative(-80f)
+                        verticalLineToRelative(200f)
+                        quadToRelative(0f, 33f, -23.5f, 56.5f)
+                        reflectiveQuadTo(640f, 880f)
+                        close()
+                        moveToRelative(0f, -80f)
+                        horizontalLineToRelative(480f)
+                        verticalLineToRelative(-280f)
+                        horizontalLineTo(160f)
+                        close()
+                        moveToRelative(560f, -280f)
+                        horizontalLineToRelative(80f)
+                        verticalLineToRelative(-280f)
+                        horizontalLineTo(320f)
+                        verticalLineToRelative(120f)
+                        horizontalLineToRelative(320f)
+                        quadToRelative(33f, 0f, 56.5f, 23.5f)
+                        reflectiveQuadTo(720f, 440f)
+                        close()
+                    }
+                }.build()
+
+                return _Select_window!!
+            }
+
+        private var _Select_window: ImageVector? = null
     }
 }

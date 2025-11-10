@@ -1,6 +1,8 @@
 package processing.app.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutBounce
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -15,23 +17,27 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import processing.app.LocalPreferences
+import processing.app.ReactiveProperties
 import processing.app.ui.PDEPreferences.Companion.preferences
 import processing.app.ui.preferences.*
-import processing.app.ui.theme.LocalLocale
-import processing.app.ui.theme.PDESwingWindow
-import processing.app.ui.theme.PDETheme
+import processing.app.ui.theme.*
 import java.awt.Dimension
+import java.awt.event.WindowEvent
+import java.awt.event.WindowListener
 import javax.swing.SwingUtilities
+import javax.swing.WindowConstants
+
 
 fun show() {
     SwingUtilities.invokeLater {
@@ -171,128 +177,221 @@ class PDEPreferences {
                     onTertiaryContainer = originalScheme.onPrimaryContainer,
                 )
             ) {
-                Column {
-                    /**
-                     * Header
-                     */
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                        ) {
-                            Text(
-                                text = locale["preferences"],
-                                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
-                            )
-                            Text(
-                                text = locale["preferences.description"],
-                                style = MaterialTheme.typography.bodySmall,
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(96.dp))
-                        SearchBar(
-                            modifier = Modifier
-                                .widthIn(max = 250.dp),
-                            inputField = {
-                                SearchBarDefaults.InputField(
-                                    query = preferencesQuery,
-                                    onQueryChange = {
-                                        preferencesQuery = it
-                                    },
-                                    onSearch = {
-
-                                    },
-                                    trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                    expanded = false,
-                                    onExpandedChange = { },
-                                    placeholder = { Text("Search") }
-                                )
-                            },
-                            expanded = false,
-                            onExpandedChange = {},
-                        ) {
-
-                        }
-                    }
-                    HorizontalDivider()
-                    Row(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
+                CapturePreferences {
+                    Column {
                         /**
-                         * Sidebar
+                         * Header
                          */
-                        Column(
+                        Row(
                             modifier = Modifier
-                                .width(IntrinsicSize.Min)
-                                .padding(30.dp)
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .fillMaxWidth()
+                                .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
                         ) {
+                            Column(
+                                modifier = Modifier
+                                    .weight(1f)
+                            ) {
+                                Text(
+                                    text = locale["preferences"],
+                                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
+                                )
+                                Text(
+                                    text = locale["preferences.description"],
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(96.dp))
+                            SearchBar(
+                                modifier = Modifier
+                                    .widthIn(max = 250.dp),
+                                inputField = {
+                                    SearchBarDefaults.InputField(
+                                        query = preferencesQuery,
+                                        onQueryChange = {
+                                            preferencesQuery = it
+                                        },
+                                        onSearch = {
 
-                            for (pane in panesSorted) {
-                                val shape = RoundedCornerShape(12.dp)
-                                val isSelected = selected == pane
-                                TextButton(
-                                    onClick = {
-                                        selected = pane
-                                    },
-                                    enabled = panesQuierried[pane].isNotEmpty(),
-                                    colors = if (isSelected) ButtonDefaults.buttonColors() else ButtonDefaults.textButtonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    ),
-                                    shape = shape
+                                        },
+                                        trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                                        expanded = false,
+                                        onExpandedChange = { },
+                                        placeholder = { Text("Search") }
+                                    )
+                                },
+                                expanded = false,
+                                onExpandedChange = {},
+                            ) {
+
+                            }
+                        }
+                        HorizontalDivider()
+                        Box {
+                            Row(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                /**
+                                 * Sidebar
+                                 */
+                                Column(
+                                    modifier = Modifier
+                                        .width(IntrinsicSize.Min)
+                                        .padding(30.dp)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
                                 ) {
-                                    Row(
+
+                                    for (pane in panesSorted) {
+                                        val shape = RoundedCornerShape(12.dp)
+                                        val isSelected = selected == pane
+                                        TextButton(
+                                            onClick = {
+                                                selected = pane
+                                            },
+                                            enabled = panesQuierried[pane].isNotEmpty(),
+                                            colors = if (isSelected) ButtonDefaults.buttonColors() else ButtonDefaults.textButtonColors(
+                                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            ),
+                                            shape = shape
+                                        ) {
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                pane.icon()
+                                                Text(locale[pane.nameKey])
+                                            }
+                                        }
+                                    }
+                                }
+
+                                /**
+                                 * Content Area
+                                 */
+                                AnimatedContent(
+                                    targetState = selected,
+                                    transitionSpec = {
+                                        fadeIn(
+                                            animationSpec = tween(300)
+                                        ) togetherWith fadeOut(
+                                            animationSpec = tween(300)
+                                        )
+                                    }
+                                ) { selected ->
+                                    if (selected == null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(30.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = locale["preferences.no_results"],
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
+                                        return@AnimatedContent
+                                    }
+
+                                    val groups = panesQuierried[selected] ?: emptyList()
+                                    selected.showPane(groups)
+                                }
+                            }
+                            /**
+                             * Unconfirmed changes banner
+                             */
+                            Column(
+                                modifier = Modifier.align(Alignment.BottomEnd)
+                            ) {
+                                val modifiable = LocalModifiablePreferences.current
+                                val wiggle = remember { Animatable(0f) }
+                                if (modifiable.lastCloseAttempt != null) {
+                                    LaunchedEffect(modifiable.lastCloseAttempt) {
+                                        wiggle.animateTo(
+                                            targetValue = 50f,
+                                            animationSpec = tween(100, easing = EaseOutBounce)
+                                        )
+                                        wiggle.animateTo(
+                                            targetValue = -50f,
+                                            animationSpec = tween(100, easing = EaseOutBounce)
+                                        )
+                                        wiggle.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = tween(300, easing = EaseOutBounce)
+                                        )
+                                    }
+                                }
+                                AnimatedVisibility(
+                                    visible = modifiable.isModified,
+                                    enter = fadeIn(
+                                        animationSpec = tween(300)
+                                    ) + slideInVertically(
+                                        initialOffsetY = { it },
+                                        animationSpec = tween(500, easing = EaseOutBounce),
+                                    ),
+                                    exit = fadeOut(
+                                        animationSpec = tween(300)
+                                    ) + slideOutVertically(
+                                        targetOffsetY = { it },
+                                        animationSpec = tween(300),
+                                    ),
+                                    modifier = Modifier
+                                        .graphicsLayer {
+                                            translationX = wiggle.value
+                                        }
+                                ) {
+                                    val shape = RoundedCornerShape(8.dp)
+                                    Card(
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                                            contentColor = MaterialTheme.colorScheme.onSurface,
+                                        ),
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            .padding(24.dp)
+                                            .border(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.outlineVariant,
+                                                shape
+                                            ),
                                     ) {
-                                        pane.icon()
-                                        Text(locale[pane.nameKey])
+                                        Row(
+                                            modifier = Modifier
+                                                .padding(16.dp, 8.dp)
+                                                .fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(locale["preferences.unconfirmed_changes"])
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                            ) {
+                                                TextButton(
+                                                    onClick = {
+                                                        modifiable.reset()
+                                                    },
+                                                    shape = shape
+                                                ) {
+                                                    Text(locale["preferences.reset_changes"])
+                                                }
+                                                Button(
+                                                    onClick = {
+                                                        modifiable.apply()
+                                                    },
+                                                    shape = shape
+                                                ) {
+                                                    Text(locale["preferences.apply_changes"])
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-
-                        /**
-                         * Content Area
-                         */
-                        AnimatedContent(
-                            targetState = selected,
-                            transitionSpec = {
-                                fadeIn(
-                                    animationSpec = tween(300)
-                                ) togetherWith fadeOut(
-                                    animationSpec = tween(300)
-                                )
-                            }
-                        ) { selected ->
-                            if (selected == null) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(30.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = locale["preferences.no_results"],
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                                return@AnimatedContent
-                            }
-
-                            val groups = panesQuierried[selected] ?: emptyList()
-                            selected.showPane(groups)
                         }
                     }
                 }
@@ -305,26 +404,121 @@ class PDEPreferences {
         @JvmStatic
         fun main(args: Array<String>) {
             application {
-                Window(onCloseRequest = ::exitApplication) {
-                    remember {
-                        window.rootPane.putClientProperty("apple.awt.fullWindowContent", true)
-                        window.rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
-                    }
+                PDEComposeWindow(
+                    titleKey = "preferences",
+                    fullWindowContent = true,
+                    size = DpSize(850.dp, 600.dp),
+                    minSize = DpSize(850.dp, 600.dp),
+                ) {
                     PDETheme(darkTheme = true) {
                         preferences()
                     }
                 }
-                Window(onCloseRequest = ::exitApplication) {
-                    remember {
-                        window.rootPane.putClientProperty("apple.awt.fullWindowContent", true)
-                        window.rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
-                    }
+                PDEComposeWindow(
+                    titleKey = "preferences",
+                    fullWindowContent = true,
+                    size = DpSize(850.dp, 600.dp),
+                    minSize = DpSize(850.dp, 600.dp),
+                ) {
                     PDETheme(darkTheme = false) {
                         preferences()
                     }
                 }
             }
         }
+    }
+}
+
+
+private data class ModifiablePreference(
+    val lastCloseAttempt: Long? = null,
+    val isModified: Boolean,
+    val apply: () -> Unit,
+    val reset: () -> Unit,
+)
+
+private val LocalModifiablePreferences =
+    compositionLocalOf { ModifiablePreference(null, false, { }, {}) }
+
+/**
+ * Composable function that provides a modifiable copy of the current preferences.
+ * This allows for temporary changes to preferences that can be reset or applied later.
+ *
+ * @param content The composable content that will have access to the modifiable preferences.
+ */
+@Composable
+private fun CapturePreferences(content: @Composable () -> Unit) {
+    val prefs = LocalPreferences.current
+
+    var lastCloseAttempt by remember { mutableStateOf<Long?>(null) }
+    val modified = remember {
+        ReactiveProperties().apply {
+            prefs.entries.forEach { (key, value) ->
+                setProperty(key as String, value as String)
+            }
+        }
+    }
+    val isModified = remember(
+        prefs,
+        // TODO: Learn how to modify preferences so listening to the object is enough
+        prefs.snapshotStateMap.toMap(),
+        modified,
+        modified.snapshotStateMap.toMap(),
+    ) {
+        prefs.entries.any { (key, value) ->
+            modified[key] != value
+        }
+    }
+    if (isModified) {
+        val window = LocalWindow.current
+        DisposableEffect(window) {
+            val operation = window.defaultCloseOperation
+            window.defaultCloseOperation = WindowConstants.DO_NOTHING_ON_CLOSE
+            window.rootPane.putClientProperty("Window.documentModified", true);
+            val listener = object : WindowListener {
+                override fun windowOpened(e: WindowEvent?) {}
+                override fun windowClosing(e: WindowEvent?) {
+                    lastCloseAttempt = System.currentTimeMillis()
+                }
+
+                override fun windowClosed(e: WindowEvent?) {}
+                override fun windowIconified(e: WindowEvent?) {}
+                override fun windowDeiconified(e: WindowEvent?) {}
+                override fun windowActivated(e: WindowEvent?) {}
+                override fun windowDeactivated(e: WindowEvent?) {}
+
+            }
+            window.addWindowListener(listener)
+            onDispose {
+                window.removeWindowListener(listener)
+                window.defaultCloseOperation = operation
+                window.rootPane.putClientProperty("Window.documentModified", false);
+            }
+        }
+    }
+
+    val apply = {
+        modified.entries.forEach { (key, value) ->
+            prefs.setProperty(key as String, (value ?: "") as String)
+        }
+    }
+    val reset = {
+        modified.entries.forEach { (key, value) ->
+            modified.setProperty(key as String, prefs[key] ?: "")
+        }
+    }
+    val state = ModifiablePreference(
+        isModified = isModified,
+        apply = apply,
+        lastCloseAttempt = lastCloseAttempt,
+        reset = reset
+    )
+
+    CompositionLocalProvider(
+        LocalPreferences provides modified,
+        LocalModifiablePreferences provides state
+    ) {
+        content()
     }
 }
 

@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.TextIncrease
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -26,7 +26,7 @@ class Interface {
         val interfaceAndFonts = PDEPreferencePane(
             nameKey = "preferences.pane.interface",
             icon = {
-                Icon(Icons.Default.TextIncrease, contentDescription = "Interface")
+                Icon(Icons.Default.Brush, contentDescription = "Interface")
             },
             after = general
         )
