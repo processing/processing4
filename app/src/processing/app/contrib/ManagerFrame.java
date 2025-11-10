@@ -61,27 +61,15 @@ public class ManagerFrame {
   public ManagerFrame(Base base) {
     this.base = base;
 
-    // TODO Optimize these inits... unfortunately it needs to run on the EDT,
-    //      and Swing is a piece of s*t, so it's gonna be slow with lots of contribs.
-    //      In particular, load everything and then fire the update events.
-    //      Also, don't pull all the colors over and over again.
-//    long t1 = System.currentTimeMillis();
     librariesTab = new ContributionTab(this, ContributionType.LIBRARY);
-//    long t2 = System.currentTimeMillis();
     modesTab = new ContributionTab(this, ContributionType.MODE);
-//    long t3 = System.currentTimeMillis();
     toolsTab = new ContributionTab(this, ContributionType.TOOL);
-//    long t4 = System.currentTimeMillis();
     examplesTab = new ContributionTab(this, ContributionType.EXAMPLES);
-//    long t5 = System.currentTimeMillis();
     updatesTab = new UpdateContributionTab(this);
-//    long t6 = System.currentTimeMillis();
 
     tabList = new ContributionTab[] {
       librariesTab, modesTab, toolsTab, examplesTab, updatesTab
     };
-
-//    System.out.println("ManagerFrame.<init> " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) + " " + (t5-t4) + " " + (t6-t5));
   }
 
 

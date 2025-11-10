@@ -11,18 +11,18 @@ repositories {
     maven { url = uri("https://jogamp.org/deployment/maven") }
 }
 
-sourceSets{
-    main{
-        java{
+sourceSets {
+    main {
+        java {
             srcDirs("src")
         }
-        resources{
+        resources {
             srcDirs("src")
             exclude("**/*.java")
         }
     }
-    test{
-        java{
+    test {
+        java {
             srcDirs("test")
         }
     }
@@ -33,13 +33,32 @@ dependencies {
     implementation(libs.gluegen)
 
     testImplementation(libs.junit)
+    testImplementation(libs.junitJupiter)
+    testImplementation(libs.junitJupiterParams)
+    testImplementation(libs.junitPlatformSuite)
+    testImplementation(libs.assertjCore)
 }
 
-mavenPublishing{
+// Simple JUnit 5 configuration - let JUnit handle everything
+tasks.test {
+    useJUnitPlatform()  // JUnit discovers and runs all tests
+
+    // Only configuration, not orchestration
+    outputs.upToDateWhen { false }
+    maxParallelForks = 1
+
+    testLogging {
+        events("passed", "skipped", "failed", "started")
+        showStandardStreams = true
+    }
+}
+
+mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+
     signAllPublications()
 
-    pom{
+    pom {
         name.set("Processing Core")
         description.set("Processing Core")
         url.set("https://processing.org")
@@ -59,7 +78,7 @@ mavenPublishing{
                 name.set("Ben Fry")
             }
         }
-        scm{
+        scm {
             url.set("https://github.com/processing/processing4")
             connection.set("scm:git:git://github.com/processing/processing4.git")
             developerConnection.set("scm:git:ssh://git@github.com/processing/processing4.git")
@@ -67,13 +86,9 @@ mavenPublishing{
     }
 }
 
-
-tasks.test {
-    useJUnit()
-}
 tasks.withType<Jar> {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-tasks.compileJava{
+tasks.compileJava {
     options.encoding = "UTF-8"
 }
