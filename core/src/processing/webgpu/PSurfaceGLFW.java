@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWNativeCocoa;
+import org.lwjgl.glfw.GLFWNativeWin32;
 import org.lwjgl.glfw.GLFWWindowPosCallback;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
@@ -120,6 +121,8 @@ public class PSurfaceGLFW implements PSurface {
     public long getWindowHandle() {
         if (Platform.get() == Platform.MACOSX) {
             return GLFWNativeCocoa.glfwGetCocoaWindow(window);
+        } else if (Platform.get() == Platform.WINDOWS) {
+            return GLFWNativeWin32.glfwGetWin32Window(window);
         } else {
             throw new UnsupportedOperationException("Window handle retrieval not implemented for this platform");
         }

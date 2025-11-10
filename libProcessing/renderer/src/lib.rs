@@ -131,8 +131,41 @@ pub fn create_surface(
     };
 
     #[cfg(target_os = "windows")]
-    let (raw_window_handle, raw_display_handle) =
-        { todo!("implemnt windows raw window handle conversion") };
+    let (raw_window_handle, raw_display_handle) = {
+        use raw_window_handle::{Win32WindowHandle, WindowsDisplayHandle};
+        use std::num::NonZeroIsize;
+        use windows::Win32::Foundation::HINSTANCE;
+        use windows::Win32::System::LibraryLoader::GetModuleHandleW;
+
+        if window_handle == 0 {
+            return Err(error::ProcessingError::InvalidWindowHandle);
+        }
+
+        // HWND is isize, so cast it
+        let hwnd_isize = window_handle as isize;
+        let hwnd_nonzero = match NonZeroIsize::new(hwnd_isize) {
+            Some(nz) => nz,
+            None => return Err(error::ProcessingError::InvalidWindowHandle),
+        };
+
+        let mut window = Win32WindowHandle::new(hwnd_nonzero);
+
+        // VK_KHR_win32_surface requires hinstance *and* hwnd
+        // SAFETY: GetModuleHandleW(NULL) is safe
+        let hinstance = unsafe { GetModuleHandleW(None) }
+            .map_err(|_| error::ProcessingError::InvalidWindowHandle)?;
+
+        let hinstance_nonzero = NonZeroIsize::new(hinstance.0 as isize)
+            .ok_or(error::ProcessingError::InvalidWindowHandle)?;
+        window.hinstance = Some(hinstance_nonzero);
+
+        let display = WindowsDisplayHandle::new();
+
+        (
+            RawWindowHandle::Win32(window),
+            RawDisplayHandle::Windows(display),
+        )
+    };
 
     #[cfg(target_os = "linux")]
     let (raw_window_handle, raw_display_handle) =
