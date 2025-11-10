@@ -333,7 +333,7 @@ class PDEPreferences {
                                         animationSpec = tween(300)
                                     ) + slideInVertically(
                                         initialOffsetY = { it },
-                                        animationSpec = tween(500, easing = EaseOutBounce),
+                                        animationSpec = tween(300),
                                     ),
                                     exit = fadeOut(
                                         animationSpec = tween(300)
