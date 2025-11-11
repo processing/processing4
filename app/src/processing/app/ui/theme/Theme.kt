@@ -1,61 +1,24 @@
 package processing.app.ui.theme
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.RangeSlider
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TriStateCheckbox
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import darkScheme
+import lightScheme
 import processing.app.PreferencesProvider
 
 /**
@@ -90,13 +53,21 @@ fun PDETheme(
     PreferencesProvider {
         LocaleProvider {
             MaterialTheme(
-                colorScheme = if(darkTheme) PDEDarkColor else PDELightColor,
+                colorScheme = if(darkTheme) darkScheme else lightScheme,
                 typography = PDETypography
             ){
-                Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+                Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {
                     CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.onBackground,
-                        LocalDensity provides Density(1.25f, 1.25f),
+                        LocalScrollbarStyle provides ScrollbarStyle(
+                            minimalHeight = 16.dp,
+                            thickness = 8.dp,
+                            shape = MaterialTheme.shapes.extraSmall,
+                            hoverDurationMillis = 300,
+                            unhoverColor = MaterialTheme.colorScheme.outlineVariant,
+                            hoverColor = MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        LocalContentColor provides MaterialTheme.colorScheme.onSurface,
+//                        LocalDensity provides Density(1.25f, 1.25f),
                         content = content
                     )
                 }
@@ -137,66 +108,64 @@ fun main() {
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
                         ComponentPreview("Colors") {
+                            val colors = listOf<Triple<String, Color, Color>>(
+                                Triple("Primary", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary),
+                                Triple("Secondary", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
+                                Triple("Tertiary", MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.onTertiary),
+                                Triple("Primary Container", MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer),
+                                Triple("Secondary Container", MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer),
+                                Triple("Tertiary Container", MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer),
+                                Triple("Error Container", MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.onErrorContainer),
+                                Triple("Background", MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.onBackground),
+                                Triple("Surface", MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.onSurface),
+                                Triple("Surface Variant", MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant),
+                                Triple("Error", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError),
+
+                                Triple("Surface Lowest", MaterialTheme.colorScheme.surfaceContainerLowest, MaterialTheme.colorScheme.onSurface),
+                                Triple("Surface Low", MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.colorScheme.onSurface),
+                                Triple("Surface", MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.onSurface),
+                                Triple("Surface High", MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurface),
+                                Triple("Surface Highest", MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
+                            )
                             Column {
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                                        onClick = {}) {
-                                        Text("Primary", color = MaterialTheme.colorScheme.onPrimary)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
-                                        onClick = {}) {
-                                        Text("Secondary", color = MaterialTheme.colorScheme.onSecondary)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary),
-                                        onClick = {}) {
-                                        Text("Tertiary", color = MaterialTheme.colorScheme.onTertiary)
+                                    val section = colors.subList(0,3)
+                                    for((name, color, onColor) in section){
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(containerColor = color),
+                                            onClick = {}) {
+                                            Text(name, color = onColor)
+                                            }
                                     }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                                        onClick = {}) {
-                                        Text("Primary Container", color = MaterialTheme.colorScheme.onPrimaryContainer)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-                                        onClick = {}) {
-                                        Text("Secondary Container", color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
-                                        onClick = {}) {
-                                        Text("Tertiary Container", color = MaterialTheme.colorScheme.onTertiaryContainer)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.errorContainer),
-                                        onClick = {}) {
-                                        Text("Error Container", color = MaterialTheme.colorScheme.onErrorContainer)
+                                    val section = colors.subList(3,7)
+                                    for((name, color, onColor) in section){
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(containerColor = color),
+                                            onClick = {}) {
+                                            Text(name, color = onColor)
+                                        }
                                     }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.background),
-                                        onClick = {}) {
-                                        Text("Background", color = MaterialTheme.colorScheme.onBackground)
+                                    val section = colors.subList(7,11)
+                                    for((name, color, onColor) in section){
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(containerColor = color),
+                                            onClick = {}) {
+                                            Text(name, color = onColor)
+                                        }
                                     }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
-                                        onClick = {}) {
-                                        Text("Surface", color = MaterialTheme.colorScheme.onSurface)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                        onClick = {}) {
-                                        Text("Surface Variant", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                                        onClick = {}) {
-                                        Text("Error", color = MaterialTheme.colorScheme.onError)
+                                }
+                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    val section = colors.subList(11, 16)
+                                    for ((name, color, onColor) in section) {
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(containerColor = color),
+                                            onClick = {}) {
+                                            Text(name, color = onColor)
+                                        }
                                     }
                                 }
                             }
@@ -337,9 +306,17 @@ fun main() {
 
                         }
 
+                        ComponentPreview("Card") {
+                            Card{
+                                Text("Hello, Tabs!", modifier = Modifier.padding(20.dp))
+                            }
+                        }
+
                         ComponentPreview("Scrollable View") {
 
                         }
+
+
 
                         ComponentPreview("Tabs") {
 

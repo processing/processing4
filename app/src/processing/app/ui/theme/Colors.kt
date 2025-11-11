@@ -33,53 +33,9 @@ class ProcessingColors{
         val foundationDark = Color(0xFF5501a4)
 
         val downloadInactive = Color(0xFF8890B3)
-        val downloadBackgroundActive = Color(0x14508BFF)
+        val downloadBackgroundActive = Color(0xFF14508B)
     }
 }
-
-@Deprecated("Use PDE3LightColor instead")
-val PDE2LightColors = Colors(
-    primary = ProcessingColors.blue,
-    primaryVariant = ProcessingColors.lightBlue,
-    onPrimary = ProcessingColors.white,
-
-    secondary = ProcessingColors.deepBlue,
-    secondaryVariant = ProcessingColors.darkBlue,
-    onSecondary = ProcessingColors.white,
-
-    background = ProcessingColors.white,
-    onBackground = ProcessingColors.darkBlue,
-
-    surface = ProcessingColors.lightGray,
-    onSurface = ProcessingColors.darkerGray,
-
-    error = ProcessingColors.error,
-    onError = ProcessingColors.white,
-
-    isLight = true,
-)
-
-@Deprecated("Use PDE3DarkColor instead")
-val PDE2DarkColors = Colors(
-    primary = ProcessingColors.deepBlue,
-    primaryVariant = ProcessingColors.darkBlue,
-    onPrimary = ProcessingColors.white,
-
-    secondary = ProcessingColors.lightBlue,
-    secondaryVariant = ProcessingColors.blue,
-    onSecondary = ProcessingColors.white,
-
-    background = ProcessingColors.veryDarkGray,
-    onBackground = ProcessingColors.white,
-
-    surface = ProcessingColors.darkerGray,
-    onSurface = ProcessingColors.lightGray,
-
-    error = ProcessingColors.error,
-    onError = ProcessingColors.white,
-
-    isLight = false,
-)
 
 val PDELightColor = lightColorScheme(
     primary =  ProcessingColors.blue,

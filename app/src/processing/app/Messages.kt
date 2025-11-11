@@ -18,13 +18,27 @@
 */
 package processing.app
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import com.formdev.flatlaf.FlatLightLaf
 import processing.app.ui.Toolkit
+import processing.app.ui.theme.PDETheme
 import java.awt.EventQueue
 import java.awt.Frame
 import java.io.PrintWriter
 import java.io.StringWriter
 import javax.swing.JFrame
 import javax.swing.JOptionPane
+import javax.swing.UIManager
+
 
 class Messages {
     companion object {
@@ -269,6 +283,37 @@ class Messages {
             }
         }
     }
+}
+fun main(){
+    val types = mapOf(
+        "message" to { Messages.showMessage("Test Title", "This is a test message.") },
+        "warning" to { Messages.showWarning("Test Warning", "This is a test warning.", Exception("dfdsfjk")) },
+        "trace" to { Messages.showTrace("Test Trace", "This is a test trace.", Exception("Test Exception"), false) },
+        "tiered_warning" to { Messages.showWarningTiered("Test Tiered Warning", "Primary message", "Secondary message", null) },
+        "yes_no" to { Messages.showYesNoQuestion(null, "Test Yes/No", "Do you want to continue?", "Choose yes or no.") },
+        "custom_question" to { Messages.showCustomQuestion(null, "Test Custom Question", "Choose an option:", "Select one of the options below.", 1, "Option 1", "Option 2", "Option 3") },
+        "error" to { Messages.showError("Test Error", "This is a test error.", null) },
+    )
+    Platform.init()
+    UIManager.setLookAndFeel(FlatLightLaf())
+    application {
+        val state = rememberWindowState(
+            size = DpSize(500.dp, 300.dp)
+        )
+        Window(state = state, onCloseRequest = ::exitApplication, title = "Test Messages") {
+            PDETheme {
+                Column {
+                    for ((type, action) in types) {
+                        Button(onClick = { action() }, modifier = Modifier.padding(8.dp)) {
+                            Text("Show $type dialog")
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
 }
 
 // Helper functions to give the base classes a color

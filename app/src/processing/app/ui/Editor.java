@@ -23,38 +23,42 @@
 
 package processing.app.ui;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.awt.print.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
+import com.formdev.flatlaf.util.SystemInfo;
+import processing.app.*;
+import processing.app.Formatter;
+import processing.app.contrib.ContributionManager;
+import processing.app.laf.PdeMenuItemUI;
+import processing.app.syntax.*;
+import processing.core.PApplet;
+import processing.utils.SketchException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import javax.swing.undo.*;
-
-import com.formdev.flatlaf.util.SystemInfo;
-import processing.app.*;
-import processing.utils.SketchException;
-import processing.app.contrib.ContributionManager;
-import processing.app.laf.PdeMenuItemUI;
-import processing.app.syntax.*;
-import processing.core.*;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.Timer;
+import java.util.stream.Collectors;
 
 
 /**
@@ -207,6 +211,10 @@ public abstract class Editor extends JFrame implements RunnerListener {
       spacer.setAlignmentX(Component.LEFT_ALIGNMENT);
       box.add(spacer);
     }
+      if (Platform.isLinux()) {
+          setUndecorated(true);
+          getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+      }
 
     rebuildModePopup();
     toolbar = createToolbar();
