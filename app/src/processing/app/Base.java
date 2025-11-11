@@ -23,17 +23,6 @@
 
 package processing.app;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
-import java.util.Map.Entry;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -41,8 +30,21 @@ import processing.app.contrib.*;
 import processing.app.tools.Tool;
 import processing.app.ui.*;
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
 import processing.data.StringList;
+
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * The base class for the main processing application.
@@ -328,13 +330,7 @@ public class Base {
     // Needs to be shown after the first editor window opens, so that it
     // shows up on top, and doesn't prevent an editor window from opening.
     if (Preferences.getBoolean("welcome.four.show")) {
-      try {
-        new Welcome(base);
-      } catch (IOException e) {
-        Messages.showTrace("Unwelcoming",
-          "Please report this error to\n" +
-            "https://github.com/processing/processing4/issues", e, false);
-      }
+        PDEWelcomeKt.showWelcomeScreen(base);
     }
   }
 
@@ -598,7 +594,7 @@ public class Base {
     defaultFileMenu.add(item);
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.examples"), 'O');
-    item.addActionListener(e -> thinkDifferentExamples());
+    item.addActionListener(e -> showExamplesFrame());
     defaultFileMenu.add(item);
 
     return defaultFileMenu;
@@ -1874,7 +1870,7 @@ public class Base {
 //  }
 
 
-  public void thinkDifferentExamples() {
+  public void showExamplesFrame() {
     nextMode.showExamplesFrame();
   }
 
@@ -2180,10 +2176,10 @@ public class Base {
    * Show the Preferences window.
    */
   public void handlePrefs() {
-    if (preferencesFrame == null) {
-      preferencesFrame = new PreferencesFrame(this);
-    }
-    preferencesFrame.showFrame();
+      if (preferencesFrame == null) {
+          preferencesFrame = new PreferencesFrame(this);
+      }
+      preferencesFrame.showFrame();
   }
 
 

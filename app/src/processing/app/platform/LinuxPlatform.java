@@ -22,16 +22,13 @@
 
 package processing.app.platform;
 
-import java.io.File;
-import java.awt.Desktop;
-import java.awt.Toolkit;
-
 import processing.app.Base;
 import processing.app.Messages;
 import processing.app.Preferences;
 import processing.core.PApplet;
 
-import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 
 
 public class LinuxPlatform extends DefaultPlatform {
@@ -40,8 +37,6 @@ public class LinuxPlatform extends DefaultPlatform {
 
   public void initBase(Base base) {
     super.initBase(base);
-
-    JFrame.setDefaultLookAndFeelDecorated(true);
     System.setProperty("flatlaf.menuBarEmbedded", "true");
 
     // Set X11 WM_CLASS property which is used as the application
