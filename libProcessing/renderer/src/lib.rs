@@ -348,11 +348,11 @@ macro_rules! window_mut {
     };
 }
 
-pub fn processing_begin_draw(_window_entity: Entity) -> Result<()> {
+pub fn begin_draw(_window_entity: Entity) -> Result<()> {
     app_mut(|_app| Ok(()))
 }
 
-pub fn processing_flush(window_entity: Entity) -> Result<()> {
+pub fn flush(window_entity: Entity) -> Result<()> {
     app_mut(|app| {
         window_mut!(app, window_entity).insert(Flush);
         app.update();
@@ -364,7 +364,7 @@ pub fn processing_flush(window_entity: Entity) -> Result<()> {
     })
 }
 
-pub fn processing_end_draw(window_entity: Entity) -> Result<()> {
+pub fn end_draw(window_entity: Entity) -> Result<()> {
     // since we are ending the draw, set the camera to write to the output render target
     app_mut(|app| {
         camera_mut!(app, window_entity).output_mode = CameraOutputMode::Write {
@@ -375,7 +375,7 @@ pub fn processing_end_draw(window_entity: Entity) -> Result<()> {
     })?;
     // flush any remaining draw commands, this ensures that the frame is presented even if there
     // is no remaining draw commands
-    processing_flush(window_entity)?;
+    flush(window_entity)?;
     // reset to skipping output for the next frame
     app_mut(|app| {
         camera_mut!(app, window_entity).output_mode = CameraOutputMode::Skip;
