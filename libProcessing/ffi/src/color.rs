@@ -1,5 +1,6 @@
 /// A sRGB (?) color
 #[repr(C)]
+#[derive(Debug, Clone, Copy)]
 pub struct Color {
     pub r: f32,
     pub g: f32,

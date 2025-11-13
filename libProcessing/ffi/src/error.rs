@@ -1,7 +1,10 @@
+use std::{
+    cell::RefCell,
+    ffi::{CString, c_char},
+    panic,
+};
+
 use renderer::error::ProcessingError;
-use std::cell::RefCell;
-use std::ffi::{CString, c_char};
-use std::panic;
 
 thread_local! {
     static LAST_ERROR: RefCell<Option<CString>> = RefCell::new(None);

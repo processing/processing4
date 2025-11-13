@@ -44,38 +44,46 @@ public class PWebGPU {
      * @return Window ID to use for subsequent operations
      */
     public static long createSurface(long windowHandle, int width, int height, float scaleFactor) {
-        long windowId = processing_create_surface(windowHandle, width, height, scaleFactor);
+        long surfaceId = processing_create_surface(windowHandle, width, height, scaleFactor);
         checkError();
-        return windowId;
+        return surfaceId;
     }
 
     /**
      * Destroys a WebGPU surface.
      *
-     * @param windowId The window ID returned from createSurface
+     * @param surfaceId The window ID returned from createSurface
      */
-    public static void destroySurface(long windowId) {
-        processing_destroy_surface(windowId);
+    public static void destroySurface(long surfaceId) {
+        processing_destroy_surface(surfaceId);
         checkError();
     }
 
     /**
      * Updates a window's size.
      *
-     * @param windowId The window ID returned from createSurface
+     * @param surfaceId The window ID returned from createSurface
      * @param width New physical window width in pixels
      * @param height New physical window height in pixels
      */
-    public static void windowResized(long windowId, int width, int height) {
-        processing_resize_surface(windowId, width, height);
+    public static void windowResized(long surfaceId, int width, int height) {
+        processing_resize_surface(surfaceId, width, height);
         checkError();
     }
 
-    /**
-     * Updates the WebGPU subsystem. Should be called once per frame after all drawing is complete.
-     */
-    public static void update() {
-        processing_update();
+    
+    public static void beginDraw(long surfaceId) {
+        processing_begin_draw(surfaceId);
+        checkError();
+    }
+
+    public static void flush(long surfaceId) {
+        processing_flush(surfaceId);
+        checkError();
+    }
+
+    public static void endDraw(long surfaceId) {
+        processing_end_draw(surfaceId);
         checkError();
     }
 
@@ -87,7 +95,7 @@ public class PWebGPU {
         checkError();
     }
 
-    public static void backgroundColor(long windowId, float r, float g, float b, float a) {
+    public static void backgroundColor(long surfaceId, float r, float g, float b, float a) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment color = Color.allocate(arena);
 
@@ -96,9 +104,58 @@ public class PWebGPU {
             Color.b(color, b);
             Color.a(color, a);
 
-            processing_background_color(windowId, color);
+            processing_background_color(surfaceId, color);
             checkError();
         }
+    }
+
+    /**
+     * Set the fill color.
+     */
+    public static void setFill(long surfaceId, float r, float g, float b, float a) {
+        processing_set_fill(surfaceId, r, g, b, a);
+        checkError();
+    }
+
+    /**
+     * Set the stroke color.
+     */
+    public static void setStrokeColor(long surfaceId, float r, float g, float b, float a) {
+        processing_set_stroke_color(surfaceId, r, g, b, a);
+        checkError();
+    }
+
+    /**
+     * Set the stroke weight.
+     */
+    public static void setStrokeWeight(long surfaceId, float weight) {
+        processing_set_stroke_weight(surfaceId, weight);
+        checkError();
+    }
+
+    /**
+     * Disable fill for subsequent shapes.
+     */
+    public static void noFill(long surfaceId) {
+        processing_no_fill(surfaceId);
+        checkError();
+    }
+
+    /**
+     * Disable stroke for subsequent shapes.
+     */
+    public static void noStroke(long surfaceId) {
+        processing_no_stroke(surfaceId);
+        checkError();
+    }
+
+    /**
+     * Draw a rectangle.
+     */
+    public static void rect(long surfaceId, float x, float y, float w, float h,
+                           float tl, float tr, float br, float bl) {
+        processing_rect(surfaceId, x, y, w, h, tl, tr, br, bl);
+        checkError();
     }
 
     /**

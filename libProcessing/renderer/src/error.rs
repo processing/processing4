@@ -2,7 +2,6 @@ use thiserror::Error;
 
 pub type Result<T> = std::result::Result<T, ProcessingError>;
 
-
 #[derive(Error, Debug)]
 pub enum ProcessingError {
     #[error("App was accessed from multiple threads")]
