@@ -61,7 +61,7 @@ public class Settings {
                 }
                 return folder;
             }
-            var subfolder = ".config/processing";
+            var subfolder = "/.config/processing";
             var isSudo = System.getenv("SUDO_USER");
             if (isSudo == null || isSudo.isEmpty()) {
                 return new File(System.getProperty("user.home") + subfolder);
