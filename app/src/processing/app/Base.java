@@ -2263,13 +2263,14 @@ public class Base {
 
 
   static public void locateSketchbookFolder() {
+      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
+      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
+          sketchbookFolder = new File(sketchbookPathOverride);
+          return;
+      }
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
     String sketchbookPath = Preferences.getSketchbookPath();
-      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
-      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
-          sketchbookPath = sketchbookPathOverride;
-      }
     if (sketchbookPath != null) {
       sketchbookFolder = new File(sketchbookPath);
       if (!sketchbookFolder.exists()) {
