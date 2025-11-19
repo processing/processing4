@@ -2221,7 +2221,10 @@ public class Base {
 
     try {
       settingsFolder = Platform.getSettingsFolder();
-
+        var settingsOverride = System.getProperty("processing.settings.folder");
+        if (settingsOverride != null && !settingsOverride.isEmpty()) {
+            settingsFolder = new File(settingsOverride);
+        }
       // create the folder if it doesn't exist already
       if (!settingsFolder.exists()) {
         if (!settingsFolder.mkdirs()) {
