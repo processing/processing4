@@ -3,11 +3,10 @@ package processing.app.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import processing.app.LocalPreferences
 import processing.app.Messages
-import processing.app.Platform
 import processing.app.PlatformStart
 import processing.app.watchFile
+import processing.utils.Settings
 import java.io.File
 import java.io.InputStream
 import java.util.*
@@ -34,7 +33,7 @@ val LocalLocale = compositionLocalOf { Locale() }
 fun LocaleProvider(content: @Composable () -> Unit) {
     PlatformStart()
 
-    val settingsFolder = Platform.getSettingsFolder()
+    val settingsFolder = Settings.getFolder()
     val languageFile = File(settingsFolder, "language.txt")
     watchFile(languageFile)
 

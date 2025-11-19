@@ -3,10 +3,13 @@ package processing.app
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import processing.utils.Settings
 import java.io.File
 import java.io.InputStream
-import java.nio.file.*
-import java.util.Properties
+import java.nio.file.FileSystems
+import java.nio.file.StandardWatchEventKinds
+import java.nio.file.WatchEvent
+import java.util.*
 
 
 const val PREFERENCES_FILE_NAME = "preferences.txt"
@@ -20,7 +23,7 @@ fun PlatformStart(){
 fun loadPreferences(): Properties{
     PlatformStart()
 
-    val settingsFolder = Platform.getSettingsFolder()
+    val settingsFolder = Settings.getFolder()
     val preferencesFile = settingsFolder.resolve(PREFERENCES_FILE_NAME)
 
     if(!preferencesFile.exists()){
