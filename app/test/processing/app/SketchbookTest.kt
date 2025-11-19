@@ -2,6 +2,7 @@ package processing.app
 
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SketchbookTest {
     @Test
@@ -15,9 +16,10 @@ class SketchbookTest {
         val directory = createTempDirectory("scaffolding")
         val sketchbook = directory.resolve("sketchbook")
         sketchbook.toFile().mkdirs()
-        System.setProperty("processing.sketchbook.folder", sketchbook.toAbsolutePath().toString())
+        val sketchbookAbs = sketchbook.toAbsolutePath().toString()
+        System.setProperty("processing.sketchbook.folder", sketchbookAbs)
 
         val result = Base.getSketchbookFolder()
-        assert(result.absolutePath == sketchbook.toAbsolutePath().toString())
+        assertEquals(sketchbookAbs, result.absolutePath)
     }
 }
