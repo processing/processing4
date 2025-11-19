@@ -53,8 +53,9 @@ tasks.test {
     }
 }
 
-mavenPublishing{
+mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+
     signAllPublications()
 
     pom {
