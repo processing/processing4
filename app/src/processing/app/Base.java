@@ -23,26 +23,29 @@
 
 package processing.app;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
-import java.util.Map.Entry;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import org.jetbrains.annotations.NotNull;
 import processing.app.contrib.*;
 import processing.app.tools.Tool;
 import processing.app.ui.*;
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
 import processing.data.StringList;
+
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * The base class for the main processing application.
@@ -2263,6 +2266,10 @@ public class Base {
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
     String sketchbookPath = Preferences.getSketchbookPath();
+      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
+      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
+          sketchbookPath = sketchbookPathOverride;
+      }
     if (sketchbookPath != null) {
       sketchbookFolder = new File(sketchbookPath);
       if (!sketchbookFolder.exists()) {
@@ -2325,6 +2332,9 @@ public class Base {
 
 
   static public File getSketchbookFolder() {
+      if (sketchbookFolder == null) {
+          locateSketchbookFolder();
+      }
     return sketchbookFolder;
   }
 
@@ -2354,6 +2364,7 @@ public class Base {
   }
 
 
+    @NotNull
   static protected File getDefaultSketchbookFolder() {
     File sketchbookFolder = null;
     try {

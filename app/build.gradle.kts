@@ -35,7 +35,7 @@ sourceSets{
             srcDirs("src")
         }
         resources{
-            srcDirs("resources", listOf("languages", "fonts", "theme").map { "../build/shared/lib/$it" })
+            srcDirs("resources", listOf("fonts", "theme").map { "../build/shared/lib/$it" })
         }
     }
     test{
