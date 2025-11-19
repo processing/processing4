@@ -130,9 +130,6 @@ public class Base {
   // https://github.com/processing/processing/pull/2366
   private JFileChooser openChooser;
 
-  static protected File sketchbookFolder;
-
-
   static public void main(final String[] args) {
     Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
@@ -1951,7 +1948,7 @@ public class Base {
     new Thread(() -> {
       boolean found = false;
       try {
-        found = addSketches(menu, sketchbookFolder);
+          found = addSketches(menu, getSketchbookFolder());
       } catch (Exception e) {
         Messages.showWarning("Sketchbook Menu Error",
                 "An error occurred while trying to list the sketchbook.", e);
@@ -1990,7 +1987,7 @@ public class Base {
     if (folder.getName().equals("sdk")) {
       // This could be Android's SDK folder. Let's double-check:
       File suspectSDKPath = new File(folder.getParent(), folder.getName());
-      File expectedSDKPath = new File(sketchbookFolder, "android" + File.separator + "sdk");
+        File expectedSDKPath = new File(getSketchbookFolder(), "android" + File.separator + "sdk");
       if (expectedSDKPath.getAbsolutePath().equals(suspectSDKPath.getAbsolutePath())) {
         return false;  // Most likely the SDK folder, skip it
       }
@@ -2261,13 +2258,8 @@ public class Base {
     return Platform.getContentFile("tools");
   }
 
-
+    static protected File sketchbookFolder;
   static public void locateSketchbookFolder() {
-      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
-      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
-          sketchbookFolder = new File(sketchbookPathOverride);
-          return;
-      }
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
     String sketchbookPath = Preferences.getSketchbookPath();
@@ -2333,6 +2325,10 @@ public class Base {
 
 
   static public File getSketchbookFolder() {
+      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
+      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
+          return new File(sketchbookPathOverride);
+      }
       if (sketchbookFolder == null) {
           locateSketchbookFolder();
       }
@@ -2341,27 +2337,27 @@ public class Base {
 
 
   static public File getSketchbookLibrariesFolder() {
-    return new File(sketchbookFolder, "libraries");
+      return new File(getSketchbookFolder(), "libraries");
   }
 
 
   static public File getSketchbookToolsFolder() {
-    return new File(sketchbookFolder, "tools");
+      return new File(getSketchbookFolder(), "tools");
   }
 
 
   static public File getSketchbookModesFolder() {
-    return new File(sketchbookFolder, "modes");
+      return new File(getSketchbookFolder(), "modes");
   }
 
 
   static public File getSketchbookExamplesFolder() {
-    return new File(sketchbookFolder, "examples");
+      return new File(getSketchbookFolder(), "examples");
   }
 
 
   static public File getSketchbookTemplatesFolder() {
-    return new File(sketchbookFolder, "templates");
+      return new File(getSketchbookFolder(), "templates");
   }
 
 
