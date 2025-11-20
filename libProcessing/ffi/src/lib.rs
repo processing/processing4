@@ -28,13 +28,16 @@ pub extern "C" fn processing_init() {
 #[unsafe(no_mangle)]
 pub extern "C" fn processing_create_surface(
     window_handle: u64,
+    display_handle: u64,
     width: u32,
     height: u32,
     scale_factor: f32,
 ) -> u64 {
     error::clear_error();
-    error::check(|| renderer::create_surface(window_handle, width, height, scale_factor))
-        .unwrap_or(0)
+    error::check(|| {
+        renderer::create_surface(window_handle, display_handle, width, height, scale_factor)
+    })
+    .unwrap_or(0)
 }
 
 /// Destroy the surface associated with the given window ID.
