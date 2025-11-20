@@ -83,7 +83,7 @@ pub extern "C" fn processing_background_color(window_id: u64, color: Color) {
 pub extern "C" fn processing_begin_draw(window_id: u64) {
     error::clear_error();
     let window_entity = Entity::from_bits(window_id);
-    error::check(|| renderer::processing_begin_draw(window_entity));
+    error::check(|| renderer::begin_draw(window_entity));
 }
 
 /// Flushes recorded draw commands for the given window.
@@ -95,7 +95,7 @@ pub extern "C" fn processing_begin_draw(window_id: u64) {
 pub extern "C" fn processing_flush(window_id: u64) {
     error::clear_error();
     let window_entity = Entity::from_bits(window_id);
-    error::check(|| renderer::processing_flush(window_entity));
+    error::check(|| renderer::flush(window_entity));
 }
 
 /// Ends the draw for the given window and presents the frame.
@@ -107,7 +107,7 @@ pub extern "C" fn processing_flush(window_id: u64) {
 pub extern "C" fn processing_end_draw(window_id: u64) {
     error::clear_error();
     let window_entity = Entity::from_bits(window_id);
-    error::check(|| renderer::processing_end_draw(window_entity));
+    error::check(|| renderer::end_draw(window_entity));
 }
 
 /// Shuts down internal resources with given exit code, but does *not* terminate the process.
