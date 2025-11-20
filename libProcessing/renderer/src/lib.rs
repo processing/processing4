@@ -1,29 +1,39 @@
 pub mod error;
+pub mod render;
 
-use crate::error::Result;
-use bevy::app::{App, AppExit};
-use bevy::log::tracing_subscriber;
-use bevy::prelude::*;
-use bevy::window::{RawHandleWrapper, Window, WindowRef, WindowResolution, WindowWrapper};
+use std::{cell::RefCell, num::NonZero, sync::OnceLock};
+
+use bevy::{
+    app::{App, AppExit},
+    asset::AssetEventSystems,
+    camera::{CameraOutputMode, RenderTarget, visibility::RenderLayers},
+    log::tracing_subscriber,
+    prelude::*,
+    window::{RawHandleWrapper, Window, WindowRef, WindowResolution, WindowWrapper},
+};
 use raw_window_handle::{
     DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, RawDisplayHandle,
     RawWindowHandle, WindowHandle,
 };
-use std::cell::RefCell;
-use std::num::NonZero;
-use std::sync::atomic::AtomicU32;
-use std::sync::OnceLock;
-use bevy::camera::RenderTarget;
-use bevy::camera::visibility::RenderLayers;
+use render::{activate_cameras, clear_transient_meshes, flush_draw_commands};
 use tracing::debug;
 
+use crate::{
+    error::Result,
+    render::command::{CommandBuffer, DrawCommand},
+};
+
 static IS_INIT: OnceLock<()> = OnceLock::new();
-static WINDOW_COUNT: AtomicU32 = AtomicU32::new(0);
 
 thread_local! {
     static APP: OnceLock<RefCell<App>> = OnceLock::default();
 }
 
+#[derive(Resource, Default)]
+struct WindowCount(u32);
+
+#[derive(Component)]
+pub struct Flush;
 
 fn app<T>(cb: impl FnOnce(&App) -> Result<T>) -> Result<T> {
     let res = APP.with(|app_lock| {
@@ -180,29 +190,55 @@ pub fn create_surface(
     let handle_wrapper = RawHandleWrapper::new(&window_wrapper)?;
 
     let entity_id = app_mut(|app| {
-        let mut window = app
-            .world_mut()
-            .spawn((
-                Window {
-                    resolution: WindowResolution::new(width, height)
-                        .with_scale_factor_override(scale_factor),
-                    ..default()
-                },
-                handle_wrapper,
-            ));
-
-        let count = WINDOW_COUNT.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        let mut window_count = app.world_mut().resource_mut::<WindowCount>();
+        let count = window_count.0;
+        window_count.0 += 1;
         let render_layer = RenderLayers::none().with(count as usize);
+
+        let mut window = app.world_mut().spawn((
+            Window {
+                resolution: WindowResolution::new(width, height)
+                    .with_scale_factor_override(scale_factor),
+                ..default()
+            },
+            handle_wrapper,
+            CommandBuffer::default(),
+            // this doesn't do anything but makes it easier to fetch the render layer for
+            // meshes to be drawn to this window
+            render_layer.clone(),
+        ));
 
         let window_entity = window.id();
         window.with_children(|parent| {
+            // processing has a different coordinate system for 2d rendering:
+            // - origin at top-left
+            // - x increases to the right, y increases downward
+            // - coordinate units are in screen pixels
+            let half_width = width as f32 / 2.0;
+            let half_height = height as f32 / 2.0;
+
+            let projection = OrthographicProjection {
+                near: -1000.0,
+                far: 1000.0,
+                viewport_origin: Vec2::new(0.0, 0.0), // top left
+                scaling_mode: bevy::camera::ScalingMode::Fixed {
+                    width: width as f32,
+                    height: height as f32,
+                },
+                scale: 1.0,
+                ..OrthographicProjection::default_3d()
+            };
+
             parent.spawn((
                 Camera3d::default(),
                 Camera {
                     target: RenderTarget::Window(WindowRef::Entity(window_entity)),
                     ..default()
                 },
-                Projection::Orthographic(OrthographicProjection::default_3d()),
+                Projection::Orthographic(projection),
+                // position camera to match coordinate system
+                Transform::from_xyz(half_width, -half_height, 999.0)
+                    .looking_at(Vec3::new(half_width, -half_height, 0.0), Vec3::Y),
                 render_layer,
             ));
         });
@@ -213,11 +249,12 @@ pub fn create_surface(
     Ok(entity_id)
 }
 
-pub fn destroy_surface(window_entity: Entity) -> Result<()>{
+pub fn destroy_surface(window_entity: Entity) -> Result<()> {
     app_mut(|app| {
         if app.world_mut().get::<Window>(window_entity).is_some() {
             app.world_mut().despawn(window_entity);
-            WINDOW_COUNT.fetch_sub(1, std::sync::atomic::Ordering::SeqCst);
+            let mut window_count = app.world_mut().resource_mut::<WindowCount>();
+            window_count.0 = window_count.0.saturating_sub(1);
         }
         Ok(())
     })
@@ -267,6 +304,13 @@ pub fn init() -> Result<()> {
                     }),
             );
 
+            // resources
+            app.init_resource::<WindowCount>();
+
+            // rendering
+            app.add_systems(First, (clear_transient_meshes, activate_cameras))
+                .add_systems(Update, flush_draw_commands.before(AssetEventSystems));
+
             // this does not mean, as one might imagine, that the app is "done", but rather is part
             // of bevy's plugin lifecycle prior to "starting" the app. we are manually driving the app
             // so we don't need to call `app.run()`
@@ -278,9 +322,63 @@ pub fn init() -> Result<()> {
 
     Ok(())
 }
-pub fn update() -> Result<()> {
+
+macro_rules! camera_mut {
+    ($app:expr, $window_entity:expr) => {
+        $app.world_mut()
+            .query::<(&mut Camera, &ChildOf)>()
+            .iter_mut(&mut $app.world_mut())
+            .filter_map(|(camera, parent)| {
+                if parent.parent() == $window_entity {
+                    Some(camera)
+                } else {
+                    None
+                }
+            })
+            .next()
+            .ok_or_else(|| error::ProcessingError::WindowNotFound)?
+    };
+}
+
+macro_rules! window_mut {
+    ($app:expr, $window_entity:expr) => {
+        $app.world_mut()
+            .get_entity_mut($window_entity)
+            .map_err(|_| error::ProcessingError::WindowNotFound)?
+    };
+}
+
+pub fn begin_draw(_window_entity: Entity) -> Result<()> {
+    app_mut(|_app| Ok(()))
+}
+
+pub fn flush(window_entity: Entity) -> Result<()> {
     app_mut(|app| {
+        window_mut!(app, window_entity).insert(Flush);
         app.update();
+        window_mut!(app, window_entity).remove::<Flush>();
+
+        // ensure that the intermediate texture is not cleared
+        camera_mut!(app, window_entity).clear_color = ClearColorConfig::None;
+        Ok(())
+    })
+}
+
+pub fn end_draw(window_entity: Entity) -> Result<()> {
+    // since we are ending the draw, set the camera to write to the output render target
+    app_mut(|app| {
+        camera_mut!(app, window_entity).output_mode = CameraOutputMode::Write {
+            blend_state: None,
+            clear_color: ClearColorConfig::Default,
+        };
+        Ok(())
+    })?;
+    // flush any remaining draw commands, this ensures that the frame is presented even if there
+    // is no remaining draw commands
+    flush(window_entity)?;
+    // reset to skipping output for the next frame
+    app_mut(|app| {
+        camera_mut!(app, window_entity).output_mode = CameraOutputMode::Skip;
         Ok(())
     })
 }
@@ -314,4 +412,16 @@ fn setup_tracing() -> Result<()> {
     let subscriber = tracing_subscriber::FmtSubscriber::new();
     tracing::subscriber::set_global_default(subscriber)?;
     Ok(())
+}
+
+/// Record a drawing command for a window
+pub fn record_command(window_entity: Entity, cmd: DrawCommand) -> Result<()> {
+    app_mut(|app| {
+        let mut entity_mut = app.world_mut().entity_mut(window_entity);
+        if let Some(mut buffer) = entity_mut.get_mut::<CommandBuffer>() {
+            buffer.push(cmd);
+        }
+
+        Ok(())
+    })
 }
