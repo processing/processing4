@@ -18,7 +18,10 @@ public class Settings {
     }
 
     private static File getFolderForPlatform() throws SettingsFolderException {
-        // TODO: Detect override file,
+        var settingsOverride = System.getProperty("processing.settings.folder");
+        if (settingsOverride != null && !settingsOverride.isEmpty()) {
+            return new File(settingsOverride);
+        }
 
         if (Platform.isWindows()) {
             var options = new String[]{

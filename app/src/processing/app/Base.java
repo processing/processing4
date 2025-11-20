@@ -2216,6 +2216,10 @@ public class Base {
    * @deprecated use processing.utils.Settings.getFolder() instead, this method will invoke AWT
    */
   static public File getSettingsFolder() {
+      var override = getSettingsOverride();
+      if (override != null) {
+          return override;
+      }
       try {
           return processing.utils.Settings.getFolder();
       } catch (processing.utils.Settings.SettingsFolderException e) {
