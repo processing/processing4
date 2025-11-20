@@ -87,11 +87,12 @@ public class PSurfaceGLFW implements PSurface {
             PWebGPU.init();
 
             long windowHandle = getWindowHandle();
+            long displayHandle = getDisplayHandle();
             int width = sketch.sketchWidth();
             int height = sketch.sketchHeight();
             float scaleFactor = sketch.sketchPixelDensity();
 
-            webgpu.initWebGPUSurface(windowHandle, width, height, scaleFactor);
+            webgpu.initWebGPUSurface(windowHandle, displayHandle, width, height, scaleFactor);
         }
     }
 
