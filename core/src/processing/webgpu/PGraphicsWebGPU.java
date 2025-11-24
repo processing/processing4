@@ -11,8 +11,8 @@ public class PGraphicsWebGPU extends PGraphics {
         return surface = new PSurfaceGLFW(this);
     }
 
-    protected void initWebGPUSurface(long windowHandle, int width, int height, float scaleFactor) {
-        surfaceId = PWebGPU.createSurface(windowHandle, width, height, scaleFactor);
+    protected void initWebGPUSurface(long windowHandle, long displayHandle, int width, int height, float scaleFactor) {
+        surfaceId = PWebGPU.createSurface(windowHandle, displayHandle, width, height, scaleFactor);
         if (surfaceId == 0) {
             System.err.println("Failed to create WebGPU surface");
         }
