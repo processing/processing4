@@ -42,7 +42,7 @@ If you don't have them installed, you will need to install [Git](https://git-scm
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/processing/processing4.git
+    git clone --recursive https://github.com/processing/processing4.git
     cd processing4
     ```
 

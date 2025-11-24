@@ -64,25 +64,25 @@ dependencies {
 
 if (enableWebGPU) {
     val currentPlatform = PlatformUtils.detect()
-    val libProcessingDir = file("${project.rootDir}/libProcessing")
-    val rustTargetDir = file("$libProcessingDir/target")
+    val libprocessingDir = file("${project.rootDir}/libprocessing")
+    val rustTargetDir = file("$libprocessingDir/target")
     val nativeOutputDir = file("${layout.buildDirectory.get()}/native/${currentPlatform.target}")
 
     val buildRustRelease by tasks.registering(CargoBuildTask::class) {
-        cargoWorkspaceDir.set(libProcessingDir)
+        cargoWorkspaceDir.set(libprocessingDir)
         manifestPath.set("ffi/Cargo.toml")
         release.set(true)
         cargoPath.set(PlatformUtils.getCargoPath())
         outputLibrary.set(file("$rustTargetDir/release/${currentPlatform.libName}"))
 
-        inputs.files(fileTree("$libProcessingDir/ffi/src"))
-        inputs.file("$libProcessingDir/ffi/Cargo.toml")
-        inputs.file("$libProcessingDir/ffi/build.rs")
-        inputs.file("$libProcessingDir/ffi/cbindgen.toml")
-        inputs.files(fileTree("$libProcessingDir/renderer/src"))
-        inputs.file("$libProcessingDir/renderer/Cargo.toml")
-        inputs.file("$libProcessingDir/Cargo.toml")
-        outputs.file("$libProcessingDir/ffi/include/processing.h")
+        inputs.files(fileTree("$libprocessingDir/ffi/src"))
+        inputs.file("$libprocessingDir/ffi/Cargo.toml")
+        inputs.file("$libprocessingDir/ffi/build.rs")
+        inputs.file("$libprocessingDir/ffi/cbindgen.toml")
+        inputs.files(fileTree("$libprocessingDir/renderer/src"))
+        inputs.file("$libprocessingDir/renderer/Cargo.toml")
+        inputs.file("$libprocessingDir/Cargo.toml")
+        outputs.file("$libprocessingDir/ffi/include/processing.h")
     }
 
     val copyNativeLibs by tasks.registering(Copy::class) {
@@ -109,7 +109,7 @@ if (enableWebGPU) {
     }
 
     val cleanRust by tasks.registering(CargoCleanTask::class) {
-        cargoWorkspaceDir.set(libProcessingDir)
+        cargoWorkspaceDir.set(libprocessingDir)
         manifestPath.set("ffi/Cargo.toml")
         cargoPath.set(PlatformUtils.getCargoPath())
 
@@ -158,7 +158,7 @@ if (enableWebGPU) {
             dependsOn(downloadJextract, makeJextractExecutable)
         }
 
-        headerFile.set(file("$libProcessingDir/ffi/include/processing.h"))
+        headerFile.set(file("$libprocessingDir/ffi/include/processing.h"))
         outputDirectory.set(generatedJavaDir)
         targetPackage.set("processing.ffi")
 

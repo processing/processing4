@@ -10,7 +10,7 @@ import static processing.ffi.processing_h.*;
 import processing.ffi.Color;
 
 /**
- * PWebGPU provides the native interface layer for libProcessing's WebGPU support.
+ * PWebGPU provides the native interface layer for libprocessing's WebGPU support.
  */
 public class PWebGPU {
 

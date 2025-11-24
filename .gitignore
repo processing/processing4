@@ -125,4 +125,4 @@ generated/
 /java/gradle/build
 /java/gradle/example/.processing
 
-libProcessing/ffi/include/*
+libprocessing/ffi/include/*
