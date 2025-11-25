@@ -38,13 +38,14 @@ public class PWebGPU {
      * Creates a WebGPU surface from a native window handle.
      *
      * @param windowHandle The native window handle
+     * @param displayHandle The native display handle
      * @param width Window width in physical pixels
      * @param height Window height in phsyical pixels
      * @param scaleFactor os provided scale factor
      * @return Window ID to use for subsequent operations
      */
-    public static long createSurface(long windowHandle, int width, int height, float scaleFactor) {
-        long surfaceId = processing_create_surface(windowHandle, width, height, scaleFactor);
+    public static long createSurface(long windowHandle, long displayHandle, int width, int height, float scaleFactor) {
+        long surfaceId = processing_create_surface(windowHandle, displayHandle, width, height, scaleFactor);
         checkError();
         return surfaceId;
     }

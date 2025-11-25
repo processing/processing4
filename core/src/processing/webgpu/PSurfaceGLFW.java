@@ -1,11 +1,6 @@
 package processing.webgpu;
 
-import org.lwjgl.glfw.GLFW;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
-import org.lwjgl.glfw.GLFWNativeCocoa;
-import org.lwjgl.glfw.GLFWNativeWin32;
-import org.lwjgl.glfw.GLFWWindowPosCallback;
+import org.lwjgl.glfw.*;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
 
@@ -30,6 +25,7 @@ public class PSurfaceGLFW implements PSurface {
     protected PGraphics graphics;
 
     protected long window;
+    protected long display;
     protected boolean running = false;
 
     protected boolean paused;
@@ -78,6 +74,8 @@ public class PSurfaceGLFW implements PSurface {
             throw new RuntimeException("Failed to create GLFW window");
         }
 
+        display = GLFW.glfwGetPrimaryMonitor();
+
         windowCount.incrementAndGet();
 
         // event callbacks
@@ -87,11 +85,12 @@ public class PSurfaceGLFW implements PSurface {
             PWebGPU.init();
 
             long windowHandle = getWindowHandle();
+            long displayHandle = getDisplayHandle();
             int width = sketch.sketchWidth();
             int height = sketch.sketchHeight();
             float scaleFactor = sketch.sketchPixelDensity();
 
-            webgpu.initWebGPUSurface(windowHandle, width, height, scaleFactor);
+            webgpu.initWebGPUSurface(windowHandle, displayHandle, width, height, scaleFactor);
         }
     }
 
@@ -123,6 +122,24 @@ public class PSurfaceGLFW implements PSurface {
             return GLFWNativeCocoa.glfwGetCocoaWindow(window);
         } else if (Platform.get() == Platform.WINDOWS) {
             return GLFWNativeWin32.glfwGetWin32Window(window);
+        } else if (Platform.get() == Platform.LINUX) {
+            // TODO: need to check if x11 or wayland
+            return GLFWNativeWayland.glfwGetWaylandWindow(window);
+        } else {
+            throw new UnsupportedOperationException("Window handle retrieval not implemented for this platform");
+        }
+    }
+
+    public long getDisplayHandle() {
+        if (Platform.get() == Platform.MACOSX) {
+            // TODO: Currently unsupported
+            return 0;
+        } else if (Platform.get() == Platform.WINDOWS) {
+            // TODO: Currently unsupported
+            return 0;
+        } else if (Platform.get() == Platform.LINUX) {
+            // TODO: need to check if x11 or wayland
+            return GLFWNativeWayland.glfwGetWaylandDisplay();
         } else {
             throw new UnsupportedOperationException("Window handle retrieval not implemented for this platform");
         }
