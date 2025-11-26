@@ -65,24 +65,44 @@ dependencies {
 if (enableWebGPU) {
     val currentPlatform = PlatformUtils.detect()
     val libprocessingDir = file("${project.rootDir}/libprocessing")
+
+    if (!libprocessingDir.exists()) {
+        throw GradleException(
+            "libprocessing submodule directory not found at: ${libprocessingDir.absolutePath}\n" +
+            "Please initialize the submodule with: git submodule update --init --recursive"
+        )
+    }
+
     val rustTargetDir = file("$libprocessingDir/target")
     val nativeOutputDir = file("${layout.buildDirectory.get()}/native/${currentPlatform.target}")
 
+    val ffiManifestPath = fileTree(libprocessingDir) {
+        include("**/processing_ffi/Cargo.toml")
+    }.files.firstOrNull()?.let { it.relativeTo(libprocessingDir).path }
+        ?: throw GradleException(
+            "Could not find processing_ffi Cargo.toml in libprocessing.\n" +
+            "Searched in: ${libprocessingDir.absolutePath}\n" +
+            "The libprocessing structure may have changed."
+        )
+
     val buildRustRelease by tasks.registering(CargoBuildTask::class) {
         cargoWorkspaceDir.set(libprocessingDir)
-        manifestPath.set("ffi/Cargo.toml")
+        manifestPath.set(ffiManifestPath)
         release.set(true)
         cargoPath.set(PlatformUtils.getCargoPath())
         outputLibrary.set(file("$rustTargetDir/release/${currentPlatform.libName}"))
 
-        inputs.files(fileTree("$libprocessingDir/ffi/src"))
-        inputs.file("$libprocessingDir/ffi/Cargo.toml")
-        inputs.file("$libprocessingDir/ffi/build.rs")
-        inputs.file("$libprocessingDir/ffi/cbindgen.toml")
-        inputs.files(fileTree("$libprocessingDir/renderer/src"))
-        inputs.file("$libprocessingDir/renderer/Cargo.toml")
+        inputs.files(fileTree("$libprocessingDir/crates") {
+            include("**/src/**/*.rs")
+            include("**/Cargo.toml")
+            include("**/build.rs")
+            include("**/cbindgen.toml")
+        })
         inputs.file("$libprocessingDir/Cargo.toml")
-        outputs.file("$libprocessingDir/ffi/include/processing.h")
+        inputs.file("$libprocessingDir/Cargo.lock")
+
+        val headerDir = file("$libprocessingDir/${ffiManifestPath}").parentFile.resolve("include")
+        outputs.file("$headerDir/processing.h")
     }
 
     val copyNativeLibs by tasks.registering(Copy::class) {
@@ -110,7 +130,7 @@ if (enableWebGPU) {
 
     val cleanRust by tasks.registering(CargoCleanTask::class) {
         cargoWorkspaceDir.set(libprocessingDir)
-        manifestPath.set("ffi/Cargo.toml")
+        manifestPath.set(ffiManifestPath)
         cargoPath.set(PlatformUtils.getCargoPath())
 
         mustRunAfter(buildRustRelease)
@@ -158,7 +178,9 @@ if (enableWebGPU) {
             dependsOn(downloadJextract, makeJextractExecutable)
         }
 
-        headerFile.set(file("$libprocessingDir/ffi/include/processing.h"))
+        // Find header file dynamically based on FFI manifest location
+        val headerDir = file("$libprocessingDir/${ffiManifestPath}").parentFile.resolve("include")
+        headerFile.set(file("$headerDir/processing.h"))
         outputDirectory.set(generatedJavaDir)
         targetPackage.set("processing.ffi")
 
