@@ -23,19 +23,21 @@
 
 package processing.app;
 
+import com.sun.jna.platform.FileUtils;
+import processing.app.platform.DefaultPlatform;
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.data.StringDict;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
-
-import com.sun.jna.platform.FileUtils;
-
-import processing.app.platform.DefaultPlatform;
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.data.StringDict;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class Platform {
@@ -83,8 +85,11 @@ public class Platform {
     return inst != null;
   }
 
+    static {
+        init();
+    }
 
-  static public void init() {
+    static public void init() {
     try {
       // Start with DefaultPlatform, but try to upgrade to a known platform
       final String packageName = DefaultPlatform.class.getPackageName();

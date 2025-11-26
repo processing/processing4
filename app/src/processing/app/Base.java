@@ -23,26 +23,29 @@
 
 package processing.app;
 
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
-import java.util.List;
-import java.util.Map.Entry;
-
-import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import org.jetbrains.annotations.NotNull;
 import processing.app.contrib.*;
 import processing.app.tools.Tool;
 import processing.app.ui.*;
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
 import processing.data.StringList;
+
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * The base class for the main processing application.
@@ -126,9 +129,6 @@ public class Base {
   // Doesn't appear to be necessary with the AWT native file dialog.
   // https://github.com/processing/processing/pull/2366
   private JFileChooser openChooser;
-
-  static protected File sketchbookFolder;
-
 
   static public void main(final String[] args) {
     Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
@@ -1948,7 +1948,7 @@ public class Base {
     new Thread(() -> {
       boolean found = false;
       try {
-        found = addSketches(menu, sketchbookFolder);
+          found = addSketches(menu, getSketchbookFolder());
       } catch (Exception e) {
         Messages.showWarning("Sketchbook Menu Error",
                 "An error occurred while trying to list the sketchbook.", e);
@@ -1987,7 +1987,7 @@ public class Base {
     if (folder.getName().equals("sdk")) {
       // This could be Android's SDK folder. Let's double-check:
       File suspectSDKPath = new File(folder.getParent(), folder.getName());
-      File expectedSDKPath = new File(sketchbookFolder, "android" + File.separator + "sdk");
+        File expectedSDKPath = new File(getSketchbookFolder(), "android" + File.separator + "sdk");
       if (expectedSDKPath.getAbsolutePath().equals(suspectSDKPath.getAbsolutePath())) {
         return false;  // Most likely the SDK folder, skip it
       }
@@ -2258,7 +2258,7 @@ public class Base {
     return Platform.getContentFile("tools");
   }
 
-
+    static protected File sketchbookFolder;
   static public void locateSketchbookFolder() {
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
@@ -2325,35 +2325,43 @@ public class Base {
 
 
   static public File getSketchbookFolder() {
+      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
+      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
+          return new File(sketchbookPathOverride);
+      }
+      if (sketchbookFolder == null) {
+          locateSketchbookFolder();
+      }
     return sketchbookFolder;
   }
 
 
   static public File getSketchbookLibrariesFolder() {
-    return new File(sketchbookFolder, "libraries");
+      return new File(getSketchbookFolder(), "libraries");
   }
 
 
   static public File getSketchbookToolsFolder() {
-    return new File(sketchbookFolder, "tools");
+      return new File(getSketchbookFolder(), "tools");
   }
 
 
   static public File getSketchbookModesFolder() {
-    return new File(sketchbookFolder, "modes");
+      return new File(getSketchbookFolder(), "modes");
   }
 
 
   static public File getSketchbookExamplesFolder() {
-    return new File(sketchbookFolder, "examples");
+      return new File(getSketchbookFolder(), "examples");
   }
 
 
   static public File getSketchbookTemplatesFolder() {
-    return new File(sketchbookFolder, "templates");
+      return new File(getSketchbookFolder(), "templates");
   }
 
 
+    @NotNull
   static protected File getDefaultSketchbookFolder() {
     File sketchbookFolder = null;
     try {
