@@ -32,7 +32,7 @@ apps:
 parts:
   processing:
     plugin: dump
-    source: deb/processing_$version-1_$arch.deb
+    source: $deb
     source-type: deb
     stage-packages:
       - openjdk-17-jre
