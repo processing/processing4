@@ -55,11 +55,11 @@ fun addSurveyToWelcomeScreen(): JComponent {
                             modifier = Modifier.padding(12.dp),
                         ) {
                             Text(
-                                text = "Survey",
+                                text = locale["welcome.survey.title"],
                                 style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
                             )
                             Text(
-                                text = "click here to take part in the survey and help us improve Processing!",
+                                text = locale["welcome.survey.description"],
                             )
 
                         }
