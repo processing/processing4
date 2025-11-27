@@ -3,7 +3,6 @@ package processing.app.ui.theme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import processing.app.LocalPreferences
 import processing.app.Messages
 import processing.app.Platform
 import processing.app.PlatformStart
@@ -15,10 +14,19 @@ import java.util.*
 class Locale(language: String = "") : Properties() {
     init {
         val locale = java.util.Locale.getDefault()
-        load(ClassLoader.getSystemResourceAsStream("PDE.properties"))
-        load(ClassLoader.getSystemResourceAsStream("PDE_${locale.language}.properties") ?: InputStream.nullInputStream())
-        load(ClassLoader.getSystemResourceAsStream("PDE_${locale.toLanguageTag()}.properties") ?: InputStream.nullInputStream())
-        load(ClassLoader.getSystemResourceAsStream("PDE_${language}.properties") ?: InputStream.nullInputStream())
+        load(ClassLoader.getSystemResourceAsStream("languages/PDE.properties"))
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.language}.properties")
+                ?: InputStream.nullInputStream()
+        )
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.toLanguageTag()}.properties")
+                ?: InputStream.nullInputStream()
+        )
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${language}.properties")
+                ?: InputStream.nullInputStream()
+        )
     }
 
     @Deprecated("Use get instead", ReplaceWith("get(key)"))
