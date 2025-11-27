@@ -3,6 +3,7 @@ package processing.utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.Optional;
 
 public class Settings {
     public static File getFolder() throws SettingsFolderException {
@@ -21,6 +22,11 @@ public class Settings {
         var settingsOverride = System.getProperty("processing.settings.folder");
         if (settingsOverride != null && !settingsOverride.isEmpty()) {
             return new File(settingsOverride);
+        }
+
+        var portableSettings = FindPortableSettings();
+        if (portableSettings.isPresent()) {
+            return portableSettings.get();
         }
 
         if (Platform.isWindows()) {
@@ -88,6 +94,32 @@ public class Settings {
         return new File(System.getProperty("user.home"), ".processing");
     }
 
+    /**
+     * find a preferences.txt file in the same folder as the running jar/executable
+     *
+     * @return Optional File pointing to preferences.txt if found, empty otherwise
+     */
+    private static Optional<File> FindPortableSettings() {
+        var command = ProcessHandle.current().info().command();
+        if (command.isEmpty()) return Optional.empty();
+
+        var path = command.get();
+        path = path.replaceAll("/[^/]+$", "");
+
+        if (Platform.isMacOS()) {
+            // On macOS, the executable is inside the .app bundle, so we need to go up to above the .app folder
+            path = path.replaceAll("/[^/]+\\.app/.*$", "");
+        }
+        var file = new File(path, "preferences.txt");
+        if (System.getenv().containsKey("DEBUG"))
+            System.out.println("Looking for portable settings at: " + file.getAbsolutePath());
+        
+        if (!file.exists()) {
+            return Optional.empty();
+        }
+        return Optional.of(new File(path));
+
+    }
 
     public static class SettingsFolderException extends Exception {
         public enum Type {
