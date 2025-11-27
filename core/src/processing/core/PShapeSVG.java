@@ -961,14 +961,36 @@ public class PShapeSVG extends PShape {
         float rx = PApplet.parseFloat(pathTokens[i + 1]);
         float ry = PApplet.parseFloat(pathTokens[i + 2]);
         float angle = PApplet.parseFloat(pathTokens[i + 3]);
-        boolean fa = PApplet.parseFloat(pathTokens[i + 4]) != 0;
-        boolean fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
-        float endX = PApplet.parseFloat(pathTokens[i + 6]);
-        float endY = PApplet.parseFloat(pathTokens[i + 7]);
+        // In compact arc notation, flags and coordinates may be concatenated.
+        // e.g. "013" is parsed as large-arc=0, sweep=1, x=3
+        String token4 = pathTokens[i + 4];
+        boolean fa;
+        boolean fs;
+        float endX;
+        float endY;
+        int tokenOffset = 0;
+        if (isCompactArcNotation(token4)) {
+          fa = token4.charAt(0) == '1';
+          fs = token4.charAt(1) == '1';
+          if (token4.length() > 2) {
+            endX = PApplet.parseFloat(token4.substring(2));
+            endY = PApplet.parseFloat(pathTokens[i + 5]);
+            tokenOffset = -2;
+          } else {
+            endX = PApplet.parseFloat(pathTokens[i + 5]);
+            endY = PApplet.parseFloat(pathTokens[i + 6]);
+            tokenOffset = -1;
+          }
+        } else {
+          fa = PApplet.parseFloat(token4) != 0;
+          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
+          endX = PApplet.parseFloat(pathTokens[i + 6]);
+          endY = PApplet.parseFloat(pathTokens[i + 7]);
+        }
         parsePathArcto(cx, cy, rx, ry, angle, fa, fs, endX, endY);
         cx = endX;
         cy = endY;
-        i += 8;
+        i += 8 + tokenOffset;
         prevCurve = true;
       }
       break;
@@ -978,14 +1000,34 @@ public class PShapeSVG extends PShape {
         float rx = PApplet.parseFloat(pathTokens[i + 1]);
         float ry = PApplet.parseFloat(pathTokens[i + 2]);
         float angle = PApplet.parseFloat(pathTokens[i + 3]);
-        boolean fa = PApplet.parseFloat(pathTokens[i + 4]) != 0;
-        boolean fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
-        float endX = cx + PApplet.parseFloat(pathTokens[i + 6]);
-        float endY = cy + PApplet.parseFloat(pathTokens[i + 7]);
+        String token4 = pathTokens[i + 4];
+        boolean fa;
+        boolean fs;
+        float endX;
+        float endY;
+        int tokenOffset = 0;
+        if (isCompactArcNotation(token4)) {
+          fa = token4.charAt(0) == '1';
+          fs = token4.charAt(1) == '1';
+          if (token4.length() > 2) {
+            endX = cx + PApplet.parseFloat(token4.substring(2));
+            endY = cy + PApplet.parseFloat(pathTokens[i + 5]);
+            tokenOffset = -2;
+          } else {
+            endX = cx + PApplet.parseFloat(pathTokens[i + 5]);
+            endY = cy + PApplet.parseFloat(pathTokens[i + 6]);
+            tokenOffset = -1;
+          }
+        } else {
+          fa = PApplet.parseFloat(token4) != 0;
+          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
+          endX = cx + PApplet.parseFloat(pathTokens[i + 6]);
+          endY = cy + PApplet.parseFloat(pathTokens[i + 7]);
+        }
         parsePathArcto(cx, cy, rx, ry, angle, fa, fs, endX, endY);
         cx = endX;
         cy = endY;
-        i += 8;
+        i += 8 + tokenOffset;
         prevCurve = true;
       }
       break;
@@ -1051,6 +1093,29 @@ public class PShapeSVG extends PShape {
     }
     parsePathCode(VERTEX);
     parsePathVertex(px, py);
+  }
+
+
+  /**
+   * Checks if a token represents compact arc notation where flags and coordinates
+   * are concatenated (e.g., "013" for large-arc=0, sweep=1, x=3).
+   * 
+   * @param token the token to check
+   * @return true if the token is in compact arc notation format
+   */
+  private boolean isCompactArcNotation(String token) {
+    if (token == null) {
+      return false;
+    }
+    return token.length() > 1 &&
+           (token.charAt(0) == '0' || token.charAt(0) == '1') &&
+           (token.charAt(1) == '0' || token.charAt(1) == '1') &&
+           (token.length() == 2 ||
+            (token.length() > 2 && (
+              Character.isDigit(token.charAt(2)) ||
+              token.charAt(2) == '+' ||
+              token.charAt(2) == '-' ||
+              token.charAt(2) == '.')));
   }
 
 
