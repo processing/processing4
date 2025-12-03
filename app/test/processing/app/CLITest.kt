@@ -25,6 +25,17 @@ class CLITest {
         runCLIWithArguments("cli --help")
     }
 
+    @Test
+    fun testSketchWithCustomMainFile(){
+        // This test requires manual setup:
+        // 1. Create a sketch folder with a custom main file (e.g., sketch/custom.pde)
+        // 2. Add sketch.properties with: main=custom.pde
+        // 3. Update the path below to your test sketch
+        // 4. Run this test in IntelliJ IDEA
+        // Uncomment and modify the path below to test:
+        // runCLIWithArguments("cli --sketch=path/to/your/test/sketch --run")
+    }
+
     /*
     This function runs the CLI with the given arguments.
      */
