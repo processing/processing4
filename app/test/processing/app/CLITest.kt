@@ -1,6 +1,7 @@
 package processing.app
 
 import java.io.File
+import java.nio.file.Files
 import kotlin.test.Test
 
 /*
@@ -27,13 +28,32 @@ class CLITest {
 
     @Test
     fun testSketchWithCustomMainFile(){
-        // This test requires manual setup:
-        // 1. Create a sketch folder with a custom main file (e.g., sketch/custom.pde)
-        // 2. Add sketch.properties with: main=custom.pde
-        // 3. Update the path below to your test sketch
-        // 4. Run this test in IntelliJ IDEA
-        // Uncomment and modify the path below to test:
-        // runCLIWithArguments("cli --sketch=path/to/your/test/sketch --run")
+        val tempDir = Files.createTempDirectory("cli_custom_main_test")
+        try {
+            val sketchFolder = tempDir.resolve("TestSketch").toFile()
+            sketchFolder.mkdirs()
+
+            // Create custom main file (not matching folder name)
+            val customMain = File(sketchFolder, "custom_main.pde")
+            customMain.writeText("""
+                void setup() {
+                  println("Custom main file test");
+                }
+                
+                void draw() {
+                  exit();
+                }
+            """.trimIndent())
+
+            // Create sketch.properties with custom main
+            val propsFile = File(sketchFolder, "sketch.properties")
+            propsFile.writeText("main=custom_main.pde")
+
+            // Test with CLI
+            runCLIWithArguments("cli --sketch=${sketchFolder.absolutePath} --build")
+        } finally {
+            tempDir.toFile().deleteRecursively()
+        }
     }
 
     /*
