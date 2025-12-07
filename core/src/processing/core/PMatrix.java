@@ -205,4 +205,10 @@ public interface PMatrix {
    * @return the determinant of the matrix
    */
   public float determinant();
+  /**
+   * Print the matrix data to the console.
+   */
+  default void print() {
+    System.out.println(this);
+  }
 }
