@@ -18,14 +18,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import processing.app.Platform
 import processing.app.ui.theme.LocalLocale
-import processing.app.ui.theme.ProcessingTheme
+import processing.app.ui.theme.PDETheme
 import javax.swing.JComponent
 
 
 fun addSurveyToWelcomeScreen(): JComponent {
     return ComposePanel().apply {
         setContent {
-            ProcessingTheme {
+            PDETheme {
                 val locale = LocalLocale.current
                 Box {
                     Row(
