@@ -26,6 +26,7 @@ package processing.app;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import org.jetbrains.annotations.NotNull;
 import processing.app.contrib.*;
 import processing.app.tools.Tool;
 import processing.app.ui.*;
@@ -53,11 +54,15 @@ import java.util.Map.Entry;
  * files and images, etc.) that comes from that.
  */
 public class Base {
-  // Added accessors for 0218 because the UpdateCheck class was not properly
-  // updating the values, due to javac inlining the static final values.
+  /**
+   * Revision number, used for update checks and contribution compatibility.
+   */
   static private final int REVISION = Integer.parseInt(System.getProperty("processing.revision", "1295"));
-  /** This might be replaced by main() if there's a lib/version.txt file. */
-  static private String VERSION_NAME = System.getProperty("processing.version", "1295"); //$NON-NLS-1$
+  /**
+   * This might be replaced by main() if there's a lib/version.txt file.
+   *
+   */
+  static private String VERSION_NAME = System.getProperty("processing.version", "1295");
 
   static final public String SKETCH_BUNDLE_EXT = ".pdez";
   static final public String CONTRIB_BUNDLE_EXT = ".pdex";
@@ -67,11 +72,12 @@ public class Base {
    * if an empty file named 'debug' is found in the settings folder.
    * See implementation in createAndShowGUI().
    */
-  
   static public boolean DEBUG = Boolean.parseBoolean(System.getenv().getOrDefault("DEBUG", "false"));
 
 
-  /** True if running via Commander. */
+  /**
+   * is Processing being run from the command line (true) or from the GUI (false)?
+   */
   static private boolean commandLine;
 
   /**
@@ -124,110 +130,61 @@ public class Base {
   // https://github.com/processing/processing/pull/2366
   private JFileChooser openChooser;
 
-  static protected File sketchbookFolder;
-
-
   static public void main(final String[] args) {
     Messages.log("Starting Processing version" + VERSION_NAME + " revision "+ REVISION);
     EventQueue.invokeLater(() -> {
-      try {
-        createAndShowGUI(args);
-
-      } catch (Throwable t) {
-        // Windows Defender has been insisting on destroying each new
-        // release by removing core.jar and other files. Yay!
-        // https://github.com/processing/processing/issues/5537
-        if (Platform.isWindows()) {
-          String mess = t.getMessage();
-          String missing = null;
-          if (mess.contains("Could not initialize class com.sun.jna.Native")) {
-            //noinspection SpellCheckingInspection
-            missing = "jnidispatch.dll";
-          } else if (t instanceof NoClassDefFoundError &&
-                     mess.contains("processing/core/PApplet")) {
-            // Had to change how this was called
-            // https://github.com/processing/processing4/issues/154
-            missing = "core.jar";
-          }
-          if (missing != null) {
-            Messages.showError("Necessary files are missing",
-                               "A file required by Processing (" + missing + ") is missing.\n\n" +
-                               "Make sure that you're not trying to run Processing from inside\n" +
-                               "the .zip file you downloaded, and check that Windows Defender\n" +
-                               "has not removed files from the Processing folder.\n\n" +
-                               "(Defender sometimes flags parts of Processing as malware.\n" +
-                               "It is not, but Microsoft has ignored our pleas for help.)", t);
-          }
-        }
-        Messages.showTrace("Unknown Problem",
-                           "A serious error happened during startup. Please report:\n" +
-                           "http://github.com/processing/processing4/issues/new", t, true);
-      }
+        run(args);
     });
+  }
+
+  /**
+   * The main run() method, wrapped in a try/catch to
+   * provide a graceful error message if something goes wrong.
+   */
+  private static void run(String[] args) {
+    try {
+      createAndShowGUI(args);
+    } catch (Throwable t) {
+      // Windows Defender has been insisting on destroying each new
+      // release by removing core.jar and other files. Yay!
+      // https://github.com/processing/processing/issues/5537
+      if (Platform.isWindows()) {
+        String mess = t.getMessage();
+        String missing = null;
+        if (mess.contains("Could not initialize class com.sun.jna.Native")) {
+          //noinspection SpellCheckingInspection
+          missing = "jnidispatch.dll";
+        } else if (t instanceof NoClassDefFoundError &&
+                   mess.contains("processing/core/PApplet")) {
+          // Had to change how this was called
+          // https://github.com/processing/processing4/issues/154
+          missing = "core.jar";
+        }
+        if (missing != null) {
+          Messages.showError("Necessary files are missing",
+                             "A file required by Processing (" + missing + ") is missing.\n\n" +
+                             "Make sure that you're not trying to run Processing from inside\n" +
+                             "the .zip file you downloaded, and check that Windows Defender\n" +
+                             "has not removed files from the Processing folder.\n\n" +
+                             "(Defender sometimes flags parts of Processing as malware.\n" +
+                             "It is not, but Microsoft has ignored our pleas for help.)", t);
+        }
+      }
+      Messages.showTrace("Unknown Problem",
+                         "A serious error happened during startup. Please report:\n" +
+                         "http://github.com/processing/processing4/issues/new", t, true);
+    }
   }
 
 
   static private void createAndShowGUI(String[] args) {
-    // these times are fairly negligible relative to Base.<init>
-//    long t1 = System.currentTimeMillis();
-    // TODO: Cleanup old locations if no longer installed
-    // TODO: Cleanup old locations if current version is installed in the same location
+    checkVersion();
 
-    File versionFile = Platform.getContentFile("lib/version.txt");
-    if (versionFile != null && versionFile.exists()) {
-      String[] lines = PApplet.loadStrings(versionFile);
-      if (lines != null && lines.length > 0) {
-        if (!VERSION_NAME.equals(lines[0])) {
-          VERSION_NAME = lines[0];
-        }
-      }
-    }
-
-    // Detect settings.txt in the lib folder for portable versions
-    File settingsFile = Platform.getContentFile("lib/settings.txt");
-    if (settingsFile != null && settingsFile.exists()) {
-      try {
-        Settings portable = new Settings(settingsFile);
-        String path = portable.get("settings.path");
-        File folder = new File(path);
-        boolean success = true;
-        if (!folder.exists()) {
-          success = folder.mkdirs();
-          if (!success) {
-            Messages.err("Could not create " + folder + " to store settings.");
-          }
-        }
-        if (success) {
-          if (!folder.canRead()) {
-            Messages.err("Cannot read from " + folder);
-          } else if (!folder.canWrite()) {
-            Messages.err("Cannot write to " + folder);
-          } else {
-            settingsOverride = folder.getAbsoluteFile();
-          }
-        }
-      } catch (IOException e) {
-        Messages.err("Error while reading the settings.txt file", e);
-      }
-    }
+    checkPortable();
 
     Platform.init();
     // call after Platform.init() because we need the settings folder
     Console.startup();
-
-    // Set the debug flag based on a file being present in the settings folder
-    File debugFile = getSettingsFile("debug");
-
-    // If it's a directory, it's a leftover from much older releases
-    // (2.x? 3.x?) that wrote DebugMode.log files into this directory.
-    // Could remove the directory, but it's harmless enough that it's
-    // not worth deleting files in case something could go wrong.
-    if (debugFile.exists() && debugFile.isFile()) {
-      DEBUG = true;
-    }
-
-    // Use native popups to avoid looking crappy on macOS
-    JPopupMenu.setDefaultLightWeightPopupEnabled(false);
 
     // Don't put anything above this line that might make GUI,
     // because the platform has to be inited properly first.
@@ -241,8 +198,6 @@ public class Base {
     // run static initialization that grabs all the prefs
     Preferences.init();
 
-//    long t2 = System.currentTimeMillis();
-
     // boolean flag indicating whether to create new server instance or not
     boolean createNewInstance = DEBUG || !SingleInstance.alreadyRunning(args);
 
@@ -252,29 +207,50 @@ public class Base {
       return;
     }
 
-    if (createNewInstance) {
-      // Set the look and feel before opening the window
-      try {
-        Platform.setLookAndFeel();
-        Platform.setInterfaceZoom();
-      } catch (Exception e) {
-        Messages.err("Error while setting up the interface", e); //$NON-NLS-1$
-      }
 
-//      long t3 = System.currentTimeMillis();
+    // Set the look and feel before opening the window
+    setLookAndFeel();
 
-      // Get the sketchbook path, and make sure it's set properly
-      locateSketchbookFolder();
+    // Get the sketchbook path, and make sure it's set properly
+    locateSketchbookFolder();
 
-//      long t4 = System.currentTimeMillis();
+    // Load colors for UI elements. This must happen after Preferences.init()
+    // (so that fonts are set) and locateSketchbookFolder() so that a
+    // theme.txt file in the user's sketchbook folder is picked up.
+    Theme.init();
 
-      // Load colors for UI elements. This must happen after Preferences.init()
-      // (so that fonts are set) and locateSketchbookFolder() so that a
-      // theme.txt file in the user's sketchbook folder is picked up.
-      Theme.init();
+    // Create a location for untitled sketches
+    setupUntitleSketches();
 
-      // Create a location for untitled sketches
-      try {
+    Messages.log("About to create Base...");
+    try {
+        final Base base = new Base(args);
+        base.updateTheme();
+        Messages.log("Base() constructor succeeded");
+
+        // Prevent more than one copy of the PDE from running.
+        SingleInstance.startServer(base);
+
+        handleWelcomeScreen(base);
+        handleCrustyDisplay();
+        handleTempCleaning();
+
+    } catch (Throwable t) {
+        // Catch-all to pick up badness during startup.
+        Throwable err = t;
+        if (t.getCause() != null) {
+          // Usually this is the more important piece of information. We'll
+          // show this one so that it's not truncated in the error window.
+          err = t.getCause();
+        }
+        Messages.showTrace("We're off on the wrong foot",
+                       "An error occurred during startup.", err, true);
+    }
+    Messages.log("Done creating Base...");
+  }
+
+  private static void setupUntitleSketches() {
+    try {
         // Users on a shared machine may also share a TEMP folder,
         // which can cause naming collisions; use a UUID as the name
         // for the subfolder to introduce another layer of indirection.
@@ -287,56 +263,32 @@ public class Base {
         String uuid = UUID.randomUUID().toString();
         untitledFolder = new File(Util.getProcessingTemp(), uuid);
 
-      } catch (IOException e) {
+    } catch (IOException e) {
         Messages.showError("Trouble without a name",
                            "Could not create a place to store untitled sketches.\n" +
                            "That's gonna prevent us from continuing.", e);
-      }
-
-//      long t5 = System.currentTimeMillis();
-//      long t6 = 0;  // replaced below, just needs decl outside try { }
-
-      Messages.log("About to create Base..."); //$NON-NLS-1$
-      try {
-        final Base base = new Base(args);
-        base.updateTheme();
-        Messages.log("Base() constructor succeeded");
-//        t6 = System.currentTimeMillis();
-
-        // Prevent more than one copy of the PDE from running.
-        SingleInstance.startServer(base);
-
-        handleWelcomeScreen(base);
-        handleCrustyDisplay();
-        handleTempCleaning();
-
-      } catch (Throwable t) {
-        // Catch-all to pick up badness during startup.
-        Throwable err = t;
-        if (t.getCause() != null) {
-          // Usually this is the more important piece of information. We'll
-          // show this one so that it's not truncated in the error window.
-          err = t.getCause();
-        }
-        Messages.showTrace("We're off on the wrong foot",
-                           "An error occurred during startup.", err, true);
-      }
-      Messages.log("Done creating Base..."); //$NON-NLS-1$
-
-//      long t10 = System.currentTimeMillis();
-//      System.out.println("startup took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) + " " + (t5-t4) + " " + (t6-t5) + " " + (t10-t6) + " ms");
     }
+  }
+
+  private static void setLookAndFeel() {
+        try {
+            // Use native popups to avoid looking crappy on macOS
+            JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+
+            Platform.setLookAndFeel();
+            Platform.setInterfaceZoom();
+        } catch (Exception e) {
+            Messages.err("Error while setting up the interface", e); //$NON-NLS-1$
+        }
   }
 
 
   public void updateTheme() {
     try {
-      //System.out.println("updating theme");
       FlatLaf laf = "dark".equals(Theme.get("laf.mode")) ?
         new FlatDarkLaf() : new FlatLightLaf();
       laf.setExtraDefaults(Collections.singletonMap("@accentColor",
         Theme.get("laf.accent.color")));
-      //System.out.println(laf.getExtraDefaults());
       //UIManager.setLookAndFeel(laf);
       FlatLaf.setup(laf);
       // updateUI() will wipe out our custom components
@@ -445,6 +397,54 @@ public class Base {
     }
   }
 
+    /**
+     * Check for a version.txt file in the lib folder to override
+     */
+    private static void checkVersion() {
+        File versionFile = Platform.getContentFile("lib/version.txt");
+        if (versionFile != null && versionFile.exists()) {
+            String[] lines = PApplet.loadStrings(versionFile);
+            if (lines != null && lines.length > 0) {
+                if (!VERSION_NAME.equals(lines[0])) {
+                    VERSION_NAME = lines[0];
+                }
+            }
+        }
+    }
+
+    /**
+     * Check for portable settings.txt file in the lib folder
+     * to override the location of the settings folder.
+     */
+    static void checkPortable() {
+        // Detect settings.txt in the lib folder for portable versions
+        File settingsFile = Platform.getContentFile("lib/settings.txt");
+        if (settingsFile != null && settingsFile.exists()) {
+            try {
+                Settings portable = new Settings(settingsFile);
+                String path = portable.get("settings.path");
+                File folder = new File(path);
+                boolean success = true;
+                if (!folder.exists()) {
+                    success = folder.mkdirs();
+                    if (!success) {
+                        Messages.err("Could not create " + folder + " to store settings.");
+                    }
+                }
+                if (success) {
+                    if (!folder.canRead()) {
+                        Messages.err("Cannot read from " + folder);
+                    } else if (!folder.canWrite()) {
+                        Messages.err("Cannot write to " + folder);
+                    } else {
+                        settingsOverride = folder.getAbsoluteFile();
+                    }
+                }
+            } catch (IOException e) {
+                Messages.err("Error while reading the settings.txt file", e);
+            }
+        }
+    }
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
@@ -480,43 +480,20 @@ public class Base {
 
 
   public Base(String[] args) throws Exception {
-    long t1 = System.currentTimeMillis();
     ContributionManager.init(this);
 
-    long t2 = System.currentTimeMillis();
     buildCoreModes();
-    long t2b = System.currentTimeMillis();
     rebuildContribModes();
-    long t2c = System.currentTimeMillis();
     rebuildContribExamples();
 
-    long t3 = System.currentTimeMillis();
     // Needs to happen after the sketchbook folder has been located.
     // Also relies on the modes to be loaded, so it knows what can be
     // marked as an example.
     Recent.init(this);
 
-    long t4 = System.currentTimeMillis();
-    String lastModeIdentifier = Preferences.get("mode.last"); //$NON-NLS-1$
-    if (lastModeIdentifier == null) {
-      nextMode = getDefaultMode();
-      Messages.log("Nothing set for last.sketch.mode, using default."); //$NON-NLS-1$
-    } else {
-      for (Mode m : getModeList()) {
-        if (m.getIdentifier().equals(lastModeIdentifier)) {
-          Messages.logf("Setting next mode to %s.", lastModeIdentifier); //$NON-NLS-1$
-          nextMode = m;
-        }
-      }
-      if (nextMode == null) {
-        nextMode = getDefaultMode();
-        Messages.logf("Could not find mode %s, using default.", lastModeIdentifier); //$NON-NLS-1$
-      }
-    }
+    setupNextMode();
 
     //contributionManagerFrame = new ContributionManagerDialog();
-
-    long t5 = System.currentTimeMillis();
 
     // Make sure ThinkDifferent has library examples too
     nextMode.rebuildLibraryList();
@@ -525,10 +502,20 @@ public class Base {
     // menu works on Mac OS X (since it needs examplesFolder to be set).
     Platform.initBase(this);
 
-    long t6 = System.currentTimeMillis();
+    // check for updates
+    UpdateCheck.doCheck(this);
 
-//    // Check if there were previously opened sketches to be restored
-//    boolean opened = restoreSketches();
+
+    ContributionListing cl = ContributionListing.getInstance();
+    cl.downloadAvailableList(this, new ContribProgress(null));
+
+    openFilesOrNew(args);
+
+  }
+
+  private void openFilesOrNew(String[] args) {
+    // Check if there were previously opened sketches to be restored
+    // boolean opened = restoreSketches();
     boolean opened = false;
 
     // Check if any files were passed in on the command line
@@ -554,8 +541,6 @@ public class Base {
       }
     }
 
-    long t7 = System.currentTimeMillis();
-
     // Create a new empty window (will be replaced with any files to be opened)
     if (!opened) {
       Messages.log("Calling handleNew() to open a new window");
@@ -563,22 +548,25 @@ public class Base {
     } else {
       Messages.log("No handleNew(), something passed on the command line");
     }
+  }
 
-    long t8 = System.currentTimeMillis();
-
-    // check for updates
-    new UpdateCheck(this);
-
-    ContributionListing cl = ContributionListing.getInstance();
-    cl.downloadAvailableList(this, new ContribProgress(null));
-    long t9 = System.currentTimeMillis();
-
-    Messages.log("core modes: " + (t2b-t2) +
-                       ", contrib modes: " + (t2c-t2b) +
-                       ", contrib ex: " + (t2c-t2b));
-    Messages.log("base took " + (t2-t1) + " " + (t3-t2) + " " + (t4-t3) +
-                         " " + (t5-t4) + " t6-t5=" + (t6-t5) + " " + (t7-t6) +
-                         " handleNew=" + (t8-t7) + " " + (t9-t8) + " ms");
+  private void setupNextMode() {
+    String lastModeIdentifier = Preferences.get("mode.last"); //$NON-NLS-1$
+    if (lastModeIdentifier == null) {
+      nextMode = getDefaultMode();
+      Messages.log("Nothing set for last.sketch.mode, using default."); //$NON-NLS-1$
+    } else {
+      for (Mode m : getModeList()) {
+        if (m.getIdentifier().equals(lastModeIdentifier)) {
+          Messages.logf("Setting next mode to %s.", lastModeIdentifier); //$NON-NLS-1$
+          nextMode = m;
+        }
+      }
+      if (nextMode == null) {
+        nextMode = getDefaultMode();
+        Messages.logf("Could not find mode %s, using default.", lastModeIdentifier); //$NON-NLS-1$
+      }
+    }
   }
 
 
@@ -1954,7 +1942,7 @@ public class Base {
     new Thread(() -> {
       boolean found = false;
       try {
-        found = addSketches(menu, sketchbookFolder);
+          found = addSketches(menu, getSketchbookFolder());
       } catch (Exception e) {
         Messages.showWarning("Sketchbook Menu Error",
                 "An error occurred while trying to list the sketchbook.", e);
@@ -1993,7 +1981,7 @@ public class Base {
     if (folder.getName().equals("sdk")) {
       // This could be Android's SDK folder. Let's double-check:
       File suspectSDKPath = new File(folder.getParent(), folder.getName());
-      File expectedSDKPath = new File(sketchbookFolder, "android" + File.separator + "sdk");
+        File expectedSDKPath = new File(getSketchbookFolder(), "android" + File.separator + "sdk");
       if (expectedSDKPath.getAbsolutePath().equals(suspectSDKPath.getAbsolutePath())) {
         return false;  // Most likely the SDK folder, skip it
       }
@@ -2264,7 +2252,7 @@ public class Base {
     return Platform.getContentFile("tools");
   }
 
-
+    static protected File sketchbookFolder;
   static public void locateSketchbookFolder() {
     // If a value is at least set, first check to see if the folder exists.
     // If it doesn't, warn the user that the sketchbook folder is being reset.
@@ -2331,35 +2319,43 @@ public class Base {
 
 
   static public File getSketchbookFolder() {
+      var sketchbookPathOverride = System.getProperty("processing.sketchbook.folder");
+      if (sketchbookPathOverride != null && !sketchbookPathOverride.isEmpty()) {
+          return new File(sketchbookPathOverride);
+      }
+      if (sketchbookFolder == null) {
+          locateSketchbookFolder();
+      }
     return sketchbookFolder;
   }
 
 
   static public File getSketchbookLibrariesFolder() {
-    return new File(sketchbookFolder, "libraries");
+      return new File(getSketchbookFolder(), "libraries");
   }
 
 
   static public File getSketchbookToolsFolder() {
-    return new File(sketchbookFolder, "tools");
+      return new File(getSketchbookFolder(), "tools");
   }
 
 
   static public File getSketchbookModesFolder() {
-    return new File(sketchbookFolder, "modes");
+      return new File(getSketchbookFolder(), "modes");
   }
 
 
   static public File getSketchbookExamplesFolder() {
-    return new File(sketchbookFolder, "examples");
+      return new File(getSketchbookFolder(), "examples");
   }
 
 
   static public File getSketchbookTemplatesFolder() {
-    return new File(sketchbookFolder, "templates");
+      return new File(getSketchbookFolder(), "templates");
   }
 
 
+    @NotNull
   static protected File getDefaultSketchbookFolder() {
     File sketchbookFolder = null;
     try {

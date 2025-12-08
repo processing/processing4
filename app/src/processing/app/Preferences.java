@@ -21,14 +21,14 @@
 
 package processing.app;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.SystemColor;
-import java.io.*;
-import java.util.*;
-
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PConstants;
+
+import java.awt.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -65,9 +65,11 @@ public class Preferences {
     // start by loading the defaults, in case something
     // important was deleted from the user prefs
     try {
-      // Name changed for 2.1b2 to avoid problems with users modifying or
-      // replacing the file after doing a search for "preferences.txt".
-      load(Base.getLibStream(DEFAULTS_FILE));
+        var defaultsStream = Preferences
+                .class
+                .getClassLoader()
+                .getResourceAsStream(DEFAULTS_FILE);
+        load(defaultsStream);
     } catch (Exception e) {
       Messages.showError(null, "Could not read default settings.\n" +
                          "You'll need to reinstall Processing.", e);
@@ -281,9 +283,7 @@ public class Preferences {
 
   static public String get(String attribute /*, String defaultValue */) {
     if (!initialized) {
-      throw new RuntimeException(
-        "Tried reading preferences prior to initialization."
-      );
+        init();
     }
     return table.get(attribute);
   }
