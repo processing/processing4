@@ -80,7 +80,7 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
     val preferencesDebounceOverride: Long? = System.getProperty("processing.app.preferences.debounce")?.toLongOrNull()
 
     val settingsFolder = Settings.getFolder()
-    val preferencesFile = settingsFolder.resolve(PREFERENCES_FILE_NAME)
+    val preferencesFile = preferencesFileOverride ?: settingsFolder.resolve(PREFERENCES_FILE_NAME)
 
     if (!preferencesFile.exists()) {
         preferencesFile.mkdirs()
