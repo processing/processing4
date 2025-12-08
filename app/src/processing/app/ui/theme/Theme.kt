@@ -62,7 +62,7 @@ fun PDETheme(
 
             }
             MaterialTheme(
-                colorScheme = if (darkTheme) darkScheme else lightScheme,
+                colorScheme = theme,
                 typography = PDETypography
             ) {
                 Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {
