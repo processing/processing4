@@ -2206,29 +2206,54 @@ public class Base {
    * something similar on Windows, a dot folder on Linux.) Removed this as a
    * preference for 3.0a3 because we need this to be stable, but adding back
    * for 4.0 beta 4 so that folks can do 'portable' versions again.
+   *
+   * @deprecated use processing.utils.Settings.getFolder() instead, this method will invoke AWT
    */
   static public File getSettingsFolder() {
-    File settingsFolder = null;
-
-    try {
-      settingsFolder = Platform.getSettingsFolder();
-
-      // create the folder if it doesn't exist already
-      if (!settingsFolder.exists()) {
-        if (!settingsFolder.mkdirs()) {
-          Messages.showError("Settings issues",
-                             "Processing cannot run because it could not\n" +
-                             "create a folder to store your settings at\n" +
-                             settingsFolder, null);
-        }
+      var override = getSettingsOverride();
+      if (override != null) {
+          return override;
       }
-    } catch (Exception e) {
-      Messages.showTrace("An rare and unknowable thing happened",
-                         "Could not get the settings folder. Please report:\n" +
-                         "http://github.com/processing/processing/issues/new",
-                         e, true);
-    }
-    return settingsFolder;
+      try {
+          return processing.utils.Settings.getFolder();
+      } catch (processing.utils.Settings.SettingsFolderException e) {
+          switch (e.getType()) {
+              case COULD_NOT_CREATE_FOLDER -> Messages.showError("Settings issues",
+                      """
+                              Processing cannot run because it could not
+                              create a folder to store your settings at
+                              """ + e.getMessage(), null);
+              case WINDOWS_APPDATA_NOT_FOUND -> Messages.showError("Settings issues",
+                      """
+                              Processing cannot run because it could not
+                              find the AppData or LocalAppData folder on your system.
+                              """, null);
+              case MACOS_LIBRARY_FOLDER_NOT_FOUND -> Messages.showError("Settings issues",
+                      """
+                              Processing cannot run because it could not
+                              find the Library folder on your system.
+                              """, null);
+              case LINUX_CONFIG_FOLDER_NOT_FOUND -> Messages.showError("Settings issues",
+                      """
+                              Processing cannot run because either your
+                              XDG_CONFIG_HOME or SNAP_USER_COMMON is set
+                              but the folder does not exist.
+                              """, null);
+              case LINUX_SUDO_USER_ERROR -> Messages.showError("Settings issues",
+                      """
+                              Processing cannot run because it was started
+                              with sudo and Processing could not resolve
+                              the original users home directory.
+                              """, null);
+              default -> Messages.showTrace("An rare and unknowable thing happened",
+                      """
+                              Could not get the settings folder. Please report:
+                              http://github.com/processing/processing4/issues/new
+                              """,
+                      e, true);
+          }
+      }
+      throw new RuntimeException("Unreachable code in Base.getSettingsFolder()");
   }
 
 

@@ -23,10 +23,10 @@
 package processing.app.platform;
 
 import processing.app.Base;
-import processing.app.Messages;
 import processing.app.Preferences;
 import processing.core.PApplet;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
@@ -85,40 +85,7 @@ public class LinuxPlatform extends DefaultPlatform {
   }
 
 
-  @Override
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    // https://github.com/processing/processing4/issues/203
-    // https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-
-    File configHome = null;
-
-    // Check to see if the user has set a different location for their config
-    String configHomeEnv = System.getenv("XDG_CONFIG_HOME");
-    if (configHomeEnv != null && !configHomeEnv.isBlank()) {
-      configHome = new File(configHomeEnv);
-      if (!configHome.exists()) {
-        Messages.err("XDG_CONFIG_HOME is set to " + configHomeEnv + " but does not exist.");
-        configHome = null;  // don't use non-existent folder
-      }
-    }
-    String snapUserCommon = System.getenv("SNAP_USER_COMMON");
-    if (snapUserCommon != null && !snapUserCommon.isBlank()) {
-      configHome = new File(snapUserCommon);
-    }
-    // If not set properly, use the default
-    if (configHome == null) {
-      configHome = new File(getHomeDir(), ".config");
-    }
-    return new File(configHome, "processing");
-  }
-
-
-  @Override
+    @Override
   public File getDefaultSketchbookFolder() throws Exception {
     return new File(getHomeDir(), "sketchbook");
   }
