@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -568,7 +569,7 @@ fun showWelcomeScreen(base: Base? = null) {
         unique = WelcomeScreen::class,
         fullWindowContent = true
     ) {
-        PDEWelcome(base)
+        PDEWelcomeWithSurvey(base)
     }
 }
 
@@ -594,16 +595,35 @@ fun languagesDropdown(showOptions: MutableState<Boolean>) {
     }
 }
 
+@Composable
+fun PDEWelcomeWithSurvey(base: Base? = null) {
+    Box {
+        PDEWelcome(base)
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .padding(bottom = 12.dp)
+                .shadow(
+                    elevation = 5.dp,
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            SurveyInvitation()
+        }
+    }
+}
+
 fun main(){
     application {
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = true) {
-                PDEWelcome()
+                PDEWelcomeWithSurvey()
             }
         }
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = false) {
-                PDEWelcome()
+                PDEWelcomeWithSurvey()
             }
         }
     }
