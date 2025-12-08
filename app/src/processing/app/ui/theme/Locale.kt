@@ -3,7 +3,9 @@ package processing.app.ui.theme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
-import processing.app.*
+import processing.app.Messages
+import processing.app.watchFile
+import processing.utils.Settings
 import java.io.File
 import java.io.InputStream
 import java.util.*
@@ -25,30 +27,35 @@ class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)?
     var locale: java.util.Locale = java.util.Locale.getDefault()
 
     init {
-        loadResourceUTF8("PDE.properties")
-        loadResourceUTF8("PDE_${locale.language}.properties")
-        loadResourceUTF8("PDE_${locale.toLanguageTag()}.properties")
-        loadResourceUTF8("PDE_${language}.properties")
-    }
-
-    fun loadResourceUTF8(path: String) {
-        val stream = ClassLoader.getSystemResourceAsStream(path)
-        stream?.reader(charset = Charsets.UTF_8)?.use { reader ->
-            load(reader)
-        }
+        val locale = java.util.Locale.getDefault()
+        load(ClassLoader.getSystemResourceAsStream("languages/PDE.properties"))
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.language}.properties")
+                ?: InputStream.nullInputStream()
+        )
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.toLanguageTag()}.properties")
+                ?: InputStream.nullInputStream()
+        )
+        load(
+            ClassLoader.getSystemResourceAsStream("languages/PDE_${language}.properties")
+                ?: InputStream.nullInputStream()
+        )
     }
 
     @Deprecated("Use get instead", ReplaceWith("get(key)"))
     override fun getProperty(key: String?, default: String): String {
         val value = super.getProperty(key, default)
-        if(value == default) Messages.log("Missing translation for $key")
+        if (value == default) Messages.log("Missing translation for $key")
         return value
     }
+
     operator fun get(key: String): String = getProperty(key, key)
     fun set(locale: java.util.Locale) {
         setLocale?.invoke(locale)
     }
 }
+
 /**
  * A CompositionLocal to provide access to the Locale instance
  *     throughout the composable hierarchy. see [LocaleProvider]
@@ -86,23 +93,19 @@ val LocalLocale = compositionLocalOf<Locale> { error("No Locale Set") }
  */
 @Composable
 fun LocaleProvider(content: @Composable () -> Unit) {
-    val preferencesFolderOverride: File? = System.getProperty("processing.app.preferences.folder")?.let { File(it) }
+    val settingsFolder = Settings.getFolder()
+    val languageFile = File(settingsFolder, "language.txt")
+    watchFile(languageFile)
 
-    val settingsFolder = preferencesFolderOverride ?: remember{
-        Platform.init()
-        Platform.getSettingsFolder()
-    }
-    val languageFile = settingsFolder.resolve("language.txt")
-    remember(languageFile){
-        if(languageFile.exists()) return@remember
-
+    remember(languageFile) {
+        if (languageFile.exists()) return@remember
         Messages.log("Creating language file at ${languageFile.absolutePath}")
         settingsFolder.mkdirs()
         languageFile.writeText(java.util.Locale.getDefault().language)
     }
 
     val update = watchFile(languageFile)
-    var code by remember(languageFile, update){ mutableStateOf(languageFile.readText().substring(0, 2)) }
+    var code by remember(languageFile, update) { mutableStateOf(languageFile.readText().substring(0, 2)) }
     remember(code) {
         val locale = java.util.Locale(code)
         java.util.Locale.setDefault(locale)
@@ -117,7 +120,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
 
     val locale = Locale(code, ::setLocale)
     remember(code) { Messages.log("Loaded Locale: $code") }
-    val dir = when(locale["locale.direction"]) {
+    val dir = when (locale["locale.direction"]) {
         "rtl" -> LayoutDirection.Rtl
         else -> LayoutDirection.Ltr
     }

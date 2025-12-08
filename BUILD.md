@@ -163,3 +163,16 @@ You may see this warning in IntelliJ:
 > `Duplicate content roots detected: '.../processing4/java/src'`
 
 This happens because multiple modules reference the same source folder. It’s safe to ignore.
+
+
+### Build Failed
+
+If the build fails with `Permission denied` or `Could not copy file` errors, try cleaning the project.
+
+Run:
+
+```bash
+./gradlew clean
+```
+
+Then, rebuild the project.

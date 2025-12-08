@@ -6,6 +6,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
+import processing.utils.Settings
 import java.io.File
 import java.io.InputStream
 import java.nio.file.FileSystems
@@ -19,7 +20,7 @@ import java.util.*
     to provide reactive capabilities using Jetpack Compose's mutableStateMapOf.
     This allows UI components to automatically update when preference values change.
 */
-class ReactiveProperties: Properties() {
+class ReactiveProperties : Properties() {
     val snapshotStateMap = mutableStateMapOf<String, String>()
 
     override fun setProperty(key: String, value: String) {
@@ -79,20 +80,14 @@ const val DEFAULTS_FILE_NAME = "defaults.txt"
  */
 @OptIn(FlowPreview::class)
 @Composable
-fun PreferencesProvider(content: @Composable () -> Unit){
+fun PreferencesProvider(content: @Composable () -> Unit) {
     val preferencesFileOverride: File? = System.getProperty("processing.app.preferences.file")?.let { File(it) }
     val preferencesDebounceOverride: Long? = System.getProperty("processing.app.preferences.debounce")?.toLongOrNull()
 
-    // Initialize the platform (if not already done) to ensure we have access to the settings folder
-    remember {
-        Platform.init()
-    }
-
-    // Grab the preferences file, creating it if it doesn't exist
-    // TODO: This functionality should be separated from the `Preferences` class itself
-    val settingsFolder = Platform.getSettingsFolder()
+    val settingsFolder = Settings.getFolder()
     val preferencesFile = preferencesFileOverride ?: settingsFolder.resolve(PREFERENCES_FILE_NAME)
-    if(!preferencesFile.exists()){
+
+    if (!preferencesFile.exists()) {
         preferencesFile.mkdirs()
         preferencesFile.createNewFile()
     }
@@ -104,12 +99,14 @@ fun PreferencesProvider(content: @Composable () -> Unit){
         ReactiveProperties().apply {
             val defaultsStream = ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME)
                 ?: InputStream.nullInputStream()
-            load(defaultsStream
-                .reader(Charsets.UTF_8)
+            load(
+                defaultsStream
+                    .reader(Charsets.UTF_8)
             )
-            load(preferencesFile
-                .inputStream()
-                .reader(Charsets.UTF_8)
+            load(
+                preferencesFile
+                    .inputStream()
+                    .reader(Charsets.UTF_8)
             )
         }
     }
@@ -135,7 +132,7 @@ fun PreferencesProvider(content: @Composable () -> Unit){
             }
     }
 
-    CompositionLocalProvider(LocalPreferences provides properties){
+    CompositionLocalProvider(LocalPreferences provides properties) {
         content()
     }
 
@@ -154,9 +151,9 @@ fun watchFile(file: File): Any? {
     val forcedWatch: Boolean = System.getProperty("processing.app.watchfile.forced").toBoolean()
 
     val scope = rememberCoroutineScope()
-    var event by remember(file) {  mutableStateOf<WatchEvent<*>?> (null) }
+    var event by remember(file) { mutableStateOf<WatchEvent<*>?>(null) }
 
-    DisposableEffect(file){
+    DisposableEffect(file) {
         val fileSystem = FileSystems.getDefault()
         val watcher = fileSystem.newWatchService()
 
@@ -172,8 +169,8 @@ fun watchFile(file: File): Any? {
         val key = parent.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY)
         scope.launch(Dispatchers.IO) {
             while (active) {
-                if(forcedWatch) {
-                    if(toWatch() == state) continue
+                if (forcedWatch) {
+                    if (toWatch() == state) continue
                     state = toWatch()
                     event = object : WatchEvent<Path> {
                         override fun count(): Int = 1
@@ -182,7 +179,7 @@ fun watchFile(file: File): Any? {
                         override fun toString(): String = "ForcedEvent(${context()})"
                     }
                     continue
-                }else{
+                } else {
                     for (modified in key.pollEvents()) {
                         if (modified.context() != path.fileName) continue
                         event = modified

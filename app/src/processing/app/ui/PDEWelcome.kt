@@ -6,64 +6,19 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.NoteAdd
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.outlined.Book
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
-import androidx.compose.material.icons.outlined.FolderOpen
-import androidx.compose.material.icons.outlined.FolderSpecial
-import androidx.compose.material.icons.outlined.PinDrop
-import androidx.compose.material.icons.outlined.School
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ProvideTextStyle
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -79,19 +34,10 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
-import processing.app.Base
-import processing.app.LocalPreferences
-import processing.app.Messages
-import processing.app.Platform
+import processing.app.*
 import processing.app.api.Contributions.ExamplesList.Companion.listAllExamples
 import processing.app.api.Sketch.Companion.Sketch
-import processing.app.ui.preferences.Interface.Companion.languagesDropdown
-import processing.app.ui.theme.LocalLocale
-import processing.app.ui.theme.Locale
-import processing.app.ui.theme.PDEComposeWindow
-import processing.app.ui.theme.PDESwingWindow
-import processing.app.ui.theme.PDETheme
-import processing.app.ui.theme.toDimension
+import processing.app.ui.theme.*
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -102,14 +48,15 @@ fun PDEWelcome(base: Base? = null) {
     Row(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow),
-    ){
+            .background(MaterialTheme.colorScheme.surfaceContainerLowest),
+    ) {
         val shape = RoundedCornerShape(12.dp)
         val xsPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         val xsModifier = Modifier
             .defaultMinSize(minHeight = 1.dp)
             .height(32.dp)
-        val textColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
+        val textColor =
+            if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
         val locale = LocalLocale.current
 
         /**
@@ -130,10 +77,10 @@ fun PDEWelcome(base: Base? = null) {
             /**
              * Title row
              */
-            Row (
+            Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
-            ){
+            ) {
                 Image(
                     painter = painterResource("logo.svg"),
                     modifier = Modifier
@@ -152,7 +99,7 @@ fun PDEWelcome(base: Base? = null) {
                         .fillMaxWidth()
                         .align(Alignment.CenterVertically),
                     horizontalArrangement = Arrangement.End,
-                ){
+                ) {
                     val showLanguageMenu = remember { mutableStateOf(false) }
                     OutlinedButton(
                         onClick = {
@@ -161,7 +108,7 @@ fun PDEWelcome(base: Base? = null) {
                         contentPadding = xsPadding,
                         modifier = xsModifier,
                         shape = shape
-                    ){
+                    ) {
                         Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(4.dp))
                         Text(text = locale.locale.displayName)
@@ -176,7 +123,7 @@ fun PDEWelcome(base: Base? = null) {
             val colors = ButtonDefaults.textButtonColors(
                 contentColor = textColor
             )
-            Column{
+            Column {
                 ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                     val medModifier = Modifier
                         .sizeIn(minHeight = 56.dp)
@@ -194,21 +141,7 @@ fun PDEWelcome(base: Base? = null) {
                     }
                     TextButton(
                         onClick = {
-                            base?.let{
-                                base.showExamplesFrame()
-                            } ?: noBaseWarning()
-                        },
-                        colors = colors,
-                        modifier = medModifier,
-                        shape = shape
-                    ) {
-                        Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
-                        Spacer(Modifier.width(12.dp))
-                        Text(locale["welcome.actions.examples"] )
-                    }
-                    TextButton(
-                        onClick = {
-                            base?.let{
+                            base?.let {
                                 base.showSketchbookFrame()
                             } ?: noBaseWarning()
                         },
@@ -218,7 +151,24 @@ fun PDEWelcome(base: Base? = null) {
                     ) {
                         Icon(Icons.Outlined.FolderOpen, contentDescription = "")
                         Spacer(Modifier.width(12.dp))
-                        Text(locale["sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
+                        Text(
+                            locale["welcome.actions.sketchbook"],
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                    TextButton(
+                        onClick = {
+                            base?.let {
+                                base.showExamplesFrame()
+                            } ?: noBaseWarning()
+                        },
+                        colors = colors,
+                        modifier = medModifier,
+                        shape = shape
+                    ) {
+                        Icon(Icons.Outlined.FolderSpecial, contentDescription = "")
+                        Spacer(Modifier.width(12.dp))
+                        Text(locale["welcome.actions.examples"])
                     }
                 }
             }
@@ -233,7 +183,7 @@ fun PDEWelcome(base: Base? = null) {
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            ){
+            ) {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(48.dp),
                     modifier = Modifier
@@ -394,7 +344,7 @@ fun PDEWelcome(base: Base? = null) {
             /**
              * Show on startup checkbox
              */
-            Row{
+            Row {
                 val preferences = LocalPreferences.current
                 val showOnStartup = preferences["welcome.four.show"].toBoolean()
                 fun toggle(next: Boolean? = null) {
@@ -432,14 +382,16 @@ fun PDEWelcome(base: Base? = null) {
             modifier = Modifier
                 .width(350.dp + scrollMargin)
         ) {
-            val examples = remember { mutableStateListOf(
-                *listOf(
-                    Platform.getContentFile("modes/java/examples/Basics/Arrays/Array"),
-                    Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective"),
-                    Platform.getContentFile("modes/java/examples/Basics/Color/Brightness"),
-                    Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")
-                ).map{ Sketch(path = it.absolutePath, name = it.name) }.toTypedArray()
-            )}
+            val examples = remember {
+                mutableStateListOf(
+                    *listOf(
+                        Platform.getContentFile("modes/java/examples/Basics/Arrays/Array"),
+                        Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective"),
+                        Platform.getContentFile("modes/java/examples/Basics/Color/Brightness"),
+                        Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")
+                    ).map { Sketch(path = it.absolutePath, name = it.name) }.toTypedArray()
+                )
+            }
 
             remember {
                 val sketches = mutableListOf<Sketch>()
@@ -454,7 +406,7 @@ fun PDEWelcome(base: Base? = null) {
                 sketchFolders.forEach { folder ->
                     gatherSketches(folder)
                 }
-                if(sketches.isEmpty()) {
+                if (sketches.isEmpty()) {
                     return@remember
                 }
                 examples.clear()
@@ -473,7 +425,7 @@ fun PDEWelcome(base: Base? = null) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(examples) { example ->
-                        example.card{
+                        example.card {
                             base?.let {
                                 base.handleOpen("${example.path}/${example.name}.pde")
                             } ?: noBaseWarning()
@@ -613,6 +565,7 @@ fun noBaseWarning() {
 
 val size = DpSize(970.dp, 600.dp)
 const val titleKey = "menu.help.welcome"
+
 class WelcomeScreen
 
 fun showWelcomeScreen(base: Base? = null) {
@@ -626,8 +579,29 @@ fun showWelcomeScreen(base: Base? = null) {
     }
 }
 
+@Composable
+fun languagesDropdown(showOptions: MutableState<Boolean>) {
+    val locale = LocalLocale.current
+    val languages = if (Preferences.isInitialized()) Language.getLanguages() else mapOf("en" to "English")
+    DropdownMenu(
+        expanded = showOptions.value,
+        onDismissRequest = {
+            showOptions.value = false
+        },
+    ) {
+        languages.forEach { family ->
+            DropdownMenuItem(
+                text = { Text(family.value) },
+                onClick = {
+                    locale.set(java.util.Locale(family.key))
+                    showOptions.value = false
+                }
+            )
+        }
+    }
+}
 
-fun main(){
+fun main() {
     application {
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = true) {

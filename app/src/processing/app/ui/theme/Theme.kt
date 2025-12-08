@@ -50,7 +50,7 @@ import processing.app.PreferencesProvider
 fun PDETheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
-){
+) {
     PreferencesProvider {
         LocaleProvider {
             val preferences = LocalPreferences.current
@@ -62,9 +62,9 @@ fun PDETheme(
 
             }
             MaterialTheme(
-                colorScheme = theme,
+                colorScheme = if (darkTheme) darkScheme else lightScheme,
                 typography = PDETypography
-            ){
+            ) {
                 Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.surfaceContainerLowest)) {
                     CompositionLocalProvider(
                         LocalScrollbarStyle provides ScrollbarStyle(
@@ -118,38 +118,88 @@ fun main() {
                     ) {
                         ComponentPreview("Colors") {
                             val colors = listOf<Triple<String, Color, Color>>(
-                                Triple("Primary", MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary),
-                                Triple("Secondary", MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary),
-                                Triple("Tertiary", MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.onTertiary),
-                                Triple("Primary Container", MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer),
-                                Triple("Secondary Container", MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer),
-                                Triple("Tertiary Container", MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.colorScheme.onTertiaryContainer),
-                                Triple("Error Container", MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.onErrorContainer),
-                                Triple("Background", MaterialTheme.colorScheme.background, MaterialTheme.colorScheme.onBackground),
-                                Triple("Surface", MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.onSurface),
-                                Triple("Surface Variant", MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant),
+                                Triple(
+                                    "Primary",
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.onPrimary
+                                ),
+                                Triple(
+                                    "Secondary",
+                                    MaterialTheme.colorScheme.secondary,
+                                    MaterialTheme.colorScheme.onSecondary
+                                ),
+                                Triple(
+                                    "Tertiary",
+                                    MaterialTheme.colorScheme.tertiary,
+                                    MaterialTheme.colorScheme.onTertiary
+                                ),
+                                Triple(
+                                    "Primary Container",
+                                    MaterialTheme.colorScheme.primaryContainer,
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                ),
+                                Triple(
+                                    "Secondary Container",
+                                    MaterialTheme.colorScheme.secondaryContainer,
+                                    MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
+                                Triple(
+                                    "Tertiary Container",
+                                    MaterialTheme.colorScheme.tertiaryContainer,
+                                    MaterialTheme.colorScheme.onTertiaryContainer
+                                ),
+                                Triple(
+                                    "Error Container",
+                                    MaterialTheme.colorScheme.errorContainer,
+                                    MaterialTheme.colorScheme.onErrorContainer
+                                ),
+                                Triple(
+                                    "Background",
+                                    MaterialTheme.colorScheme.background,
+                                    MaterialTheme.colorScheme.onBackground
+                                ),
+                                Triple(
+                                    "Surface",
+                                    MaterialTheme.colorScheme.surface,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
+                                Triple(
+                                    "Surface Variant",
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
                                 Triple("Error", MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError),
 
-                                Triple("Surface Lowest", MaterialTheme.colorScheme.surfaceContainerLowest, MaterialTheme.colorScheme.onSurface),
-                                Triple("Surface Low", MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.colorScheme.onSurface),
-                                Triple("Surface", MaterialTheme.colorScheme.surfaceContainer, MaterialTheme.colorScheme.onSurface),
-                                Triple("Surface High", MaterialTheme.colorScheme.surfaceContainerHigh, MaterialTheme.colorScheme.onSurface),
-                                Triple("Surface Highest", MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.colorScheme.onSurface),
+                                Triple(
+                                    "Surface Lowest",
+                                    MaterialTheme.colorScheme.surfaceContainerLowest,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
+                                Triple(
+                                    "Surface Low",
+                                    MaterialTheme.colorScheme.surfaceContainerLow,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
+                                Triple(
+                                    "Surface",
+                                    MaterialTheme.colorScheme.surfaceContainer,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
+                                Triple(
+                                    "Surface High",
+                                    MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
+                                Triple(
+                                    "Surface Highest",
+                                    MaterialTheme.colorScheme.surfaceContainerHighest,
+                                    MaterialTheme.colorScheme.onSurface
+                                ),
                             )
                             Column {
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    val section = colors.subList(0,3)
-                                    for((name, color, onColor) in section){
-                                        Button(
-                                            colors = ButtonDefaults.buttonColors(containerColor = color),
-                                            onClick = {}) {
-                                            Text(name, color = onColor)
-                                            }
-                                    }
-                                }
-                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    val section = colors.subList(3,7)
-                                    for((name, color, onColor) in section){
+                                    val section = colors.subList(0, 3)
+                                    for ((name, color, onColor) in section) {
                                         Button(
                                             colors = ButtonDefaults.buttonColors(containerColor = color),
                                             onClick = {}) {
@@ -158,8 +208,18 @@ fun main() {
                                     }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    val section = colors.subList(7,11)
-                                    for((name, color, onColor) in section){
+                                    val section = colors.subList(3, 7)
+                                    for ((name, color, onColor) in section) {
+                                        Button(
+                                            colors = ButtonDefaults.buttonColors(containerColor = color),
+                                            onClick = {}) {
+                                            Text(name, color = onColor)
+                                        }
+                                    }
+                                }
+                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                    val section = colors.subList(7, 11)
+                                    for ((name, color, onColor) in section) {
                                         Button(
                                             colors = ButtonDefaults.buttonColors(containerColor = color),
                                             onClick = {}) {
@@ -233,7 +293,10 @@ fun main() {
                             })
                         }
                         ComponentPreview("Progress Indicator") {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)){
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
                                 CircularProgressIndicator()
                                 LinearProgressIndicator()
                             }
@@ -257,7 +320,7 @@ fun main() {
                             Switch(!state, enabled = false, onCheckedChange = { state = it })
                         }
                         ComponentPreview("Slider") {
-                            Column{
+                            Column {
                                 var state by remember { mutableStateOf(0.5f) }
                                 Slider(state, onValueChange = { state = it })
                                 var rangeState by remember { mutableStateOf(0.25f..0.75f) }
@@ -275,7 +338,7 @@ fun main() {
                         ComponentPreview("Number Field") {
                             var number by remember { mutableStateOf("123") }
                             TextField(number, onValueChange = {
-                                if(it.all { char -> char.isDigit() }) {
+                                if (it.all { char -> char.isDigit() }) {
                                     number = it
                                 }
                             }, label = { Text("Number Field") })
@@ -287,7 +350,7 @@ fun main() {
                                 TextField(text, onValueChange = { text = it })
                             }
                             var text by remember { mutableStateOf("Outlined Text Field") }
-                            OutlinedTextField(text, onValueChange = { text = it})
+                            OutlinedTextField(text, onValueChange = { text = it })
                         }
                         ComponentPreview("Dropdown Menu") {
                             var show by remember { mutableStateOf(false) }
@@ -316,7 +379,7 @@ fun main() {
                         }
 
                         ComponentPreview("Card") {
-                            Card{
+                            Card {
                                 Text("Hello, Tabs!", modifier = Modifier.padding(20.dp))
                             }
                         }

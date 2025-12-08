@@ -22,22 +22,19 @@
 
 package processing.app.platform;
 
-import java.awt.*;
-import java.awt.desktop.AppReopenedEvent;
-import java.awt.desktop.AppReopenedListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.net.URI;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-
 import processing.app.Base;
 import processing.app.Messages;
 import processing.app.ui.About;
 import processing.core.PApplet;
 import processing.data.StringList;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.desktop.AppReopenedListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URI;
 
 
 /**
@@ -112,16 +109,7 @@ public class MacPlatform extends DefaultPlatform {
   }
 
 
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-    return new File(getLibraryFolder(), "Processing");
-  }
-
-
-  public File getDefaultSketchbookFolder() throws Exception {
+    public File getDefaultSketchbookFolder() throws Exception {
     return new File(getDocumentsFolder(), "Processing");
   }
 
@@ -143,19 +131,6 @@ public class MacPlatform extends DefaultPlatform {
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
-
-  // TODO I suspect this won't work much longer, since access to the user's
-  //      home directory seems verboten on more recent macOS versions [fry 191008]
-  //      However, anecdotally it seems that just using the name works,
-  //      and the localization is handled transparently. [fry 220116]
-  //      https://github.com/processing/processing4/issues/9
-  protected String getLibraryFolder() throws FileNotFoundException {
-    File folder = new File(System.getProperty("user.home"), "Library");
-    if (!folder.exists()) {
-      throw new FileNotFoundException("Folder missing: " + folder);
-    }
-    return folder.getAbsolutePath();
-  }
 
 
   // TODO See above, and https://github.com/processing/processing4/issues/9

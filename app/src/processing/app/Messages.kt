@@ -63,7 +63,7 @@ class Messages {
                 showDialog(title) { modifier, dismiss ->
                     AlertDialog(
                         modifier = modifier,
-                        onDismissRequest = {  },
+                        onDismissRequest = { },
                         shape = RectangleShape,
                         icon = { Icon(Icons.Default.Info, contentDescription = "Info!") },
                         title = { Text(title) },
@@ -93,10 +93,10 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                showDialog(title){ modifier, dismiss ->
+                showDialog(title) { modifier, dismiss ->
                     AlertDialog(
                         modifier = modifier,
-                        onDismissRequest = {  },
+                        onDismissRequest = { },
                         shape = RectangleShape,
                         icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
                         iconContentColor = MaterialTheme.colorScheme.tertiary,
@@ -133,10 +133,10 @@ class Messages {
                 //      proper parsing on the command line. Many have \n in them.
                 println("$title: $primary\n$secondary")
             } else {
-                showDialog(title){ modifier, dismiss ->
+                showDialog(title) { modifier, dismiss ->
                     AlertDialog(
                         modifier = modifier,
-                        onDismissRequest = {  },
+                        onDismissRequest = { },
                         shape = RectangleShape,
                         icon = { Icon(Icons.Default.Warning, contentDescription = "Alert!") },
                         iconContentColor = MaterialTheme.colorScheme.tertiary,
@@ -174,10 +174,10 @@ class Messages {
             if (Base.isCommandLine()) {
                 System.err.println("$title: $message")
             } else {
-                showDialog(title){ modifier, dismiss ->
+                showDialog(title) { modifier, dismiss ->
                     AlertDialog(
                         modifier = modifier,
-                        onDismissRequest = {  },
+                        onDismissRequest = { },
                         shape = RectangleShape,
                         icon = { Icon(Icons.Default.Error, contentDescription = "Alert!") },
                         iconContentColor = MaterialTheme.colorScheme.error,
@@ -364,7 +364,7 @@ class Messages {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun showDialog(title: String, content: @Composable (modifier: Modifier,  dismiss: () -> Unit) -> Unit) {
+fun showDialog(title: String, content: @Composable (modifier: Modifier, dismiss: () -> Unit) -> Unit) {
     ComposeDialog().apply {
         isModal = true
         setTitle(title)
@@ -374,13 +374,13 @@ fun showDialog(title: String, content: @Composable (modifier: Modifier,  dismiss
         rootPane.putClientProperty("apple.awt.windowTitleVisible", false);
 
 
-       setContent {
+        setContent {
             PDETheme {
                 val density = LocalDensity.current
-                content(Modifier.onSizeChanged{
+                content(Modifier.onSizeChanged {
                     size = Dimension((it.width / density.density).toInt(), (it.height / density.density).toInt())
                     setLocationRelativeTo(null)
-                },::dispose)
+                }, ::dispose)
             }
         }
         setLocationRelativeTo(null)
@@ -388,14 +388,39 @@ fun showDialog(title: String, content: @Composable (modifier: Modifier,  dismiss
     }
 }
 
-fun main(){
+fun main() {
     val types = mapOf(
         "message" to { Messages.showMessage("Test Title", "This is a test message.") },
         "warning" to { Messages.showWarning("Test Warning", "This is a test warning.", Exception("dfdsfjk")) },
         "trace" to { Messages.showTrace("Test Trace", "This is a test trace.", Exception("Test Exception"), false) },
-        "tiered_warning" to { Messages.showWarningTiered("Test Tiered Warning", "Primary message", "Secondary message", null) },
-        "yes_no" to { Messages.showYesNoQuestion(null, "Test Yes/No", "Do you want to continue?", "Choose yes or no.") },
-        "custom_question" to { Messages.showCustomQuestion(null, "Test Custom Question", "Choose an option:", "Select one of the options below.", 1, "Option 1", "Option 2", "Option 3") },
+        "tiered_warning" to {
+            Messages.showWarningTiered(
+                "Test Tiered Warning",
+                "Primary message",
+                "Secondary message",
+                null
+            )
+        },
+        "yes_no" to {
+            Messages.showYesNoQuestion(
+                null,
+                "Test Yes/No",
+                "Do you want to continue?",
+                "Choose yes or no."
+            )
+        },
+        "custom_question" to {
+            Messages.showCustomQuestion(
+                null,
+                "Test Custom Question",
+                "Choose an option:",
+                "Select one of the options below.",
+                1,
+                "Option 1",
+                "Option 2",
+                "Option 3"
+            )
+        },
         "error" to { Messages.showError("Test Error", "This is a test error.", null) },
     )
     Platform.init()
@@ -426,6 +451,7 @@ fun String.formatClassName() = this
     .replace(".", "/")
     .padEnd(40)
     .colorizePathParts()
+
 fun String.colorizePathParts() = split("/").joinToString("/") { part ->
     "\u001B[${31 + (part.hashCode() and 0x7).rem(6)}m$part\u001B[0m"
 }

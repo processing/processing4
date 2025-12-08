@@ -21,11 +21,16 @@
 
 package processing.app;
 
-import java.io.*;
-import java.util.*;
-
 import processing.core.PApplet;
 import processing.data.StringList;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
 
 
 /**
@@ -110,25 +115,17 @@ public class Language {
 
   static private String[] listSupported() {
     StringList supported = new StringList();
-    try {
-      File baseFolder = Base.getLibFile("languages");
-      String[] names = baseFolder.list();
-      if (names != null) {
-        for (String filename : names) {
-          if (filename.startsWith("PDE_") && filename.endsWith(".properties")) {
-            int dotIndex = filename.lastIndexOf(".properties");
-            String language = filename.substring(4, dotIndex);
-            supported.append(language);
+      var locales = Locale.getAvailableLocales();
+      var loader = Language.class.getClassLoader();
+      for (var locale : locales) {
+          var language = locale.toLanguageTag();
+          var baseFilename = "languages/PDE_" + language + ".properties";
+          var file = loader.getResource(baseFilename);
+          if (file == null) {
+              continue;
           }
-        }
-      } else {
-        throw new IOException("Could not read list of files inside " + baseFolder);
+          supported.append(language);
       }
-    } catch (IOException e) {
-      Messages.showError("Translation Trouble",
-        "There was a problem reading the language translations folder.\n" +
-        "You may need to reinstall, or report if the problem persists.", e);
-    }
     return supported.toArray();
   }
 
@@ -358,10 +355,12 @@ public class Language {
       // language files in the download (i.e. still would not help
       // with adding new language codes.)
 
-      String baseFilename = "languages/PDE.properties";
-      String langFilename = "languages/PDE_" + language + ".properties";
+        var loader = Language.class.getClassLoader();
 
-      File baseFile = Base.getLibFile(baseFilename);
+        String baseFilename = "languages/PDE.properties";
+        String langFilename = "languages/PDE_" + language + ".properties";
+
+        var baseFile = loader.getResourceAsStream(baseFilename);
       /*
       // Also check to see if the user is working on localization,
       // and has their own .properties files in their sketchbook.
@@ -372,7 +371,7 @@ public class Language {
       }
       */
 
-      File langFile = Base.getLibFile(langFilename);
+        var langFile = loader.getResourceAsStream(langFilename);
       /*
       File userLangFile = new File(Base.getSketchbookFolder(), langFilename);
       if (userLangFile.exists()) {
@@ -384,11 +383,25 @@ public class Language {
       read(langFile);
     }
 
-    void read(File additions) {
-      read(additions, false);
-    }
+      void read(File additions, boolean enforcePrefix) {
+          try {
+              InputStream in = PApplet.createInput(additions);
+              if (in != null) {
+                  read(in, enforcePrefix);
+                  in.close();
+              } else {
+                  System.err.println("Unable to read " + additions);
+              }
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+      }
 
-    void read(File additions, boolean enforcePrefix) {
+      void read(InputStream additions) {
+          read(additions, false);
+      }
+
+      void read(InputStream additions, boolean enforcePrefix) {
       String prefix = null;
 
       String[] lines = PApplet.loadStrings(additions);
