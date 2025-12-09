@@ -32,11 +32,6 @@ class ReactiveProperties : Properties() {
         return snapshotStateMap[key] ?: super.getProperty(key)
     }
 
-    override fun remove(key: Any?): Any? {
-        snapshotStateMap.remove(key as String)
-        return super.remove(key)
-    }
-
     operator fun get(key: String): String? = getProperty(key)
 
     operator fun set(key: String, value: String) {

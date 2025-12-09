@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.decodeToImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
@@ -49,14 +50,13 @@ fun PDEWelcome(base: Base? = null) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainerLowest),
-    ) {
+    ){
         val shape = RoundedCornerShape(12.dp)
         val xsPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         val xsModifier = Modifier
             .defaultMinSize(minHeight = 1.dp)
             .height(32.dp)
-        val textColor =
-            if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
+        val textColor = if(isSystemInDarkTheme()) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSecondaryContainer
         val locale = LocalLocale.current
 
         /**
@@ -77,10 +77,10 @@ fun PDEWelcome(base: Base? = null) {
             /**
              * Title row
              */
-            Row(
+            Row (
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
-            ) {
+            ){
                 Image(
                     painter = painterResource("logo.svg"),
                     modifier = Modifier
@@ -99,7 +99,7 @@ fun PDEWelcome(base: Base? = null) {
                         .fillMaxWidth()
                         .align(Alignment.CenterVertically),
                     horizontalArrangement = Arrangement.End,
-                ) {
+                ){
                     val showLanguageMenu = remember { mutableStateOf(false) }
                     OutlinedButton(
                         onClick = {
@@ -108,7 +108,7 @@ fun PDEWelcome(base: Base? = null) {
                         contentPadding = xsPadding,
                         modifier = xsModifier,
                         shape = shape
-                    ) {
+                    ){
                         Icon(Icons.Default.Language, contentDescription = "", modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(4.dp))
                         Text(text = locale.locale.displayName)
@@ -123,7 +123,7 @@ fun PDEWelcome(base: Base? = null) {
             val colors = ButtonDefaults.textButtonColors(
                 contentColor = textColor
             )
-            Column {
+            Column{
                 ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                     val medModifier = Modifier
                         .sizeIn(minHeight = 56.dp)
@@ -141,7 +141,7 @@ fun PDEWelcome(base: Base? = null) {
                     }
                     TextButton(
                         onClick = {
-                            base?.let {
+                            base?.let{
                                 base.showSketchbookFrame()
                             } ?: noBaseWarning()
                         },
@@ -151,14 +151,11 @@ fun PDEWelcome(base: Base? = null) {
                     ) {
                         Icon(Icons.Outlined.FolderOpen, contentDescription = "")
                         Spacer(Modifier.width(12.dp))
-                        Text(
-                            locale["welcome.actions.sketchbook"],
-                            modifier = Modifier.align(Alignment.CenterVertically)
-                        )
+                        Text(locale["welcome.actions.sketchbook"], modifier = Modifier.align(Alignment.CenterVertically))
                     }
                     TextButton(
                         onClick = {
-                            base?.let {
+                            base?.let{
                                 base.showExamplesFrame()
                             } ?: noBaseWarning()
                         },
@@ -183,7 +180,7 @@ fun PDEWelcome(base: Base? = null) {
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            ) {
+            ){
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(48.dp),
                     modifier = Modifier
@@ -344,7 +341,7 @@ fun PDEWelcome(base: Base? = null) {
             /**
              * Show on startup checkbox
              */
-            Row {
+            Row{
                 val preferences = LocalPreferences.current
                 val showOnStartup = preferences["welcome.four.show"].toBoolean()
                 fun toggle(next: Boolean? = null) {
@@ -425,7 +422,7 @@ fun PDEWelcome(base: Base? = null) {
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(examples) { example ->
-                        example.card {
+                        example.card{
                             base?.let {
                                 base.handleOpen("${example.path}/${example.name}.pde")
                             } ?: noBaseWarning()
@@ -565,7 +562,6 @@ fun noBaseWarning() {
 
 val size = DpSize(970.dp, 600.dp)
 const val titleKey = "menu.help.welcome"
-
 class WelcomeScreen
 
 fun showWelcomeScreen(base: Base? = null) {
@@ -575,7 +571,7 @@ fun showWelcomeScreen(base: Base? = null) {
         unique = WelcomeScreen::class,
         fullWindowContent = true
     ) {
-        PDEWelcome(base)
+        PDEWelcomeWithSurvey(base)
     }
 }
 
@@ -601,16 +597,35 @@ fun languagesDropdown(showOptions: MutableState<Boolean>) {
     }
 }
 
-fun main() {
+@Composable
+fun PDEWelcomeWithSurvey(base: Base? = null) {
+    Box {
+        PDEWelcome(base)
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .padding(bottom = 12.dp)
+                .shadow(
+                    elevation = 5.dp,
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            SurveyInvitation()
+        }
+    }
+}
+
+fun main(){
     application {
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = true) {
-                PDEWelcome()
+                PDEWelcomeWithSurvey()
             }
         }
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = false) {
-                PDEWelcome()
+                PDEWelcomeWithSurvey()
             }
         }
     }
