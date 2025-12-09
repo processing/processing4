@@ -37,8 +37,6 @@ public class LinuxPlatform extends DefaultPlatform {
 
   public void initBase(Base base) {
     super.initBase(base);
-
-    JFrame.setDefaultLookAndFeelDecorated(true);
     System.setProperty("flatlaf.menuBarEmbedded", "true");
 
     // Set X11 WM_CLASS property which is used as the application
