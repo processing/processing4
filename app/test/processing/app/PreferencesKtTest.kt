@@ -9,6 +9,7 @@ import java.util.*
 import kotlin.io.path.createFile
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PreferencesKtTest{
     @OptIn(ExperimentalTestApi::class)
@@ -75,6 +76,7 @@ class PreferencesKtTest{
 
         val value = "C:\\Users\\Test\\Documents"
         tempPreferences.writeText("$testKey=$value")
+        val replacedValue = value.replace("\\", "/")
 
         setContent {
             PreferencesProvider {
@@ -83,6 +85,9 @@ class PreferencesKtTest{
             }
         }
 
-        onNodeWithTag("text").assertTextEquals(value.replace("\\", "/"))
+        onNodeWithTag("text").assertTextEquals(replacedValue)
+
+        Preferences.init()
+        assertEquals(replacedValue, Preferences.get(testKey))
     }
 }
