@@ -4768,7 +4768,7 @@ public class PGraphics extends PImage implements PConstants {
     }
 
 //    int start = 0;
-    int index = 0;
+    int index = start;
     while (index < stop) { //length) {
       if (chars[index] == '\n') {
         textLineAlignImpl(chars, start, index, x, y);
