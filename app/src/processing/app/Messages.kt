@@ -29,9 +29,15 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.FlatLightLaf
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.awt.ComposeDialog
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import processing.app.ui.Toolkit
 import processing.app.ui.theme.PDETheme
 import java.awt.EventQueue
+import java.awt.Dimension
 import java.awt.Frame
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -284,14 +290,65 @@ class Messages {
         }
     }
 }
-fun main(){
+
+@OptIn(ExperimentalComposeUiApi::class)
+fun showDialog(title: String, content: @Composable (modifier: Modifier, dismiss: () -> Unit) -> Unit) {
+    ComposeDialog().apply {
+        isModal = true
+        setTitle(title)
+        size = Dimension(400, 400)
+        rootPane.putClientProperty("apple.awt.fullWindowContent", true)
+        rootPane.putClientProperty("apple.awt.transparentTitleBar", true)
+        rootPane.putClientProperty("apple.awt.windowTitleVisible", false);
+
+
+        setContent {
+            PDETheme {
+                val density = LocalDensity.current
+                content(Modifier.onSizeChanged {
+                    size = Dimension((it.width / density.density).toInt(), (it.height / density.density).toInt())
+                    setLocationRelativeTo(null)
+                }, ::dispose)
+            }
+        }
+        setLocationRelativeTo(null)
+        isVisible = true
+    }
+}
+
+fun main() {
     val types = mapOf(
         "message" to { Messages.showMessage("Test Title", "This is a test message.") },
         "warning" to { Messages.showWarning("Test Warning", "This is a test warning.", Exception("dfdsfjk")) },
         "trace" to { Messages.showTrace("Test Trace", "This is a test trace.", Exception("Test Exception"), false) },
-        "tiered_warning" to { Messages.showWarningTiered("Test Tiered Warning", "Primary message", "Secondary message", null) },
-        "yes_no" to { Messages.showYesNoQuestion(null, "Test Yes/No", "Do you want to continue?", "Choose yes or no.") },
-        "custom_question" to { Messages.showCustomQuestion(null, "Test Custom Question", "Choose an option:", "Select one of the options below.", 1, "Option 1", "Option 2", "Option 3") },
+        "tiered_warning" to {
+            Messages.showWarningTiered(
+                "Test Tiered Warning",
+                "Primary message",
+                "Secondary message",
+                null
+            )
+        },
+        "yes_no" to {
+            Messages.showYesNoQuestion(
+                null,
+                "Test Yes/No",
+                "Do you want to continue?",
+                "Choose yes or no."
+            )
+        },
+        "custom_question" to {
+            Messages.showCustomQuestion(
+                null,
+                "Test Custom Question",
+                "Choose an option:",
+                "Select one of the options below.",
+                1,
+                "Option 1",
+                "Option 2",
+                "Option 3"
+            )
+        },
         "error" to { Messages.showError("Test Error", "This is a test error.", null) },
     )
     Platform.init()
@@ -322,6 +379,7 @@ fun String.formatClassName() = this
     .replace(".", "/")
     .padEnd(40)
     .colorizePathParts()
+
 fun String.colorizePathParts() = split("/").joinToString("/") { part ->
     "\u001B[${31 + (part.hashCode() and 0x7).rem(6)}m$part\u001B[0m"
 }

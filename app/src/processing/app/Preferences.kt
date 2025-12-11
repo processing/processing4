@@ -87,6 +87,14 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
         preferencesFile.createNewFile()
     }
 
+    remember {
+        // check if the file has backward slashes
+        if (preferencesFile.readText().contains("\\")) {
+            val correctedText = preferencesFile.readText().replace("\\", "/")
+            preferencesFile.writeText(correctedText)
+        }
+    }
+
     val update = watchFile(preferencesFile)
 
 

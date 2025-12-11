@@ -5,10 +5,11 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.*
-import java.util.Properties
+import java.util.*
 import kotlin.io.path.createFile
 import kotlin.io.path.createTempDirectory
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PreferencesKtTest{
     @OptIn(ExperimentalTestApi::class)
@@ -57,5 +58,36 @@ class PreferencesKtTest{
         tempPreferences.writeText("$testKey=${nextValue}")
 
         onNodeWithTag("text").assertTextEquals(nextValue)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun testWithBackwardSlashes() = runComposeUiTest {
+        val directory = createTempDirectory("preferences")
+        val tempPreferences = directory
+            .resolve("preferences.txt")
+            .createFile()
+            .toFile()
+
+        System.setProperty("processing.app.preferences.file", tempPreferences.absolutePath)
+        System.setProperty("processing.app.preferences.debounce", "0")
+        System.setProperty("processing.app.watchfile.forced", "true")
+        val testKey = "test.preferences.backward.slash"
+
+        val value = "C:\\Users\\Test\\Documents"
+        tempPreferences.writeText("$testKey=$value")
+        val replacedValue = value.replace("\\", "/")
+
+        setContent {
+            PreferencesProvider {
+                val preferences = LocalPreferences.current
+                Text(preferences[testKey] ?: "default", modifier = Modifier.testTag("text"))
+            }
+        }
+
+        onNodeWithTag("text").assertTextEquals(replacedValue)
+
+        Preferences.init()
+        assertEquals(replacedValue, Preferences.get(testKey))
     }
 }

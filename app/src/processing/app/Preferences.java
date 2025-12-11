@@ -87,8 +87,13 @@ public class Preferences {
       setBoolean("editor.input_method_support", true);
     }
 
+
     // next load user preferences file
     preferencesFile = Base.getSettingsFile(PREFS_FILE);
+      var preferencesFileOverride = System.getProperty("processing.app.preferences.file");
+      if (preferencesFileOverride != null && !preferencesFileOverride.isEmpty()) {
+          preferencesFile = new File(preferencesFileOverride);
+      }
     boolean firstRun = !preferencesFile.exists();
     if (!firstRun) {
       try {
@@ -179,8 +184,10 @@ public class Preferences {
 
     String[] lines = PApplet.loadStrings(input);  // Reads as UTF-8
     for (String line : lines) {
-      if ((line.length() == 0) ||
+        if ((line.isEmpty()) ||
           (line.charAt(0) == '#')) continue;
+
+        line = line.replace("\\", "/");  // normalize slashes in paths
 
       // this won't properly handle = signs being in the text
       int equals = line.indexOf('=');

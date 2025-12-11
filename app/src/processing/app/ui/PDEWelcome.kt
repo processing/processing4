@@ -379,14 +379,16 @@ fun PDEWelcome(base: Base? = null) {
             modifier = Modifier
                 .width(350.dp + scrollMargin)
         ) {
-            val examples = remember { mutableStateListOf(
-                *listOf(
-                    Platform.getContentFile("modes/java/examples/Basics/Arrays/Array"),
-                    Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective"),
-                    Platform.getContentFile("modes/java/examples/Basics/Color/Brightness"),
-                    Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")
-                ).map{ Sketch(path = it.absolutePath, name = it.name) }.toTypedArray()
-            )}
+            val examples = remember {
+                mutableStateListOf(
+                    *listOf(
+                        Platform.getContentFile("modes/java/examples/Basics/Arrays/Array"),
+                        Platform.getContentFile("modes/java/examples/Basics/Camera/Perspective"),
+                        Platform.getContentFile("modes/java/examples/Basics/Color/Brightness"),
+                        Platform.getContentFile("modes/java/examples/Basics/Shape/LoadDisplayOBJ")
+                    ).map { Sketch(path = it.absolutePath, name = it.name) }.toTypedArray()
+                )
+            }
 
             remember {
                 val sketches = mutableListOf<Sketch>()
@@ -401,7 +403,7 @@ fun PDEWelcome(base: Base? = null) {
                 sketchFolders.forEach { folder ->
                     gatherSketches(folder)
                 }
-                if(sketches.isEmpty()) {
+                if (sketches.isEmpty()) {
                     return@remember
                 }
                 examples.clear()

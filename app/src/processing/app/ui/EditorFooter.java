@@ -22,15 +22,14 @@
 
 package processing.app.ui;
 
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.datatransfer.Clipboard;
+import processing.app.Base;
+import processing.app.Mode;
+import processing.app.Sketch;
+import processing.app.contrib.ContributionManager;
+import processing.data.StringDict;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,14 +37,6 @@ import java.awt.font.FontRenderContext;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.*;
-
-import processing.app.Base;
-import processing.app.Mode;
-import processing.app.Sketch;
-import processing.app.contrib.ContributionManager;
-import processing.data.StringDict;
 
 
 /**
@@ -118,6 +109,18 @@ public class EditorFooter extends Box {
           Base.DEBUG = !Base.DEBUG;
           editor.updateDevelopMenu();
         }
+          copyDebugInformationToClipboard();
+      }
+    });
+
+      tabBar.add(version);
+
+      add(tabBar);
+
+      updateTheme();
+  }
+
+    public static void copyDebugInformationToClipboard() {
         var debugInformation = String.join("\n",
             "Version: " + Base.getVersionName(),
             "Revision: " + Base.getRevision(),
@@ -127,18 +130,12 @@ public class EditorFooter extends Box {
         var stringSelection = new StringSelection(debugInformation);
         var clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
-      }
-    });
-
-    tabBar.add(version);
-
-    add(tabBar);
-
-    updateTheme();
-  }
+    }
 
 
-  /** Add a panel with no icon. */
+    /**
+     * Add a panel with no icon.
+     */
   public void addPanel(Component comp, String name) {
     addPanel(comp, name, null);
   }
