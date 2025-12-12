@@ -131,6 +131,9 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
                             .joinToString("\n") { (key, value) -> "$key=$value" }
                             .toByteArray()
                     )
+                    
+                    // Reload legacy Preferences
+                    Preferences.init()
                 }
             }
     }
