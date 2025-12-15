@@ -804,6 +804,9 @@ public class PApplet implements PConstants {
   public int pixelDensity = 1;
   boolean pixelDensityWarning = false;
 
+  // Pixel access mode for high DPI scaling behavior
+  public int pixelAccessMode = PIXEL_EXACT;
+
   boolean present;
 
   String outputPath;
@@ -1106,6 +1109,36 @@ public class PApplet implements PConstants {
         throw new RuntimeException("pixelDensity() can only be used inside settings()");
       }
     }
+  }
+
+
+  /**
+   * Set the pixel access mode for high DPI displays. This controls how
+   * <b>get()</b> and <b>set()</b> operations behave when <b>pixelDensity</b>
+   * is greater than 1.
+   * <p/>
+   * <b>PIXEL_EXACT</b> (default): Uses nearest-neighbor sampling for pixel-perfect
+   * operations. Guarantees that <b>set(x, y, get(x, y))</b> will not change
+   * the image.
+   * <p/>
+   * <b>PIXEL_SMOOTH</b>: Uses bilinear interpolation for smoother scaling.
+   * May return interpolated color values that don't exist in the original
+   * image.
+   * <p/>
+   * This function can be called at any time during the program execution.
+   *
+   * @webref environment
+   * @webBrief Controls pixel access behavior for high DPI displays
+   * @param mode either PIXEL_EXACT or PIXEL_SMOOTH
+   * @see PApplet#pixelDensity(int)
+   * @see PApplet#get(int, int)
+   * @see PApplet#set(int, int, int)
+   */
+  public void pixelAccessMode(int mode) {
+    if (mode != PIXEL_EXACT && mode != PIXEL_SMOOTH) {
+      throw new RuntimeException("pixelAccessMode() must be PIXEL_EXACT or PIXEL_SMOOTH");
+    }
+    this.pixelAccessMode = mode;
   }
 
 
