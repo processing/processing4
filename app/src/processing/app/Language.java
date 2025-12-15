@@ -22,7 +22,6 @@
 package processing.app;
 
 import processing.core.PApplet;
-import processing.data.StringList;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,19 +113,13 @@ public class Language {
 
 
   static private String[] listSupported() {
-    StringList supported = new StringList();
-      var locales = Locale.getAvailableLocales();
       var loader = Language.class.getClassLoader();
-      for (var locale : locales) {
-          var language = locale.toLanguageTag();
-          var baseFilename = "languages/PDE_" + language + ".properties";
-          var file = loader.getResource(baseFilename);
-          if (file == null) {
-              continue;
-          }
-          supported.append(language);
+      try (var localeFile = loader.getResourceAsStream("languages/locales.txt")) {
+          return PApplet.loadStrings(localeFile);
+      } catch (IOException e) {
+          e.printStackTrace();
       }
-    return supported.toArray();
+      return new String[]{"en"};
   }
 
 
