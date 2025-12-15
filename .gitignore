@@ -125,3 +125,6 @@ generated/
 /app/windows/obj
 /java/gradle/build
 /java/gradle/example/.processing
+
+.idea/modules/
+core/.idea/gradle.xml
