@@ -972,20 +972,31 @@ public class PShapeSVG extends PShape {
         if (isCompactArcNotation(token4)) {
           fa = token4.charAt(0) == '1';
           fs = token4.charAt(1) == '1';
+          // Case: flags and x-coordinate are concatenated (e.g. "01100")
+          // token4 contains flags + x, so y is at i+5. 
+          // We consume 2 fewer tokens than standard (8-2=6).
           if (token4.length() > 2) {
             endX = PApplet.parseFloat(token4.substring(2));
             endY = PApplet.parseFloat(pathTokens[i + 5]);
             tokenOffset = -2;
           } else {
+            // Case: flags are concatenated but separated from x (e.g. "01 100")
+            // token4 is flags, x is at i+5, y is at i+6.
+            // We consume 1 fewer token than standard (8-1=7).
             endX = PApplet.parseFloat(pathTokens[i + 5]);
             endY = PApplet.parseFloat(pathTokens[i + 6]);
             tokenOffset = -1;
           }
         } else {
+          // Standard notation: flags and coordinates are separate tokens.
+          // The 'A' command takes 7 arguments:
+          // rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y
+          // Here, we've already parsed rx (i+1), ry (i+2), and angle (i+3).
+          // token4 (i+4) is the large-arc-flag.
           fa = PApplet.parseFloat(token4) != 0;
-          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
-          endX = PApplet.parseFloat(pathTokens[i + 6]);
-          endY = PApplet.parseFloat(pathTokens[i + 7]);
+          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0; // sweep-flag
+          endX = PApplet.parseFloat(pathTokens[i + 6]);    // x
+          endY = PApplet.parseFloat(pathTokens[i + 7]);    // y
         }
         parsePathArcto(cx, cy, rx, ry, angle, fa, fs, endX, endY);
         cx = endX;
@@ -1009,20 +1020,27 @@ public class PShapeSVG extends PShape {
         if (isCompactArcNotation(token4)) {
           fa = token4.charAt(0) == '1';
           fs = token4.charAt(1) == '1';
+          // Case: flags and x-coordinate are concatenated
           if (token4.length() > 2) {
             endX = cx + PApplet.parseFloat(token4.substring(2));
             endY = cy + PApplet.parseFloat(pathTokens[i + 5]);
             tokenOffset = -2;
           } else {
+            // Case: flags are concatenated but separated from x
             endX = cx + PApplet.parseFloat(pathTokens[i + 5]);
             endY = cy + PApplet.parseFloat(pathTokens[i + 6]);
             tokenOffset = -1;
           }
         } else {
+          // Standard notation: flags and coordinates are separate tokens.
+          // The 'a' command takes 7 arguments:
+          // rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y
+          // Here, we've already parsed rx (i+1), ry (i+2), and angle (i+3).
+          // token4 (i+4) is the large-arc-flag.
           fa = PApplet.parseFloat(token4) != 0;
-          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0;
-          endX = cx + PApplet.parseFloat(pathTokens[i + 6]);
-          endY = cy + PApplet.parseFloat(pathTokens[i + 7]);
+          fs = PApplet.parseFloat(pathTokens[i + 5]) != 0; // sweep-flag
+          endX = cx + PApplet.parseFloat(pathTokens[i + 6]); // x
+          endY = cy + PApplet.parseFloat(pathTokens[i + 7]); // y
         }
         parsePathArcto(cx, cy, rx, ry, angle, fa, fs, endX, endY);
         cx = endX;
@@ -1108,9 +1126,13 @@ public class PShapeSVG extends PShape {
       return false;
     }
     return token.length() > 1 &&
+           // First two characters must be '0' or '1' (flags)
            (token.charAt(0) == '0' || token.charAt(0) == '1') &&
            (token.charAt(1) == '0' || token.charAt(1) == '1') &&
+           // Either it's just the flags (length 2),
            (token.length() == 2 ||
+            // Or the flags are followed by the start of a number coordinate
+            // (digit, sign, or decimal point)
             (token.length() > 2 && (
               Character.isDigit(token.charAt(2)) ||
               token.charAt(2) == '+' ||
