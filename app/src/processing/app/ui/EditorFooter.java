@@ -109,7 +109,7 @@ public class EditorFooter extends Box {
           Base.DEBUG = !Base.DEBUG;
           editor.updateDevelopMenu();
         }
-          copyDebugInformationToClipboard();
+          copyFullDiagnosticsToClipboard();
       }
     });
 
@@ -120,13 +120,23 @@ public class EditorFooter extends Box {
       updateTheme();
   }
 
-    public static void copyDebugInformationToClipboard() {
-        var debugInformation = String.join("\n",
+    public static String getSystemDebugInformation() {
+        return String.join("\n",
             "Version: " + Base.getVersionName(),
             "Revision: " + Base.getRevision(),
             "OS: " + System.getProperty("os.name") + " " + System.getProperty("os.version") + " " + System.getProperty("os.arch"),
             "Java: " + System.getProperty("java.version") + " " + System.getProperty("java.vendor")
         );
+    }
+
+    public static void copyDebugInformationToClipboard() {
+        var stringSelection = new StringSelection(getSystemDebugInformation());
+        var clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
+    public void copyFullDiagnosticsToClipboard() {
+        var debugInformation = getSystemDebugInformation() + "\n\n" + editor.getSketchDiagnostics();
         var stringSelection = new StringSelection(debugInformation);
         var clipboard = java.awt.Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents(stringSelection, null);
