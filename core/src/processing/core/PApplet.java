@@ -4011,21 +4011,6 @@ public class PApplet implements PConstants {
   }
   //
 
-  /**
-   * Gathers diagnostic information about the sketch and system.
-   * <p>
-   * This method is intended to be called remotely via the debugger
-   * to collect system information, memory statistics, and sketch
-   * runtime details for troubleshooting purposes.
-   * </p>
-   * 
-   * @return JSON string containing diagnostic information
-   * @since 4.4
-   */
-  public String getDiagnostics() {
-    return PDiagnostics.gather(this);
-  }
-
   /*
   // not very useful, because it only works for public (and protected?)
   // fields of a class, not local variables to methods
