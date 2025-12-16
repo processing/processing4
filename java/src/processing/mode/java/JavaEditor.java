@@ -110,8 +110,6 @@ public class JavaEditor extends Editor {
                        Mode mode) throws EditorException {
     super(base, path, state, mode);
 
-//    long t1 = System.currentTimeMillis();
-
     jmode = (JavaMode) mode;
 
     debugger = new Debugger(this);
@@ -127,8 +125,6 @@ public class JavaEditor extends Editor {
 
     preprocService = new PreprocService(this.jmode, this.sketch); 
 
-//    long t5 = System.currentTimeMillis();
-
     usage = new ShowUsage(this, preprocService);
     inspect = new InspectMode(this, preprocService, usage);
     rename = new Rename(this, preprocService, usage);
@@ -139,15 +135,11 @@ public class JavaEditor extends Editor {
 
     errorChecker = new ErrorChecker(this::setProblemList, preprocService);
 
-//    long t7 = System.currentTimeMillis();
-
     for (SketchCode code : getSketch().getCode()) {
       Document document = code.getDocument();
       addDocumentListener(document);
     }
     sketchChanged();
-
-//    long t9 = System.currentTimeMillis();
 
     Toolkit.setMenuMnemonics(textarea.getRightClickPopup());
 
@@ -159,9 +151,6 @@ public class JavaEditor extends Editor {
 
       public void windowGainedFocus(WindowEvent e) { }
     });
-
-//    long t10 = System.currentTimeMillis();
-//    System.out.println("java editor was " + (t10-t9) + " " + (t9-t7) + " " + (t7-t5) + " " + (t5-t1));
   }
 
 
@@ -288,13 +277,7 @@ public class JavaEditor extends Editor {
 
     item = new JMenuItem(Language.text("menu.help.welcome"));
     item.addActionListener(e -> {
-      try {
-        new Welcome(base);
-      } catch (IOException ioe) {
-        Messages.showWarning("Unwelcome Error",
-                             "Please report this error to\n" +
-                             "https://github.com/processing/processing4/issues", ioe);
-      }
+        PDEWelcomeKt.showWelcomeScreen(base);
     });
     menu.add(item);
 
