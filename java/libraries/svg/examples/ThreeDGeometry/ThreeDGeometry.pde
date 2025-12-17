@@ -17,14 +17,14 @@
 
 import processing.svg.*;
 
-boolean record;
+boolean isRecording;
 
 void setup() {
   size(500, 500, P3D);
 }
 
 void draw() {
-  if (record) {
+  if (isRecording) {
     beginRaw(SVG, "output.svg");
   }
 
@@ -35,15 +35,15 @@ void draw() {
   rotateY(mouseX/500.0);
   box(200);
 
-  if (record) {
+  if (isRecording) {
     endRaw();
-    record = false;
+    isRecording = false;
   }
 }
 
 // Hit 'r' to record a single frame
 void keyPressed() {
   if (key == 'r') {
-    record = true;
+    isRecording = true;
   }
 }
