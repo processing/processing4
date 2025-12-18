@@ -126,8 +126,8 @@ class Interface {
                                     ?: range.start
                             )
                         }
-                        val automatic = currentZoom == range.start
-                        val zoomPerc = "${currentZoom.toInt()}%"
+                        val automatic = { currentZoom == range.start }
+                        val zoomPerc = { "${currentZoom.toInt()}%" }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
@@ -136,16 +136,14 @@ class Interface {
                                     .widthIn(max = 200.dp)
                             ) {
                                 Text(
-                                    text = if (automatic) "Auto" else zoomPerc,
+                                    text = if (automatic()) "Auto" else zoomPerc(),
                                 )
                                 Slider(
                                     value = currentZoom,
                                     onValueChange = {
                                         currentZoom = it
-                                    },
-                                    onValueChangeFinished = {
-                                        prefs["editor.zoom.auto"] = automatic
-                                        updatePreference(zoomPerc)
+                                        prefs["editor.zoom.auto"] = automatic()
+                                        updatePreference(zoomPerc())
                                     },
                                     valueRange = range,
                                     steps = 3

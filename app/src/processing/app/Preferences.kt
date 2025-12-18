@@ -3,6 +3,7 @@ package processing.app
 import androidx.compose.runtime.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
@@ -190,6 +191,7 @@ fun watchFile(file: File): Any? {
                         if (modified.context() != path.fileName) continue
                         event = modified
                     }
+                    delay(10)
                 }
             }
         }
