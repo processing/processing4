@@ -118,6 +118,7 @@ class Sketches {
                             enabled = LocalPreferences.current["run.options.memory"]?.toBoolean() ?: false,
                             modifier = Modifier.widthIn(max = 300.dp),
                             value = preference ?: "",
+                            singleLine = true,
                             trailingIcon = { Text("MB") },
                             onValueChange = {
                                 setPreference(it)
