@@ -1213,7 +1213,7 @@ public class Base {
       File destFolder = File.createTempFile("zip", "tmp", untitledFolder);
       if (!destFolder.delete() || !destFolder.mkdirs()) {
         // Hard to imagine why this would happen, but...
-        System.err.println("Could not create temporary folder " + destFolder);
+          Messages.showWarning("Could not create temporary folder " + destFolder);
         return null;
       }
       Util.unzip(zipFile, destFolder);
@@ -1225,11 +1225,11 @@ public class Base {
             return handleOpenUntitled(sketchFile.getAbsolutePath());
           }
         } else {
-          System.err.println("Expecting one folder inside " +
+            Messages.showWarning("Expecting one folder inside " +
             SKETCH_BUNDLE_EXT + " file, found " + fileList.length + ".");
         }
       } else {
-        System.err.println("Could not read " + destFolder);
+          Messages.showWarning("Could not read " + destFolder);
       }
     } catch (IOException e) {
       e.printStackTrace();
