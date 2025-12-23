@@ -74,6 +74,7 @@ class Other {
                                         OutlinedTextField(
                                             modifier = Modifier.widthIn(max = 300.dp),
                                             value = preference ?: "",
+                                            singleLine = true,
                                             onValueChange = {
                                                 updatePreference(it)
                                             }

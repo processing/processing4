@@ -46,6 +46,7 @@ class General {
                             modifier = Modifier.fillMaxWidth(),
                             label = { Text(locale["preferences.sketchbook_location"]) },
                             value = preference ?: "",
+                            singleLine = true,
                             onValueChange = {
                                 updatePreference(it)
                             },
