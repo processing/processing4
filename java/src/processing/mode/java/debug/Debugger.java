@@ -31,6 +31,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -456,6 +457,124 @@ public class Debugger {
   public synchronized void stepOut() {
     step(StepRequest.STEP_OUT);
   }
+
+
+
+  /**
+   * Get diagnostics from the sketch, whether paused or running.
+   * If running, it will temporarily suspend the VM.
+   */
+  public String getDiagnostics() {
+    return getDiagnostics(runtime);
+  }
+
+
+  /**
+   * Static helper to fetch diagnostics from a Runner, even if not debugging.
+   * Uses field reads instead of method invocations to avoid thread state issues.
+   */
+  public static String getDiagnostics(Runner targetRuntime) {
+    if (targetRuntime == null) return "";
+    VirtualMachine targetVM = targetRuntime.vm();
+    if (targetVM == null) return "";
+
+    targetVM.suspend();
+    try {
+      // Find the PApplet subclass
+      List<ReferenceType> pAppletClasses = targetVM.classesByName("processing.core.PApplet");
+      if (pAppletClasses.isEmpty()) {
+        return "processing.core.PApplet not found in VM";
+      }
+      ClassType pAppletBase = (ClassType) pAppletClasses.get(0);
+      
+      ClassType sketchClass = null;
+      for (ReferenceType type : targetVM.allClasses()) {
+        if (type instanceof ClassType) {
+          ClassType ct = (ClassType) type;
+          ClassType superclass = ct.superclass();
+          while (superclass != null) {
+            if (superclass.equals(pAppletBase)) {
+              sketchClass = ct;
+              break;
+            }
+            superclass = superclass.superclass();
+          }
+          if (sketchClass != null) break;
+        }
+      }
+
+      if (sketchClass == null) {
+        return "Could not find sketch class extending PApplet";
+      }
+
+      // Find instance
+      List<ObjectReference> instances = sketchClass.instances(1);
+      if (instances.isEmpty()) {
+        return "No instance of " + sketchClass.name() + " found";
+      }
+      ObjectReference appletInstance = instances.get(0);
+
+      // Build diagnostics by reading fields directly (no thread required)
+      StringBuilder diag = new StringBuilder();
+      diag.append("Sketch Diagnostics:\n");
+      diag.append("  Class: ").append(sketchClass.name()).append("\n");
+      
+      // Read PApplet fields
+      appendField(diag, appletInstance, pAppletBase, "width");
+      appendField(diag, appletInstance, pAppletBase, "height");
+      appendField(diag, appletInstance, pAppletBase, "pixelDensity");
+      appendField(diag, appletInstance, pAppletBase, "frameCount");
+      appendField(diag, appletInstance, pAppletBase, "frameRate");
+      appendField(diag, appletInstance, pAppletBase, "focused");
+      
+      // Try to get renderer class name from 'g' field (PGraphics)
+      try {
+        Field gField = pAppletBase.fieldByName("g");
+        if (gField != null) {
+          Value gValue = appletInstance.getValue(gField);
+          if (gValue instanceof ObjectReference) {
+            ObjectReference graphics = (ObjectReference) gValue;
+            diag.append("  renderer: ").append(graphics.referenceType().name()).append("\n");
+          }
+        }
+      } catch (Exception e) {
+        diag.append("  renderer: (unavailable)\n");
+      }
+      
+      return diag.toString();
+
+    } catch (Exception e) {
+      return "Error gathering diagnostics: " + e.toString();
+    } finally {
+      targetVM.resume();
+    }
+  }
+  
+  /**
+   * Helper to append a field value to the diagnostics string.
+   */
+  private static void appendField(StringBuilder sb, ObjectReference obj, ClassType type, String fieldName) {
+    try {
+      Field field = type.fieldByName(fieldName);
+      if (field != null) {
+        Value value = obj.getValue(field);
+        sb.append("  ").append(fieldName).append(": ");
+        if (value == null) {
+          sb.append("null");
+        } else if (value instanceof com.sun.jdi.PrimitiveValue) {
+          sb.append(value.toString());
+        } else if (value instanceof StringReference) {
+          sb.append(((StringReference) value).value());
+        } else {
+          sb.append(value.toString());
+        }
+        sb.append("\n");
+      }
+    } catch (Exception e) {
+      sb.append("  ").append(fieldName).append(": (error: ").append(e.getMessage()).append(")\n");
+    }
+  }
+
 
 
 //  /** Print the current stack trace. */
