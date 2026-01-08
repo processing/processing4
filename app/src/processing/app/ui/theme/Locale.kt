@@ -7,7 +7,6 @@ import processing.app.Messages
 import processing.app.watchFile
 import processing.utils.Settings
 import java.io.File
-import java.io.InputStream
 import java.util.*
 
 /**
@@ -26,21 +25,18 @@ import java.util.*
 class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)? = null) : Properties() {
     var locale: java.util.Locale = java.util.Locale.getDefault()
 
+    fun loadResource(resourcePath: String) {
+        val stream = ClassLoader.getSystemResourceAsStream(resourcePath) ?: return
+        load(stream.reader(Charsets.UTF_8))
+    }
+
     init {
-        val locale = java.util.Locale.getDefault()
-        load(ClassLoader.getSystemResourceAsStream("languages/PDE.properties"))
-        load(
-            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.language}.properties")
-                ?: InputStream.nullInputStream()
-        )
-        load(
-            ClassLoader.getSystemResourceAsStream("languages/PDE_${locale.toLanguageTag()}.properties")
-                ?: InputStream.nullInputStream()
-        )
-        load(
-            ClassLoader.getSystemResourceAsStream("languages/PDE_${language}.properties")
-                ?: InputStream.nullInputStream()
-        )
+        loadResource("languages/PDE.properties")
+        loadResource("languages/PDE_${locale.language}.properties")
+        loadResource("languages/PDE_${locale.toLanguageTag()}.properties")
+        if (language.isNotEmpty()) {
+            loadResource("languages/PDE_${language}.properties")
+        }
     }
 
     @Deprecated("Use get instead", ReplaceWith("get(key)"))
