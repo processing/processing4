@@ -103,15 +103,17 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
         ReactiveProperties().apply {
             val defaultsStream = ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME)
                 ?: InputStream.nullInputStream()
-            load(
-                defaultsStream
-                    .reader(Charsets.UTF_8)
-            )
-            load(
-                preferencesFile
-                    .inputStream()
-                    .reader(Charsets.UTF_8)
-            )
+            defaultsStream
+                .reader(Charsets.UTF_8)
+                .use { reader ->
+                    load(reader)
+                }
+            preferencesFile
+                .inputStream()
+                .reader(Charsets.UTF_8)
+                .use { reader ->
+                    load(reader)
+                }
         }
     }
 
@@ -135,6 +137,7 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
                     
                     // Reload legacy Preferences
                     Preferences.init()
+                    output.close()
                 }
             }
     }
