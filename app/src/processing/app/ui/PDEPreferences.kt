@@ -99,7 +99,7 @@ class PDEPreferences {
             Interface.register()
             Coding.register()
             Sketches.register()
-            Other.register(panes)
+            Other.register()
         }
 
         /**
@@ -110,6 +110,8 @@ class PDEPreferences {
         fun preferences() {
             val locale = LocalLocale.current
             var preferencesQuery by remember { mutableStateOf("") }
+
+            Other.handleOtherPreferences(panes)
 
             /**
              * Filter panes based on the search query.
