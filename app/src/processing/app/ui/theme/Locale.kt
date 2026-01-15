@@ -62,6 +62,7 @@ class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)?
  * ```
  */
 val LocalLocale = compositionLocalOf<Locale> { error("No Locale Set") }
+var LastLocaleUpdate by mutableStateOf(0L)
 
 /**
  * This composable function sets up a locale provider that manages application localization.
@@ -101,7 +102,11 @@ fun LocaleProvider(content: @Composable () -> Unit) {
     }
 
     val update = watchFile(languageFile)
-    var code by remember(languageFile, update) { mutableStateOf(languageFile.readText().substring(0, 2)) }
+    var code by remember(languageFile, update, LastLocaleUpdate) {
+        mutableStateOf(
+            languageFile.readText().substring(0, 2)
+        )
+    }
     remember(code) {
         val locale = java.util.Locale(code)
         java.util.Locale.setDefault(locale)
@@ -111,6 +116,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
         Messages.log("Setting locale to ${locale.language}")
         languageFile.writeText(locale.language)
         code = locale.language
+        LastLocaleUpdate = System.currentTimeMillis()
     }
 
 
