@@ -38,6 +38,9 @@ class ReactiveProperties : Properties() {
     operator fun set(key: String, value: String) {
         setProperty(key, value)
     }
+    fun remove() {
+        TODO("Not yet implemented")
+    }
 }
 
 /*
