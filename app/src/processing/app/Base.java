@@ -198,6 +198,8 @@ public class Base {
     // run static initialization that grabs all the prefs
     Preferences.init();
 
+      PreferencesEvents.onUpdated(Preferences::init);
+
     // boolean flag indicating whether to create new server instance or not
     boolean createNewInstance = DEBUG || !SingleInstance.alreadyRunning(args);
 
