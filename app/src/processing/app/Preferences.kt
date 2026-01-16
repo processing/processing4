@@ -1,12 +1,9 @@
 package processing.app
 
 import androidx.compose.runtime.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.dropWhile
-import kotlinx.coroutines.launch
 import processing.utils.Settings
 import java.io.File
 import java.io.InputStream
@@ -134,10 +131,9 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
                             .joinToString("\n") { (key, value) -> "$key=$value" }
                             .toByteArray()
                     )
-                    
-                    // Reload legacy Preferences
-                    Preferences.init()
                     output.close()
+
+                    PreferencesEvents.updated()
                 }
             }
     }
@@ -205,4 +201,19 @@ fun watchFile(file: File): Any? {
         }
     }
     return event
+}
+
+class PreferencesEvents {
+    companion object {
+        val updatedListeners = mutableListOf<Runnable>()
+
+        @JvmStatic
+        fun onUpdated(callback: Runnable) {
+            updatedListeners.add(callback)
+        }
+
+        fun updated() {
+            updatedListeners.forEach { it.run() }
+        }
+    }
 }
