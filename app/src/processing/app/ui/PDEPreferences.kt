@@ -443,7 +443,7 @@ private val LocalModifiablePreferences =
     compositionLocalOf { ModifiablePreference(null, false, { }, {}) }
 
 /**
- * Composable function that provides a modifiable copy of the current preferences.
+ * Composable function that captures an initial copy of the current preferences.
  * This allows for temporary changes to preferences that can be reset or applied later.
  *
  * @param content The composable content that will have access to the modifiable preferences.
@@ -500,13 +500,13 @@ private fun CapturePreferences(content: @Composable () -> Unit) {
     }
 
     val apply = {
-        modified.entries.forEach { (key, value) ->
-            prefs.setProperty(key as String, (value ?: "") as String)
+        prefs.entries.forEach { (key, value) ->
+            modified.setProperty(key as String, (value ?: "") as String)
         }
     }
     val reset = {
         modified.entries.forEach { (key, value) ->
-            modified.setProperty(key as String, prefs[key] ?: "")
+            prefs.setProperty(key as String, modified[key] ?: "")
         }
     }
     val state = ModifiablePreference(
@@ -517,7 +517,6 @@ private fun CapturePreferences(content: @Composable () -> Unit) {
     )
 
     CompositionLocalProvider(
-        LocalPreferences provides modified,
         LocalModifiablePreferences provides state
     ) {
         content()
