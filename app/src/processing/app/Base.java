@@ -487,6 +487,7 @@ public class Base {
     buildCoreModes();
     rebuildContribModes();
     rebuildContribExamples();
+      rebuildToolList();
 
     // Needs to happen after the sketchbook folder has been located.
     // Also relies on the modes to be loaded, so it knows what can be
