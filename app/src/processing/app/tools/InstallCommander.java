@@ -21,13 +21,6 @@
 
 package processing.app.tools;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.PrintWriter;
-
-import javax.swing.JOptionPane;
-
 import processing.app.Base;
 import processing.app.Language;
 import processing.app.Messages;
@@ -35,6 +28,12 @@ import processing.app.Platform;
 import processing.app.ui.Editor;
 import processing.core.PApplet;
 import processing.data.StringList;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 
 public class InstallCommander implements Tool {
@@ -92,7 +91,7 @@ public class InstallCommander implements Tool {
         var appBinary = (resourcesDir
                 .split("\\.app")[0] + ".app/Contents/MacOS/Processing")
                 .replaceAll(" ", "\\\\ ");
-        writer.print(appBinary + " cli $@");
+          writer.print(appBinary + " $@");
 
       } else {
         // Ant based distributable
@@ -130,7 +129,7 @@ public class InstallCommander implements Tool {
         // Moving to /usr/local/bin instead of /usr/bin for compatibility
         // with OS X 10.11 and its "System Integrity Protection"
         // https://github.com/processing/processing/issues/3497
-        String targetPath = "/usr/local/bin/processing-java";
+          String targetPath = "/usr/local/bin/processing";
         // Remove the old version in case it exists
         // https://github.com/processing/processing/issues/3786
         String oldPath = "/usr/bin/processing-java";
@@ -142,11 +141,11 @@ public class InstallCommander implements Tool {
         PApplet.exec(new String[] { "osascript", "-e", appleScript });
 
       } else if (result == JOptionPane.NO_OPTION) {
-        File targetFile = new File(System.getProperty("user.home"), "processing-java");
+          File targetFile = new File(System.getProperty("user.home"), "processing");
         String targetPath = targetFile.getAbsolutePath();
         if (targetFile.exists()) {
           Messages.showWarning("File Already Exists",
-                               "The processing-java program already exists at:\n" +
+                  "The processing program already exists at:\n" +
                                targetPath + "\n" +
                                "Please remove it and try again.");
         } else {
