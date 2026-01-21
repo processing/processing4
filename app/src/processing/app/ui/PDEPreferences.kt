@@ -27,6 +27,7 @@ import androidx.compose.ui.window.application
 import com.mikepenz.markdown.compose.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import processing.app.DEFAULTS_FILE_NAME
 import processing.app.LocalPreferences
 import processing.app.ReactiveProperties
 import processing.app.ui.PDEPreferences.Companion.preferences
@@ -35,6 +36,7 @@ import processing.app.ui.theme.*
 import java.awt.Dimension
 import java.awt.event.WindowEvent
 import java.awt.event.WindowListener
+import java.util.*
 import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
 
@@ -592,9 +594,16 @@ fun PDEPreferencePane.showPane(groups: PDEPreferenceGroups) {
                 val prefs = LocalPreferences.current
                 TextButton(
                     onClick = {
+                        val defaultsStream =
+                            ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME) ?: return@TextButton
+                        val defaults = Properties().apply {
+                            defaultsStream.reader(Charsets.UTF_8).use {
+                                load(it)
+                            }
+                        }
                         groups.forEach { group ->
                             group.forEach { pref ->
-                                prefs.remove(pref.key)
+                                prefs[pref.key] = defaults.getProperty(pref.key, "")
                             }
                         }
                     }
