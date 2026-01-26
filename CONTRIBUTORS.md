@@ -248,6 +248,7 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/npNSU"><img src="https://avatars.githubusercontent.com/u/179620963?v=4?s=120" width="120px;" alt="Nia Perez"/><br /><sub><b>Nia Perez</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=npNSU" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/SuganthiThomas"><img src="https://avatars.githubusercontent.com/u/150956406?v=4?s=120" width="120px;" alt="SuganthiThomas"/><br /><sub><b>SuganthiThomas</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=SuganthiThomas" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://github.com/madhav2348"><img src="https://avatars.githubusercontent.com/u/161720210?v=4?s=120" width="120px;" alt="Madhav Majumdar"/><br /><sub><b>Madhav Majumdar</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=madhav2348" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

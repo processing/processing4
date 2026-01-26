@@ -371,6 +371,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       });
     }
 
+      PreferencesEvents.onUpdated(this::updateTheme);
   }
 
 

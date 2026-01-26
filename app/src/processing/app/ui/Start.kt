@@ -78,7 +78,7 @@ class Start {
                                 .addAWTEventListener({ event ->
                                     if (event.id != WindowEvent.WINDOW_OPENED) return@addAWTEventListener
 
-                                    visible = false
+                                    starting = false
                                 }, AWTEvent.WINDOW_EVENT_MASK);
                         }
                         Image(
