@@ -8,7 +8,6 @@ plugins {
 
 repositories {
     mavenCentral()
-    maven { url = uri("https://jogamp.org/deployment/maven") }
 }
 
 sourceSets{
