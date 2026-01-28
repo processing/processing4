@@ -2008,8 +2008,8 @@ public class PApplet implements PConstants {
    * @see PGraphics
    */
   public PImage createImage(int w, int h, int format) {
-    PImage image = new PImage(w, h, format);
-    image.parent = this;  // make save() work
+    PImage image = (g != null) ? g.createImage(w, h, format) : new PImage(w, h, format);
+    image.parent = this;
     return image;
   }
 
