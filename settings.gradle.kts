@@ -13,7 +13,4 @@ include(
     "java:libraries:serial",
     "java:libraries:svg"
 )
-
 include("app:utils")
-include(":visual-tests")
-
