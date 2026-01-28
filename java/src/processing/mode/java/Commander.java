@@ -401,7 +401,7 @@ public class Commander implements RunnerListener {
     out.println("be passed through to the sketch itself, and therefore available to the");
     out.println("sketch via the 'args' field. To pass options understood by PApplet.main(),");
     out.println("write a custom main() method so that the preprocessor does not add one.");
-    out.println("https://github.com/processing/processing/wiki/Command-Line");
+    out.println("https://github.com/processing/processing4/wiki/Command-Line");
     out.println();
   }
 
