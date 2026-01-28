@@ -32,6 +32,7 @@ import processing.app.Base;
 import processing.app.Platform;
 import processing.app.Preferences;
 import processing.app.RunnerListener;
+import processing.app.Settings;
 import processing.app.Sketch;
 import processing.utils.SketchException;
 import processing.app.Util;
@@ -145,7 +146,24 @@ public class Commander implements RunnerListener {
         if (!sketchFolder.exists()) {
           complainAndQuit(sketchFolder + " does not exist.", false);
         }
-        File pdeFile = new File(sketchFolder, sketchFolder.getName() + ".pde");
+        
+        // Check for main file in sketch.properties first, then fall back to default
+        File pdeFile = null;
+        try {
+          Settings props = new Settings(new File(sketchFolder, "sketch.properties"));
+          String mainFileName = props.get("main");
+          if (mainFileName != null) {
+            pdeFile = new File(sketchFolder, mainFileName);
+          }
+        } catch (IOException e) {
+          // sketch.properties doesn't exist or couldn't be read, will use default
+        }
+        
+        // Fall back to default naming convention if no custom main file specified
+        if (pdeFile == null || !pdeFile.exists()) {
+          pdeFile = new File(sketchFolder, sketchFolder.getName() + ".pde");
+        }
+        
         if (!pdeFile.exists()) {
           complainAndQuit("Not a valid sketch folder. " + pdeFile + " does not exist.", true);
         }
