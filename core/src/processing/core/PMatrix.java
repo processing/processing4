@@ -208,7 +208,5 @@ public interface PMatrix {
   /**
    * Print the matrix data to the console.
    */
-  default void print() {
-    System.out.println(this);
-  }
+  public void print();
 }
