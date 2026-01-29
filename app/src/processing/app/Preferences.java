@@ -336,7 +336,15 @@ public class Preferences {
 
 
   static public int getInteger(String attribute /*, int defaultValue*/) {
-    return Integer.parseInt(get(attribute));
+    try {
+      return Integer.parseInt(get(attribute));
+    } catch (NumberFormatException err) {
+      try {
+        return Integer.parseInt(getDefault(attribute));
+      } catch (NumberFormatException err2) {
+        throw new IllegalArgumentException("Cannot parse: " + attribute);
+      }
+    }
   }
 
 
