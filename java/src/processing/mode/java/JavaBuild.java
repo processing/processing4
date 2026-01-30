@@ -997,7 +997,7 @@ public class JavaBuild {
       XML clazzPath = config.addChild("classPath");
       clazzPath.addChild("mainClass").setContent(sketch.getMainName());
       for (String jarName : jarList) {
-        clazzPath.addChild("cp").setContent("lib/" + jarName);
+        clazzPath.addChild("cp").setContent("%EXEDIR%/lib/" + jarName);
       }
       XML jre = config.addChild("jre");
       if (embedJava) {
