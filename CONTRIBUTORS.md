@@ -251,6 +251,7 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/madhav2348"><img src="https://avatars.githubusercontent.com/u/161720210?v=4?s=120" width="120px;" alt="Madhav Majumdar"/><br /><sub><b>Madhav Majumdar</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=madhav2348" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/DinoWw"><img src="https://avatars.githubusercontent.com/u/19573337?v=4?s=120" width="120px;" alt="Dino_Ww"/><br /><sub><b>Dino_Ww</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=DinoWw" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/avinxshKD"><img src="https://avatars.githubusercontent.com/u/152387616?v=4?s=120" width="120px;" alt="Avinash Kumar Deepak"/><br /><sub><b>Avinash Kumar Deepak</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=avinxshKD" title="Code">💻</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/sumamasonia/"><img src="https://avatars.githubusercontent.com/u/214366437?v=4?s=120" width="120px;" alt="Sumama Sonia"/><br /><sub><b>Sumama Sonia</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=Sumamasonia" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
