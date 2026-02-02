@@ -411,6 +411,7 @@ tasks.register<Copy>("includeJavaMode") {
     from(java.configurations.runtimeClasspath)
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dirPermissions { unix("rwx------") }
 }
 tasks.register<Copy>("includeJdk") {
     from(Jvm.current().javaHome.absolutePath)
