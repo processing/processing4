@@ -1,4 +1,9 @@
 rootProject.name = "processing"
+
+pluginManagement {
+    includeBuild("gradle/plugins")
+}
+
 include(
     "core",
     "core:examples",
