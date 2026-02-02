@@ -24,6 +24,15 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew test
+
+      - name: Add comment with binaries
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          append: true
+          header: artifacts
+          message: |
+            Tests completed successfully. Build artifacts will be available after the build job.
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
@@ -74,6 +83,7 @@ jobs:
 
       - name: Add artifact for PR
         if: ${{ github.event_name == 'pull_request' }}
+        id: upload-artifact
         uses: actions/upload-artifact@v4
         with:
           name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}
@@ -85,9 +95,9 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           append: true
-          header: '## Build Artifacts'
+          header: artifacts
           message: |
-            ### (${{ matrix.os_prefix }}/${{ matrix.arch }}) Build Artifacts
-            - [Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.download_url }})
+            ### (${{ matrix.os_prefix }}/${{ matrix.arch }})
+            - [Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
