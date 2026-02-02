@@ -54,26 +54,31 @@ public class InstallCommander implements Tool {
     try {
       Editor editor = base.getActiveEditor();
 
-      final String primary =
-        "Install processing-java for all users?";
-      final String secondary =
-        "This will install the processing-java program, which is capable " +
-        "of building and running Java Mode sketches from the command line. " +
-        "Click “Yes” to install it for all users (an administrator password " +
-        "is required), or “No” to place the program in your home directory. " +
-        "If you rename or move Processing.app, " +
-        "you'll need to reinstall the tool.";
+        final String messageHtml = """
+                <html>
+                <head> <style type="text/css">
+                b { font: 13pt "Lucida Grande" }
+                p { font: 11pt "Lucida Grande"; margin-top: 8px; width: 200px }
+                </style> </head>
+                <b>Install processing for all users?</b>
+                <p>
+                This utility will install the processing command line interface,
+                which is capable of building and running
+                sketches from the command line.
+                <br><br>
+                Click “Yes” to install it for all users
+                (an administrator password is required).
+                <br><br>
+                or “No” to place the program in your home directory.
+                <br><br>
+                If you rename or move Processing.app,
+                you'll need to reinstall the tool.
+                </p>
+                """.replaceAll("\n", " ");
 
       int result =
-        JOptionPane.showConfirmDialog(editor,
-                                      "<html> " +
-                                      "<head> <style type=\"text/css\">"+
-                                      "b { font: 13pt \"Lucida Grande\" }"+
-                                      "p { font: 11pt \"Lucida Grande\"; margin-top: 8px; width: 300px }"+
-                                      "</style> </head>" +
-                                      "<b>" + primary + "</b>" +
-                                      "<p>" + secondary + "</p>",
-                                      "Commander",
+              JOptionPane.showConfirmDialog(editor, messageHtml,
+                      "Processing CLI",
                                       JOptionPane.YES_NO_CANCEL_OPTION,
                                       JOptionPane.QUESTION_MESSAGE);
 
@@ -138,7 +143,7 @@ public class InstallCommander implements Tool {
           " && /bin/mv " + sourcePath + " " + targetPath;
         String appleScript =
           "do shell script \"" + shellScript + "\" with administrator privileges";
-        PApplet.exec(new String[] { "osascript", "-e", appleScript });
+          PApplet.exec("osascript", "-e", appleScript);
 
       } else if (result == JOptionPane.NO_OPTION) {
           File targetFile = new File(System.getProperty("user.home"), "processing");
