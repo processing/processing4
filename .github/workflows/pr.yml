@@ -1,9 +1,10 @@
-name: Branch Builds
+name: Pull Requests with Gradle
 on:
-  push:
+  pull_request:
     paths-ignore:
       - '**/*.md'
-      - '.all-contributorsrc'
+    branches:
+      - main
 
 jobs:
   test:
@@ -12,13 +13,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Install Java
-        uses: actions/setup-java@v4
         with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+          fetch-depth: 0
+
+      - name: Setup Processing
+        uses: ./.github/actions/setup
 
       - name: Build with Gradle
         run: ./gradlew test
@@ -33,11 +32,11 @@ jobs:
           - os: ubuntu-24.04-arm
             os_prefix: linux
             arch: aarch64
-            binary: processing*.snap
+            binary: deb/processing*.deb
           - os: ubuntu-latest
             os_prefix: linux
             arch: x64
-            binary: processing*.snap
+            binary: deb/processing*.deb
           - os: windows-latest
             os_prefix: windows
             arch: x64
@@ -51,23 +50,11 @@ jobs:
             arch: aarch64
             binary: dmg/Processing-*.dmg
     steps:
-      - name: Install Snapcraft
-        if: runner.os == 'Linux'
-        uses: samuelmeuli/action-snapcraft@v3
-      - name: Install LXD
-        if: runner.os == 'Linux'
-        uses: canonical/setup-lxd@main
-
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Install Java
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          architecture: ${{ matrix.arch }}
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+
+      - name: Setup Processing
+        uses: ./.github/actions/setup
 
       - name: Build with Gradle
         run: ./gradlew packageDistributionForCurrentOS
@@ -75,6 +62,6 @@ jobs:
       - name: Add artifact
         uses: actions/upload-artifact@v4
         with:
-          name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-br_${{ github.ref_name }}
-          retention-days: 1
+          name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}
+          retention-days: 5
           path: app/build/compose/binaries/main/${{ matrix.binary }}
