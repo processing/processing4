@@ -28,6 +28,8 @@ jobs:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
     needs: test
+    permissions:
+      pull-requests: write
     strategy:
       fail-fast: false
       matrix:
@@ -64,7 +66,28 @@ jobs:
 
       - name: Add artifact
         uses: actions/upload-artifact@v4
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-br_${{ github.ref_name }}
           retention-days: 1
           path: app/build/compose/binaries/main/${{ matrix.binary }}
+
+      - name: Add artifact for PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}
+          retention-days: 5
+          path: app/build/compose/binaries/main/${{ matrix.binary }}
+
+      - name: Add comment with binaries
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          append: true
+          header: '## Build Artifacts'
+          message: |
+            ### (${{ matrix.os_prefix }}/${{ matrix.arch }}) Build Artifacts
+            - [Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.download_url }})
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
