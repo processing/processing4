@@ -21,22 +21,18 @@
 
 package processing.app.ui;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Font;
+import processing.app.Base;
+import processing.app.Platform;
+import processing.app.Preferences;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.border.EmptyBorder;
-
-import processing.app.Base;
-import processing.app.Platform;
-import processing.app.Preferences;
+import static processing.app.ui.WelcomeSurveyKt.addSurveyToWelcomeScreen;
 
 
 public class Welcome {
@@ -47,6 +43,7 @@ public class Welcome {
   public Welcome(Base base) throws IOException {
     this.base = base;
 
+      var parent = Box.createVerticalBox();
     JComponent panel = Box.createHorizontalBox();
     //panel.setBackground(new Color(245, 245, 245));
     panel.setBackground(Color.WHITE);
@@ -71,11 +68,13 @@ public class Welcome {
     button.setFont(Toolkit.getSansFont(14, Font.PLAIN));
     button.addActionListener(e -> view.handleClose());
     panel.add(button);
+      parent.add(addSurveyToWelcomeScreen());
+      parent.add(panel);
 
     File indexFile = getIndexFile();
     if (indexFile == null) return;  // giving up; error already printed
 
-    view = new WebFrame(getIndexFile(), 420, panel) {
+      view = new WebFrame(getIndexFile(), 420, parent) {
       /*
       @Override
       public void handleSubmit(StringDict dict) {

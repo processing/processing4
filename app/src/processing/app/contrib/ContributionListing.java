@@ -21,14 +21,6 @@
 */
 package processing.app.contrib;
 
-import java.awt.EventQueue;
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantLock;
-
 import processing.app.Base;
 import processing.app.Messages;
 import processing.app.UpdateCheck;
@@ -36,6 +28,16 @@ import processing.app.Util;
 import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;
+
+import java.awt.*;
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class ContributionListing {
@@ -275,6 +277,8 @@ public class ContributionListing {
       } catch (MalformedURLException e) {
         progress.setException(e);
         progress.finished();
+      } catch (Exception e) {
+          Messages.log(e.getMessage());
       } finally {
         downloadingLock.unlock();
       }

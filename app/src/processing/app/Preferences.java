@@ -21,14 +21,14 @@
 
 package processing.app;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.SystemColor;
-import java.io.*;
-import java.util.*;
-
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PConstants;
+
+import java.awt.*;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -65,9 +65,11 @@ public class Preferences {
     // start by loading the defaults, in case something
     // important was deleted from the user prefs
     try {
-      // Name changed for 2.1b2 to avoid problems with users modifying or
-      // replacing the file after doing a search for "preferences.txt".
-      load(Base.getLibStream(DEFAULTS_FILE));
+        var defaultsStream = Preferences
+                .class
+                .getClassLoader()
+                .getResourceAsStream(DEFAULTS_FILE);
+        load(defaultsStream);
     } catch (Exception e) {
       Messages.showError(null, "Could not read default settings.\n" +
                          "You'll need to reinstall Processing.", e);
@@ -85,8 +87,13 @@ public class Preferences {
       setBoolean("editor.input_method_support", true);
     }
 
+
     // next load user preferences file
     preferencesFile = Base.getSettingsFile(PREFS_FILE);
+      var preferencesFileOverride = System.getProperty("processing.app.preferences.file");
+      if (preferencesFileOverride != null && !preferencesFileOverride.isEmpty()) {
+          preferencesFile = new File(preferencesFileOverride);
+      }
     boolean firstRun = !preferencesFile.exists();
     if (!firstRun) {
       try {
@@ -136,6 +143,14 @@ public class Preferences {
     initialized = true;
   }
 
+  /**
+   * Check whether Preferences.init() has been called. If not, we are probably not running the full application.
+   * @return true if Preferences has been initialized
+   */
+  static public boolean isInitialized() {
+    return initialized;
+  }
+
 
   static void handleProxy(String protocol, String hostProp, String portProp) {
     String proxyHost = get("proxy." + protocol + ".host");
@@ -169,8 +184,10 @@ public class Preferences {
 
     String[] lines = PApplet.loadStrings(input);  // Reads as UTF-8
     for (String line : lines) {
-      if ((line.length() == 0) ||
+        if ((line.isEmpty()) ||
           (line.charAt(0) == '#')) continue;
+
+        line = line.replace("\\", "/");  // normalize slashes in paths
 
       // this won't properly handle = signs being in the text
       int equals = line.indexOf('=');
@@ -273,9 +290,7 @@ public class Preferences {
 
   static public String get(String attribute /*, String defaultValue */) {
     if (!initialized) {
-      throw new RuntimeException(
-        "Tried reading preferences prior to initialization."
-      );
+        init();
     }
     return table.get(attribute);
   }
@@ -321,7 +336,15 @@ public class Preferences {
 
 
   static public int getInteger(String attribute /*, int defaultValue*/) {
-    return Integer.parseInt(get(attribute));
+    try {
+      return Integer.parseInt(get(attribute));
+    } catch (NumberFormatException err) {
+      try {
+        return Integer.parseInt(getDefault(attribute));
+      } catch (NumberFormatException err2) {
+        throw new IllegalArgumentException("Cannot parse: " + attribute);
+      }
+    }
   }
 
 

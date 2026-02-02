@@ -106,6 +106,7 @@ gradle-app.setting
 # Java heap dump
 
 # End of https://www.toptal.com/developers/gitignore/api/android,gradle,java
+.kotlin/
 .DS_Store
 bin/*
 .build/

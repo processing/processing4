@@ -35,21 +35,10 @@ dependencies {
 
     testImplementation(libs.junit)
 }
-publishing{
-    repositories{
-        maven {
-            name = "App"
-            url = uri(project(":app").layout.buildDirectory.dir("resources-bundled/common/repository").get().asFile.absolutePath)
-        }
-    }
-}
 
 mavenPublishing{
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
-
-    // Only sign if signing is set up
-    if(project.hasProperty("signing.keyId") || project.hasProperty("signing.signingInMemoryKey"))
-        signAllPublications()
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
 
     pom{
         name.set("Processing Core")

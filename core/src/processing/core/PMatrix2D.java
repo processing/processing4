@@ -466,26 +466,15 @@ public class PMatrix2D implements PMatrix {
   //////////////////////////////////////////////////////////////
 
 
+ @Override
   public void print() {
-    int big = (int) abs(max(PApplet.max(abs(m00), abs(m01), abs(m02)),
-                            PApplet.max(abs(m10), abs(m11), abs(m12))));
+    System.out.print(toString());
+  }
 
-    int digits = 1;
-    if (Float.isNaN(big) || Float.isInfinite(big)) {  // avoid infinite loop
-      digits = 5;
-    } else {
-      while ((big /= 10) != 0) digits++;  // cheap log()
-    }
-
-    System.out.println(PApplet.nfs(m00, digits, 4) + " " +
-                       PApplet.nfs(m01, digits, 4) + " " +
-                       PApplet.nfs(m02, digits, 4));
-
-    System.out.println(PApplet.nfs(m10, digits, 4) + " " +
-                       PApplet.nfs(m11, digits, 4) + " " +
-                       PApplet.nfs(m12, digits, 4));
-
-    System.out.println();
+  @Override
+  public String toString() {
+    return PApplet.nfs(m00, 1, 4) + " " + PApplet.nfs(m01, 1, 4) + " " + PApplet.nfs(m02, 1, 4) + "\n" +
+           PApplet.nfs(m10, 1, 4) + " " + PApplet.nfs(m11, 1, 4) + " " + PApplet.nfs(m12, 1, 4) + "\n";
   }
 
 
