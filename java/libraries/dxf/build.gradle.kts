@@ -36,7 +36,7 @@ dependencies{
 mavenPublishing {
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
     signAllPublications()
-    coordinates("$group.java.libraries", name, version.toString())
+    coordinates("$group.core", name, version.toString())
 
     pom {
         name.set("Processing DXF")
