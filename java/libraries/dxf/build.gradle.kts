@@ -28,9 +28,6 @@ sourceSets {
         }
     }
 }
-dependencies{
-    implementation("com.lowagie:itext:2.1.7")
-}
 
 
 mavenPublishing {
