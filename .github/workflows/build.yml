@@ -30,12 +30,14 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: artifacts
+          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
           message: |
             Tests completed successfully. Build artifacts for this pull request will appear below once ready.
             
             ### Build Artifacts
             | Platform | Link |
             |:--|------------------------|
+
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
@@ -99,7 +101,7 @@ jobs:
         with:
           append: true
           header: artifacts
+          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
           message: |
             |(${{ matrix.os_prefix }}/${{ matrix.arch }})|[Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})|
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
