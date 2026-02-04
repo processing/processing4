@@ -32,7 +32,11 @@ jobs:
           append: true
           header: artifacts
           message: |
-            Tests completed successfully. Build artifacts will be available after the build job.
+            Tests completed successfully.
+            
+            ### Build Artifacts
+            |  Platform | Download |
+            |:-:|------------------------|
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
@@ -97,7 +101,6 @@ jobs:
           append: true
           header: artifacts
           message: |
-            ### (${{ matrix.os_prefix }}/${{ matrix.arch }})
-            - [Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})
+            |(${{ matrix.os_prefix }}/${{ matrix.arch }})|[Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})|
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
