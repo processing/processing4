@@ -29,14 +29,13 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          append: true
           header: artifacts
           message: |
-            Tests completed successfully.
+            Tests completed successfully. Build artifacts for this pull request will appear below once ready.
             
             ### Build Artifacts
-            |  Platform | Download |
-            |:-:|------------------------|
+            | Platform | Link |
+            |:--|------------------------|
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
