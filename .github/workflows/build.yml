@@ -65,6 +65,6 @@ jobs:
       - name: Add artifact
         uses: actions/upload-artifact@v4
         with:
-          name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-br_${{ github.ref_name }}
+          name: processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-br_${{ github.sha }}
           retention-days: 1
           path: app/build/compose/binaries/main/${{ matrix.binary }}
