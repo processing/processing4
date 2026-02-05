@@ -571,7 +571,7 @@ fun showWelcomeScreen(base: Base? = null) {
         unique = WelcomeScreen::class,
         fullWindowContent = true
     ) {
-        PDEWelcomeWithSurvey(base)
+        PDEWelcome(base)
     }
 }
 
@@ -620,12 +620,12 @@ fun main(){
     application {
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = true) {
-                PDEWelcomeWithSurvey()
+                PDEWelcome()
             }
         }
         PDEComposeWindow(titleKey = titleKey, size = size, fullWindowContent = true) {
             PDETheme(darkTheme = false) {
-                PDEWelcomeWithSurvey()
+                PDEWelcome()
             }
         }
     }
