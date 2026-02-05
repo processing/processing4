@@ -23,17 +23,6 @@ import processing.app.ui.theme.LocalLocale
 import processing.app.ui.theme.PDETheme
 import javax.swing.JComponent
 
-
-fun addSurveyToWelcomeScreen(): JComponent {
-    return ComposePanel().apply {
-        setContent {
-            PDETheme {
-                SurveyInvitation()
-            }
-        }
-    }
-}
-
 @Composable
 fun SurveyInvitation() {
     val locale = LocalLocale.current
