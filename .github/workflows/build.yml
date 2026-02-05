@@ -25,18 +25,17 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew test
 
-      - name: Add comment with binaries
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: artifacts
-          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
-          message: |
-            Tests completed successfully. Build artifacts for this pull request will appear below once ready.
-            
-            ### Build Artifacts
-            | Platform | Link |
-            |:--|------------------------|
+  #      - name: Add comment with binaries
+  #        if: ${{ github.event_name == 'pull_request' }}
+  #        uses: marocchino/sticky-pull-request-comment@v2
+  #        with:
+  #          header: artifacts
+  #          message: |
+  #            Tests completed successfully. Build artifacts for this pull request will appear below once ready.
+  #
+  #            ### Build Artifacts
+  #            | Platform | Link |
+  #            |:--|------------------------|
 
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
@@ -95,13 +94,12 @@ jobs:
           retention-days: 5
           path: app/build/compose/binaries/main/${{ matrix.binary }}
 
-      - name: Add comment with binaries
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          append: true
-          header: artifacts
-          GITHUB_TOKEN: ${{ secrets.PR_PAT }}
-          message: |
-            |(${{ matrix.os_prefix }}/${{ matrix.arch }})|[Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})|
+        #      - name: Add comment with binaries
+        #        if: ${{ github.event_name == 'pull_request' }}
+        #        uses: marocchino/sticky-pull-request-comment@v2
+        #        with:
+        #          append: true
+        #          header: artifacts
+        #          message: |
+        #            |(${{ matrix.os_prefix }}/${{ matrix.arch }})|[Download processing-${{ matrix.os_prefix }}-${{ matrix.arch }}-pr_${{ github.event.pull_request.number }}](${{ steps.upload-artifact.outputs.artifact-url }})|
         
