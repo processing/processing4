@@ -2946,4 +2946,13 @@ public abstract class Editor extends JFrame implements RunnerListener {
       super.show(component, x, y);
     }
   }
+
+  /**
+   * Called when clicking on the version number in the footer.
+   * Return a string with diagnostic info from the sketch,
+   * or empty string (or null) if not implemented/available.
+   */
+  public String getSketchDiagnostics() {
+    return "";
+  }
 }

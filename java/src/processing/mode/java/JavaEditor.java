@@ -2234,4 +2234,14 @@ public class JavaEditor extends Editor {
     }
     return count;
   }
+
+  @Override
+  public String getSketchDiagnostics() {
+    if (debugger.isStarted()) {
+      return debugger.getDiagnostics();
+    } else if (runtime != null) {
+      return Debugger.getDiagnostics(runtime);
+    }
+    return super.getSketchDiagnostics();
+  }
 }
