@@ -1,5 +1,6 @@
 plugins{
     id("org.processing.library")
+    alias(libs.plugins.mavenPublish)
 }
 
 processing {
@@ -27,9 +28,41 @@ sourceSets {
         }
     }
 }
-dependencies{
-    implementation("com.lowagie:itext:2.1.7")
+
+
+mavenPublishing {
+    publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+    signAllPublications()
+    coordinates("$group.core", name, version.toString())
+
+    pom {
+        name.set("Processing DXF")
+        description.set("Processing DFX")
+        url.set("https://processing.org")
+        licenses {
+            license {
+                name.set("LGPL")
+                url.set("https://www.gnu.org/licenses/lgpl-2.1.html")
+            }
+        }
+        developers {
+            developer {
+                id.set("steftervelde")
+                name.set("Stef Tervelde")
+            }
+            developer {
+                id.set("benfry")
+                name.set("Ben Fry")
+            }
+        }
+        scm {
+            url.set("https://github.com/processing/processing4")
+            connection.set("scm:git:git://github.com/processing/processing4.git")
+            developerConnection.set("scm:git:ssh://git@github.com/processing/processing4.git")
+        }
+    }
 }
+
 
 /**
  * @deprecated Legacy task, use 'bundleLibrary' task provided by 'org.processing.library' plugin
