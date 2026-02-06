@@ -81,6 +81,7 @@ legacyLibraries.forEach { library ->
         include("library/**/*")
         include("examples/**/*")
         into( javaMode("/libraries/$library"))
+        dirPermissions { unix("rwx------") };
     }
     bundle.configure {
         dependsOn("library-$library-extraResources")
