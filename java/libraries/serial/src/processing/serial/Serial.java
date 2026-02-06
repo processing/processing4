@@ -259,12 +259,8 @@ public class Serial implements SerialPortEventListener {
   }
 
 
-  /**
-   * @deprecated No longer supported
-   */
-  @Deprecated
   public static Map<String, String> getProperties(String portName) {
-    return new java.util.HashMap<>();
+    return SerialPortList.getPortProperties(portName);
   }
 
 
