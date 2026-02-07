@@ -44,3 +44,7 @@ publishing{
         }
     }
 }
+
+tasks.withType<Test>().configureEach {
+    systemProperty("project.group", group ?: "org.processing")
+}
