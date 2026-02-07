@@ -44,7 +44,8 @@ publishing{
         }
     }
 }
-
+// Grab the group before running tests, since the group is used in the test configuration and may be modified by the publishing configuration
+val testGroup = group.toString()
 tasks.withType<Test>().configureEach {
-    systemProperty("project.group", group ?: "org.processing")
+    systemProperty("project.group", testGroup)
 }
