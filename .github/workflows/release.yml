@@ -86,7 +86,19 @@ jobs:
       - name: Setup Processing
         uses: ./.github/actions/setup
 
-      - name: Build with Gradle
+      - name: Publish plugins to Gradle Plugin Portal
+        run: ./gradlew publishPlugins
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+
+          ORG_GRADLE_PROJECT_version: ${{ needs.version.outputs.version }}
+          ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
+                
+      - name: Publish internal plugins to Gradle Plugin Portal
         run: ./gradlew -c gradle/plugins/settings.gradle.kts publishPlugins
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
