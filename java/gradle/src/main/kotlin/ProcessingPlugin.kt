@@ -20,7 +20,10 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val sketchName = project.layout.projectDirectory.asFile.name.replace(Regex("[^a-zA-Z0-9_]"), "_")
 
         val isProcessing = project.findProperty("processing.version") != null
-        val processingVersion = project.findProperty("processing.version") as String? ?: "4.3.4"
+        val processingVersion = project.findProperty("processing.version") as String?
+            ?: javaClass.classLoader.getResourceAsStream("version.properties")?.use { stream ->
+                java.util.Properties().apply { load(stream) }.getProperty("version")
+            } ?: "4.3.4"
         val processingGroup = project.findProperty("processing.group") as String? ?: "org.processing"
         val workingDir = project.findProperty("processing.workingDir") as String?
         val debugPort = project.findProperty("processing.debugPort") as String?
