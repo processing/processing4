@@ -39,3 +39,15 @@ publishing{
         }
     }
 }
+
+tasks.register("writeVersion") {
+    // make the version available to the plugin at runtime by writing it to a properties file in the resources directory
+    doLast {
+        val file = layout.buildDirectory.file("resources/main/version.properties").get().asFile
+        file.parentFile.mkdirs()
+        file.writeText("version=${project.version}")
+    }
+}
+tasks.named("processResources") {
+    dependsOn("writeVersion")
+}
