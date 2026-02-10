@@ -20,7 +20,7 @@ class ProcessingPluginTest{
         val sketchFolder = directory.newFolder("sketch")
         directory.newFile("sketch/build.gradle.kts").writeText("""
             plugins {
-                id("org.processing.java")
+                id("${System.getProperty("project.group")}.java")
             }
         """.trimIndent())
         directory.newFile("sketch/settings.gradle.kts")

@@ -33,6 +33,19 @@ class Sketches {
         fun register() {
             PDEPreferences.register(
                 PDEPreference(
+                    key = "run.use_gradle",
+                    descriptionKey = "preferences.use_modern_build_system",
+                    pane = sketches,
+                    control = { preference, setPreference ->
+                        Switch(
+                            checked = preference?.toBoolean() ?: false,
+                            onCheckedChange = {
+                                setPreference(it.toString())
+                            }
+                        )
+                    }
+                ),
+                PDEPreference(
                     key = "run.display",
                     descriptionKey = "preferences.run_sketches_on_display",
                     pane = sketches,
@@ -157,8 +170,9 @@ class Sketches {
                                 }
                         )
                     }
+                ),
+
                 )
-            )
         }
         val Select_window: ImageVector
             get() {

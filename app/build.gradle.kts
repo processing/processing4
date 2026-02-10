@@ -51,27 +51,66 @@ compose.desktop {
     application {
         mainClass = "processing.app.ProcessingKt"
 
-        jvmArgs(*listOf(
+        jvmArgs(
+            *listOf(
+                Pair("processing.group", group),
             Pair("processing.version", rootProject.version),
             Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
             Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
             Pair("processing.download.page", "https://processing.org/download/"),
             Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
             Pair("processing.tutorials", "https://processing.org/tutorials/"),
-        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+        ).map { "-D${it.first}=${it.second}" }.toTypedArray()
+        )
 
         nativeDistributions{
-            modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi", "java.scripting", "jdk.httpserver")
+            modules(
+                "jdk.jdi",
+                "java.compiler",
+                "jdk.accessibility",
+                "jdk.zipfs",
+                "java.management.rmi",
+                "java.scripting",
+                "jdk.httpserver"
+            )
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "Processing"
 
 
 
 
-            fileAssociation("application/x-processing","pde", "Processing Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pde.ico"), rootProject.file("build/macos/pde.icns"))
-            fileAssociation("application/x-processing","pyde", "Processing Python Source Code",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pde.ico"), rootProject.file("build/macos/pde.icns"))
-            fileAssociation("application/x-processing","pdez", "Processing Sketch Bundle",rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pdze.ico"), rootProject.file("build/macos/pdez.icns"))
-            fileAssociation("application/x-processing","pdex", "Processing Contribution Bundle", rootProject.file("build/shared/lib/icons/pde-512.png"), rootProject.file("build/windows/pdex.ico"), rootProject.file("build/macos/pdex.icns"))
+            fileAssociation(
+                "application/x-processing",
+                "pde",
+                "Processing Source Code",
+                rootProject.file("build/shared/lib/icons/pde-512.png"),
+                rootProject.file("build/windows/pde.ico"),
+                rootProject.file("build/macos/pde.icns")
+            )
+            fileAssociation(
+                "application/x-processing",
+                "pyde",
+                "Processing Python Source Code",
+                rootProject.file("build/shared/lib/icons/pde-512.png"),
+                rootProject.file("build/windows/pde.ico"),
+                rootProject.file("build/macos/pde.icns")
+            )
+            fileAssociation(
+                "application/x-processing",
+                "pdez",
+                "Processing Sketch Bundle",
+                rootProject.file("build/shared/lib/icons/pde-512.png"),
+                rootProject.file("build/windows/pdze.ico"),
+                rootProject.file("build/macos/pdez.icns")
+            )
+            fileAssociation(
+                "application/x-processing",
+                "pdex",
+                "Processing Contribution Bundle",
+                rootProject.file("build/shared/lib/icons/pde-512.png"),
+                rootProject.file("build/windows/pdex.ico"),
+                rootProject.file("build/macos/pdex.icns")
+            )
 
             macOS{
                 bundleID = "${rootProject.group}.app"
@@ -126,6 +165,9 @@ dependencies {
     implementation(libs.kaml)
     implementation(libs.markdown)
     implementation(libs.markdownJVM)
+    implementation(gradleApi())
+    implementation(libs.clikt)
+    implementation(libs.kotlinxSerializationJson)
 
     implementation(libs.clikt)
     implementation(libs.kotlinxSerializationJson)
@@ -136,7 +178,6 @@ dependencies {
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
-    
 }
 
 tasks.test {
@@ -265,7 +306,7 @@ tasks.register("generateSnapConfiguration"){
         )
     }
 }
-tasks.register("generateFlatpakConfiguration"){
+tasks.register("generateFlatpakConfiguration") {
     val identifier = findProperty("flathubidentifier") as String? ?: "org.processing.pde"
 
     val dir = distributable().destinationDir.get()
@@ -289,7 +330,7 @@ fun replaceVariablesInFile(
     target: RegularFile,
     variables: Map<String, String>,
     sections: List<String>
-){
+) {
     var content = source.asFile.readText()
     for ((key, value) in variables) {
         content = content.replace("\$$key", value)
@@ -318,7 +359,7 @@ tasks.register<Exec>("packageSnap"){
     commandLine("snapcraft")
 }
 
-tasks.register<Exec>("buildFlatpak"){
+tasks.register<Exec>("buildFlatpak") {
     onlyIf { OperatingSystem.current().isLinux }
     dependsOn("generateFlatpakConfiguration")
     group = "compose desktop"
@@ -338,7 +379,7 @@ tasks.register<Exec>("buildFlatpak"){
     )
 }
 
-tasks.register<Exec>("packageFlatpak"){
+tasks.register<Exec>("packageFlatpak") {
     onlyIf { OperatingSystem.current().isLinux }
     dependsOn("buildFlatpak")
     group = "compose desktop"
@@ -468,7 +509,7 @@ tasks.register<Copy>("includeJavaModeResources") {
 }
 // TODO: Move to java mode
 tasks.register<Copy>("renameWindres") {
-    dependsOn("includeSharedAssets","includeJavaModeResources")
+    dependsOn("includeSharedAssets", "includeJavaModeResources")
     val dir = composeResources("modes/java/application/launch4j/bin/")
     val os = DefaultNativePlatform.getCurrentOperatingSystem()
     val platform = when {
@@ -571,9 +612,9 @@ tasks.register("signResources"){
         }
         file(composeResources("Info.plist")).delete()
     }
-
-
 }
+
+
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
     group = "compose desktop"
@@ -598,6 +639,15 @@ tasks.register("setExecutablePermissions") {
 afterEvaluate {
     tasks.named("prepareAppResources").configure {
         dependsOn("includeProcessingResources")
+        // Make sure all libraries are bundled in the maven repository distributed with the app
+        dependsOn(
+            listOf(
+                "core",
+                "java:preprocessor",
+                "java:gradle",
+                "java:gradle:hotreload",
+                "app:utils"
+            ).map { project(":$it").tasks.named("publishAllPublicationsToAppRepository") })
     }
     tasks.named("createDistributable").configure {
         dependsOn("includeJdk")

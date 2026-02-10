@@ -49,9 +49,9 @@ publishing{
 mavenPublishing{
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 
-    // Only sign if signing is set up
-    if(project.hasProperty("signing.keyId") || project.hasProperty("signingInMemoryKey"))
+    if (project.hasProperty("signingInMemoryKey")) {
         signAllPublications()
+    }
 
     pom{
         name.set("Processing Pre-processor")

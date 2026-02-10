@@ -21,15 +21,20 @@ dependencies{
     testImplementation(libs.junit)
 }
 
-// TODO: CI/CD for publishing the plugin to the Gradle Plugin Portal
 gradlePlugin{
+    website = "https://processing.org/"
+    vcsUrl = "https://github.com/processing/processing4"
     plugins{
         create("processing.java"){
-            id = "org.processing.java"
+            id = "${project(":java").group}.java"
+            displayName = "Processing Plugin"
+            description = "Gradle plugin for building Processing sketches"
+            tags = listOf("processing", "sketch", "dsl")
             implementationClass = "org.processing.java.gradle.ProcessingPlugin"
         }
     }
 }
+
 publishing{
     repositories{
         mavenLocal()
@@ -38,6 +43,9 @@ publishing{
             url = uri(project(":app").layout.buildDirectory.dir("resources-bundled/common/repository").get().asFile.absolutePath)
         }
     }
+}
+tasks.withType<Test>().configureEach {
+    systemProperty("project.group", project(":java").group)
 }
 
 tasks.register("writeVersion") {

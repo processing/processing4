@@ -13,6 +13,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import processing.app.api.Contributions
 import processing.app.api.SketchCommand
 import processing.app.api.Sketchbook
+import processing.app.gradle.api.Sketch
 import processing.app.ui.Start
 import java.io.File
 import java.util.prefs.Preferences
@@ -34,7 +35,8 @@ suspend fun main(args: Array<String>){
             LegacyCLI(args),
             Contributions(),
             Sketchbook(),
-            SketchCommand()
+            SketchCommand(),
+            Sketch()
         )
         .main(args)
 }

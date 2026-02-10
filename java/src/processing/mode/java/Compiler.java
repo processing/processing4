@@ -52,6 +52,7 @@ public class Compiler {
    * @throws SketchException Only if there's a problem. Only then.
    */
   static public boolean compile(JavaBuild build) throws SketchException {
+    System.out.println(Language.text("gradle.using_eclipse"));
 
     // This will be filled in if anyone gets angry
     SketchException exception = null;

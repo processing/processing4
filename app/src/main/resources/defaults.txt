@@ -186,6 +186,9 @@ console.temp.days = 7
 console.scrollback.lines = 500
 console.scrollback.chars = 40000
 
+# run java sketches with Gradle aka the Modern Build System
+run.use_gradle = false
+
 # Any additional Java options when running.
 # If you change this and can't run things, it's your own durn fault.
 run.options =

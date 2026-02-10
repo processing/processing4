@@ -74,6 +74,43 @@ jobs:
 
         ORG_GRADLE_PROJECT_version: ${{ needs.version.outputs.version }}
         ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
+
+  publish-gradle:
+    name: Publish Processing Plugins to Gradle Plugin Portal
+    runs-on: ubuntu-latest
+    needs: version
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Processing
+        uses: ./.github/actions/setup
+
+      - name: Publish plugins to Gradle Plugin Portal
+        run: ./gradlew publishPlugins
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+
+          ORG_GRADLE_PROJECT_version: ${{ needs.version.outputs.version }}
+          ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
+                
+      - name: Publish internal plugins to Gradle Plugin Portal
+        run: ./gradlew -c gradle/plugins/settings.gradle.kts publishPlugins
+        env:
+          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
+          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
+
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+
+          ORG_GRADLE_PROJECT_version: ${{ needs.version.outputs.version }}
+          ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
+          ORG_GRADLE_PROJECT_publishingGroup: ${{ vars.GRADLE_GROUP }}
+
   release-windows:
     name: (windows/${{ matrix.arch }}) Create Processing Release
     runs-on: ${{ matrix.os }}
