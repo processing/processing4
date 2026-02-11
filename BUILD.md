@@ -155,6 +155,15 @@ If it is not already installed, you can download it by:
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
 
+### Still not working?
+
+If the issue persists after configuring the correct JDK settings, try cleaning the build to remove previously compiled classes:
+
+```
+./gradlew clean
+```
+
+Then reimport the Gradle project in IntelliJ and rebuild.
 
 ### “Duplicate content roots detected”
 
