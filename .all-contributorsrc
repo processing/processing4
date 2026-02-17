@@ -1705,6 +1705,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "SalmaneKhalili",
+      "name": "Salmane Khalili",
+      "avatar_url": "https://avatars.githubusercontent.com/u/141567440?v=4",
+      "profile": "https://www.linkedin.com/in/salmane-khalili-4223562aa/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "repoType": "github",
