@@ -253,6 +253,9 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
       <td align="center" valign="top" width="16.66%"><a href="https://github.com/avinxshKD"><img src="https://avatars.githubusercontent.com/u/152387616?v=4?s=120" width="120px;" alt="Avinash Kumar Deepak"/><br /><sub><b>Avinash Kumar Deepak</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=avinxshKD" title="Code">💻</a></td>
       <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/sumamasonia/"><img src="https://avatars.githubusercontent.com/u/214366437?v=4?s=120" width="120px;" alt="Sumama Sonia"/><br /><sub><b>Sumama Sonia</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=Sumamasonia" title="Code">💻</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/salmane-khalili-4223562aa/"><img src="https://avatars.githubusercontent.com/u/141567440?v=4?s=120" width="120px;" alt="Salmane Khalili"/><br /><sub><b>Salmane Khalili</b></sub></a><br /><a href="https://github.com/processing/processing4/issues?q=author%3ASalmaneKhalili" title="Bug reports">🐛</a></td>
+    </tr>
   </tbody>
 </table>
 
