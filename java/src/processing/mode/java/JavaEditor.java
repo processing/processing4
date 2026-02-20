@@ -100,16 +100,15 @@ public class JavaEditor extends Editor {
   static final int REFERENCE_PORT = 8053;
   // weird to link to a specific location like this, but it's versioned, so:
   static final String REFERENCE_URL =
-    "https://github.com/processing/processing-website/releases/download/2022-10-05-1459/reference.zip";
+    "https://github.com/processing/processing4/releases/tag/processing-1300-4.4.0";
+  static final String REFERENCE_URL_2 = "https://github.com/processing/processing4/releases/download/processing-1300-4.4.0/processing-4.4.0-reference.zip";
   Boolean useReferenceServer;
-  WebServer referenceServer;
+  ReferenceServer referenceServer;
 
 
   protected JavaEditor(Base base, String path, EditorState state,
                        Mode mode) throws EditorException {
     super(base, path, state, mode);
-
-//    long t1 = System.currentTimeMillis();
 
     jmode = (JavaMode) mode;
 
@@ -126,8 +125,6 @@ public class JavaEditor extends Editor {
 
     preprocService = new PreprocService(this.jmode, this.sketch); 
 
-//    long t5 = System.currentTimeMillis();
-
     usage = new ShowUsage(this, preprocService);
     inspect = new InspectMode(this, preprocService, usage);
     rename = new Rename(this, preprocService, usage);
@@ -138,15 +135,11 @@ public class JavaEditor extends Editor {
 
     errorChecker = new ErrorChecker(this::setProblemList, preprocService);
 
-//    long t7 = System.currentTimeMillis();
-
     for (SketchCode code : getSketch().getCode()) {
       Document document = code.getDocument();
       addDocumentListener(document);
     }
     sketchChanged();
-
-//    long t9 = System.currentTimeMillis();
 
     Toolkit.setMenuMnemonics(textarea.getRightClickPopup());
 
@@ -158,9 +151,6 @@ public class JavaEditor extends Editor {
 
       public void windowGainedFocus(WindowEvent e) { }
     });
-
-//    long t10 = System.currentTimeMillis();
-//    System.out.println("java editor was " + (t10-t9) + " " + (t9-t7) + " " + (t7-t5) + " " + (t5-t1));
   }
 
 
@@ -287,13 +277,7 @@ public class JavaEditor extends Editor {
 
     item = new JMenuItem(Language.text("menu.help.welcome"));
     item.addActionListener(e -> {
-      try {
-        new Welcome(base);
-      } catch (IOException ioe) {
-        Messages.showWarning("Unwelcome Error",
-                             "Please report this error to\n" +
-                             "https://github.com/processing/processing4/issues", ioe);
-      }
+        PDEWelcomeKt.showWelcomeScreen(base);
     });
     menu.add(item);
 
@@ -322,6 +306,18 @@ public class JavaEditor extends Editor {
 //      "menu.help.reference.update" : "menu.help.reference.download");
     item = new JMenuItem(Language.text("menu.help.reference.download"));
     item.addActionListener(e -> new Thread(this::downloadReference).start());
+    menu.add(item);
+
+    menu.addSeparator();
+
+    // Report a bug link opener
+    item = new JMenuItem(Language.text("menu.help.report"));
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.report.url")));
+    menu.add(item);
+
+    // Ask on the Forum link opener
+    item = new JMenuItem(Language.text("menu.help.ask"));
+    item.addActionListener(e -> Platform.openURL(Language.text("menu.help.ask.url")));
     menu.add(item);
 
     menu.addSeparator();
@@ -846,7 +842,7 @@ public class JavaEditor extends Editor {
       }
       if (referenceZip.exists()) {
         try {
-          referenceServer = new WebServer(referenceZip, REFERENCE_PORT);
+          referenceServer = new ReferenceServer(referenceZip, REFERENCE_PORT);
           useReferenceServer = true;
 
         } catch (IOException e) {
@@ -886,10 +882,25 @@ public class JavaEditor extends Editor {
   }
   */
 
+  private String getReferenceDownloadUrl() {
+    String versionName = Base.getVersionName();
+    int revisionInt = Base.getRevision();
+    String revision = String.valueOf(revisionInt);
+
+    if ("unspecified".equals(versionName) || revisionInt == Integer.MAX_VALUE) {
+      return "https://github.com/processing/processing4/releases/download/processing-1300-4.4.0/processing-4.4.0-reference.zip";
+    }
+
+    String url = String.format(
+            "https://github.com/processing/processing4/releases/download/processing-%s-%s/processing-%s-reference.zip",
+            revision, versionName, versionName);
+    System.out.println("Generated URL: " + url);
+    return url;
+  }
 
   private void downloadReference() {
     try {
-      URL source = new URL(REFERENCE_URL);
+      URL source = new URL(getReferenceDownloadUrl());
       HttpURLConnection conn = (HttpURLConnection) source.openConnection();
       HttpURLConnection.setFollowRedirects(true);
       conn.setConnectTimeout(15 * 1000);
@@ -2222,5 +2233,15 @@ public class JavaEditor extends Editor {
       }
     }
     return count;
+  }
+
+  @Override
+  public String getSketchDiagnostics() {
+    if (debugger.isStarted()) {
+      return debugger.getDiagnostics();
+    } else if (runtime != null) {
+      return Debugger.getDiagnostics(runtime);
+    }
+    return super.getSketchDiagnostics();
   }
 }

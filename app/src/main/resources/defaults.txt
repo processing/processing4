@@ -307,3 +307,6 @@ pdex.completion.trigger = false
 pdex.suggest.imports = true
 # Set to false to disable ctrl/cmd-click jump to definition
 pdex.inspectMode.hotkey = true
+
+# Set default theme to automatic based on the users system
+preferences.editor.theme=

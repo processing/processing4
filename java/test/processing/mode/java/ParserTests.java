@@ -17,7 +17,7 @@ import org.junit.Test;
 import processing.app.Preferences;
 import processing.mode.java.preproc.PreprocessorResult;
 import processing.mode.java.preproc.PdePreprocessIssueException;
-import processing.mode.java.preproc.SketchException;
+import processing.utils.SketchException;
 
 
 public class ParserTests {
@@ -280,7 +280,7 @@ public class ParserTests {
 
   @Test
   public void bug1532() {
-    expectRecognitionException("bug1532", 50);
+    expectRecognitionException("bug1532", 43);
   }
 
   @Test

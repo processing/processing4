@@ -3,6 +3,12 @@ description: Request adding a new feature to Processing
 labels: [new feature]
 body:
 
+- type: markdown
+  attributes:
+    value: |
+      > [!TIP]
+      > If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute. Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
+
 - type: dropdown
   id: feature-area
   attributes:
@@ -10,6 +16,7 @@ body:
     description: Choose the sub-area most relevant to your feature request.
     multiple: true
     options:
+      - I'm not sure
       - Accessibility
       - Core/Environment/Rendering
       - PDE
@@ -31,42 +38,40 @@ body:
     required: true
 
 - type: textarea
-  id: feature-description
+  id: feature-details
   attributes:
-    label: Feature description
-    description: Describe the feature in detail. Include how it should work and its intended impact.
-  validations:
-    required: true
-
-- type: textarea
-  id: benefits
-  attributes:
-    label: Benefits
-    description: Outline how this feature would benefit users or improve Processing.
-  validations:
-    required: true
-
-- type: textarea
-  id: challenges
-  attributes:
-    label: Possible challenges
-    description: Discuss any possible challenges or considerations in implementing this feature.
-  validations:
-    required: false
-
-- type: textarea
-  id: additional-context
-  attributes:
-    label: Additional context
-    description: Provide any other information, links, or screenshots that could help illustrate the feature.
-  validations:
-    required: false
-
-
-- type: input
-  attributes:
-    label: Would you like to work on the issue?
+    label: Feature details
     description: |
-      Please let us know if you can work on this or if the issue should be assigned to someone else.
+      Describe the feature you’d like to see added to Processing.
+    value: |
+      #### Feature description
+      Describe the feature in detail. Include how it should work and its intended impact.
+
+      #### Benefits
+      Outline how this feature would benefit users or improve Processing.
+
+      #### Challenges
+      Discuss any possible challenges or considerations in implementing this feature.
+
+      #### Additional context
+      Provide any other information, links, or screenshots that could help illustrate the feature.
   validations:
     required: true
+
+- type: dropdown
+  attributes:
+    label: Would you like to help implement this feature?
+    description: |
+      If not, that’s okay too. Your suggestion is appreciated.
+    options:
+      - No, I’m just suggesting the feature
+      - Yes, I’d like to help with this
+      - I’m not sure yet
+  validations:
+    required: true
+
+- type: markdown
+  attributes:
+    value: |
+      > [!NOTE]
+      > Processing is a community-driven, open-source project. If you have time and interest to help, your contribution would be greatly appreciated! See the [contribution guide](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more. And if you need some guidance or support, we're happy to help you get started.

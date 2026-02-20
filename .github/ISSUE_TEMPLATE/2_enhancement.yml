@@ -3,6 +3,12 @@ description: Suggest an improvement for an existing feature of Processing.
 labels: [enhancement]
 body:
 
+- type: markdown
+  attributes:
+    value: |
+      > [!TIP]
+      > If you have an idea for something Processing doesn’t yet support, **creating a library** is often the best way to contribute. Read more about creating a library [here](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md#adding-new-features-to-processing).
+
 - type: dropdown
   id: feature-area
   attributes:
@@ -10,6 +16,7 @@ body:
     description: Choose the most relevant area for the proposed feature or improvement.
     multiple: true
     options:
+        - I'm not sure
         - Accessibility
         - Core/Environment/Rendering
         - PDE
@@ -39,36 +46,38 @@ body:
 
 - type: textarea
   attributes:
-    label: Desired enhancement
-    description: Describe the improvement you’d like to see with that existing feature
-  validations:
-    required: true
-
-- type: textarea
-  attributes:
-    label: Potential benefits
-    description: Explain how this enhancement could benefit users or improve Processing.
-  validations:
-    required: false
-
-- type: textarea
-  attributes:
-    label: Possible drawbacks
-    description: Consider any possible drawbacks or challenges related to the implementation of this enhancement.
-  validations:
-    required: false
-
-- type: textarea
-  attributes:
-    label: Additional context
-    description: Add any other context or screenshots about the feature request here.
-  validations:
-    required: false
-
-- type: input
-  attributes:
-    label: Would you like to work on the issue?
+    label: Enhancement details
     description: |
-      Please let us know if you can work on this or if the issue should be assigned to someone else.
+      Describe the improvement you’d like to see for this existing feature.
+    value: |
+      #### Enhancement description
+      Describe the enhancement in detail. Include how it should work and its intended impact.
+      
+      #### Benefits
+      Outline how this enhancement would benefit users or improve Processing.
+      
+      #### Challenges
+      Discuss any possible challenges or considerations in implementing this enhancement.
+      
+      #### Additional context
+      Provide any additional context or screenshots that may help clarify the enhancement.
   validations:
     required: true
+
+- type: dropdown
+  attributes:
+    label: Would you like to help implement this enhancement?
+    description: |
+      If not, that’s okay too. Your suggestion is appreciated.
+    options:
+      - No, I’m just suggesting the enhancement
+      - Yes, I’d like to help with this
+      - I’m not sure yet
+  validations:
+    required: true
+
+- type: markdown
+  attributes:
+    value: |
+      > [!NOTE]
+      > Processing is a community-driven, open-source project. If you have time and interest to help, your contribution would be greatly appreciated! See the [contribution guide](https://github.com/processing/processing4/blob/main/CONTRIBUTING.md) to learn more. And if you need some guidance or support, we're happy to help you get started.

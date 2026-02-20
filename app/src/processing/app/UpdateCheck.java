@@ -35,6 +35,7 @@ import processing.app.ui.WelcomeToBeta;
 import processing.core.PApplet;
 
 
+
 /**
  * Threaded class to check for updates in the background.
  * <p/>
@@ -62,6 +63,9 @@ public class UpdateCheck {
 
   static private final long ONE_DAY = 24 * 60 * 60 * 1000;
 
+  public static void doCheck(Base base) {
+    new UpdateCheck(base);
+  }
 
   public UpdateCheck(Base base) {
     this.base = base;
@@ -112,6 +116,7 @@ public class UpdateCheck {
                                     System.getProperty("os.arch"));
 
     int latest = readInt(LATEST_URL + "?" + info);
+    int revision = Base.getRevision();
 
     String lastString = Preferences.get("update.last");
     long now = System.currentTimeMillis();
@@ -125,18 +130,19 @@ public class UpdateCheck {
     Preferences.set("update.last", String.valueOf(now));
 
     if (base.activeEditor != null) {
-//      boolean offerToUpdateContributions = true;
 
-      if (latest > Base.getRevision()) {
+      if (latest > revision) {
         System.out.println("You are running Processing revision 0" +
-                           Base.getRevision() + ", the latest build is 0" +
+                           revision + ", the latest build is 0" +
                            latest + ".");
         // Assume the person is busy downloading the latest version
 //        offerToUpdateContributions = !promptToVisitDownloadPage();
         promptToVisitDownloadPage();
       }
-      if(latest < Base.getRevision()){
-        WelcomeToBeta.showWelcomeToBeta();
+
+      int lastBetaWelcomeSeen = Preferences.getInteger("update.beta_welcome");
+      if(latest < revision && revision != lastBetaWelcomeSeen ) {
+          WelcomeToBeta.showWelcomeToBeta();
       }
 
       /*

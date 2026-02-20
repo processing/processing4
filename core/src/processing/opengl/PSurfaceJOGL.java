@@ -24,13 +24,31 @@
 
 package processing.opengl;
 
-import java.awt.Component;
-import java.awt.EventQueue;
-import java.awt.FileDialog;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
+import com.jogamp.common.util.IOUtil;
+import com.jogamp.common.util.IOUtil.ClassResources;
+import com.jogamp.nativewindow.MutableGraphicsConfiguration;
+import com.jogamp.nativewindow.NativeSurface;
+import com.jogamp.nativewindow.ScalableSurface;
+import com.jogamp.nativewindow.WindowClosingProtocol;
+import com.jogamp.nativewindow.util.Dimension;
+import com.jogamp.nativewindow.util.PixelFormat;
+import com.jogamp.nativewindow.util.PixelRectangle;
+import com.jogamp.newt.Display;
+import com.jogamp.newt.Display.PointerIcon;
+import com.jogamp.newt.NewtFactory;
+import com.jogamp.newt.Screen;
+import com.jogamp.newt.awt.NewtCanvasAWT;
+import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.*;
+import com.jogamp.opengl.util.FPSAnimator;
+import processing.awt.PImageAWT;
+import processing.awt.ShimAWT;
+import processing.core.*;
+import processing.event.KeyEvent;
+import processing.event.MouseEvent;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.File;
@@ -42,43 +60,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.ImageIcon;
-
-import com.jogamp.common.util.IOUtil;
-import com.jogamp.common.util.IOUtil.ClassResources;
-import com.jogamp.nativewindow.NativeSurface;
-import com.jogamp.nativewindow.ScalableSurface;
-import com.jogamp.nativewindow.util.Dimension;
-import com.jogamp.nativewindow.util.PixelFormat;
-import com.jogamp.nativewindow.util.PixelRectangle;
-import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLCapabilities;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.GLException;
-import com.jogamp.opengl.GLProfile;
-import com.jogamp.opengl.GLDrawableFactory;
-import com.jogamp.nativewindow.MutableGraphicsConfiguration;
-import com.jogamp.nativewindow.WindowClosingProtocol;
-import com.jogamp.newt.Display;
-import com.jogamp.newt.Display.PointerIcon;
-import com.jogamp.newt.NewtFactory;
-import com.jogamp.newt.Screen;
-import com.jogamp.newt.awt.NewtCanvasAWT;
-import com.jogamp.newt.opengl.GLWindow;
-import com.jogamp.opengl.util.FPSAnimator;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PGraphics;
-import processing.core.PImage;
-import processing.core.PSurface;
-import processing.event.KeyEvent;
-import processing.event.MouseEvent;
-import processing.awt.PImageAWT;
-
-// have this removed by 4.0 final
-import processing.awt.ShimAWT;
 
 
 public class PSurfaceJOGL implements PSurface {
@@ -489,7 +470,7 @@ public class PSurfaceJOGL implements PSurface {
                                sketch.getClass().getClassLoader(),
                                sketch.getClass());
     }
-    NewtFactory.setWindowIcons(res);
+      if (PApplet.platform == PConstants.WINDOWS) NewtFactory.setWindowIcons(res);
   }
 
 
@@ -1069,6 +1050,16 @@ public class PSurfaceJOGL implements PSurface {
     sketch.postEvent(me);
   }
 
+  private short normalizeKeyCode(short newtKeyCode) {
+    switch (newtKeyCode) {
+      case com.jogamp.newt.event.KeyEvent.VK_PAGE_UP:
+        return java.awt.event.KeyEvent.VK_PAGE_UP;
+      case com.jogamp.newt.event.KeyEvent.VK_SHIFT:
+        return java.awt.event.KeyEvent.VK_SHIFT;
+      default:
+        return newtKeyCode;
+    }
+  }  
 
   protected void nativeKeyEvent(com.jogamp.newt.event.KeyEvent nativeEvent,
                                 int peAction) {
@@ -1080,7 +1071,8 @@ public class PSurfaceJOGL implements PSurface {
 //                       InputEvent.META_MASK |
 //                       InputEvent.ALT_MASK);
 
-    short code = nativeEvent.getKeyCode();
+    short code = normalizeKeyCode(nativeEvent.getKeyCode());
+
     char keyChar;
     int keyCode;
     if (isPCodedKey(code, nativeEvent.isPrintableKey())) {

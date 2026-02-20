@@ -32,7 +32,6 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import processing.app.Base;
 import processing.app.Preferences;
-import processing.core.PApplet;
 import processing.mode.java.preproc.PdePreprocessor.Mode;
 
 /**
@@ -1234,19 +1233,35 @@ public class PdeParseTreeListener extends ProcessingBaseListener {
     { // assemble line with applet args
       StringJoiner argsJoiner = new StringJoiner(", ");
 
-      boolean shouldFullScreen = Preferences.getBoolean("export.application.present");
-      shouldFullScreen = shouldFullScreen || Preferences.getBoolean("export.application.fullscreen");
+      boolean shouldFullScreen;
+      String presentProp = System.getProperty("processing.fullscreen");
+
+      if (presentProp != null) {
+        shouldFullScreen = presentProp.equals("true");
+      } else {
+        boolean isExportedApp = Preferences.getBoolean("export.application.present");
+        boolean isFullscreenPref = Preferences.getBoolean("export.application.fullscreen");
+        shouldFullScreen = isExportedApp || isFullscreenPref;
+      }
+
       if (shouldFullScreen) {
-        argsJoiner.add("\"" + PApplet.ARGS_FULL_SCREEN + "\"");
+        argsJoiner.add("\"--full-screen\"");
 
-        String bgColor = Preferences.get("run.present.bgcolor");
-        argsJoiner.add("\"" + PApplet.ARGS_BGCOLOR + "=" + bgColor + "\"");
+        String bgColor = System.getProperty("processing.window.color", Preferences.get("run.present.bgcolor"));
+        argsJoiner.add("\"--bgcolor=" + bgColor + "\"");
 
-        if (Preferences.getBoolean("export.application.stop")) {
+        boolean showStop;
+        var hideStop = System.getProperty("processing.stop.hide");
+        if(hideStop != null){
+          showStop = hideStop.equals("false");
+        }else{
+          showStop = Preferences.getBoolean("export.application.stop");
+        }
+        if(showStop) {
           String stopColor = Preferences.get("run.present.stop.color");
-          argsJoiner.add("\"" + PApplet.ARGS_STOP_COLOR + "=" + stopColor + "\"");
+          argsJoiner.add("\"--stop-color=" + stopColor + "\"");
         } else {
-          argsJoiner.add("\"" + PApplet.ARGS_HIDE_STOP + "\"");
+          argsJoiner.add("\"--hide-stop\"");
         }
       }
       

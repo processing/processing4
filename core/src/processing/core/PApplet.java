@@ -705,7 +705,7 @@ public class PApplet implements PConstants {
   protected boolean exitCalled;
 
   // ok to be static because it's not possible to mix enabled/disabled
-  static protected boolean disableAWT;
+  static protected boolean disableAWT = System.getProperty("processing.awt.disable", "false").equals("true");;
 
   // messages to send if attached as an external vm
 
@@ -802,6 +802,7 @@ public class PApplet implements PConstants {
   // Unlike the others above, needs to be public to support
   // the pixelWidth and pixelHeight fields.
   public int pixelDensity = 1;
+  boolean pixelDensityWarning = false;
 
   boolean present;
 
@@ -1082,6 +1083,9 @@ public class PApplet implements PConstants {
   */
   public void pixelDensity(int density) {
     //println(density + " " + this.pixelDensity);
+
+
+    this.pixelDensityWarning = false;
     if (density != this.pixelDensity) {
       if (insideSettings("pixelDensity", density)) {
         if (density != 1 && density != 2) {
@@ -2049,6 +2053,10 @@ public class PApplet implements PConstants {
 
     if (frameCount == 0) {
       setup();
+
+      if(pixelDensityWarning){
+        System.err.println("Warning: Processing now sets pixelDensity(2) by default on high-density screens. This may change how your sketch looks. To revert to the old behavior, set pixelDensity(1) in setup().");
+      }
 
     } else {  // frameCount > 0, meaning an actual draw()
       // update the current frameRate
@@ -9932,19 +9940,21 @@ public class PApplet implements PConstants {
       System.exit(1);
     }
 
-    boolean external = false;
-    int[] location = null;
-    int[] editorLocation = null;
+    boolean external = System.getProperty("processing.external", "false").equals("true");;
+    int[] location = System.getProperty("processing.location", null) != null ?
+      parseInt(split(System.getProperty("processing.location"), ',')) : null;
 
+    int[] editorLocation = System.getProperty("processing.editor.location", null) != null ?
+      parseInt(split(System.getProperty("processing.editor.location"), ',')) : null;
     String name = null;
     int windowColor = 0;
     int stopColor = 0xff808080;
-    boolean hideStop = false;
+    boolean hideStop = System.getProperty("processing.stop.hide", "false").equals("true");
 
     int displayNum = -1;  // use default
-    boolean present = false;
-    boolean fullScreen = false;
-    float uiScale = 0;
+    boolean present = System.getProperty("processing.present", "false").equals("true");
+    boolean fullScreen = System.getProperty("processing.fullscreen", "false").equals("true");
+    float uiScale = parseInt(System.getProperty("processing.uiScale", "0"), 0);
 
     String param, value;
     String folder = calcSketchPath();
@@ -10106,6 +10116,7 @@ public class PApplet implements PConstants {
     sketch.fullScreen = fullScreen;
 
     sketch.pixelDensity = sketch.displayDensity();
+    sketch.pixelDensityWarning = sketch.pixelDensity > 1;
 
     // For 3.0.1, moved this above handleSettings() so that loadImage() can be
     // used inside settings(). Sets a terrible precedent, but the alternative

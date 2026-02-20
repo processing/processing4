@@ -23,22 +23,24 @@
 
 package processing.app;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.*;
-
 import com.sun.jna.platform.FileUtils;
-
 import processing.app.platform.DefaultPlatform;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.data.StringDict;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Platform {
+
+public class Platform extends processing.utils.Platform {
   static DefaultPlatform inst;
 
   /*
@@ -83,8 +85,11 @@ public class Platform {
     return inst != null;
   }
 
+    static {
+        init();
+    }
 
-  static public void init() {
+    static public void init() {
     try {
       // Start with DefaultPlatform, but try to upgrade to a known platform
       final String packageName = DefaultPlatform.class.getPackageName();
@@ -105,6 +110,9 @@ public class Platform {
                          "An unknown error occurred while trying to load\n" +
                          "platform-specific code for your machine.", e);
     }
+
+    // Fix the issue where `java.home` points to the JRE instead of the JDK. processing/processing4#1163
+    System.setProperty("java.home", getJavaHome().getAbsolutePath());
   }
 
 
@@ -128,12 +136,7 @@ public class Platform {
   }
 
 
-  static public File getSettingsFolder() throws Exception {
-    return inst.getSettingsFolder();
-  }
-
-
-  static public File getDefaultSketchbookFolder() throws Exception {
+    static public File getDefaultSketchbookFolder() throws Exception {
     return inst.getDefaultSketchbookFolder();
   }
 
@@ -295,28 +298,7 @@ public class Platform {
   // the MACOSX constant would instead read as the LINUX constant.
 
 
-  /**
-   * returns true if Processing is running on a Mac OS X machine.
-   */
-  static public boolean isMacOS() {
-    return System.getProperty("os.name").contains("Mac"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
 
-
-  /**
-   * returns true if running on windows.
-   */
-  static public boolean isWindows() {
-    return System.getProperty("os.name").contains("Windows"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
-
-
-  /**
-   * true if running on linux.
-   */
-  static public boolean isLinux() {
-    return System.getProperty("os.name").contains("Linux"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
 
 
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
@@ -389,6 +371,7 @@ public class Platform {
   }
 
   static public File getJavaHome() {
+    // Get the build in JDK location from the Jetpack Compose resources
     var resourcesDir = System.getProperty("compose.application.resources.dir");
     if(resourcesDir != null) {
       var jdkFolder = new File(resourcesDir,"jdk");
@@ -397,10 +380,13 @@ public class Platform {
       }
     }
 
+    // If the JDK is set in the environment, use that.
     var home = System.getProperty("java.home");
     if(home != null){
       return new File(home);
     }
+
+    // Otherwise try to use the Ant embedded JDK.
     if (Platform.isMacOS()) {
       //return "Contents/PlugIns/jdk1.7.0_40.jdk/Contents/Home/jre/bin/java";
       File[] plugins = getContentFile("../PlugIns").listFiles((dir, name) -> dir.isDirectory() &&

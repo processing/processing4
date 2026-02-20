@@ -23,49 +23,42 @@
 
 package processing.app.ui;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
-import java.awt.print.*;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.stream.Collectors;
+import com.formdev.flatlaf.util.SystemInfo;
+import processing.app.*;
+import processing.app.Formatter;
+import processing.app.contrib.ContributionManager;
+import processing.app.laf.PdeMenuItemUI;
+import processing.app.syntax.*;
+import processing.core.PApplet;
+import processing.utils.SketchException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.plaf.basic.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
-import javax.swing.undo.*;
-
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.util.SystemInfo;
-import processing.app.Base;
-import processing.app.Formatter;
-import processing.app.Language;
-import processing.app.Messages;
-import processing.app.Mode;
-import processing.app.Platform;
-import processing.app.Preferences;
-import processing.app.Problem;
-import processing.app.RunnerListener;
-import processing.app.Sketch;
-import processing.app.SketchCode;
-import processing.app.SketchException;
-import processing.app.contrib.ContributionManager;
-import processing.app.laf.PdeMenuItemUI;
-import processing.app.syntax.*;
-import processing.core.*;
+import javax.swing.plaf.basic.BasicSplitPaneDivider;
+import javax.swing.plaf.basic.BasicSplitPaneUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.View;
+import javax.swing.text.ViewFactory;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoManager;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.List;
+import java.util.Timer;
+import java.util.stream.Collectors;
 
 
 /**
@@ -147,6 +140,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
   private FindReplace find;
   JMenu toolsMenu;
   JMenu modePopup;
+  JMenu developMenu;
 
   protected List<Problem> problems = Collections.emptyList();
 
@@ -217,6 +211,10 @@ public abstract class Editor extends JFrame implements RunnerListener {
       spacer.setAlignmentX(Component.LEFT_ALIGNMENT);
       box.add(spacer);
     }
+      if (Platform.isLinux()) {
+          setUndecorated(true);
+          getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+      }
 
     rebuildModePopup();
     toolbar = createToolbar();
@@ -373,6 +371,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       });
     }
 
+      PreferencesEvents.onUpdated(this::updateTheme);
   }
 
 
@@ -680,6 +679,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       helpMenu.setText(helpMenu.getText() + " ");
     }
     menubar.add(helpMenu);
+    updateDevelopMenu(menubar);
 
     Toolkit.setMenuMnemonics(menubar);
     setJMenuBar(menubar);
@@ -1059,6 +1059,38 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
 
   abstract public JMenu buildHelpMenu();
+
+  public void buildDevelopMenu(){
+    developMenu = new JMenu(Language.text("menu.develop"));
+
+    var updateTrigger = new JMenuItem(Language.text("menu.develop.check_for_updates"));
+    updateTrigger.addActionListener(e -> {
+        Preferences.unset("update.last");
+        Preferences.setInteger("update.beta_welcome", 0);
+        new UpdateCheck(base);
+    });
+    developMenu.add(updateTrigger);
+
+  }
+
+  public void updateDevelopMenu(){
+    updateDevelopMenu(null);
+  }
+
+  void updateDevelopMenu(JMenuBar menu){
+      if(menu == null){
+          menu = getJMenuBar();
+      }
+      if(developMenu == null){
+          buildDevelopMenu();
+      }
+      if(Base.DEBUG){
+        menu.add(developMenu);
+      }else{
+        menu.remove(developMenu);
+      }
+
+  }
 
 
   public void showReference(String filename) {
@@ -2665,7 +2697,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
    * Clear the status area.
    */
   public void statusEmpty() {
-    statusNotice(EMPTY);
+    status.empty();
   }
 
 
@@ -2736,6 +2768,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     }
 
     int tabIndex = p.getTabIndex();
+    sketch.setCurrentCode(tabIndex);  // so we are looking at the right offsets below
     int lineNumber = p.getLineNumber();
     int lineStart = textarea.getLineStartOffset(lineNumber);
     int lineEnd = textarea.getLineStopOffset(lineNumber);
@@ -2912,5 +2945,14 @@ public abstract class Editor extends JFrame implements RunnerListener {
       referenceItem.setEnabled(referenceCheck(false) != null);
       super.show(component, x, y);
     }
+  }
+
+  /**
+   * Called when clicking on the version number in the footer.
+   * Return a string with diagnostic info from the sketch,
+   * or empty string (or null) if not implemented/available.
+   */
+  public String getSketchDiagnostics() {
+    return "";
   }
 }
