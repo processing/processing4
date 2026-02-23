@@ -26,16 +26,19 @@ import java.util.*
 class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)? = null) : Properties() {
     var locale: java.util.Locale = java.util.Locale.getDefault()
 
+    // Helper function to safely load UTF-8 encoded language property files from system resources
     fun loadResource(resourcePath: String) {
         val stream = ClassLoader.getSystemResourceAsStream(resourcePath) ?: return
         load(stream.reader(Charsets.UTF_8))
     }
 
     init {
+        // Initialize locale by loading the base properties and specific language/region overrides
         loadResource("languages/PDE.properties")
         loadResource("languages/PDE_${locale.language}.properties")
         loadResource("languages/PDE_${locale.toLanguageTag()}.properties")
         if (language.isNotEmpty()) {
+            // Apply user-specified language override if provided
             loadResource("languages/PDE_${language}.properties")
         }
     }
@@ -63,6 +66,7 @@ class Locale(language: String = "", val setLocale: ((java.util.Locale) -> Unit)?
  * ```
  */
 val LocalLocale = compositionLocalOf<Locale> { error("No Locale Set") }
+// Global state tracker to trigger UI recomposition when the locale is updated
 var LastLocaleUpdate by mutableStateOf(0L)
 
 /**
@@ -103,6 +107,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
     }
 
     val update = watchFile(languageFile)
+    // Re-evaluate the language code whenever the file changes or a global update is signaled
     var code by remember(languageFile, update, LastLocaleUpdate) {
         mutableStateOf(
             languageFile.readText().substring(0, 2)
@@ -117,6 +122,7 @@ fun LocaleProvider(content: @Composable () -> Unit) {
         Messages.log("Setting locale to ${locale.language}")
         languageFile.writeText(locale.language)
         code = locale.language
+        // Update the global timestamp to notify observers that a locale change has occurred
         LastLocaleUpdate = System.currentTimeMillis()
     }
 

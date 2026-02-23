@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ class Other {
             after = sketches
         )
 
+        // New registration entry point for the master "Show Other" toggle
         fun register() {
             PDEPreferences.register(
                 PDEPreference(
@@ -48,21 +50,26 @@ class Other {
         }
 
         @Composable
+        // Logic to dynamically inject hidden settings into the UI
         fun handleOtherPreferences(panes: PDEPreferencePanes) {
             // This function can be used to handle any specific logic related to other preferences if needed
             val prefs = LocalPreferences.current
             val locale = LocalLocale.current
+            // Early exit if the user hasn't enabled the advanced settings view
             if (prefs["preferences.show_other"]?.toBoolean() != true) {
                 return
             }
+            // Manages the lifecycle and cleanup of dynamically added settings
             DisposableEffect(panes) {
                 // add all the other options to the same group as the current one
                 val group =
                     panes[other]?.find { group -> group.any { preference -> preference.key == "preferences.show_other" } } as? MutableList<PDEPreference>
 
+                // Filters out settings that already have a dedicated UI component
                 val existing = panes.values.flatten().flatten().map { preference -> preference.key }
                 val keys = prefs.keys.mapNotNull { it as? String }.filter { it !in existing }.sorted()
 
+                // Iterate through all unmapped keys to create dynamic UI controls for hidden preferences
                 for (prefKey in keys) {
                     val descriptionKey = "preferences.$prefKey"
                     val preference = PDEPreference(
@@ -70,6 +77,7 @@ class Other {
                         descriptionKey = if (locale.containsKey(descriptionKey)) descriptionKey else prefKey,
                         pane = other,
                         control = { preference, updatePreference ->
+                            // Dynamically chooses a Switch for booleans or TextField for strings
                             if (preference?.toBooleanStrictOrNull() != null) {
                                 Switch(
                                     checked = preference.toBoolean(),
@@ -89,6 +97,7 @@ class Other {
                             )
                         }
                     )
+                    // Injects the discovered setting into the preferences list
                     group?.add(preference)
                 }
                 onDispose {

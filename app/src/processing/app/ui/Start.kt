@@ -78,6 +78,7 @@ class Start {
                                 .addAWTEventListener({ event ->
                                     if (event.id != WindowEvent.WINDOW_OPENED) return@addAWTEventListener
 
+                                    // Automatically hide the splash screen once the main application interface appears
                                     starting = false
                                 }, AWTEvent.WINDOW_EVENT_MASK);
                         }

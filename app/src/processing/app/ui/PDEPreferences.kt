@@ -101,6 +101,7 @@ class PDEPreferences {
             Interface.register()
             Coding.register()
             Sketches.register()
+            // Register the 'Other' settings category into the global preference registry
             Other.register()
         }
 
@@ -113,6 +114,7 @@ class PDEPreferences {
             val locale = LocalLocale.current
             var preferencesQuery by remember { mutableStateOf("") }
 
+            // Process custom or supplemental preference panes within the current UI context
             Other.handleOtherPreferences(panes)
 
             /**
@@ -502,12 +504,14 @@ private fun CapturePreferences(content: @Composable () -> Unit) {
     }
 
     val apply = {
+        // Populate the modifiable copy with all current system preference entries
         prefs.entries.forEach { (key, value) ->
             modified.setProperty(key as String, (value ?: "") as String)
         }
     }
     val reset = {
         modified.entries.forEach { (key, value) ->
+            // Synchronize the system preference with the user's staged change
             prefs.setProperty(key as String, modified[key] ?: "")
         }
     }

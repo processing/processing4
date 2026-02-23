@@ -371,6 +371,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       });
     }
 
+      // Register a listener to refresh the UI theme whenever preferences are updated
       PreferencesEvents.onUpdated(this::updateTheme);
   }
 

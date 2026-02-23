@@ -103,11 +103,13 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
         ReactiveProperties().apply {
             val defaultsStream = ClassLoader.getSystemResourceAsStream(DEFAULTS_FILE_NAME)
                 ?: InputStream.nullInputStream()
+            // Load base application defaults first to ensure all keys have a fallback value
             defaultsStream
                 .reader(Charsets.UTF_8)
                 .use { reader ->
                     load(reader)
                 }
+            // Layer the user's preferences on top of defaults to apply custom settings
             preferencesFile
                 .inputStream()
                 .reader(Charsets.UTF_8)
@@ -134,8 +136,10 @@ fun PreferencesProvider(content: @Composable () -> Unit) {
                             .joinToString("\n") { (key, value) -> "$key=$value" }
                             .toByteArray()
                     )
+                    // Ensure the file stream is properly closed to prevent memory leaks or file locking
                     output.close()
 
+                    // Broadcast an update signal to all non-reactive observers across the application
                     PreferencesEvents.updated()
                 }
             }
@@ -206,15 +210,25 @@ fun watchFile(file: File): Any? {
     return event
 }
 
+/**
+ * Event bus for managing preference update notifications across the application.
+ */
 class PreferencesEvents {
     companion object {
         val updatedListeners = mutableListOf<Runnable>()
 
+        /**
+         * Registers a new listener to be notified of preference changes.
+         * @param callback The logic to execute on update.
+         */
         @JvmStatic
         fun onUpdated(callback: Runnable) {
             updatedListeners.add(callback)
         }
 
+        /**
+         * Dispatches the update signal to all registered listeners.
+         */
         fun updated() {
             updatedListeners.forEach { it.run() }
         }

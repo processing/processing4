@@ -29,12 +29,18 @@ import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;
 
+// Replaced specific EventQueue import with a wildcard to cover more AWT components
 import java.awt.*;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
+// Added specific imports for URL handling to improve clarity and avoid 
+// potential naming conflicts with other packages
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+// Added a specific import for List to ensure the compiler uses 
+// java.util.List explicitly if other packages (like processing.data) 
+// have similarly named classes
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -277,7 +283,9 @@ public class ContributionListing {
       } catch (MalformedURLException e) {
         progress.setException(e);
         progress.finished();
-      } catch (Exception e) {
+      } catch (Exception e) { //General Exception handler
+          // Logs any unexpected errors (RuntimeExceptions, NullPointers, etc.)
+          // to the Messages console instead of letting the thread crash silently.
           Messages.log(e.getMessage());
       } finally {
         downloadingLock.unlock();

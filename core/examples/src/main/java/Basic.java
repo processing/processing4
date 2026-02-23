@@ -2,8 +2,11 @@ import processing.core.PApplet;
 
 public class Basic extends PApplet {
     // These use the Interface name so we can switch between them easily
+    // Feature references used to swap between different experimental systems
+    Feature particleSystem;
     Feature particleSystem;
     Feature mazeSystem;
+    // The currently running state (null represents the main menu)
     Feature activeFeature;
 
     public void settings() {
@@ -75,32 +78,42 @@ public class Basic extends PApplet {
         drawButton(width/2f - 150, 300, 300, 60, "1: Particle Fountain", hover1, 200);
 
         // Button 2: Maze Generator
+        // Logic for the second menu option: Check hover state and render the Maze Generator button
         boolean hover2 = mouseInRect(width/2f - 150, 400, 300, 60);
         drawButton(width/2f - 150, 400, 300, 60, "2: Maze Generator", hover2, 140);
 
-        // Footer Info
-        fill(0, 0, 60);
+        // Display navigation instructions at the bottom of the screen
+        fill(0, 0, 60); // Dimmer gray text for secondary information
         textSize(14);
         text("Click a button or press '1' / '2' to start", width/2f, 550);
         text("Press 'M' to return to menu at any time", width/2f, 580);
     }
 
+    /**
+     * Renders a stylized button with interactive hover effects.
+     * @param hue The base HSB color for the button
+     * @param hover Whether the mouse is currently over this button
+     */
     void drawButton(float x, float y, float w, float h, String label, boolean hover, float hue) {
         pushStyle();
         strokeWeight(2);
         rectMode(CORNER);
 
         if (hover) {
+            // High brightness and white stroke to indicate interactivity
             fill(hue, 80, 80);
             stroke(0, 0, 100);
             cursor(HAND);
         } else {
+            // Desaturated/Darker colors for the idle state
             fill(hue, 60, 40);
             stroke(hue, 80, 60);
         }
 
+        // Draw button body with rounded corners (radius of 15)
         rect(x, y, w, h, 15);
 
+        // Render the button label perfectly centered
         fill(0, 0, 100);
         textAlign(CENTER, CENTER);
         textSize(20);
@@ -108,11 +121,15 @@ public class Basic extends PApplet {
         popStyle();
     }
 
+    /**
+     * Utility: Checks if the mouse coordinates fall within a specific rectangular area.
+     */
     boolean mouseInRect(float x, float y, float w, float h) {
         return mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
     }
 
     public void mousePressed() {
+        // Only process menu clicks if no feature is currently running
         if (activeFeature == null) {
             if (mouseInRect(width/2f - 150, 300, 300, 60)) activeFeature = particleSystem;
             if (mouseInRect(width/2f - 150, 400, 300, 60)) activeFeature = mazeSystem;
@@ -120,8 +137,10 @@ public class Basic extends PApplet {
     }
 
     public void keyPressed() {
+        // Quick-switch features via numeric keys
         if (key == '1') activeFeature = particleSystem;
         if (key == '2') activeFeature = mazeSystem;
+        // Return to the main menu
         if (key == 'm' || key == 'M') activeFeature = null;
 
         if (activeFeature != null) {
@@ -129,6 +148,9 @@ public class Basic extends PApplet {
         }
     }
 
+    /**
+     * Standard Processing entry point to launch the PApplet.
+     */
     public static void main(String[] args) {
         PApplet.main("Basic");
     }

@@ -198,6 +198,7 @@ public class Base {
     // run static initialization that grabs all the prefs
     Preferences.init();
 
+      // Re-initialize preferences whenever an update event is triggered to keep settings current
       PreferencesEvents.onUpdated(Preferences::init);
 
     // boolean flag indicating whether to create new server instance or not
@@ -487,7 +488,8 @@ public class Base {
     buildCoreModes();
     rebuildContribModes();
     rebuildContribExamples();
-      rebuildToolList();
+    // Refresh the list of installed tools and update the Tools menu items
+    rebuildToolList();
 
     // Needs to happen after the sketchbook folder has been located.
     // Also relies on the modes to be loaded, so it knows what can be
