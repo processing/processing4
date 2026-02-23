@@ -3,6 +3,7 @@ package processing.app.ui.theme
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import processing.app.Base
 import processing.app.Messages
 import processing.app.watchFile
 import processing.utils.Settings
@@ -90,7 +91,7 @@ var LastLocaleUpdate by mutableStateOf(0L)
  */
 @Composable
 fun LocaleProvider(content: @Composable () -> Unit) {
-    val settingsFolder = Settings.getFolder()
+    val settingsFolder = Base.getSettingsOverride() ?: Settings.getFolder()
     val languageFile = File(settingsFolder, "language.txt")
     watchFile(languageFile)
 

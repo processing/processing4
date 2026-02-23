@@ -255,6 +255,7 @@ _Note: due to GitHub's limitations, this repository's [Contributors](https://git
     </tr>
     <tr>
       <td align="center" valign="top" width="16.66%"><a href="https://www.linkedin.com/in/salmane-khalili-4223562aa/"><img src="https://avatars.githubusercontent.com/u/141567440?v=4?s=120" width="120px;" alt="Salmane Khalili"/><br /><sub><b>Salmane Khalili</b></sub></a><br /><a href="https://github.com/processing/processing4/issues?q=author%3ASalmaneKhalili" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="16.66%"><a href="https://mcintyre.io"><img src="https://avatars.githubusercontent.com/u/3719176?v=4?s=120" width="120px;" alt="Nick McIntyre"/><br /><sub><b>Nick McIntyre</b></sub></a><br /><a href="https://github.com/processing/processing4/commits?author=nickmcintyre" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
 </table>
