@@ -212,7 +212,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       box.add(spacer);
     }
       if (Platform.isLinux()) {
-        if (isDisplayable()) setUndecorated(true);
+        if (!isDisplayable()) setUndecorated(true);
           getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
       }
 
