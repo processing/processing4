@@ -11,6 +11,7 @@ import processing.visual.src.core.TestConfig;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BlendModeTest extends VisualTest {
 
+    // Draws base rects with BLEND, then overlays a green rect using the given mode
     private ProcessingSketch createBlendTest(int mode) {
         return new ProcessingSketch() {
             @Override
@@ -21,6 +22,7 @@ public class BlendModeTest extends VisualTest {
 
             @Override
             public void draw(PApplet p) {
+                // Base layer — always drawn with normal BLEND
                 p.blendMode(PApplet.BLEND);
                 p.fill(200, 60, 60);
                 p.rect(5, 5, 30, 30);
@@ -141,6 +143,7 @@ public class BlendModeTest extends VisualTest {
 
             @Override
             public void draw(PApplet p) {
+                // Each strip should only reflect its own blend mode
                 p.blendMode(PApplet.ADD);
                 p.fill(200, 60, 60, 160);
                 p.rect(5, 5, 20, 40);
