@@ -148,6 +148,18 @@ public abstract class Editor extends JFrame implements RunnerListener {
   protected Editor(final Base base, String path, final EditorState state,
                    final Mode mode) throws EditorException {
     super("Processing", state.getConfig());
+    if (Platform.isLinux()) {
+      // If the frame is already displayable, dispose it to allow undecorated change
+      if (isDisplayable()) {
+        dispose();
+      }
+      try {
+        setUndecorated(true);
+      } catch (IllegalComponentStateException e) {
+        System.err.println("Could not set undecorated: " + e.getMessage());
+      }
+      getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
+    }
     this.base = base;
     this.state = state;
     this.mode = mode;
@@ -211,10 +223,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
       spacer.setAlignmentX(Component.LEFT_ALIGNMENT);
       box.add(spacer);
     }
-      if (Platform.isLinux()) {
-          setUndecorated(true);
-          getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
-      }
+
 
     rebuildModePopup();
     toolbar = createToolbar();
