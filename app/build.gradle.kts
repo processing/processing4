@@ -543,7 +543,7 @@ tasks.register("signResources"){
             exclude("*.so")
             exclude("*.dll")
         }.forEach{ file ->
-            exec {
+            providers.exec {
                 commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
             }
         }
