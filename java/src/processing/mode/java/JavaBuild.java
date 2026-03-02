@@ -1216,7 +1216,9 @@ public class JavaBuild {
           ZipEntry entry = new ZipEntry(relativePath);
           zos.putNextEntry(entry);
           //zos.write(Base.loadBytesRaw(sub));
-          PApplet.saveStream(zos, new FileInputStream(sub));
+          try (InputStream fis = new FileInputStream(sub)) {
+            PApplet.saveStream(zos, fis);
+          }
           zos.closeEntry();
         }
       }
@@ -1241,7 +1243,9 @@ public class JavaBuild {
             ZipEntry entry = new ZipEntry(path.substring(offset));
             zos.putNextEntry(entry);
             //zos.write(Base.loadBytesRaw(dataFile));
-            PApplet.saveStream(zos, new FileInputStream(dataFile));
+            try (InputStream fis = new FileInputStream(dataFile)) {
+              PApplet.saveStream(zos, fis);
+            }
             zos.closeEntry();
           }
         }
@@ -1266,8 +1270,7 @@ public class JavaBuild {
       // is it a jar file or directory?
       if (piece.toLowerCase().endsWith(".jar") ||
               piece.toLowerCase().endsWith(".zip")) {
-        try {
-          ZipFile file = new ZipFile(piece);
+        try (ZipFile file = new ZipFile(piece)) {
           Enumeration<?> entries = file.entries();
           while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -1284,14 +1287,15 @@ public class JavaBuild {
 
               zos.putNextEntry(entree);
               byte[] buffer = new byte[(int) entry.getSize()];
-              InputStream is = file.getInputStream(entry);
-
-              int offset = 0;
-              int remaining = buffer.length;
-              while (remaining > 0) {
-                int count = is.read(buffer, offset, remaining);
-                offset += count;
-                remaining -= count;
+              try (InputStream is = file.getInputStream(entry)) {
+                int offset = 0;
+                int remaining = buffer.length;
+                while (remaining > 0) {
+                  int count = is.read(buffer, offset, remaining);
+                  if (count == -1) break;
+                  offset += count;
+                  remaining -= count;
+                }
               }
 
               zos.write(buffer);
@@ -1299,7 +1303,6 @@ public class JavaBuild {
               zos.closeEntry();
             }
           }
-          file.close();
 
         } catch (IOException e) {
           System.err.println("Error in file " + piece);
@@ -1348,7 +1351,9 @@ public class JavaBuild {
             ZipEntry entry = new ZipEntry(nowfar);
             zos.putNextEntry(entry);
             //zos.write(Base.loadBytesRaw(sub));
-            PApplet.saveStream(zos, new FileInputStream(sub));
+            try (InputStream fis = new FileInputStream(sub)) {
+              PApplet.saveStream(zos, fis);
+            }
             zos.closeEntry();
           }
         }
