@@ -158,4 +158,30 @@ public class BlendModeTest extends VisualTest {
             }
         }, new TestConfig(50, 50));
     }
+    @Test
+    @Order(12)
+    @DisplayName("blendMode(OVERLAY)")
+    public void testOverlay() {
+        assertVisualMatch("blend-modes/overlay",
+                createBlendTest(PApplet.OVERLAY),
+                new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("blendMode(HARD_LIGHT)")
+    public void testHardLight() {
+        assertVisualMatch("blend-modes/hard-light",
+                createBlendTest(PApplet.HARD_LIGHT),
+                new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("blendMode(SOFT_LIGHT)")
+    public void testSoftLight() {
+        assertVisualMatch("blend-modes/soft-light",
+                createBlendTest(PApplet.SOFT_LIGHT),
+                new TestConfig(50, 50));
+    }
 }
