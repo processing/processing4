@@ -495,4 +495,16 @@ public class ParserTests {
     expectGood("whitespace", false);
   }
 
+
+
+  @Test
+  public void testWhitespaceTest() {
+    expectGood("whitespace_test", false);
+
+
+}
+  @Test
+  public void testInterface() {
+    expectGood("interface_test", true);
+  }
 }

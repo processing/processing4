@@ -81,4 +81,37 @@ public class Shape3DTest extends VisualTest {
             p.endShape();
         }), new TestConfig(50, 50));
     }
+    @Test
+    @Order(4)
+    @DisplayName("Drawing a box")
+    public void testBox() {
+        assertVisualMatch("shapes-3d/box", create3DTest(p -> {
+            p.translate(25, 25, 0);
+            p.rotateX(0.5f);
+            p.rotateY(0.5f);
+            p.box(20);
+        }), new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Drawing a sphere")
+    public void testSphere() {
+        assertVisualMatch("shapes-3d/sphere", create3DTest(p -> {
+            p.translate(25, 25, 0);
+            p.sphere(15);
+        }), new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(6)
+    @DisplayName("3D rotation and translation")
+    public void test3DTransform() {
+        assertVisualMatch("shapes-3d/transform", create3DTest(p -> {
+            p.translate(25, 25, 0);
+            p.rotateX(PApplet.PI / 4);
+            p.rotateY(PApplet.PI / 4);
+            p.box(15, 10, 20);
+        }), new TestConfig(50, 50));
+    }
 }

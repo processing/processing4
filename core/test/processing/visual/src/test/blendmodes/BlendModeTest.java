@@ -158,4 +158,92 @@ public class BlendModeTest extends VisualTest {
             }
         }, new TestConfig(50, 50));
     }
+    @Test
+    @Order(12)
+    @DisplayName("blendMode(OVERLAY)")
+    public void testOverlay() {
+        assertVisualMatch("blend-modes/overlay",
+                createBlendTest(PApplet.OVERLAY),
+                new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(13)
+    @DisplayName("blendMode(HARD_LIGHT)")
+    public void testHardLight() {
+        assertVisualMatch("blend-modes/hard-light",
+                createBlendTest(PApplet.HARD_LIGHT),
+                new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(14)
+    @DisplayName("blendMode(SOFT_LIGHT)")
+    public void testSoftLight() {
+        assertVisualMatch("blend-modes/soft-light",
+                createBlendTest(PApplet.SOFT_LIGHT),
+                new TestConfig(50, 50));
+    }
+    @Test
+    @Order(15)
+    @DisplayName("blendMode with background color change")
+    public void testBlendWithBackground() {
+        assertVisualMatch("blend-modes/background-blend", new ProcessingSketch() {
+            @Override
+            public void setup(PApplet p) {
+                p.noStroke();
+            }
+
+            @Override
+            public void draw(PApplet p) {
+                p.background(255);
+
+                // Draw gradient-like background
+                for (int i = 0; i < 50; i++) {
+                    p.fill(i * 5, 0, 255 - i * 5);
+                    p.rect(i, 0, 1, 50);
+                }
+
+                // Overlay with different blend modes
+                p.blendMode(PApplet.MULTIPLY);
+                p.fill(255, 200, 0, 180);
+                p.rect(5, 5, 40, 40);
+            }
+        }, new TestConfig(50, 50));
+    }
+
+    @Test
+    @Order(16)
+    @DisplayName("Blend mode reset to BLEND after change")
+    public void testBlendModeReset() {
+        assertVisualMatch("blend-modes/mode-reset", new ProcessingSketch() {
+            @Override
+            public void setup(PApplet p) {
+                p.noStroke();
+            }
+
+            @Override
+            public void draw(PApplet p) {
+                p.background(128);
+
+                p.blendMode(PApplet.ADD);
+                p.fill(200, 0, 0, 160);
+                p.rect(5, 5, 20, 40);
+
+                // Reset back to BLEND
+                p.blendMode(PApplet.BLEND);
+                p.fill(0, 200, 0, 160);
+                p.rect(15, 5, 20, 40);
+
+                p.blendMode(PApplet.SUBTRACT);
+                p.fill(0, 0, 200, 160);
+                p.rect(25, 5, 20, 40);
+
+                // Final reset
+                p.blendMode(PApplet.BLEND);
+                p.fill(200, 200, 0, 160);
+                p.rect(35, 5, 10, 40);
+            }
+        }, new TestConfig(50, 50));
+    }
 }
