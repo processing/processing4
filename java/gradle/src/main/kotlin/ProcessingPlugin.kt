@@ -2,6 +2,7 @@ package org.processing.java.gradle
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.GradleException
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.internal.file.DefaultSourceDirectorySet
 import org.gradle.api.internal.tasks.TaskDependencyFactory
@@ -199,16 +200,38 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             }
 
             val depsTaskName = sourceSet.getTaskName("addLegacyDependencies", "PDE")
-            project.tasks.register(depsTaskName, DependenciesTask::class.java){ task ->
+            val depsTask = project.tasks.register(depsTaskName, DependenciesTask::class.java){ task ->
                 // Link the output of the libraries task to the dependencies task
                 task.librariesMetaData.set(librariesScan.get().librariesMetaData)
                 task.dependsOn(pdeTask, librariesScan)
             }
 
+            project.dependencies.add("implementation",
+                project.fileTree(depsTask.flatMap { it.outputJarsDirectory }).builtBy(depsTask))
+
+            val os = System.getProperty("os.name").lowercase()
+            val arch = System.getProperty("os.arch").lowercase()
+            val variant = when {
+                os.contains("mac") -> "macosx-universal"
+                os.contains("win") && arch.contains("64") -> "windows-amd64"
+                os.contains("linux") && arch.contains("aarch64") -> "linux-aarch64"
+                os.contains("linux") && arch.contains("arm") -> "linux-arm"
+                os.contains("linux") && arch.contains("amd64") -> "linux-amd64"
+                else -> throw GradleException("Unsupported OS/architecture: $os / $arch")
+            }
+            project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all-main:2.5.0")
+            project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0")
+            project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.5.0:natives-$variant")
+            project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.5.0:natives-$variant")
+            project.dependencies.add("runtimeOnly", "org.jogamp.jogl:newt:2.5.0:natives-$variant")
+
+
             // Make sure that the PDE tasks runs before the java compilation task
             project.tasks.named(sourceSet.compileJavaTaskName) { task ->
                 task.dependsOn(pdeTaskName, depsTaskName)
             }
+
+
         }
     }
     abstract class DefaultPDESourceDirectorySet @Inject constructor(

@@ -51,11 +51,11 @@ tasks.withType<Test>().configureEach {
 }
 
 tasks.register("writeVersion") {
-    // make the version available to the plugin at runtime by writing it to a properties file in the resources directory
     doLast {
+        val version = project.version.toString().takeIf { it != "unspecified" } ?: return@doLast
         val file = layout.buildDirectory.file("resources/main/version.properties").get().asFile
         file.parentFile.mkdirs()
-        file.writeText("version=${project.version}")
+        file.writeText("version=$version")
     }
 }
 
