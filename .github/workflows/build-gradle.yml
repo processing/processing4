@@ -20,8 +20,19 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+
       - name: Build with Gradle
-        run: ./gradlew test
+        run: xvfb-run ./gradlew test
+
+      - name: Upload test diff images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-diffs
+          path: core/test/processing/visual/diff_*.png
+          retention-days: 7
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
