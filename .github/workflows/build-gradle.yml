@@ -25,6 +25,14 @@ jobs:
 
       - name: Build with Gradle
         run: xvfb-run ./gradlew test
+
+      - name: Upload test diff images
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-test-diffs
+          path: core/test/processing/visual/diff_*.png
+          retention-days: 7
   build:
     name: (${{ matrix.os_prefix }}/${{ matrix.arch }}) Create Processing Build
     runs-on: ${{ matrix.os }}
