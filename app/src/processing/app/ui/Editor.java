@@ -65,6 +65,13 @@ import java.util.stream.Collectors;
  * Main editor panel for the Processing Development Environment.
  */
 public abstract class Editor extends JFrame implements RunnerListener {
+  private static final String PREF_LAYOUT_X = "editor.custom.layout.x";
+  private static final String PREF_LAYOUT_Y = "editor.custom.layout.y";
+  private static final String PREF_LAYOUT_WIDTH = "editor.custom.layout.width";
+  private static final String PREF_LAYOUT_HEIGHT = "editor.custom.layout.height";
+  private static final String PREF_LAYOUT_DIVIDER = "editor.custom.layout.divider";
+  private static final String PREF_LAYOUT_MAXIMIZED = "editor.custom.layout.maximized";
+
   protected Base base;
   protected EditorState state;
   protected Mode mode;
@@ -143,6 +150,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
   JMenu developMenu;
 
   protected List<Problem> problems = Collections.emptyList();
+  private boolean suppressCustomizationPersistence;
 
 
   protected Editor(final Base base, String path, final EditorState state,
@@ -321,6 +329,9 @@ public abstract class Editor extends JFrame implements RunnerListener {
     int minHeight =
       Toolkit.zoom(Preferences.getInteger("editor.window.height.min"));
     setMinimumSize(new Dimension(minWidth, minHeight));
+
+    applySavedCustomizationSettings();
+    installCustomizationPersistence();
 
     // Bring back the general options for the editor
     applyPreferences();
@@ -726,6 +737,13 @@ public abstract class Editor extends JFrame implements RunnerListener {
         fileMenu.add(ei);
       }
     }
+
+    fileMenu.addSeparator();
+
+    item = new JMenuItem("Reset Interface Customization");
+    item.addActionListener(e -> resetCustomizationSettings());
+    fileMenu.add(item);
+
     fileMenu.addSeparator();
 
     item = Toolkit.newJMenuItemShift(Language.text("menu.file.page_setup"), 'P');
@@ -891,6 +909,128 @@ public abstract class Editor extends JFrame implements RunnerListener {
       editor.applyPreferences();
     }
     Preferences.save();
+  }
+
+
+  private void installCustomizationPersistence() {
+    splitPane.addPropertyChangeListener(JSplitPane.DIVIDER_LOCATION_PROPERTY,
+      e -> persistCustomizationSettings());
+
+    addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentMoved(ComponentEvent e) {
+        persistCustomizationSettings();
+      }
+
+      @Override
+      public void componentResized(ComponentEvent e) {
+        persistCustomizationSettings();
+      }
+    });
+
+    addWindowStateListener(e -> persistCustomizationSettings());
+  }
+
+
+  private void applySavedCustomizationSettings() {
+    try {
+      Integer x = getPreferenceInt(PREF_LAYOUT_X);
+      Integer y = getPreferenceInt(PREF_LAYOUT_Y);
+      Integer width = getPreferenceInt(PREF_LAYOUT_WIDTH);
+      Integer height = getPreferenceInt(PREF_LAYOUT_HEIGHT);
+      Integer divider = getPreferenceInt(PREF_LAYOUT_DIVIDER);
+      boolean maximized = Preferences.getBoolean(PREF_LAYOUT_MAXIMIZED);
+
+      boolean hasBounds = x != null && y != null && width != null && height != null;
+      if (!hasBounds && divider == null && !maximized) {
+        return;
+      }
+
+      suppressCustomizationPersistence = true;
+      setExtendedState(Frame.NORMAL);
+
+      if (hasBounds) {
+        int minWidth = getMinimumSize().width;
+        int minHeight = getMinimumSize().height;
+        setBounds(x, y, Math.max(width, minWidth), Math.max(height, minHeight));
+      }
+
+      if (divider != null) {
+        setDividerLocation(divider);
+      }
+      if (maximized) {
+        setExtendedState(Frame.MAXIMIZED_BOTH);
+      }
+    } finally {
+      suppressCustomizationPersistence = false;
+    }
+  }
+
+
+  private void persistCustomizationSettings() {
+    if (suppressCustomizationPersistence) {
+      return;
+    }
+
+    boolean maximized = (getExtendedState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH;
+
+    Preferences.setBoolean(PREF_LAYOUT_MAXIMIZED, maximized);
+
+    if (!maximized) {
+      Rectangle bounds = getBounds();
+      Preferences.setInteger(PREF_LAYOUT_X, bounds.x);
+      Preferences.setInteger(PREF_LAYOUT_Y, bounds.y);
+      Preferences.setInteger(PREF_LAYOUT_WIDTH, bounds.width);
+      Preferences.setInteger(PREF_LAYOUT_HEIGHT, bounds.height);
+    }
+
+    int dividerLocation = getDividerLocation();
+    if (dividerLocation > 0) {
+      Preferences.setInteger(PREF_LAYOUT_DIVIDER, dividerLocation);
+    }
+
+    Preferences.save();
+  }
+
+
+  private void resetCustomizationSettings() {
+    Preferences.unset(PREF_LAYOUT_X);
+    Preferences.unset(PREF_LAYOUT_Y);
+    Preferences.unset(PREF_LAYOUT_WIDTH);
+    Preferences.unset(PREF_LAYOUT_HEIGHT);
+    Preferences.unset(PREF_LAYOUT_DIVIDER);
+    Preferences.unset(PREF_LAYOUT_MAXIMIZED);
+    Preferences.save();
+
+    Rectangle deviceBounds = getGraphicsConfiguration().getBounds();
+    int defaultWidth = Toolkit.zoom(Preferences.getInteger("editor.window.width.default"));
+    int defaultHeight = Toolkit.zoom(Preferences.getInteger("editor.window.height.default"));
+    defaultWidth = Math.min(defaultWidth, deviceBounds.width);
+    defaultHeight = Math.min(defaultHeight, deviceBounds.height);
+    int x = deviceBounds.x + (deviceBounds.width - defaultWidth) / 2;
+    int y = deviceBounds.y + (deviceBounds.height - defaultHeight) / 2;
+
+    suppressCustomizationPersistence = true;
+    try {
+      setExtendedState(Frame.NORMAL);
+      setBounds(x, y, defaultWidth, defaultHeight);
+      setDividerLocation(2 * defaultHeight / 3);
+    } finally {
+      suppressCustomizationPersistence = false;
+    }
+  }
+
+
+  private Integer getPreferenceInt(String key) {
+    String value = Preferences.get(key);
+    if (value == null) {
+      return null;
+    }
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException ignored) {
+      return null;
+    }
   }
 
   abstract public JMenu buildSketchMenu();
