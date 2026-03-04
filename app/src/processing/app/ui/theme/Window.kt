@@ -1,13 +1,12 @@
 package processing.app.ui.theme
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposeWindow
@@ -21,9 +20,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.formdev.flatlaf.util.SystemInfo
 import processing.app.ui.Toolkit
 import java.awt.Dimension
-
 import javax.swing.JFrame
-import javax.swing.JRootPane
 import kotlin.reflect.KClass
 
 val LocalWindow = compositionLocalOf<JFrame> { error("No Window Set") }
@@ -120,7 +117,7 @@ private fun PDEWindowContent(
         window.rootPane.putClientProperty("apple.awt.transparentTitleBar", mac && fullWindowContent)
         Toolkit.setIcon(window)
     }
-    if(unique != null && windows.contains(unique) && windows[unique] != null){
+    if (unique != null && windows.contains(unique) && windows[unique] != null && windows[unique] != window) {
         windows[unique]?.toFront()
         window.dispose()
         return
