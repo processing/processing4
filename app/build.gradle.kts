@@ -411,12 +411,12 @@ tasks.register<Copy>("includeJavaMode") {
     from(java.configurations.runtimeClasspath)
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dirPermissions { unix("rwx------") }
 }
 tasks.register<Copy>("includeJdk") {
     from(Jvm.current().javaHome.absolutePath)
     destinationDir = composeResources("jdk").get().asFile
 
+    dirPermissions { unix("rwx------") }
     fileTree(destinationDir).files.forEach { file ->
         file.setWritable(true, false)
         file.setReadable(true, false)
