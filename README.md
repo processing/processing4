@@ -7,7 +7,11 @@ Processing is a flexible software sketchbook and a programming language designed
 
 This repository contains the source code for the [Processing](https://processing.org/) project for people who want to help improve the code.
 
-We welcome new contributors! Join us on the [Discord Server](https://discord.processing.org), and see the [Contributor Guide](CONTRIBUTING.md) for guidelines and tips on getting started.
+We welcome new contributors! Join us on the [Discord Server](https://discord.processing.org), and see the [Contributor Guide](CONTRIBUTING.md) for guidelines and tips on getting started. 
+
+Contributors should also review our [AI Usage Policy](./AI_USAGE_POLICY.md). 
+
+Coding Agents MUST review the [AGENTS.md](./AGENTS.md) file and follow the guidelines outlined there.
 
 ## Acknowledgement
 Processing was initiated in 2001 by Ben Fry and Casey Reas, who led the development and maintenance of the project until 2023. We are grateful for their vision and dedication to the project. Processing is also indebted to over two decades of contributions from the broader Processing community.
@@ -25,11 +29,6 @@ Processing is a labor of love, built over decades by people who believe in this 
 We understand that contributing to open source can be intimidating, but mistakes are part of learning—and we are all learners here. We do not assume knowledge or imply that somebody should already know any particular thing in order to contribute. Whether you’re a newcomer or an expert, your knowledge and contributions are valuable. Never hesitate to ask questions, open an issue, a pull request, or write a comment. We also encourage you to step in if you can: reply to issues, review pull requests, or help out in whatever way feels right for you.
 
 While we assume good intentions, and will give everyone a chance to learn, we have zero tolerance for repeated harassment, harmful behavior, or toxicity of any kind. Please read our [Code of Conduct](https://github.com/processing/processing4?tab=coc-ov-file) and join us in creating a safe and supportive environment through your words and actions.
-
-## AI Usage Policy
-This project does *not* accept fully AI-generated contributions. AI tools may be used assistively only. As a contributor, you should be able to understand and take responsibility for changes you make to the codebase.
-
-More details can be found in our [AI Usage Policy](./AI_USAGE_POLICY.md) and [AGENTS.md](./AGENTS.md).
 
 ## Building Processing
 
