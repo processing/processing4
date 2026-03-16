@@ -25,6 +25,7 @@ package processing.app.ui;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import processing.app.*;
+import processing.app.Messages;
 import processing.app.Formatter;
 import processing.app.contrib.ContributionManager;
 import processing.app.laf.PdeMenuItemUI;
