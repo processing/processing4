@@ -23,7 +23,16 @@ class ProcessingPluginTest{
                 id("${System.getProperty("project.group")}.java")
             }
         """.trimIndent())
-        directory.newFile("sketch/settings.gradle.kts")
+        directory.newFile("sketch/settings.gradle.kts").writeText(
+            """
+            pluginManagement {
+                repositories {
+                    mavenLocal()
+                    gradlePluginPortal()
+                }
+            }
+        """.trimIndent()
+        )
         directory.newFile("sketch/gradle.properties").writeText(
             """
             processing.group=${System.getProperty("project.group").replace(".java", "")}
