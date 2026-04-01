@@ -3,7 +3,7 @@ What I think we need to test for broken up into chunks... trying to keep it orga
 
 Chunk A — Construction and initialization
 
-EED TO TEST IF...
+NEED TO TEST IF...
 
 the object starts in the correct mode
 important fields are initialized correctly
