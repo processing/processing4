@@ -39,4 +39,4 @@ jobs:
           title: "chore: update contributors.png from .all-contributorsrc"
           body: "This PR updates the contributors.png to reflect changes in .all-contributorsrc"
           add-paths: contributors.png
-          token: ${{ secrets.ACCESS_TOKEN }}
+          token: ${{ secrets.CONTRIBUTOR_PNG_ACCESS_TOKEN }}
