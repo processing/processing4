@@ -31,8 +31,6 @@ jobs:
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
-        env:
-          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         with:
           commit-message: "Update contributors.png from .all-contributorsrc"
           branch: update-contributors-png
