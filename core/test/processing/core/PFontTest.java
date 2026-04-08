@@ -17,9 +17,10 @@ public class PFontTest {
     public void test_psname_getCorrectName() {
         Font awtFont = new Font("Dialog", Font.PLAIN, 16);  //Truth, what PFont size should be
         PFont font = new PFont(awtFont, true, null);
-        assertEquals(awtFont.getPSName(), font.getName()); //test, expecting
+        assertEquals(awtFont.getPSName(), font.getPostScriptName()); //test, expecting
     }
 
+    @Test
     public void test_size_getCorrectSize() {
         Font awtFont = new Font("Dialog", Font.PLAIN, 16);  //Truth, what PFont size should be
         PFont font = new PFont(awtFont, true, null);
