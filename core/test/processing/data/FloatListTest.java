@@ -132,4 +132,50 @@ public class FloatListTest {
         assertEquals(6.0F, testList.pop(), 0.0F);
         assertEquals(0, testList.size());
     }
+
+    @Test
+    public void testRemove(){
+        FloatList testList = new FloatList(new float[]{1.0F, 2.0F, 3.0F });
+
+        float removed = testList.remove(1);
+        assertEquals(2.0F, removed, 0.0F);
+        assertEquals(2, testList.size());
+        assertEquals(1.0F, testList.get(0), 0.0F);
+        assertEquals(3.0F, testList.get(1), 0.0F);
+    }
+
+    @Test
+    public void testRemoveValues(){
+        FloatList testList = new FloatList(new float[]{1.0F, 2.0F, 2.0F, 3.0F, 2.0F});
+
+        int removed = testList.removeValues(2.0F);
+        assertEquals(3, removed);
+        assertEquals(2, testList.size());
+        assertEquals(1.0F, testList.get(0), 0.0F);
+        assertEquals(3.0F, testList.get(1), 0.0F);
+    }
+    @Test
+    public void testReplaceValue() {
+        FloatList testList = new FloatList(new float[]{1.0F, 2.0F, 2.0F, 3.0F});
+
+        boolean changed = testList.replaceValue(2.0F, 99.0F);
+        assertTrue(changed);
+        assertEquals(99.0F, testList.get(1), 0.0F);
+        assertEquals(2.0F, testList.get(2), 0.0F);
+    }
+    @Test
+    public void testReplaceValueNotFound() {
+        FloatList testList = new FloatList(new float[]{1.0F, 2.0F});
+
+        boolean changed = testList.replaceValue(5.0F, 99.0F);
+        assertFalse(changed);
+    }
+    @Test
+    public void testAdd() {
+        FloatList testList = new FloatList(new float[]{10.0F, 20.0F});
+
+        testList.add(0, 5.0F);
+        assertEquals(15.0F, testList.get(0), 0.0F);
+        assertEquals(20.0F, testList.get(1), 0.0F);
+    }
 }
