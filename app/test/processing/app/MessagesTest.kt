@@ -2,15 +2,18 @@ package processing.app
 
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito.*
 
 class MessagesTest {
     @Test
     fun showMessage() {
+    // Mock output state; instead of output to terminal -> output to a data stream (byte array)
 
     }
 
     @Test
     fun showWarning() {
+
     }
 
     @Test
