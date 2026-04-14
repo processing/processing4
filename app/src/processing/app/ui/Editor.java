@@ -59,6 +59,8 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 import java.util.stream.Collectors;
+import androidx.compose.ui.awt.ComposePanel;
+import processing.app.ui.ComposeTopBarBridge;
 
 
 /**
@@ -226,8 +228,14 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
 
     rebuildModePopup();
+   ComposePanel composeTopBar = new ComposePanel();
+   ComposeTopBarBridge.mountTopBar(composeTopBar, base);
+
+
+
     toolbar = createToolbar();
-    upper.add(toolbar);
+   // upper.add(toolbar);
+      upper.add(composeTopBar);
 
     header = createHeader();
     upper.add(header);
@@ -691,8 +699,11 @@ public abstract class Editor extends JFrame implements RunnerListener {
     updateDevelopMenu(menubar);
 
     Toolkit.setMenuMnemonics(menubar);
-    setJMenuBar(menubar);
+      //setJMenuBar(menubar);
+    setJMenuBar(null);
   }
+
+
 
 
   abstract public JMenu buildFileMenu();
