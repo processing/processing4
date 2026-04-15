@@ -3,12 +3,19 @@ package processing.app
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.*
+import java.io.*
 
 class MessagesTest {
     @Test
     fun showMessage() {
     // Mock output state; instead of output to terminal -> output to a data stream (byte array)
+        val streamOut = ByteArrayOutputStream()
+        System.setOut(PrintStream(streamOut))
 
+        Messages.showMessage("TestTile: ", "Hello World!")
+        val testOutput
+
+        assertEquals()
     }
 
     @Test
