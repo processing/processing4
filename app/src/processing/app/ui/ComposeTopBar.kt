@@ -87,7 +87,7 @@ private fun showDevelopPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
     }
 
     popup.add(updatesItem)
-    popup.show(panel, x, y)
+    popup.show(panel, x, y) //this is ignoring the os differences
 }
 
 fun mountTopBar(panel: ComposePanel, base: Base) {
