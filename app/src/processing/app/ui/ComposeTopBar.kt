@@ -57,12 +57,28 @@ fun TopBar(panel: ComposePanel, base: Base) {
                 )
                 developHeight.value = coordinates.size.height
             }
+
         ) {
             Text(
                 text = "Develop",
                 color = textColor,
                 modifier = Modifier
                     .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .clickable {
+                        showDevelopPopup(
+                            panel = panel,
+                            base = base,
+                            x = developAnchor.value.x,
+                            y = developAnchor.value.y + developHeight.value
+                        )
+                    }
+            )
+            Text (
+                text = "New Button",
+                color = textColor,
+                modifier = Modifier
+
+                    .padding(horizontal = 40.dp, vertical = 4.dp)
                     .clickable {
                         showDevelopPopup(
                             panel = panel,
