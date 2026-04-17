@@ -67,6 +67,8 @@ For licensing information about the Processing website see the [processing-websi
 Copyright (c) 2015-now The Processing Foundation
 
 ## Contributors
+![Grid of avatars representing contributors to the Processing4 project](contributors.png)
+
 See [CONTRIBUTORS.md](./CONTRIBUTORS.md) for a list of all contributors to the project.
 
 This project follows the [all-contributors specification](https://github.com/all-contributors/all-contributors) and the [Emoji Key](https://all-contributors.github.io/emoji-key/) ✨ for contribution types. Detailed instructions on how to add yourself or add contribution emojis to your name are [here](https://github.com/processing/processing4/issues/839). You can also post an issue or comment on a pull request with the text: `@all-contributors please add @YOUR-USERNAME for THINGS` (where `THINGS` is a comma-separated list of entries from the [list of possible contribution types](https://all-contributors.github.io/emoji-key/)) and our nice bot will add you to [CONTRIBUTORS.md](./CONTRIBUTORS.md) automatically!
