@@ -3,12 +3,7 @@ package processing.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,11 +18,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import processing.app.Base
+import processing.app.Language
 import processing.app.Preferences
 import processing.app.UpdateCheck
-import java.awt.Color as AwtColor
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
+import java.awt.Color as AwtColor
 
 fun awtToCompose(c: AwtColor): Color {
     return Color(c.red, c.green, c.blue, c.alpha)
@@ -40,34 +36,34 @@ fun themeColorOrFallback(key: String, fallback: AwtColor): Color {
 
 data class TopBarItemData(
     val label: String,
-    val onClick: (ComposePanel, Base, Int, Int) -> Unit
+    val onClick: (ComposePanel, Base, Editor, Int, Int) -> Unit
 )
 
 @Composable
-fun TopBar(panel: ComposePanel, base: Base) {
+fun TopBar(panel: ComposePanel, base: Base, editor: Editor) {
     val blueBarColor = themeColorOrFallback("toolbar.gradient.top", AwtColor(107, 160, 204))
     val textColor = themeColorOrFallback("toolbar.rollover.color", AwtColor(0, 0, 0))
 
     val items = listOf(
-        TopBarItemData("File") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("File") { p, b, e, x, y ->
+            showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Edit") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("Edit") { p, b, e, x, y ->
+            //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Sketch") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("Sketch") { p, b, e, x, y ->
+            //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Debug") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("Debug") { p, b, e, x, y ->
+            //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Tools") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("Tools") { p, b, e, x, y ->
+            //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Help") { p, b, x, y ->
-            showMenuPopup(p, b, x, y)
+        TopBarItemData("Help") { p, b, e, x, y ->
+            //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Develop") { p, b, x, y ->
+        TopBarItemData("Develop") { p, b, e, x, y ->
             showDevelopPopup(p, b, x, y)
         }
     )
@@ -85,7 +81,7 @@ fun TopBar(panel: ComposePanel, base: Base) {
                 textColor = textColor,
                 modifier = Modifier.weight(1f)
             ) { x, y ->
-                item.onClick(panel, base, x, y)
+                item.onClick(panel, base, editor, x, y)
             }
         }
     }
@@ -128,6 +124,10 @@ private fun TopBarItem(
     }
 }
 
+
+
+
+///pop up menus///
 private fun showDevelopPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
     val popup = JPopupMenu()
 
@@ -142,22 +142,78 @@ private fun showDevelopPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
     popup.show(panel, x, y)
 }
 
-private fun showMenuPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
+private fun showMenuPopup(panel: ComposePanel, base: Base, editor: Editor, x: Int, y: Int) {
     val popup = JPopupMenu()
 
-    val fileNew = JMenuItem("New")
+    val fileNew = Toolkit.newJMenuItem(Language.text("menu.file.new"), 'N'.code);
     fileNew.addActionListener {
         base.handleNew()
     }
     popup.add(fileNew);
 
-    val fileOpen = JMenuItem("Open")
+    val fileOpen = Toolkit.newJMenuItem(Language.text("menu.file.open"), 'O'.code);
     fileOpen.addActionListener {
         base.handleOpenPrompt();
     }
-
     popup.add(fileOpen);
 
+    val fileSketchbook = Toolkit.newJMenuItemShift(Language.text("menu.file.sketchbook"), 'K'.code);
+    fileSketchbook.addActionListener {
+        base.showSketchbookFrame()
+    }
+    popup.add(fileSketchbook);
+
+    val fileExamples = Toolkit.newJMenuItemShift(Language.text("menu.file.examples"), 'O'.code);
+    fileExamples.addActionListener {
+        base.showExamplesFrame()
+    }
+    popup.add(fileExamples);
+
+    val fileClose = Toolkit.newJMenuItem(Language.text("menu.file.close"), 'W'.code);
+    fileClose.addActionListener {
+        base.handleClose(editor, false);
+    }
+    popup.add(fileClose);
+
+    val fileSave = Toolkit.newJMenuItem(Language.text("menu.file.save"), 'S'.code)
+    fileSave.addActionListener {
+        editor.handleSave(false);
+    }
+    popup.add(fileSave);
+
+    val fileSaveAs = Toolkit.newJMenuItemShift(Language.text("menu.file.save_as"), 'S'.code);
+    fileSaveAs.addActionListener {
+        editor.handleSaveAs();
+    }
+    popup.add(fileSaveAs);
+
+    val filePageSetup = Toolkit.newJMenuItemShift(Language.text("menu.file.page_setup"), 'P'.code);
+    filePageSetup.addActionListener {
+        editor.handlePageSetup();
+    }
+    popup.add(filePageSetup);
+
+    val filePrint = Toolkit.newJMenuItem(Language.text("menu.file.print"), 'P'.code);
+    filePrint.addActionListener {
+        editor.handlePrint();
+    }
+    popup.add(filePrint);
+
+
+    //   UNDER MAC OS ONLY SECTION   /// - will have to deal with this.
+    val filePreferences = Toolkit.newJMenuItem(Language.text("menu.file.preferences"), ','.code);
+    filePreferences.addActionListener {
+        base.handlePrefs()
+    }
+    popup.add(filePreferences);
+
+    val fileQuit = Toolkit.newJMenuItem(Language.text("menu.file.quit"), 'Q'.code);
+    fileQuit.addActionListener {
+        base.handleQuit()
+    }
+    popup.add(fileQuit);
+
+    //^^^ UNDER MAC OS ONLY SECTION ^^^/////
 
 
 
@@ -166,12 +222,17 @@ private fun showMenuPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
 
 
 
-fun mountTopBar(panel: ComposePanel, base: Base) {
+
+///^^^ pop up menus ^^^////
+
+
+
+fun mountTopBar(panel: ComposePanel, base: Base, editor: Editor) {
     val awtBg = Theme.getColor("toolbar.gradient.top") ?: AwtColor(107, 160, 204)
     panel.background = awtBg
 
     panel.setContent {
-        TopBar(panel, base)
+        TopBar(panel, base, editor)
     }
 }
 

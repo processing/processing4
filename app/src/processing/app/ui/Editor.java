@@ -229,7 +229,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
     rebuildModePopup();
    ComposePanel composeTopBar = new ComposePanel();
-   ComposeTopBarBridge.mountTopBar(composeTopBar, base);
+   ComposeTopBarBridge.mountTopBar(composeTopBar, base, this);
 
 
 
