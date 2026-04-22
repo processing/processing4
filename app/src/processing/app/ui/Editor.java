@@ -234,8 +234,9 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
 
     toolbar = createToolbar();
-   // upper.add(toolbar);
       upper.add(composeTopBar);
+      upper.add(toolbar);
+
 
     header = createHeader();
     upper.add(header);

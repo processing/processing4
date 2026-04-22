@@ -3,19 +3,23 @@ package processing.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import processing.app.Base
@@ -34,61 +38,93 @@ fun themeColorOrFallback(key: String, fallback: AwtColor): Color {
     return awtToCompose(awt)
 }
 
+data class TopBarItemData(
+    val label: String,
+    val onClick: (ComposePanel, Base, Int, Int) -> Unit
+)
+
 @Composable
 fun TopBar(panel: ComposePanel, base: Base) {
     val blueBarColor = themeColorOrFallback("toolbar.gradient.top", AwtColor(107, 160, 204))
     val textColor = themeColorOrFallback("toolbar.rollover.color", AwtColor(0, 0, 0))
 
-    val developAnchor = remember { mutableStateOf(IntOffset.Zero) }
-    val developHeight = remember { mutableStateOf(0) }
+    val items = listOf(
+        TopBarItemData("File") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Edit") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Sketch") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Debug") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Tools") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Help") { p, b, x, y ->
+            showMenuPopup(p, b, x, y)
+        },
+        TopBarItemData("Develop") { p, b, x, y ->
+            showDevelopPopup(p, b, x, y)
+        }
+    )
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(blueBarColor)
-            .padding(start = 8.dp)
+            .background(blueBarColor),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
-            modifier = Modifier.onGloballyPositioned { coordinates ->
-                val position = coordinates.positionInRoot()
-                developAnchor.value = IntOffset(
-                    position.x.toInt(),
-                    position.y.toInt()
-                )
-                developHeight.value = coordinates.size.height
+        items.forEach { item ->
+            TopBarItem(
+                label = item.label,
+                textColor = textColor,
+                modifier = Modifier.weight(1f)
+            ) { x, y ->
+                item.onClick(panel, base, x, y)
             }
-
-        ) {
-            Text(
-                text = "Develop",
-                color = textColor,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-                    .clickable {
-                        showDevelopPopup(
-                            panel = panel,
-                            base = base,
-                            x = developAnchor.value.x,
-                            y = developAnchor.value.y + developHeight.value
-                        )
-                    }
-            )
-            Text (
-                text = "New Button",
-                color = textColor,
-                modifier = Modifier
-
-                    .padding(horizontal = 40.dp, vertical = 4.dp)
-                    .clickable {
-                        showDevelopPopup(
-                            panel = panel,
-                            base = base,
-                            x = developAnchor.value.x,
-                            y = developAnchor.value.y + developHeight.value
-                        )
-                    }
-            )
         }
+    }
+}
+
+@Composable
+private fun TopBarItem(
+    label: String,
+    textColor: Color,
+    modifier: Modifier = Modifier,
+    onClick: (x: Int, y: Int) -> Unit
+) {
+    val anchor = remember { mutableStateOf(IntOffset.Zero) }  //stores the location of the top bar item
+    val height = remember { mutableStateOf(0) } //stores the height of the top bar item
+
+    Box(
+        modifier = modifier
+            .heightIn(min = 32.dp)
+            .onGloballyPositioned { coordinates ->
+                val position = coordinates.positionInRoot()    //top left corner of drop down
+                anchor.value = IntOffset(position.x.toInt(), position.y.toInt()) //x and y positioning
+                height.value = coordinates.size.height //height of the menu
+            }
+            .clickable {
+                onClick(anchor.value.x, anchor.value.y + height.value)
+            //anchor x lines up menu with top left edge of the clicked menu
+                //anchor y + height value moves the pop up below the tool bar item
+            }
+            .padding(vertical = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            color = textColor,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp, vertical = 4.dp)
+        )
     }
 }
 
@@ -103,8 +139,32 @@ private fun showDevelopPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
     }
 
     popup.add(updatesItem)
-    popup.show(panel, x, y) //this is ignoring the os differences
+    popup.show(panel, x, y)
 }
+
+private fun showMenuPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
+    val popup = JPopupMenu()
+
+    val fileNew = JMenuItem("New")
+    fileNew.addActionListener {
+        base.handleNew()
+    }
+    popup.add(fileNew);
+
+    val fileOpen = JMenuItem("Open")
+    fileOpen.addActionListener {
+        base.handleOpenPrompt();
+    }
+
+    popup.add(fileOpen);
+
+
+
+
+    popup.show(panel, x, y)
+}
+
+
 
 fun mountTopBar(panel: ComposePanel, base: Base) {
     val awtBg = Theme.getColor("toolbar.gradient.top") ?: AwtColor(107, 160, 204)
@@ -114,3 +174,5 @@ fun mountTopBar(panel: ComposePanel, base: Base) {
         TopBar(panel, base)
     }
 }
+
+
