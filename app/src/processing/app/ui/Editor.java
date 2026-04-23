@@ -668,14 +668,17 @@ public abstract class Editor extends JFrame implements RunnerListener {
   // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 
 
+    //I FOUND MY FUNCTION IN HERE TO CALL ****
+
   protected void buildMenuBar() {
     JMenuBar menubar = new JMenuBar();
-    fileMenu = buildFileMenu();
+    fileMenu = buildFileMenu();  //here is the file menu call
     menubar.add(fileMenu);
-    menubar.add(buildEditMenu());
-    menubar.add(buildSketchMenu());
+    menubar.add(buildEditMenu());  //here is the edit menu call
+    menubar.add(buildSketchMenu()); //here is the sketch menu call
 
     // For 3.0a4 move mode menu to the left of the Tool menu
+
     JMenu modeMenu = buildModeMenu();
     if (modeMenu != null) {
       menubar.add(modeMenu);
@@ -1046,7 +1049,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
   public JMenu getToolMenu() {
     return toolsMenu;
-  }
+  }   //TOOL MENU CODE!!!!!1
 
 
   /**
@@ -1079,7 +1082,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
   }
 
 
-  abstract public JMenu buildHelpMenu();
+  abstract public JMenu buildHelpMenu(); //HELP MENU CODE!!!!
 
   public void buildDevelopMenu(){
     developMenu = new JMenu(Language.text("menu.develop"));

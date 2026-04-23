@@ -18,12 +18,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import processing.app.Base
-import processing.app.Language
-import processing.app.Preferences
-import processing.app.UpdateCheck
-import javax.swing.JMenuItem
-import javax.swing.JPopupMenu
 import java.awt.Color as AwtColor
+import processing.app.Platform
+import java.awt.event.ActionEvent
+import javax.swing.AbstractAction
+import javax.swing.JComponent
+import javax.swing.JMenu
+import javax.swing.KeyStroke
+import javax.swing.event.MenuEvent
 
 fun awtToCompose(c: AwtColor): Color {
     return Color(c.red, c.green, c.blue, c.alpha)
@@ -45,14 +47,14 @@ fun TopBar(panel: ComposePanel, base: Base, editor: Editor) {
     val textColor = themeColorOrFallback("toolbar.rollover.color", AwtColor(0, 0, 0))
 
     val items = listOf(
-        TopBarItemData("File") { p, b, e, x, y ->
-            showMenuPopup(p, b, e, x, y)
+        TopBarItemData("File") { p, _, e, x, y ->
+            showFilePopup(p, e, x, y)
         },
-        TopBarItemData("Edit") { p, b, e, x, y ->
-            //showMenuPopup(p, b, e, x, y)
+        TopBarItemData("Edit") { p, _, e, x, y ->
+            showEditPopup(p, e, x, y)
         },
-        TopBarItemData("Sketch") { p, b, e, x, y ->
-            //showMenuPopup(p, b, e, x, y)
+        TopBarItemData("Sketch") { p, _, e, x, y ->
+            showSketchPopup(p,  e, x, y)
         },
         TopBarItemData("Debug") { p, b, e, x, y ->
             //showMenuPopup(p, b, e, x, y)
@@ -63,8 +65,8 @@ fun TopBar(panel: ComposePanel, base: Base, editor: Editor) {
         TopBarItemData("Help") { p, b, e, x, y ->
             //showMenuPopup(p, b, e, x, y)
         },
-        TopBarItemData("Develop") { p, b, e, x, y ->
-            showDevelopPopup(p, b, x, y)
+        TopBarItemData("Develop") { p, _, e, x, y ->
+            showDevelopPopup(p, e, x, y)
         }
     )
 
@@ -128,112 +130,148 @@ private fun TopBarItem(
 
 
 ///pop up menus///
-private fun showDevelopPopup(panel: ComposePanel, base: Base, x: Int, y: Int) {
-    val popup = JPopupMenu()
 
-    val updatesItem = JMenuItem("Check for Updates")
-    updatesItem.addActionListener {
-        Preferences.unset("update.last")
-        Preferences.setInteger("update.beta_welcome", 0)
-        UpdateCheck(base)
-    }
-
-    popup.add(updatesItem)
-    popup.show(panel, x, y)
-}
-
-private fun showMenuPopup(panel: ComposePanel, base: Base, editor: Editor, x: Int, y: Int) {
-    val popup = JPopupMenu()
-
-    val fileNew = Toolkit.newJMenuItem(Language.text("menu.file.new"), 'N'.code);
-    fileNew.addActionListener {
-        base.handleNew()
-    }
-    popup.add(fileNew);
-
-    val fileOpen = Toolkit.newJMenuItem(Language.text("menu.file.open"), 'O'.code);
-    fileOpen.addActionListener {
-        base.handleOpenPrompt();
-    }
-    popup.add(fileOpen);
-
-    val fileSketchbook = Toolkit.newJMenuItemShift(Language.text("menu.file.sketchbook"), 'K'.code);
-    fileSketchbook.addActionListener {
-        base.showSketchbookFrame()
-    }
-    popup.add(fileSketchbook);
-
-    val fileExamples = Toolkit.newJMenuItemShift(Language.text("menu.file.examples"), 'O'.code);
-    fileExamples.addActionListener {
-        base.showExamplesFrame()
-    }
-    popup.add(fileExamples);
-
-    val fileClose = Toolkit.newJMenuItem(Language.text("menu.file.close"), 'W'.code);
-    fileClose.addActionListener {
-        base.handleClose(editor, false);
-    }
-    popup.add(fileClose);
-
-    val fileSave = Toolkit.newJMenuItem(Language.text("menu.file.save"), 'S'.code)
-    fileSave.addActionListener {
-        editor.handleSave(false);
-    }
-    popup.add(fileSave);
-
-    val fileSaveAs = Toolkit.newJMenuItemShift(Language.text("menu.file.save_as"), 'S'.code);
-    fileSaveAs.addActionListener {
-        editor.handleSaveAs();
-    }
-    popup.add(fileSaveAs);
-
-    val filePageSetup = Toolkit.newJMenuItemShift(Language.text("menu.file.page_setup"), 'P'.code);
-    filePageSetup.addActionListener {
-        editor.handlePageSetup();
-    }
-    popup.add(filePageSetup);
-
-    val filePrint = Toolkit.newJMenuItem(Language.text("menu.file.print"), 'P'.code);
-    filePrint.addActionListener {
-        editor.handlePrint();
-    }
-    popup.add(filePrint);
-
-
-    //   UNDER MAC OS ONLY SECTION   /// - will have to deal with this.
-    val filePreferences = Toolkit.newJMenuItem(Language.text("menu.file.preferences"), ','.code);
-    filePreferences.addActionListener {
-        base.handlePrefs()
-    }
-    popup.add(filePreferences);
-
-    val fileQuit = Toolkit.newJMenuItem(Language.text("menu.file.quit"), 'Q'.code);
-    fileQuit.addActionListener {
-        base.handleQuit()
-    }
-    popup.add(fileQuit);
-
-    //^^^ UNDER MAC OS ONLY SECTION ^^^/////
-
-
-
-    popup.show(panel, x, y)
+private fun showFilePopup(panel: ComposePanel, editor: Editor, x: Int, y: Int) {
+    val menu = editor.buildFileMenu()
+    showPopupFromMenu(panel, menu, x, y)
 }
 
 
+private fun showEditPopup(panel: ComposePanel, editor: Editor, x: Int, y: Int) {
+    val method = editor.javaClass.superclass.getDeclaredMethod("buildEditMenu")
+    method.isAccessible = true
+    val menu = method.invoke(editor) as JMenu
+    showPopupFromMenu(panel, menu, x, y)
+}
 
+private fun showSketchPopup(panel: ComposePanel, editor: Editor, x: Int, y: Int) {
+    val menu = editor.buildSketchMenu()
+    showPopupFromMenu(panel, menu, x, y)
+}
+
+private fun showDevelopPopup(panel: ComposePanel, editor: Editor, x: Int, y: Int) {
+    editor.buildDevelopMenu()
+
+    val field = editor.javaClass.superclass.getDeclaredField("developMenu")
+    field.isAccessible = true
+    val menu = field.get(editor) as JMenu
+
+    showPopupFromMenu(panel, menu, x, y)
+}
+
+private fun showPopupFromMenu(panel: ComposePanel, menu: JMenu, x: Int, y: Int) {
+    val popup = menu.popupMenu
+
+    fun refreshTopBar() {
+        javax.swing.SwingUtilities.invokeLater {
+            panel.revalidate()
+            panel.repaint()
+        }
+    }
+
+    popup.addPopupMenuListener(object : javax.swing.event.PopupMenuListener {
+        override fun popupMenuWillBecomeVisible(e: javax.swing.event.PopupMenuEvent?) = Unit // nothing needed right before the popup becomes visible
+
+        override fun popupMenuWillBecomeInvisible(e: javax.swing.event.PopupMenuEvent?) { // called when the popup closes normally
+            refreshTopBar() //redraw top bar
+        }
+
+        override fun popupMenuCanceled(e: javax.swing.event.PopupMenuEvent?) {   // called when the popup is canceled, like clicking away
+            refreshTopBar() //redrawing...
+        }
+    })
+
+    val event = MenuEvent(menu)
+    menu.menuListeners.forEach { it.menuSelected(event) }
+    popup.show(panel, x, y)
+}
 
 ///^^^ pop up menus ^^^////
 
+
+
+//keyboard shortcuts do not work right now unless the dropdown is opened, this did not fix that.
+//but it still has potential to be reworked.
+
+//private fun bindShortcuts(editor: Editor, base: Base) {
+//    val root = editor.rootPane
+//
+//    val input = root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+//    val actions = root.actionMap
+//
+//    fun bind(name: String, key: KeyStroke?, action: () -> Unit) {
+//        if (key == null) return
+//        input.put(key, name)
+//        actions.put(name, object : AbstractAction() {
+//            override fun actionPerformed(e: ActionEvent?) {
+//                action()
+//            }
+//        })
+//    }
+//
+//    bind("new", Toolkit.getKeyStrokeExt("menu.file.new")) {
+//        base.handleNew()
+//    }
+//
+//    bind("open", Toolkit.getKeyStrokeExt("menu.file.open")) {
+//        base.handleOpenPrompt()
+//    }
+//
+//    bind("close", Toolkit.getKeyStrokeExt("menu.file.close")) {
+//        base.handleClose(editor, false)
+//    }
+//
+//    bind("save", Toolkit.getKeyStrokeExt("menu.file.save")) {
+//        editor.handleSave(false)
+//    }
+//
+//    bind("saveAs", Toolkit.getKeyStrokeExt("menu.file.save_as")) {
+//        editor.handleSaveAs()
+//    }
+//
+//    bind("print", Toolkit.getKeyStrokeExt("menu.file.print")) {
+//        editor.handlePrint()
+//    }
+//
+//    bind("pageSetup", Toolkit.getKeyStrokeExt("menu.file.page_setup")) {
+//        editor.handlePageSetup()
+//    }
+//
+//    if (!Platform.isMacOS()) {
+//        bind("prefs", Toolkit.getKeyStrokeExt("menu.file.preferences")) {
+//            base.handlePrefs()
+//        }
+//
+//        bind("quit", Toolkit.getKeyStrokeExt("menu.file.quit")) {
+//            base.handleQuit()
+//        }
+//    }
+//}
 
 
 fun mountTopBar(panel: ComposePanel, base: Base, editor: Editor) {
     val awtBg = Theme.getColor("toolbar.gradient.top") ?: AwtColor(107, 160, 204)
     panel.background = awtBg
 
+//    bindShortcuts(editor, base)
+
     panel.setContent {
         TopBar(panel, base, editor)
     }
 }
+
+
+
+//Hi, so...
+//line 1050 in editor.java, is the tool menu, so inside your function call editor.getToolMenu() to access the drop down stuff there
+//without manually re-entering everything!
+//the class is public so you should get away with copying and pasting the showSketchPopup and replace the names and what
+//its calling obvi
+
+//then line 1085 in editor.java, is the Help menu. This should be built the same way as showSketchPopup as well!
+//good luck! if you happen to feel up to it Debug is the last one, but I have no idea where that is.
+
+
+
 
 
