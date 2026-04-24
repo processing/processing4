@@ -1081,8 +1081,29 @@ public abstract class Editor extends JFrame implements RunnerListener {
     return null;
   }
 
+  public void buildToolsMenu() {
+      toolsMenu = new JMenu(Language.text("menu.tools"));
 
-  abstract public JMenu buildHelpMenu(); //HELP MENU CODE!!!!
+      var updateTrigger = new JMenuItem(Language.text("menu.tools.check_for_updates"));
+      updateTrigger.addActionListener(e -> {
+          Preferences.unset("update.last");
+          Preferences.setInteger("update.beta_welcome", 0);
+          new UpdateCheck(base);
+      });
+      toolsMenu.add(updateTrigger);
+  }
+
+  public void buildHelpMenu(){
+      JMenu helpMenu = new JMenu(Language.text("menu.develop"));
+
+      var updateTrigger = new JMenuItem(Language.text("menu.help.check_for_updates"));
+      updateTrigger.addActionListener(e -> {
+          Preferences.unset("update.last");
+          Preferences.setInteger("update.beta_welcome", 0);
+          new UpdateCheck(base);
+      });
+      helpMenu.add(updateTrigger);
+  } //HELP MENU CODE!!!!
 
   public void buildDevelopMenu(){
     developMenu = new JMenu(Language.text("menu.develop"));
