@@ -390,6 +390,25 @@ afterEvaluate{
     }
 }
 
+val verifySignedMacApp = tasks.register<Exec>("verifySignedMacApp") {
+    onlyIf { OperatingSystem.current().isMacOsX }
+    dependsOn("createDistributable")
+    group = "compose desktop"
+
+    commandLine(
+        "codesign",
+        "-vvv",
+        "--deep",
+        "--strict",
+        layout.buildDirectory.dir("compose/binaries/main/app/Processing.app").get().asFile.absolutePath
+    )
+}
+
+afterEvaluate {
+    tasks.named("notarizeDmg").configure {
+        dependsOn(verifySignedMacApp)
+    }
+}
 
 // LEGACY TASKS
 // Most of these are shims to be compatible with the old build system
