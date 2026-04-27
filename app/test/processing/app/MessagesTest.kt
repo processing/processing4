@@ -8,14 +8,17 @@ import java.io.*
 class MessagesTest {
     @Test
     fun showMessage() {
-    // Mock output state; instead of output to terminal -> output to a data stream (byte array)
-        val streamOut = ByteArrayOutputStream()
-        System.setOut(PrintStream(streamOut))
+        mockStatic(Base::class.java).use {
+            mocked -> mocked.`when`<Boolean> { Base.isCommandLine() }.thenReturn(true)
 
-        Messages.showMessage("TestTile: ", "Hello World!")
-        val testOutput
+            val streamOut = ByteArrayOutputStream()
+            System.setOut(PrintStream(streamOut))
 
-        assertEquals()
+            Messages.showMessage("TestTitle", "Hello World!")
+            val testOutput = streamOut.toString()
+
+            assertTrue(testOutput.contains("TestTitle: Hello World!"))
+        }
     }
 
     @Test
@@ -52,15 +55,15 @@ class MessagesTest {
     }
 
     @Test
-    fun log() {
+    fun testLog1() {
     }
 
     @Test
-    fun testLog() {
+    fun testLog2() {
     }
 
     @Test
-    fun logf() {
+    fun testLogF() {
     }
 
     @Test
