@@ -60,10 +60,10 @@ fun TopBar(panel: ComposePanel, base: Base, editor: Editor) {
             //showMenuPopup(p, b, e, x, y)
         },
         TopBarItemData("Tools") { p, b, e, x, y ->
-            showMenuPopup(p, b, e, x, y)
+            showToolsPopup(p, e,x,y )
         },
-        TopBarItemData("Help") { p, b, e, x, y ->
-            showMenuPopup(p, b, e, x, y)
+        TopBarItemData("Help") { p, _, e, x, y ->
+            showHelpPopup(p, e, x, y)
         },
         TopBarItemData("Develop") { p, _, e, x, y ->
             showDevelopPopup(p, e, x, y)
@@ -150,7 +150,7 @@ private fun showSketchPopup(panel: ComposePanel, editor: Editor, x: Int, y: Int)
 }
 
 private fun showToolsPopup(panel: ComposePanel, editor: Editor, x: Int, y: Int) {
-    val menu = editor.buildToolsMenu()
+    val menu = editor.getToolMenu()
     showPopupFromMenu(panel, menu, x, y)
 }
 

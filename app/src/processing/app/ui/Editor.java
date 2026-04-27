@@ -20,7 +20,7 @@
   along with this program; if not, write to the Free Software Foundation,
   Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
-// comment comment hi hi hi
+
 package processing.app.ui;
 
 import com.formdev.flatlaf.util.SystemInfo;
@@ -664,12 +664,6 @@ public abstract class Editor extends JFrame implements RunnerListener {
     repaint();  // for good measure
   }
 
-
-  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-
-    //I FOUND MY FUNCTION IN HERE TO CALL ****
-
   protected void buildMenuBar() {
     JMenuBar menubar = new JMenuBar();
     fileMenu = buildFileMenu();  //here is the file menu call
@@ -1049,7 +1043,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
   public JMenu getToolMenu() {
     return toolsMenu;
-  }   //TOOL MENU CODE!!!!!1
+  }
 
 
   /**
@@ -1081,29 +1075,10 @@ public abstract class Editor extends JFrame implements RunnerListener {
     return null;
   }
 
-  public void buildToolsMenu() {
-      toolsMenu = new JMenu(Language.text("menu.tools"));
 
-      var updateTrigger = new JMenuItem(Language.text("menu.tools.check_for_updates"));
-      updateTrigger.addActionListener(e -> {
-          Preferences.unset("update.last");
-          Preferences.setInteger("update.beta_welcome", 0);
-          new UpdateCheck(base);
-      });
-      toolsMenu.add(updateTrigger);
+  public JMenu buildHelpMenu(){
+      return null;
   }
-
-  public void buildHelpMenu(){
-      JMenu helpMenu = new JMenu(Language.text("menu.develop"));
-
-      var updateTrigger = new JMenuItem(Language.text("menu.help.check_for_updates"));
-      updateTrigger.addActionListener(e -> {
-          Preferences.unset("update.last");
-          Preferences.setInteger("update.beta_welcome", 0);
-          new UpdateCheck(base);
-      });
-      helpMenu.add(updateTrigger);
-  } //HELP MENU CODE!!!!
 
   public void buildDevelopMenu(){
     developMenu = new JMenu(Language.text("menu.develop"));
@@ -2040,7 +2015,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     sketch.setModified(true);
   }
 
-  
+
   /**
    * Moves the selected lines up or down in the text editor.
    *
@@ -2890,7 +2865,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
           int stopOffset = p.getStopOffset();
           int pEndOffset = lineOffset + (stopOffset == -1 ? 0 : stopOffset);
           int pEndLine = textarea.getLineOfOffset(pEndOffset);
-          
+
           return line >= pStartLine && line <= pEndLine;
         })
         .collect(Collectors.toList());
