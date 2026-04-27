@@ -186,7 +186,7 @@ tasks.register<Exec>("packageCustomDmg"){
     onlyIf { OperatingSystem.current().isMacOsX }
     group = "compose desktop"
 
-    dependsOn(distributable(), "installCreateDmg")
+    dependsOn("signApp", "installCreateDmg")
 
     val packageName = distributable().packageName.get()
     val dir = distributable().destinationDir.get()
@@ -571,9 +571,35 @@ tasks.register("signResources"){
         }
         file(composeResources("Info.plist")).delete()
     }
-
-
 }
+
+/* for mac, perform one final signature of the whole app before submitting
+ * the app for notarization.
+ */
+tasks.register<Exec>("signApp"){
+    onlyIf {
+        OperatingSystem.current().isMacOsX
+            &&
+        compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
+    }
+
+    group = "compose desktop"
+    dependsOn("createDistributable", "setExecutablePermissions")
+
+    val packageName = distributable().packageName.get()
+    val dir = distributable().destinationDir.get()
+    val app = dir.file("$packageName.app").asFile
+
+    commandLine(
+        "codesign",
+        "--timestamp",
+        "--force",
+        "--deep",
+        "--options=runtime",
+        "--sign", "Developer ID Application",
+        app)
+}
+
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
     group = "compose desktop"
