@@ -16,9 +16,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- * GLFW-based surface implementation for WebGPU.
- */
 public class PSurfaceGLFW implements PSurface {
 
     protected PApplet sketch;
@@ -40,6 +37,13 @@ public class PSurfaceGLFW implements PSurface {
 
     private GLFWFramebufferSizeCallback framebufferSizeCallback;
     private GLFWWindowPosCallback windowPosCallback;
+    private GLFWCursorPosCallback cursorPosCallback;
+    private GLFWMouseButtonCallback mouseButtonCallback;
+    private GLFWScrollCallback scrollCallback;
+    private GLFWKeyCallback keyCallback;
+    private GLFWCharCallback charCallback;
+    private GLFWCursorEnterCallback cursorEnterCallback;
+    private GLFWWindowFocusCallback windowFocusCallback;
 
     public PSurfaceGLFW(PGraphics graphics) {
         this.graphics = graphics;
@@ -64,7 +68,7 @@ public class PSurfaceGLFW implements PSurface {
         }
 
         GLFW.glfwDefaultWindowHints();
-        GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API); // no opengl
+        GLFW.glfwWindowHint(GLFW.GLFW_CLIENT_API, GLFW.GLFW_NO_API);
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE);
 
@@ -78,7 +82,6 @@ public class PSurfaceGLFW implements PSurface {
 
         windowCount.incrementAndGet();
 
-        // event callbacks
         initListeners();
 
         if (graphics instanceof PGraphicsWebGPU webgpu) {
@@ -95,6 +98,8 @@ public class PSurfaceGLFW implements PSurface {
     }
 
     protected void initListeners() {
+        long surfaceId = getSurfaceId();
+
         framebufferSizeCallback = GLFW.glfwSetFramebufferSizeCallback(window,
                 (window, width, height) -> {
                     if (sketch != null) {
@@ -109,7 +114,74 @@ public class PSurfaceGLFW implements PSurface {
                     }
                 });
 
-        // TODO: all the callbacks
+        cursorPosCallback = GLFW.glfwSetCursorPosCallback(window,
+                (window, xpos, ypos) -> {
+                    if (surfaceId != 0) {
+                        PWebGPU.inputMouseMove(surfaceId, (float) xpos, (float) ypos);
+                    }
+                });
+
+        mouseButtonCallback = GLFW.glfwSetMouseButtonCallback(window,
+                (window, button, action, mods) -> {
+                    if (surfaceId != 0) {
+                        byte btn = switch (button) {
+                            case GLFW.GLFW_MOUSE_BUTTON_LEFT -> 0;
+                            case GLFW.GLFW_MOUSE_BUTTON_MIDDLE -> 1;
+                            case GLFW.GLFW_MOUSE_BUTTON_RIGHT -> 2;
+                            default -> -1;
+                        };
+                        if (btn >= 0) {
+                            PWebGPU.inputMouseButton(surfaceId, btn, action == GLFW.GLFW_PRESS);
+                        }
+                    }
+                });
+
+        scrollCallback = GLFW.glfwSetScrollCallback(window,
+                (window, xoffset, yoffset) -> {
+                    if (surfaceId != 0) {
+                        PWebGPU.inputScroll(surfaceId, (float) xoffset, (float) yoffset);
+                    }
+                });
+
+        keyCallback = GLFW.glfwSetKeyCallback(window,
+                (window, key, scancode, action, mods) -> {
+                    if (surfaceId != 0 && action != GLFW.GLFW_REPEAT) {
+                        PWebGPU.inputKey(surfaceId, key, action == GLFW.GLFW_PRESS);
+                    }
+                });
+
+        charCallback = GLFW.glfwSetCharCallback(window,
+                (window, codepoint) -> {
+                    // char callback doesn't give us a key code, so pass 0
+                    if (surfaceId != 0) {
+                        PWebGPU.inputChar(surfaceId, 0, codepoint);
+                    }
+                });
+
+        cursorEnterCallback = GLFW.glfwSetCursorEnterCallback(window,
+                (window, entered) -> {
+                    if (surfaceId != 0) {
+                        if (entered) {
+                            PWebGPU.inputCursorEnter(surfaceId);
+                        } else {
+                            PWebGPU.inputCursorLeave(surfaceId);
+                        }
+                    }
+                });
+
+        windowFocusCallback = GLFW.glfwSetWindowFocusCallback(window,
+                (window, focused) -> {
+                    if (surfaceId != 0) {
+                        PWebGPU.inputFocus(surfaceId, focused);
+                    }
+                });
+    }
+
+    private long getSurfaceId() {
+        if (graphics instanceof PGraphicsWebGPU webgpu) {
+            return webgpu.getSurfaceId();
+        }
+        return 0;
     }
 
     @Override
@@ -132,10 +204,8 @@ public class PSurfaceGLFW implements PSurface {
 
     public long getDisplayHandle() {
         if (Platform.get() == Platform.MACOSX) {
-            // TODO: Currently unsupported
             return 0;
         } else if (Platform.get() == Platform.WINDOWS) {
-            // TODO: Currently unsupported
             return 0;
         } else if (Platform.get() == Platform.LINUX) {
             // TODO: need to check if x11 or wayland
@@ -197,7 +267,6 @@ public class PSurfaceGLFW implements PSurface {
             y = editorLocation[1];
 
             if (x - sketch.sketchWidth() < 10) {
-                // doesn't fit, center on screen instead
                 long monitor = GLFW.glfwGetPrimaryMonitor();
                 var vidmode = GLFW.glfwGetVideoMode(monitor);
                 if (vidmode != null) {
@@ -209,7 +278,6 @@ public class PSurfaceGLFW implements PSurface {
                 }
             }
         } else {
-            // center on primary monitor
             long monitor = GLFW.glfwGetPrimaryMonitor();
             var vidmode = GLFW.glfwGetVideoMode(monitor);
             if (vidmode != null) {
@@ -295,19 +363,16 @@ public class PSurfaceGLFW implements PSurface {
 
     @Override
     public void selectInput(String prompt, String callback, File file, Object callbackObject) {
-        // TODO: select input without awt
         throw new UnsupportedOperationException("File dialogs not yet implemented for WebGPU");
     }
 
     @Override
     public void selectOutput(String prompt, String callback, File file, Object callbackObject) {
-        // TODO: file dialogs without awt
         throw new UnsupportedOperationException("File dialogs not yet implemented for WebGPU");
     }
 
     @Override
     public void selectFolder(String prompt, String callback, File file, Object callbackObject) {
-        // TODO: folder selection without awt
         throw new UnsupportedOperationException("Folder selection not yet implemented for WebGPU");
     }
 
@@ -333,16 +398,15 @@ public class PSurfaceGLFW implements PSurface {
             checkPause();
 
             GLFW.glfwPollEvents();
+            PWebGPU.inputFlush();
 
             if (GLFW.glfwWindowShouldClose(window)) {
                 sketch.exit();
                 break;
             }
 
-            // render!
             sketch.handleDraw();
 
-            // frame pacing
             long afterTime = System.nanoTime();
             long timeDiff = afterTime - beforeTime;
             long sleepTime = (frameRatePeriod - timeDiff) - overSleepTime;
@@ -361,7 +425,6 @@ public class PSurfaceGLFW implements PSurface {
             beforeTime = System.nanoTime();
         }
 
-        // cleanup
         sketch.dispose();
     }
 
@@ -417,7 +480,6 @@ public class PSurfaceGLFW implements PSurface {
                 }
             }
         } finally {
-            // run destructors always
             freeCallbacks();
         }
 
@@ -433,8 +495,35 @@ public class PSurfaceGLFW implements PSurface {
             windowPosCallback.free();
             windowPosCallback = null;
         }
+        if (cursorPosCallback != null) {
+            cursorPosCallback.free();
+            cursorPosCallback = null;
+        }
+        if (mouseButtonCallback != null) {
+            mouseButtonCallback.free();
+            mouseButtonCallback = null;
+        }
+        if (scrollCallback != null) {
+            scrollCallback.free();
+            scrollCallback = null;
+        }
+        if (keyCallback != null) {
+            keyCallback.free();
+            keyCallback = null;
+        }
+        if (charCallback != null) {
+            charCallback.free();
+            charCallback = null;
+        }
+        if (cursorEnterCallback != null) {
+            cursorEnterCallback.free();
+            cursorEnterCallback = null;
+        }
+        if (windowFocusCallback != null) {
+            windowFocusCallback.free();
+            windowFocusCallback = null;
+        }
     }
-
 
     @Override
     public boolean isStopped() {

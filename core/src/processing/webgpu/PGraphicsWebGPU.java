@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PGraphicsWebGPU extends PGraphics {
-    private long surfaceId = 0;
+    protected long surfaceId = 0;
     private long graphicsId = 0;
 
     private long currentGeometry = 0;
     private int shapeKind = 0;
     private float normalX = 0, normalY = 0, normalZ = 1;
 
-    // immediate mode geometries pending destruction
     private final List<Long> pendingDestroy = new ArrayList<>();
 
 
@@ -35,6 +34,10 @@ public class PGraphicsWebGPU extends PGraphics {
         if (graphicsId == 0) {
             System.err.println("Failed to create WebGPU graphics context");
         }
+    }
+
+    public long getSurfaceId() {
+        return surfaceId;
     }
 
     @Override
@@ -88,6 +91,8 @@ public class PGraphicsWebGPU extends PGraphics {
         PWebGPU.exit();
     }
 
+    // ── Background ──────────────────────────────────────────────────────
+
     @Override
     protected void backgroundImpl() {
         if (graphicsId == 0) {
@@ -113,6 +118,8 @@ public class PGraphicsWebGPU extends PGraphics {
         }
         PWebGPU.backgroundImage(graphicsId, img.getId());
     }
+
+    // ── Fill / stroke ───────────────────────────────────────────────────
 
     @Override
     protected void fillFromCalc() {
@@ -168,6 +175,62 @@ public class PGraphicsWebGPU extends PGraphics {
     }
 
     @Override
+    public void strokeCap(int cap) {
+        super.strokeCap(cap);
+        if (graphicsId == 0) {
+            return;
+        }
+        byte nativeCap = switch (cap) {
+            case ROUND -> PWebGPU.STROKE_CAP_ROUND;
+            case SQUARE -> PWebGPU.STROKE_CAP_SQUARE;
+            case PROJECT -> PWebGPU.STROKE_CAP_PROJECT;
+            default -> PWebGPU.STROKE_CAP_ROUND;
+        };
+        PWebGPU.setStrokeCap(graphicsId, nativeCap);
+    }
+
+    @Override
+    public void strokeJoin(int join) {
+        super.strokeJoin(join);
+        if (graphicsId == 0) {
+            return;
+        }
+        byte nativeJoin = switch (join) {
+            case ROUND -> PWebGPU.STROKE_JOIN_ROUND;
+            case MITER -> PWebGPU.STROKE_JOIN_MITER;
+            case BEVEL -> PWebGPU.STROKE_JOIN_BEVEL;
+            default -> PWebGPU.STROKE_JOIN_ROUND;
+        };
+        PWebGPU.setStrokeJoin(graphicsId, nativeJoin);
+    }
+
+    // ── Blend mode ──────────────────────────────────────────────────────
+
+    @Override
+    public void blendMode(int mode) {
+        super.blendMode(mode);
+        if (graphicsId == 0) {
+            return;
+        }
+        byte nativeMode = switch (mode) {
+            case BLEND -> PWebGPU.BLEND_MODE_BLEND;
+            case ADD -> PWebGPU.BLEND_MODE_ADD;
+            case SUBTRACT -> PWebGPU.BLEND_MODE_SUBTRACT;
+            case DARKEST -> PWebGPU.BLEND_MODE_DARKEST;
+            case LIGHTEST -> PWebGPU.BLEND_MODE_LIGHTEST;
+            case DIFFERENCE -> PWebGPU.BLEND_MODE_DIFFERENCE;
+            case EXCLUSION -> PWebGPU.BLEND_MODE_EXCLUSION;
+            case MULTIPLY -> PWebGPU.BLEND_MODE_MULTIPLY;
+            case SCREEN -> PWebGPU.BLEND_MODE_SCREEN;
+            case REPLACE -> PWebGPU.BLEND_MODE_REPLACE;
+            default -> PWebGPU.BLEND_MODE_BLEND;
+        };
+        PWebGPU.setBlendMode(graphicsId, nativeMode);
+    }
+
+    // ── 2D primitives ───────────────────────────────────────────────────
+
+    @Override
     protected void rectImpl(float x1, float y1, float x2, float y2) {
         rectImpl(x1, y1, x2, y2, 0, 0, 0, 0);
     }
@@ -182,6 +245,78 @@ public class PGraphicsWebGPU extends PGraphics {
     }
 
     @Override
+    protected void ellipseImpl(float a, float b, float c, float d) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.ellipse(graphicsId, a, b, c, d);
+    }
+
+    @Override
+    protected void arcImpl(float a, float b, float c, float d,
+                           float start, float stop, int mode) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.arc(graphicsId, a, b, c, d, start, stop, (byte) mode);
+    }
+
+    @Override
+    public void line(float x1, float y1, float x2, float y2) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.line(graphicsId, x1, y1, x2, y2);
+    }
+
+    @Override
+    public void point(float x, float y) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.point(graphicsId, x, y);
+    }
+
+    @Override
+    public void triangle(float x1, float y1, float x2, float y2, float x3, float y3) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.triangle(graphicsId, x1, y1, x2, y2, x3, y3);
+    }
+
+    @Override
+    public void quad(float x1, float y1, float x2, float y2,
+                     float x3, float y3, float x4, float y4) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.quad(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
+    }
+
+    // ── Curves ──────────────────────────────────────────────────────────
+
+    @Override
+    public void bezier(float x1, float y1, float x2, float y2,
+                       float x3, float y3, float x4, float y4) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.bezier(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
+    }
+
+    @Override
+    public void curve(float x1, float y1, float x2, float y2,
+                      float x3, float y3, float x4, float y4) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.curve(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
+    }
+
+    // ── 3D shapes ───────────────────────────────────────────────────────
+
+    @Override
     public void box(float w, float h, float d) {
         if (graphicsId == 0) {
             return;
@@ -192,160 +327,16 @@ public class PGraphicsWebGPU extends PGraphics {
     }
 
     @Override
-    public void pushMatrix() {
+    public void sphere(float r) {
         if (graphicsId == 0) {
             return;
         }
-        PWebGPU.pushMatrix(graphicsId);
+        long sphereGeometry = PWebGPU.geometrySphere(r, sphereDetailU, sphereDetailV);
+        PWebGPU.model(graphicsId, sphereGeometry);
+        pendingDestroy.add(sphereGeometry);
     }
 
-    @Override
-    public void popMatrix() {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.popMatrix(graphicsId);
-    }
-
-    @Override
-    public void resetMatrix() {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.resetMatrix(graphicsId);
-    }
-
-    @Override
-    public void translate(float x, float y) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.translate(graphicsId, x, y);
-    }
-
-    @Override
-    public void rotate(float angle) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.rotate(graphicsId, angle);
-    }
-
-    @Override
-    public void rotateX(float angle) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.rotateX(graphicsId, angle);
-    }
-
-    @Override
-    public void rotateY(float angle) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.rotateY(graphicsId, angle);
-    }
-
-    @Override
-    public void scale(float x, float y) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.scale(graphicsId, x, y);
-    }
-
-    @Override
-    public void shearX(float angle) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.shearX(graphicsId, angle);
-    }
-
-    @Override
-    public void shearY(float angle) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.shearY(graphicsId, angle);
-    }
-
-    public PImageWebGPU createImage(int width, int height, int format) {
-        return new PImageWebGPU(width, height, format);
-    }
-
-    private byte[] pixelsToRGBA(int[] pixels) {
-        byte[] rgba = new byte[pixels.length * 4];
-        for (int i = 0; i < pixels.length; i++) {
-            int pixel = pixels[i];
-            rgba[i * 4]     = (byte) ((pixel >> 16) & 0xFF);
-            rgba[i * 4 + 1] = (byte) ((pixel >> 8) & 0xFF);
-            rgba[i * 4 + 2] = (byte) (pixel & 0xFF);
-            rgba[i * 4 + 3] = (byte) ((pixel >> 24) & 0xFF);
-        }
-        return rgba;
-    }
-
-    public void cameraPosition(float x, float y, float z) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.cameraPosition(graphicsId, x, y, z);
-    }
-
-    public void cameraLookAt(float x, float y, float z) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.cameraLookAt(graphicsId, x, y, z);
-    }
-
-    @Override
-    public void camera(float eyeX, float eyeY, float eyeZ,
-                       float centerX, float centerY, float centerZ,
-                       float upX, float upY, float upZ) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.mode3d(graphicsId);
-        PWebGPU.cameraPosition(graphicsId, eyeX, eyeY, eyeZ);
-        PWebGPU.cameraLookAt(graphicsId, centerX, centerY, centerZ);
-    }
-
-    @Override
-    public void perspective(float fov, float aspect, float near, float far) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.mode3d(graphicsId);
-        PWebGPU.perspective(graphicsId, fov, aspect, near, far);
-    }
-
-    @Override
-    public void ortho(float left, float right, float bottom, float top, float near, float far) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.ortho(graphicsId, left, right, bottom, top, near, far);
-    }
-
-    @Override
-    public PShape createShape() {
-        return new PShapeWebGPU(this, PShape.GEOMETRY);
-    }
-
-    @Override
-    public PShape createShape(int type) {
-        return new PShapeWebGPU(this, type);
-    }
-
-    public void model(long geometryId) {
-        if (graphicsId == 0) {
-            return;
-        }
-        PWebGPU.model(graphicsId, geometryId);
-    }
+    // ── Vertex shapes ───────────────────────────────────────────────────
 
     @Override
     public void beginShape(int kind) {
@@ -413,5 +404,138 @@ public class PGraphicsWebGPU extends PGraphics {
         PWebGPU.model(graphicsId, currentGeometry);
         pendingDestroy.add(currentGeometry);
         currentGeometry = 0;
+    }
+
+    // ── Transform matrix ────────────────────────────────────────────────
+
+    @Override
+    public void pushMatrix() {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.pushMatrix(graphicsId);
+    }
+
+    @Override
+    public void popMatrix() {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.popMatrix(graphicsId);
+    }
+
+    @Override
+    public void resetMatrix() {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.resetMatrix(graphicsId);
+    }
+
+    @Override
+    public void translate(float x, float y) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.translate(graphicsId, x, y);
+    }
+
+    @Override
+    public void rotate(float angle) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.rotate(graphicsId, angle);
+    }
+
+    @Override
+    public void scale(float x, float y) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.scale(graphicsId, x, y);
+    }
+
+    @Override
+    public void shearX(float angle) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.shearX(graphicsId, angle);
+    }
+
+    @Override
+    public void shearY(float angle) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.shearY(graphicsId, angle);
+    }
+
+    // ── 3D camera / projection ──────────────────────────────────────────
+
+    @Override
+    public void camera(float eyeX, float eyeY, float eyeZ,
+                       float centerX, float centerY, float centerZ,
+                       float upX, float upY, float upZ) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.mode3d(graphicsId);
+        // TODO: camera up vector is not yet exposed by libprocessing FFI
+    }
+
+    @Override
+    public void perspective(float fov, float aspect, float near, float far) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.mode3d(graphicsId);
+        PWebGPU.perspective(graphicsId, fov, aspect, near, far);
+    }
+
+    @Override
+    public void ortho(float left, float right, float bottom, float top, float near, float far) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.ortho(graphicsId, left, right, bottom, top, near, far);
+    }
+
+    // ── Images / shapes ─────────────────────────────────────────────────
+
+    public PImageWebGPU createImage(int width, int height, int format) {
+        return new PImageWebGPU(width, height, format);
+    }
+
+    @Override
+    public PShape createShape() {
+        return new PShapeWebGPU(this, PShape.GEOMETRY);
+    }
+
+    @Override
+    public PShape createShape(int type) {
+        return new PShapeWebGPU(this, type);
+    }
+
+    public void model(long geometryId) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.model(graphicsId, geometryId);
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────
+
+    private byte[] pixelsToRGBA(int[] pixels) {
+        byte[] rgba = new byte[pixels.length * 4];
+        for (int i = 0; i < pixels.length; i++) {
+            int pixel = pixels[i];
+            rgba[i * 4]     = (byte) ((pixel >> 16) & 0xFF);
+            rgba[i * 4 + 1] = (byte) ((pixel >> 8) & 0xFF);
+            rgba[i * 4 + 2] = (byte) (pixel & 0xFF);
+            rgba[i * 4 + 3] = (byte) ((pixel >> 24) & 0xFF);
+        }
+        return rgba;
     }
 }

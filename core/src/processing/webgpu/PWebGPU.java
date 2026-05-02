@@ -9,82 +9,57 @@ import static java.lang.foreign.MemorySegment.NULL;
 import static processing.ffi.processing_h.*;
 import processing.ffi.Color;
 
-/**
- * PWebGPU provides the native interface layer for libprocessing's WebGPU support.
- */
 public class PWebGPU {
 
     static {
         ensureLoaded();
     }
 
-    /**
-     * Ensure the native library is loaded.
-     */
     public static void ensureLoaded() {
         NativeLibrary.ensureLoaded();
     }
 
-    /**
-     * Initializes the WebGPU subsystem. Must be called before any other WebGPU methods.
-     * This should be called from the same thread that will call update().
-     */
+    // ── Init / lifecycle ────────────────────────────────────────────────
+
     public static void init() {
         processing_init();
         checkError();
     }
 
-    /**
-     * Creates a WebGPU surface from a native window handle.
-     *
-     * @param windowHandle The native window handle
-     * @param displayHandle The native display handle
-     * @param width Window width in physical pixels
-     * @param height Window height in phsyical pixels
-     * @param scaleFactor os provided scale factor
-     * @return Window ID to use for subsequent operations
-     */
+    public static void exit() {
+        processing_exit((byte) 0);
+        checkError();
+    }
+
+    // ── Surface ─────────────────────────────────────────────────────────
+
     public static long createSurface(long windowHandle, long displayHandle, int width, int height, float scaleFactor) {
         long surfaceId = processing_surface_create(windowHandle, displayHandle, width, height, scaleFactor);
         checkError();
         return surfaceId;
     }
 
-    /**
-     * Destroys a WebGPU surface.
-     *
-     * @param surfaceId The window ID returned from createSurface
-     */
     public static void destroySurface(long surfaceId) {
         processing_surface_destroy(surfaceId);
         checkError();
     }
 
-    /**
-     * Updates a window's size.
-     *
-     * @param surfaceId The window ID returned from createSurface
-     * @param width New physical window width in pixels
-     * @param height New physical window height in pixels
-     */
     public static void windowResized(long surfaceId, int width, int height) {
         processing_surface_resize(surfaceId, width, height);
         checkError();
     }
 
-    /**
-     * Creates a graphics context for the given surface.
-     * This must be called after createSurface before any drawing operations.
-     *
-     * @param surfaceId The surface ID returned from createSurface
-     * @param width Graphics width in pixels
-     * @param height Graphics height in pixels
-     * @return Graphics ID to use for drawing operations
-     */
+    // ── Graphics context ────────────────────────────────────────────────
+
     public static long graphicsCreate(long surfaceId, int width, int height) {
         long graphicsId = processing_graphics_create(surfaceId, width, height);
         checkError();
         return graphicsId;
+    }
+
+    public static void graphicsDestroy(long graphicsId) {
+        processing_graphics_destroy(graphicsId);
+        checkError();
     }
 
     public static void beginDraw(long graphicsId) {
@@ -92,182 +67,456 @@ public class PWebGPU {
         checkError();
     }
 
-    public static void flush(long surfaceId) {
-        processing_flush(surfaceId);
+    public static void flush(long graphicsId) {
+        processing_flush(graphicsId);
         checkError();
     }
 
-    public static void endDraw(long surfaceId) {
-        processing_end_draw(surfaceId);
+    public static void endDraw(long graphicsId) {
+        processing_end_draw(graphicsId);
         checkError();
     }
 
-    /**
-     * Cleans up the WebGPU subsystem. Should be called on application exit.
-     */
-    public static void exit() {
-        processing_exit((byte) 0);
-        checkError();
-    }
+    // ── Background ──────────────────────────────────────────────────────
 
-    public static void backgroundColor(long surfaceId, float r, float g, float b, float a) {
+    public static void backgroundColor(long graphicsId, float r, float g, float b, float a) {
         try (Arena arena = Arena.ofConfined()) {
-            MemorySegment color = Color.allocate(arena);
-
-            Color.r(color, r);
-            Color.g(color, g);
-            Color.b(color, b);
-            Color.a(color, a);
-
-            processing_background_color(surfaceId, color);
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            processing_background_color(graphicsId, color);
             checkError();
         }
     }
 
-    /**
-     * Set the fill color.
-     */
-    public static void setFill(long surfaceId, float r, float g, float b, float a) {
-        processing_set_fill(surfaceId, r, g, b, a);
+    public static void backgroundImage(long graphicsId, long imageId) {
+        processing_background_image(graphicsId, imageId);
         checkError();
     }
 
-    /**
-     * Set the stroke color.
-     */
-    public static void setStrokeColor(long surfaceId, float r, float g, float b, float a) {
-        processing_set_stroke_color(surfaceId, r, g, b, a);
+    // ── Color mode ──────────────────────────────────────────────────────
+
+    public static final byte COLOR_SPACE_SRGB = 0;
+    public static final byte COLOR_SPACE_HSB = 1;
+    public static final byte COLOR_SPACE_LINEAR = 2;
+
+    public static void colorMode(long graphicsId, byte space, float max1, float max2, float max3, float maxAlpha) {
+        processing_color_mode(graphicsId, space, max1, max2, max3, maxAlpha);
         checkError();
     }
 
-    /**
-     * Set the stroke weight.
-     */
-    public static void setStrokeWeight(long surfaceId, float weight) {
-        processing_set_stroke_weight(surfaceId, weight);
+    // ── Fill / stroke ───────────────────────────────────────────────────
+
+    public static void setFill(long graphicsId, float r, float g, float b, float a) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            processing_set_fill(graphicsId, color);
+            checkError();
+        }
+    }
+
+    public static void setStrokeColor(long graphicsId, float r, float g, float b, float a) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            processing_set_stroke_color(graphicsId, color);
+            checkError();
+        }
+    }
+
+    public static void setStrokeWeight(long graphicsId, float weight) {
+        processing_set_stroke_weight(graphicsId, weight);
         checkError();
     }
 
-    /**
-     * Disable fill for subsequent shapes.
-     */
-    public static void noFill(long surfaceId) {
-        processing_no_fill(surfaceId);
+    public static void noFill(long graphicsId) {
+        processing_no_fill(graphicsId);
         checkError();
     }
 
-    /**
-     * Disable stroke for subsequent shapes.
-     */
-    public static void noStroke(long surfaceId) {
-        processing_no_stroke(surfaceId);
+    public static void noStroke(long graphicsId) {
+        processing_no_stroke(graphicsId);
         checkError();
     }
 
-    /**
-     * Draw a rectangle.
-     */
-    public static void rect(long surfaceId, float x, float y, float w, float h,
+    // ── Stroke style ────────────────────────────────────────────────────
+
+    public static final byte STROKE_CAP_ROUND = 0;
+    public static final byte STROKE_CAP_SQUARE = 1;
+    public static final byte STROKE_CAP_PROJECT = 2;
+
+    public static final byte STROKE_JOIN_ROUND = 0;
+    public static final byte STROKE_JOIN_MITER = 1;
+    public static final byte STROKE_JOIN_BEVEL = 2;
+
+    public static void setStrokeCap(long graphicsId, byte cap) {
+        processing_set_stroke_cap(graphicsId, cap);
+        checkError();
+    }
+
+    public static void setStrokeJoin(long graphicsId, byte join) {
+        processing_set_stroke_join(graphicsId, join);
+        checkError();
+    }
+
+    // ── Shape modes ─────────────────────────────────────────────────────
+
+    public static void rectMode(long graphicsId, byte mode) {
+        processing_rect_mode(graphicsId, mode);
+        checkError();
+    }
+
+    public static void ellipseMode(long graphicsId, byte mode) {
+        processing_ellipse_mode(graphicsId, mode);
+        checkError();
+    }
+
+    // ── Blend modes ─────────────────────────────────────────────────────
+
+    public static final byte BLEND_MODE_BLEND = 0;
+    public static final byte BLEND_MODE_ADD = 1;
+    public static final byte BLEND_MODE_SUBTRACT = 2;
+    public static final byte BLEND_MODE_DARKEST = 3;
+    public static final byte BLEND_MODE_LIGHTEST = 4;
+    public static final byte BLEND_MODE_DIFFERENCE = 5;
+    public static final byte BLEND_MODE_EXCLUSION = 6;
+    public static final byte BLEND_MODE_MULTIPLY = 7;
+    public static final byte BLEND_MODE_SCREEN = 8;
+    public static final byte BLEND_MODE_REPLACE = 9;
+
+    public static void setBlendMode(long graphicsId, byte mode) {
+        processing_set_blend_mode(graphicsId, mode);
+        checkError();
+    }
+
+    // ── 2D drawing matrix ───────────────────────────────────────────────
+
+    public static void pushMatrix(long graphicsId) {
+        processing_push_matrix(graphicsId);
+        checkError();
+    }
+
+    public static void popMatrix(long graphicsId) {
+        processing_pop_matrix(graphicsId);
+        checkError();
+    }
+
+    public static void resetMatrix(long graphicsId) {
+        processing_reset_matrix(graphicsId);
+        checkError();
+    }
+
+    public static void translate(long graphicsId, float x, float y) {
+        processing_translate(graphicsId, x, y);
+        checkError();
+    }
+
+    public static void rotate(long graphicsId, float angle) {
+        processing_rotate(graphicsId, angle);
+        checkError();
+    }
+
+    public static void scale(long graphicsId, float x, float y) {
+        processing_scale(graphicsId, x, y);
+        checkError();
+    }
+
+    public static void shearX(long graphicsId, float angle) {
+        processing_shear_x(graphicsId, angle);
+        checkError();
+    }
+
+    public static void shearY(long graphicsId, float angle) {
+        processing_shear_y(graphicsId, angle);
+        checkError();
+    }
+
+    // ── 2D primitives ───────────────────────────────────────────────────
+
+    public static void rect(long graphicsId, float x, float y, float w, float h,
                            float tl, float tr, float br, float bl) {
-        processing_rect(surfaceId, x, y, w, h, tl, tr, br, bl);
+        processing_rect(graphicsId, x, y, w, h, tl, tr, br, bl);
         checkError();
     }
 
-    /**
-     * Push the current transformation matrix onto the stack.
-     */
-    public static void pushMatrix(long surfaceId) {
-        processing_push_matrix(surfaceId);
+    public static void ellipse(long graphicsId, float cx, float cy, float w, float h) {
+        processing_ellipse(graphicsId, cx, cy, w, h);
         checkError();
     }
 
-    /**
-     * Pop the transformation matrix from the stack.
-     */
-    public static void popMatrix(long surfaceId) {
-        processing_pop_matrix(surfaceId);
+    public static void circle(long graphicsId, float cx, float cy, float d) {
+        processing_circle(graphicsId, cx, cy, d);
         checkError();
     }
 
-    /**
-     * Reset the transformation matrix to identity.
-     */
-    public static void resetMatrix(long surfaceId) {
-        processing_reset_matrix(surfaceId);
+    public static void line(long graphicsId, float x1, float y1, float x2, float y2) {
+        processing_line(graphicsId, x1, y1, x2, y2);
         checkError();
     }
 
-    /**
-     * Translate the coordinate system.
-     */
-    public static void translate(long surfaceId, float x, float y) {
-        processing_translate(surfaceId, x, y);
+    public static void triangle(long graphicsId, float x1, float y1, float x2, float y2,
+                                float x3, float y3) {
+        processing_triangle(graphicsId, x1, y1, x2, y2, x3, y3);
         checkError();
     }
 
-    /**
-     * Rotate around the X axis.
-     */
-    public static void rotateX(long surfaceId, float angle) {
-        processing_rotate_x(surfaceId, angle);
+    public static void quad(long graphicsId, float x1, float y1, float x2, float y2,
+                            float x3, float y3, float x4, float y4) {
+        processing_quad(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
         checkError();
     }
 
-    /**
-     * Rotate around the Y axis.
-     */
-    public static void rotateY(long surfaceId, float angle) {
-        processing_rotate_y(surfaceId, angle);
+    public static void point(long graphicsId, float x, float y) {
+        processing_point(graphicsId, x, y);
         checkError();
     }
 
-    /**
-     * Rotate around the Z axis.
-     */
-    public static void rotateZ(long surfaceId, float angle) {
-        processing_rotate_z(surfaceId, angle);
+    public static void square(long graphicsId, float x, float y, float s) {
+        processing_square(graphicsId, x, y, s);
         checkError();
     }
 
-    /**
-     * Rotate the coordinate system.
-     */
-    public static void rotate(long surfaceId, float angle) {
-        rotateZ(surfaceId, angle);
-    }
-
-    /**
-     * Scale the coordinate system.
-     */
-    public static void scale(long surfaceId, float x, float y) {
-        processing_scale(surfaceId, x, y);
+    public static void arc(long graphicsId, float cx, float cy, float w, float h,
+                           float start, float stop, byte mode) {
+        processing_arc(graphicsId, cx, cy, w, h, start, stop, mode);
         checkError();
     }
 
-    /**
-     * Shear along the X axis.
-     */
-    public static void shearX(long surfaceId, float angle) {
-        processing_shear_x(surfaceId, angle);
+    public static void bezier(long graphicsId, float x1, float y1, float x2, float y2,
+                              float x3, float y3, float x4, float y4) {
+        processing_bezier(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
         checkError();
     }
 
-    /**
-     * Shear along the Y axis.
-     */
-    public static void shearY(long surfaceId, float angle) {
-        processing_shear_y(surfaceId, angle);
+    public static void curve(long graphicsId, float x1, float y1, float x2, float y2,
+                             float x3, float y3, float x4, float y4) {
+        processing_curve(graphicsId, x1, y1, x2, y2, x3, y3, x4, y4);
         checkError();
     }
 
-    /**
-     * Create an image from raw pixel data.
-     *
-     * @param width Image width in pixels
-     * @param height Image height in pixels
-     * @param data RGBA pixel data (4 bytes per pixel)
-     * @return Image ID for subsequent operations, or 0 on failure
-     */
+    // ── 3D primitives ───────────────────────────────────────────────────
+
+    public static void cylinder(long graphicsId, float radius, float height, int detail) {
+        processing_cylinder(graphicsId, radius, height, detail);
+        checkError();
+    }
+
+    public static void cone(long graphicsId, float radius, float height, int detail) {
+        processing_cone(graphicsId, radius, height, detail);
+        checkError();
+    }
+
+    public static void torus(long graphicsId, float radius, float tubeRadius, int majorSegments, int minorSegments) {
+        processing_torus(graphicsId, radius, tubeRadius, majorSegments, minorSegments);
+        checkError();
+    }
+
+    public static void plane(long graphicsId, float width, float height) {
+        processing_plane(graphicsId, width, height);
+        checkError();
+    }
+
+    public static void capsule(long graphicsId, float radius, float length, int detail) {
+        processing_capsule(graphicsId, radius, length, detail);
+        checkError();
+    }
+
+    public static void conicalFrustum(long graphicsId, float radiusTop, float radiusBottom, float height, int detail) {
+        processing_conical_frustum(graphicsId, radiusTop, radiusBottom, height, detail);
+        checkError();
+    }
+
+    public static void tetrahedron(long graphicsId, float radius) {
+        processing_tetrahedron(graphicsId, radius);
+        checkError();
+    }
+
+    // ── Vertex shapes ───────────────────────────────────────────────────
+
+    public static void beginShape(long graphicsId, byte kind) {
+        processing_begin_shape(graphicsId, kind);
+        checkError();
+    }
+
+    public static void endShape(long graphicsId, boolean close) {
+        processing_end_shape(graphicsId, close);
+        checkError();
+    }
+
+    public static void shapeVertex(long graphicsId, float x, float y) {
+        processing_vertex(graphicsId, x, y);
+        checkError();
+    }
+
+    public static void bezierVertex(long graphicsId, float cx1, float cy1, float cx2, float cy2, float x, float y) {
+        processing_bezier_vertex(graphicsId, cx1, cy1, cx2, cy2, x, y);
+        checkError();
+    }
+
+    public static void quadraticVertex(long graphicsId, float cx, float cy, float x, float y) {
+        processing_quadratic_vertex(graphicsId, cx, cy, x, y);
+        checkError();
+    }
+
+    public static void curveVertex(long graphicsId, float x, float y) {
+        processing_curve_vertex(graphicsId, x, y);
+        checkError();
+    }
+
+    public static void beginContour(long graphicsId) {
+        processing_begin_contour(graphicsId);
+        checkError();
+    }
+
+    public static void endContour(long graphicsId) {
+        processing_end_contour(graphicsId);
+        checkError();
+    }
+
+    // ── 3D mode / projection ────────────────────────────────────────────
+
+    public static void mode3d(long graphicsId) {
+        processing_mode_3d(graphicsId);
+        checkError();
+    }
+
+    public static void mode2d(long graphicsId) {
+        processing_mode_2d(graphicsId);
+        checkError();
+    }
+
+    public static void perspective(long graphicsId, float fov, float aspect, float near, float far) {
+        processing_perspective(graphicsId, fov, aspect, near, far);
+        checkError();
+    }
+
+    public static void ortho(long graphicsId, float left, float right, float bottom, float top, float near, float far) {
+        processing_ortho(graphicsId, left, right, bottom, top, near, far);
+        checkError();
+    }
+
+    // ── Entity transforms (3D objects: lights, geometry, etc.) ──────────
+
+    public static void transformSetPosition(long entityId, float x, float y, float z) {
+        processing_transform_set_position(entityId, x, y, z);
+        checkError();
+    }
+
+    public static void transformTranslate(long entityId, float x, float y, float z) {
+        processing_transform_translate(entityId, x, y, z);
+        checkError();
+    }
+
+    public static void transformSetRotation(long entityId, float x, float y, float z) {
+        processing_transform_set_rotation(entityId, x, y, z);
+        checkError();
+    }
+
+    public static void transformRotateX(long entityId, float angle) {
+        processing_transform_rotate_x(entityId, angle);
+        checkError();
+    }
+
+    public static void transformRotateY(long entityId, float angle) {
+        processing_transform_rotate_y(entityId, angle);
+        checkError();
+    }
+
+    public static void transformRotateZ(long entityId, float angle) {
+        processing_transform_rotate_z(entityId, angle);
+        checkError();
+    }
+
+    public static void transformRotateAxis(long entityId, float angle, float axisX, float axisY, float axisZ) {
+        processing_transform_rotate_axis(entityId, angle, axisX, axisY, axisZ);
+        checkError();
+    }
+
+    public static void transformSetScale(long entityId, float x, float y, float z) {
+        processing_transform_set_scale(entityId, x, y, z);
+        checkError();
+    }
+
+    public static void transformScale(long entityId, float x, float y, float z) {
+        processing_transform_scale(entityId, x, y, z);
+        checkError();
+    }
+
+    public static void transformLookAt(long entityId, float targetX, float targetY, float targetZ) {
+        processing_transform_look_at(entityId, targetX, targetY, targetZ);
+        checkError();
+    }
+
+    public static void transformReset(long entityId) {
+        processing_transform_reset(entityId);
+        checkError();
+    }
+
+    // ── Lights ──────────────────────────────────────────────────────────
+
+    public static long lightCreateDirectional(long graphicsId, float r, float g, float b, float a, float illuminance) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            long id = processing_light_create_directional(graphicsId, color, illuminance);
+            checkError();
+            return id;
+        }
+    }
+
+    public static long lightCreatePoint(long graphicsId, float r, float g, float b, float a,
+                                        float intensity, float range, float radius) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            long id = processing_light_create_point(graphicsId, color, intensity, range, radius);
+            checkError();
+            return id;
+        }
+    }
+
+    public static long lightCreateSpot(long graphicsId, float r, float g, float b, float a,
+                                       float intensity, float range, float radius,
+                                       float innerAngle, float outerAngle) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment color = allocateColor(arena, r, g, b, a);
+            long id = processing_light_create_spot(graphicsId, color, intensity, range, radius, innerAngle, outerAngle);
+            checkError();
+            return id;
+        }
+    }
+
+    // ── Materials ───────────────────────────────────────────────────────
+
+    public static long materialCreatePbr() {
+        long id = processing_material_create_pbr();
+        checkError();
+        return id;
+    }
+
+    public static void materialSetFloat(long matId, String name, float value) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment nameSegment = arena.allocateFrom(name);
+            processing_material_set_float(matId, nameSegment, value);
+            checkError();
+        }
+    }
+
+    public static void materialSetFloat4(long matId, String name, float r, float g, float b, float a) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment nameSegment = arena.allocateFrom(name);
+            processing_material_set_float4(matId, nameSegment, r, g, b, a);
+            checkError();
+        }
+    }
+
+    public static void materialDestroy(long matId) {
+        processing_material_destroy(matId);
+        checkError();
+    }
+
+    public static void material(long graphicsId, long matId) {
+        processing_material(graphicsId, matId);
+        checkError();
+    }
+
+    // ── Images ──────────────────────────────────────────────────────────
+
     public static long imageCreate(int width, int height, byte[] data) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment dataSegment = arena.allocateFrom(java.lang.foreign.ValueLayout.JAVA_BYTE, data);
@@ -277,12 +526,6 @@ public class PWebGPU {
         }
     }
 
-    /**
-     * Load an image from a file path.
-     *
-     * @param path Path to the image file
-     * @return Image ID for subsequent operations, or 0 on failure
-     */
     public static long imageLoad(String path) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment pathSegment = arena.allocateFrom(path);
@@ -292,24 +535,11 @@ public class PWebGPU {
         }
     }
 
-    /**
-     * Resize an image.
-     *
-     * @param imageId The image ID returned from imageCreate or imageLoad
-     * @param newWidth New width in pixels
-     * @param newHeight New height in pixels
-     */
     public static void imageResize(long imageId, int newWidth, int newHeight) {
         processing_image_resize(imageId, newWidth, newHeight);
         checkError();
     }
 
-    /**
-     * Read back pixel data from an image into a buffer.
-     *
-     * @param imageId The image ID returned from imageCreate or imageLoad
-     * @param buffer Buffer to receive Color data (must be width * height elements)
-     */
     public static void imageReadback(long imageId, float[] buffer) {
         try (Arena arena = Arena.ofConfined()) {
             int numPixels = buffer.length / 4;
@@ -319,81 +549,127 @@ public class PWebGPU {
 
             for (int i = 0; i < numPixels; i++) {
                 MemorySegment color = Color.asSlice(colorBuffer, i);
-                buffer[i * 4] = Color.r(color);
-                buffer[i * 4 + 1] = Color.g(color);
-                buffer[i * 4 + 2] = Color.b(color);
+                buffer[i * 4] = Color.c1(color);
+                buffer[i * 4 + 1] = Color.c2(color);
+                buffer[i * 4 + 2] = Color.c3(color);
                 buffer[i * 4 + 3] = Color.a(color);
             }
         }
     }
 
-    /**
-     * Set the background to an image.
-     *
-     * @param surfaceId The surface ID
-     * @param imageId The image ID to use as background
-     */
-    public static void backgroundImage(long surfaceId, long imageId) {
-        processing_background_image(surfaceId, imageId);
+    // ── Input: event ingestion (called by PSurfaceGLFW) ─────────────────
+
+    public static void inputMouseMove(long surfaceId, float x, float y) {
+        processing_input_mouse_move(surfaceId, x, y);
         checkError();
     }
 
-    /**
-     * Switch to 3D rendering mode.
-     */
-    public static void mode3d(long surfaceId) {
-        processing_mode_3d(surfaceId);
+    public static void inputMouseButton(long surfaceId, byte button, boolean pressed) {
+        processing_input_mouse_button(surfaceId, button, pressed);
         checkError();
     }
 
-    /**
-     * Switch to 2D rendering mode.
-     */
-    public static void mode2d(long surfaceId) {
-        processing_mode_2d(surfaceId);
+    public static void inputScroll(long surfaceId, float x, float y) {
+        processing_input_scroll(surfaceId, x, y);
         checkError();
     }
 
-    /**
-     * Set the camera position.
-     */
-    public static void cameraPosition(long surfaceId, float x, float y, float z) {
-        processing_camera_position(surfaceId, x, y, z);
+    public static void inputKey(long surfaceId, int keyCode, boolean pressed) {
+        processing_input_key(surfaceId, keyCode, pressed);
         checkError();
     }
 
-    /**
-     * Set where the camera is looking at.
-     */
-    public static void cameraLookAt(long surfaceId, float targetX, float targetY, float targetZ) {
-        processing_camera_look_at(surfaceId, targetX, targetY, targetZ);
+    public static void inputChar(long surfaceId, int keyCode, int codepoint) {
+        processing_input_char(surfaceId, keyCode, codepoint);
         checkError();
     }
 
-    /**
-     * Set perspective projection.
-     */
-    public static void perspective(long surfaceId, float fov, float aspect, float near, float far) {
-        processing_perspective(surfaceId, fov, aspect, near, far);
+    public static void inputCursorEnter(long surfaceId) {
+        processing_input_cursor_enter(surfaceId);
         checkError();
     }
 
-    /**
-     * Set orthographic projection.
-     */
-    public static void ortho(long surfaceId, float left, float right, float bottom, float top, float near, float far) {
-        processing_ortho(surfaceId, left, right, bottom, top, near, far);
+    public static void inputCursorLeave(long surfaceId) {
+        processing_input_cursor_leave(surfaceId);
         checkError();
     }
 
-    /** Topology constants */
+    public static void inputFocus(long surfaceId, boolean focused) {
+        processing_input_focus(surfaceId, focused);
+        checkError();
+    }
+
+    public static void inputFlush() {
+        processing_input_flush();
+        checkError();
+    }
+
+    // ── Input: state queries ────────────────────────────────────────────
+
+    public static float mouseX(long surfaceId) {
+        return processing_mouse_x(surfaceId);
+    }
+
+    public static float mouseY(long surfaceId) {
+        return processing_mouse_y(surfaceId);
+    }
+
+    public static float pmouseX(long surfaceId) {
+        return processing_pmouse_x(surfaceId);
+    }
+
+    public static float pmouseY(long surfaceId) {
+        return processing_pmouse_y(surfaceId);
+    }
+
+    public static boolean mouseIsPressed() {
+        return processing_mouse_is_pressed();
+    }
+
+    public static byte mouseButton() {
+        return processing_mouse_button();
+    }
+
+    public static boolean keyIsPressed() {
+        return processing_key_is_pressed();
+    }
+
+    public static boolean keyIsDown(int keyCode) {
+        return processing_key_is_down(keyCode);
+    }
+
+    public static boolean keyJustPressed(int keyCode) {
+        return processing_key_just_pressed(keyCode);
+    }
+
+    public static int key() {
+        return processing_key();
+    }
+
+    public static int keyCode() {
+        return processing_key_code();
+    }
+
+    public static float movedX() {
+        return processing_moved_x();
+    }
+
+    public static float movedY() {
+        return processing_moved_y();
+    }
+
+    public static float mouseWheel() {
+        return processing_mouse_wheel();
+    }
+
+    // ── Geometry ────────────────────────────────────────────────────────
+
     public static final byte TOPOLOGY_POINT_LIST = 0;
     public static final byte TOPOLOGY_LINE_LIST = 1;
     public static final byte TOPOLOGY_LINE_STRIP = 2;
     public static final byte TOPOLOGY_TRIANGLE_LIST = 3;
     public static final byte TOPOLOGY_TRIANGLE_STRIP = 4;
 
-    /** Attribute format constants */
     public static final byte ATTR_FORMAT_FLOAT = 1;
     public static final byte ATTR_FORMAT_FLOAT2 = 2;
     public static final byte ATTR_FORMAT_FLOAT3 = 3;
@@ -449,6 +725,12 @@ public class PWebGPU {
 
     public static long geometryBox(float width, float height, float depth) {
         long geoId = processing_geometry_box(width, height, depth);
+        checkError();
+        return geoId;
+    }
+
+    public static long geometrySphere(float radius, int sectors, int stacks) {
+        long geoId = processing_geometry_sphere(radius, sectors, stacks);
         checkError();
         return geoId;
     }
@@ -565,14 +847,23 @@ public class PWebGPU {
         checkError();
     }
 
-    public static void model(long surfaceId, long geoId) {
-        processing_model(surfaceId, geoId);
+    public static void model(long graphicsId, long geoId) {
+        processing_model(graphicsId, geoId);
         checkError();
     }
 
-    /**
-     * Checks for errors from the native library and throws a PWebGPUException if an error occurred.
-     */
+    // ── Helpers ──────────────────────────────────────────────────────────
+
+    private static MemorySegment allocateColor(Arena arena, float r, float g, float b, float a) {
+        MemorySegment color = Color.allocate(arena);
+        Color.c1(color, r);
+        Color.c2(color, g);
+        Color.c3(color, b);
+        Color.a(color, a);
+        Color.space(color, COLOR_SPACE_SRGB);
+        return color;
+    }
+
     private static void checkError() {
         MemorySegment ret = processing_check_error();
         if (ret.equals(NULL)) {
