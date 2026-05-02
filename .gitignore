@@ -66,6 +66,19 @@ gen-external-apklibs
 hs_err_pid*
 replay_pid*
 
+# Maven ignores
+.kotlin
+.gradle
+.build/
+/core/build/
+/build/publish/
+/app/build
+/java/build/
+/build/reports
+/java/bin
+/java/libraries/svg/bin
+/java/preprocessor/build
+/java/lsp/build
 ### Gradle ###
 .gradle
 **/build/
@@ -93,6 +106,7 @@ gradle-app.setting
 # Java heap dump
 
 # End of https://www.toptal.com/developers/gitignore/api/android,gradle,java
+.kotlin/
 .DS_Store
 bin/*
 .build/
@@ -123,6 +137,18 @@ generated/
 !java/libraries/serial/library/jssc.jar
 /app/windows/obj
 /java/gradle/build
+/core/examples/build
 /java/gradle/example/.processing
 
 libprocessing/ffi/include/*
+/app/windows/obj
+/java/android/example/build
+/java/android/example/.processing
+/java/gradle/example/build
+/java/gradle/example/gradle/wrapper/gradle-wrapper.jar
+/java/gradle/example/gradle/wrapper/gradle-wrapper.properties
+/java/gradle/example/gradlew
+/java/gradle/example/gradlew.bat
+/java/gradle/example/.kotlin/errors
+/java/gradle/hotreload/build
+*.iml

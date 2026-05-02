@@ -60,16 +60,17 @@ public class Util {
    */
   static public byte[] loadBytesRaw(File file) throws IOException {
     int size = (int) file.length();
-    FileInputStream input = new FileInputStream(file);
-    byte[] buffer = new byte[size];
-    int offset = 0;
-    int bytesRead;
-    while ((bytesRead = input.read(buffer, offset, size-offset)) != -1) {
-      offset += bytesRead;
-      if (bytesRead == 0) break;
-    }
-    input.close();  // weren't properly being closed
-    return buffer;
+      byte[] buffer;
+      try (FileInputStream input = new FileInputStream(file)) {
+          buffer = new byte[size];
+          int offset = 0;
+          int bytesRead;
+          while ((bytesRead = input.read(buffer, offset, size - offset)) != -1) {
+              offset += bytesRead;
+              if (bytesRead == 0) break;
+          }
+      }
+      return buffer;
   }
 
 
@@ -143,7 +144,7 @@ public class Util {
         line = line.substring(0, line.indexOf('#')).trim();
       }
 
-      if (line.length() != 0 && line.charAt(0) != '#') {
+      if (!line.isEmpty() && line.charAt(0) != '#') {
         int equals = line.indexOf('=');
         if (equals == -1) {
           if (filename != null) {
@@ -161,26 +162,20 @@ public class Util {
   }
 
 
-  static public void copyFile(File sourceFile,
-                              File targetFile) throws IOException {
-    BufferedInputStream from =
-      new BufferedInputStream(new FileInputStream(sourceFile));
-    BufferedOutputStream to =
-      new BufferedOutputStream(new FileOutputStream(targetFile));
+  static public void copyFile(File sourceFile, File targetFile) throws IOException {
+    try (
+    BufferedInputStream from = new BufferedInputStream(new FileInputStream(sourceFile));
+    BufferedOutputStream to = new BufferedOutputStream(new FileOutputStream(targetFile))) {
     byte[] buffer = new byte[16 * 1024];
     int bytesRead;
     while ((bytesRead = from.read(buffer)) != -1) {
       to.write(buffer, 0, bytesRead);
     }
-    from.close();
-
-    to.flush();
-    to.close();
-
     //noinspection ResultOfMethodCallIgnored
     targetFile.setLastModified(sourceFile.lastModified());
     //noinspection ResultOfMethodCallIgnored
     targetFile.setExecutable(sourceFile.canExecute());
+    }
   }
 
 
@@ -218,13 +213,15 @@ public class Util {
                             file.getAbsolutePath());
     }
     // Could use saveStrings(), but we wouldn't be able to checkError()
-    PrintWriter writer = PApplet.createWriter(temp);
-    for (String line : lines) {
-      writer.println(line);
-    }
-    boolean error = writer.checkError();  // calls flush()
-    writer.close();  // attempt to close regardless
-    if (error) {
+      boolean error;
+      try (PrintWriter writer = PApplet.createWriter(temp)) {
+          for (String line : lines) {
+              writer.println(line);
+          }
+          // calls flush()
+          error = writer.checkError();
+      }
+      if (error) {
       throw new IOException("Error while trying to save " + file);
     }
 
@@ -589,7 +586,7 @@ public class Util {
 
     for (String piece : pieces) {
       //System.out.println("checking piece '" + pieces[i] + "'");
-      if (piece.length() != 0) {
+      if (!piece.isEmpty()) {
         if (piece.toLowerCase().endsWith(".jar") ||
           piece.toLowerCase().endsWith(".zip")) {
           //System.out.println("checking " + pieces[i]);
@@ -623,8 +620,7 @@ public class Util {
 
 
   static private void packageListFromZip(String filename, StringList list) {
-    try {
-      ZipFile file = new ZipFile(filename);
+    try (ZipFile file = new ZipFile(filename);) {
       Enumeration<?> entries = file.entries();
       while (entries.hasMoreElements()) {
         ZipEntry entry = (ZipEntry) entries.nextElement();
@@ -643,7 +639,6 @@ public class Util {
           }
         }
       }
-      file.close();
     } catch (IOException e) {
       System.err.println("Ignoring " + filename + " (" + e.getMessage() + ")");
       //e.printStackTrace();
@@ -688,9 +683,7 @@ public class Util {
    * Ignores (does not extract) any __MACOSX files from macOS archives.
    */
   static public void unzip(File zipFile, File dest) throws IOException {
-    FileInputStream fis = new FileInputStream(zipFile);
-    CheckedInputStream checksum = new CheckedInputStream(fis, new Adler32());
-    ZipInputStream zis = new ZipInputStream(new BufferedInputStream(checksum));
+    try (ZipInputStream zis = new ZipInputStream( new BufferedInputStream( new CheckedInputStream( new FileInputStream(zipFile), new Adler32())))) {
     ZipEntry entry;
     while ((entry = zis.getNextEntry()) != null) {
       final String name = entry.getName();
@@ -710,25 +703,26 @@ public class Util {
       }
     }
   }
+  }
 
 
   static protected void unzipEntry(ZipInputStream zin, File f) throws IOException {
-    FileOutputStream out = new FileOutputStream(f);
-    byte[] b = new byte[512];
-    int len;
-    while ((len = zin.read(b)) != -1) {
-      out.write(b, 0, len);
-    }
-    out.flush();
-    out.close();
+      try (FileOutputStream out = new FileOutputStream(f)) {
+          byte[] b = new byte[512];
+          int len;
+          while ((len = zin.read(b)) != -1) {
+              out.write(b, 0, len);
+          }
+          out.flush();
+      }
   }
 
 
   static public byte[] gzipEncode(byte[] what) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    GZIPOutputStream output = new GZIPOutputStream(baos);
-    PApplet.saveStream(output, new ByteArrayInputStream(what));
-    output.close();
+    try (GZIPOutputStream output = new GZIPOutputStream(baos);) {
+      PApplet.saveStream(output, new ByteArrayInputStream(what));
+    }
     return baos.toByteArray();
   }
 

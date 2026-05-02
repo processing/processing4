@@ -1,34 +1,29 @@
 package processing.awt;
 
+import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PImage;
+
+import javax.imageio.*;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.awt.*;
 import java.awt.color.ColorSpace;
+import java.awt.geom.AffineTransform;
 import java.awt.image.*;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.awt.geom.AffineTransform;
 import java.util.Map;
-
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOInvalidTreeException;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.swing.ImageIcon;
-import javax.swing.JFileChooser;
-import javax.swing.UIManager;
-
-// used by desktopFile() method
-import javax.swing.filechooser.FileSystemView;
-
-import processing.core.PApplet;
-import processing.core.PConstants;
-import processing.core.PImage;
+import java.util.function.Consumer;
 
 
 /**
@@ -809,41 +804,51 @@ public class ShimAWT implements PConstants {
                                 final Object callbackObject,
                                 final Frame parentFrame,
                                 final int mode) {
-    File selectedFile = null;
-
-    if (PApplet.useNativeSelect) {
-      FileDialog dialog = new FileDialog(parentFrame, prompt, mode);
-      if (defaultSelection != null) {
-        dialog.setDirectory(defaultSelection.getParent());
-        dialog.setFile(defaultSelection.getName());
-      }
-
-      dialog.setVisible(true);
-      String directory = dialog.getDirectory();
-      String filename = dialog.getFile();
-      if (filename != null) {
-        selectedFile = new File(directory, filename);
-      }
-
-    } else {
-      JFileChooser chooser = new JFileChooser();
-      chooser.setDialogTitle(prompt);
-      if (defaultSelection != null) {
-        chooser.setSelectedFile(defaultSelection);
-      }
-
-      int result = -1;
-      if (mode == FileDialog.SAVE) {
-        result = chooser.showSaveDialog(parentFrame);
-      } else if (mode == FileDialog.LOAD) {
-        result = chooser.showOpenDialog(parentFrame);
-      }
-      if (result == JFileChooser.APPROVE_OPTION) {
-        selectedFile = chooser.getSelectedFile();
-      }
-    }
-    PApplet.selectCallback(selectedFile, callbackMethod, callbackObject);
+      selectImpl(prompt, defaultSelection, parentFrame, mode, (selectedFile) ->
+              PApplet.selectCallback(selectedFile, callbackMethod, callbackObject)
+      );
   }
+
+    static public void selectImpl(final String prompt,
+                                  final File defaultSelection,
+                                  final Frame parentFrame,
+                                  final int mode,
+                                  final Consumer<File> callback) {
+        File selectedFile = null;
+
+        if (PApplet.useNativeSelect) {
+            FileDialog dialog = new FileDialog(parentFrame, prompt, mode);
+            if (defaultSelection != null) {
+                dialog.setDirectory(defaultSelection.getParent());
+                dialog.setFile(defaultSelection.getName());
+            }
+
+            dialog.setVisible(true);
+            String directory = dialog.getDirectory();
+            String filename = dialog.getFile();
+            if (filename != null) {
+                selectedFile = new File(directory, filename);
+            }
+
+        } else {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setDialogTitle(prompt);
+            if (defaultSelection != null) {
+                chooser.setSelectedFile(defaultSelection);
+            }
+
+            int result = -1;
+            if (mode == FileDialog.SAVE) {
+                result = chooser.showSaveDialog(parentFrame);
+            } else if (mode == FileDialog.LOAD) {
+                result = chooser.showOpenDialog(parentFrame);
+            }
+            if (result == JFileChooser.APPROVE_OPTION) {
+                selectedFile = chooser.getSelectedFile();
+            }
+        }
+        callback.accept(selectedFile);
+    }
 
 
   static public void selectFolder(final String prompt,
@@ -853,6 +858,12 @@ public class ShimAWT implements PConstants {
     EventQueue.invokeLater(() -> selectFolderImpl(prompt, callbackMethod,
       defaultSelection, callbackObject, null));
   }
+
+    static public void selectFolder(final String prompt,
+                                    final File defaultSelection,
+                                    final Consumer<File> callback) {
+        selectFolderImpl(prompt, defaultSelection, null, callback);
+    }
 
 
   /*
@@ -886,6 +897,15 @@ public class ShimAWT implements PConstants {
                                       final File defaultSelection,
                                       final Object callbackObject,
                                       final Frame parentFrame) {
+      selectFolderImpl(prompt, defaultSelection, parentFrame, (selectedFile) ->
+              PApplet.selectCallback(selectedFile, callbackMethod, callbackObject)
+      );
+  }
+
+    static public void selectFolderImpl(final String prompt,
+                                        final File defaultSelection,
+                                        final Frame parentFrame,
+                                        final Consumer<File> callback) {
     File selectedFile = null;
     if (PApplet.platform == PConstants.MACOS && PApplet.useNativeSelect) {
       FileDialog fileDialog =
@@ -914,7 +934,7 @@ public class ShimAWT implements PConstants {
         selectedFile = fileChooser.getSelectedFile();
       }
     }
-    PApplet.selectCallback(selectedFile, callbackMethod, callbackObject);
+        callback.accept(selectedFile);
   }
 
 

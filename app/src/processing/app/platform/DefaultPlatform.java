@@ -23,23 +23,18 @@
 
 package processing.app.platform;
 
-import java.awt.Desktop;
-import java.awt.Font;
-import java.io.File;
-
-import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
-
 import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-
 import processing.app.Base;
 import processing.app.Preferences;
 import processing.app.ui.Toolkit;
 import processing.awt.ShimAWT;
 import processing.core.PApplet;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.io.File;
 
 
 /**
@@ -206,24 +201,7 @@ public class DefaultPlatform {
   public void saveLanguage(String languageCode) { }
 
 
-  /**
-   * This function should throw an exception or return a value.
-   * Do not return null.
-   */
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    // If no subclass has a behavior, default to making a
-    // ".processing" directory in the user's home directory.
-    File home = new File(System.getProperty("user.home"));
-    return new File(home, ".processing");
-  }
-
-
-  /**
+    /**
    * @return if not overridden, a folder named "sketchbook" in user.home.
    * @throws Exception so that subclasses can throw a fit
    */

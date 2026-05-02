@@ -19,7 +19,14 @@ import java.util.prefs.Preferences
 import kotlin.concurrent.thread
 
 
-
+/**
+ * This function is the new modern entry point for Processing
+ * It uses Clikt to provide a command line interface with subcommands
+ *
+ * If you want to add new functionality to the CLI, create a new subcommand
+ * and add it to the list of subcommands below.
+ *
+ */
 suspend fun main(args: Array<String>){
     Processing()
         .subcommands(
@@ -32,6 +39,10 @@ suspend fun main(args: Array<String>){
         .main(args)
 }
 
+/**
+ * The main Processing command, will open the ide if no subcommand is provided
+ * Will also launch the `updateInstallLocations` function in a separate thread
+ */
 class Processing: SuspendingCliktCommand("processing"){
     val version by option("-v","--version")
         .flag()
@@ -61,7 +72,10 @@ class Processing: SuspendingCliktCommand("processing"){
     }
 }
 
-
+/**
+ * A command to start the Processing Language Server
+ * This is used by IDEs to provide language support for Processing sketches
+ */
 class LSP: SuspendingCliktCommand("lsp"){
     override fun help(context: Context) = "Start the Processing Language Server"
     override suspend fun run(){
@@ -79,6 +93,11 @@ class LSP: SuspendingCliktCommand("lsp"){
     }
 }
 
+/**
+ * A command to invoke the legacy CLI of Processing
+ * This is mainly for backwards compatibility with existing scripts
+ * that use the old CLI interface
+ */
 class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
     override val treatUnknownOptionsAsArgs = true
 
@@ -99,6 +118,16 @@ class LegacyCLI(val args: Array<String>): SuspendingCliktCommand("cli") {
     }
 }
 
+/**
+ * Update the install locations in preferences
+ * The install locations are stored in the preferences as a comma separated list of paths
+ * Each path is followed by a caret (^) and the version of Processing at that location
+ * This is used by other programs to find all installed versions of Processing
+ * works from 4.4.6 onwards
+ *
+ * Example:
+ * /path/to/processing-4.0^4.0,/path/to/processing-3.5.4^3.5.4
+ */
 fun updateInstallLocations(){
     val preferences = Preferences.userRoot().node("org/processing/app")
     val installLocations = preferences.get("installLocations", "")

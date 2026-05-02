@@ -1,13 +1,16 @@
 package processing.app;
 
-import java.io.*;
-import java.util.*;
-import java.util.zip.ZipFile;
-
-import processing.app.contrib.*;
-import processing.core.*;
+import processing.app.contrib.ContributionType;
+import processing.app.contrib.LocalContribution;
+import processing.core.PApplet;
 import processing.data.StringDict;
 import processing.data.StringList;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.*;
+import java.util.zip.ZipFile;
 
 
 public class Library extends LocalContribution {
@@ -398,27 +401,24 @@ public class Library extends LocalContribution {
   // so that it can be appended to other paths safely
   public String getClassPath() {
     StringBuilder cp = new StringBuilder();
-
-    String[] jarHeads = libraryFolder.list(jarFilter);
-    if (jarHeads != null) {
-      for (String jar : jarHeads) {
-        cp.append(File.pathSeparatorChar);
-        cp.append(new File(libraryFolder, jar).getAbsolutePath());
-      }
-    }
+      addJars(libraryFolder, cp);
     File nativeLibraryFolder = new File(nativeLibraryPath);
     if (!libraryFolder.equals(nativeLibraryFolder)) {
-      jarHeads = new File(nativeLibraryPath).list(jarFilter);
-      if (jarHeads != null) {
-        for (String jar : jarHeads) {
-          cp.append(File.pathSeparatorChar);
-          cp.append(new File(nativeLibraryPath, jar).getAbsolutePath());
-        }
-      }
+        addJars(nativeLibraryFolder, cp);
+        addJars(new File(nativeLibraryFolder, "modules"), cp);
     }
     return cp.toString();
   }
 
+    private void addJars(File folder, StringBuilder cp) {
+        String[] jarHeads = folder.list(jarFilter);
+        if (jarHeads != null) {
+            for (String jar : jarHeads) {
+                cp.append(File.pathSeparatorChar);
+                cp.append(new File(folder, jar).getAbsolutePath());
+            }
+        }
+    }
 
   public String getNativePath() {
     return nativeLibraryPath;

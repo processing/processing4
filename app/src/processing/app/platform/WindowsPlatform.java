@@ -22,19 +22,21 @@
 
 package processing.app.platform;
 
-import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.platform.win32.*;
-
-import processing.app.*;
+import com.sun.jna.platform.win32.GDI32;
+import com.sun.jna.platform.win32.Shell32Util;
+import com.sun.jna.platform.win32.ShlObj;
+import com.sun.jna.platform.win32.WinDef;
+import processing.app.Base;
+import processing.app.Messages;
+import processing.app.Preferences;
 import processing.app.platform.WindowsRegistry.REGISTRY_ROOT_KEY;
-
 import processing.core.PApplet;
+
+import java.awt.*;
+import java.io.File;
+import java.io.UnsupportedEncodingException;
 
 
 // With the changes to include .pyde files for 3.4, this class is
@@ -351,54 +353,6 @@ public class WindowsPlatform extends DefaultPlatform {
   }
 
 
-  // looking for Documents and Settings/blah/Application Data/Processing
-  public File getSettingsFolder() throws Exception {
-    File override = Base.getSettingsOverride();
-    if (override != null) {
-      return override;
-    }
-
-    try {
-      String appDataRoaming = getAppDataPath();
-      if (appDataRoaming != null) {
-        File settingsFolder = new File(appDataRoaming, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      String appDataLocal = getLocalAppDataPath();
-      if (appDataLocal != null) {
-        File settingsFolder = new File(appDataLocal, APP_NAME);
-        if (settingsFolder.exists() || settingsFolder.mkdirs()) {
-          return settingsFolder;
-        }
-      }
-
-      if (appDataRoaming == null && appDataLocal == null) {
-        throw new IOException("Could not get the AppData folder");
-      }
-
-      // https://github.com/processing/processing/issues/3838
-      throw new IOException("Permissions error: make sure that " +
-                            appDataRoaming + " or " + appDataLocal +
-                            " is writable.");
-
-    } catch (UnsatisfiedLinkError ule) {
-      String path = new File("lib").getCanonicalPath();
-
-      String msg = Util.containsNonASCII(path) ?
-        """
-          Please move Processing to a location with only
-          ASCII characters in the path and try again.
-          https://github.com/processing/processing/issues/3543
-        """ :
-        "Could not find JNA support files, please reinstall Processing.";
-      Messages.showError("Windows JNA Problem", msg, ule);
-      return null;  // unreachable
-    }
-  }
-
 
   /*
     What's happening internally with JNA https://github.com/java-native-access/jna/blob/master/contrib/platform/src/com/sun/jna/platform/win32/Shell32.java
@@ -413,19 +367,7 @@ public class WindowsPlatform extends DefaultPlatform {
    */
 
 
-  /** Get the Users\name\AppData\Roaming path to write settings files. */
-  static private String getAppDataPath() {
-    return Shell32Util.getSpecialFolderPath(ShlObj.CSIDL_APPDATA, true);
-  }
-
-
-  /** Get the Users\name\AppData\Local path as a settings fallback. */
-  static private String getLocalAppDataPath() {
-    return Shell32Util.getSpecialFolderPath(ShlObj.CSIDL_LOCAL_APPDATA, true);
-  }
-
-
-  /** Get the Documents and Settings\name\My Documents\Processing folder. */
+    /** Get the Documents and Settings\name\My Documents\Processing folder. */
   public File getDefaultSketchbookFolder() throws Exception {
     String documentsPath = getDocumentsPath();
     if (documentsPath != null) {

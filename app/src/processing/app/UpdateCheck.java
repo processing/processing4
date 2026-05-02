@@ -63,6 +63,9 @@ public class UpdateCheck {
 
   static private final long ONE_DAY = 24 * 60 * 60 * 1000;
 
+  public static void doCheck(Base base) {
+    new UpdateCheck(base);
+  }
 
   public UpdateCheck(Base base) {
     this.base = base;

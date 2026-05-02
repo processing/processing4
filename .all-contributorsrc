@@ -2,7 +2,7 @@
   "projectName": "processing4",
   "projectOwner": "processing",
   "files": [
-    "README.md"
+    "CONTRIBUTORS.md"
   ],
   "imageSize": 120,
   "contributorsPerLine": 6,
@@ -1473,7 +1473,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/138858208?v=4",
       "profile": "https://github.com/Rishab87",
       "contributions": [
-        "code"
+        "code",
+        "test"
       ]
     },
     {
@@ -1668,6 +1669,78 @@
       "profile": "https://github.com/SuganthiThomas",
       "contributions": [
         "code"
+      ]
+    },
+    {
+      "login": "madhav2348",
+      "name": "Madhav Majumdar",
+      "avatar_url": "https://avatars.githubusercontent.com/u/161720210?v=4",
+      "profile": "https://github.com/madhav2348",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "DinoWw",
+      "name": "Dino_Ww",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19573337?v=4",
+      "profile": "https://github.com/DinoWw",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "avinxshKD",
+      "name": "Avinash Kumar Deepak",
+      "avatar_url": "https://avatars.githubusercontent.com/u/152387616?v=4",
+      "profile": "https://github.com/avinxshKD",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Sumamasonia",
+      "name": "Sumama Sonia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/214366437?v=4",
+      "profile": "https://www.linkedin.com/in/sumamasonia/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "SalmaneKhalili",
+      "name": "Salmane Khalili",
+      "avatar_url": "https://avatars.githubusercontent.com/u/141567440?v=4",
+      "profile": "https://www.linkedin.com/in/salmane-khalili-4223562aa/",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "nickmcintyre",
+      "name": "Nick McIntyre",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3719176?v=4",
+      "profile": "https://mcintyre.io",
+      "contributions": [
+        "test"
+      ]
+    },
+    {
+      "login": "Ebaron96",
+      "name": "Elijah Baron",
+      "avatar_url": "https://avatars.githubusercontent.com/u/180047692?v=4",
+      "profile": "https://github.com/Ebaron96",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "kjhollen",
+      "name": "Kate Hollenbach",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78966?v=4",
+      "profile": "https://github.com/kjhollen",
+      "contributions": [
+        "bug"
       ]
     }
   ],
