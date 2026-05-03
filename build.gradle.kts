@@ -13,9 +13,9 @@ plugins {
 layout.buildDirectory = file(".build")
 
 val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
-val javaVersion = if (enableWebGPU) "24" else "17"
+val javaVersion = if (enableWebGPU) "25" else "17"
 val kotlinJvmTarget = if (enableWebGPU) {
-    org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
+    org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
 } else {
     org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 }
