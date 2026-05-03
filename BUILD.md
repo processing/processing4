@@ -12,9 +12,9 @@ First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in IntelliJ IDEA CE
 1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 25.
+1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
 1. In the main menu, go to File > Project Structure > Project Settings > Project.
-1. In the SDK Dropdown option, select a JDK version 25 or Download the jdk
+1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
 1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
 1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
 
@@ -46,43 +46,58 @@ If you don't have them installed, you will need to install [Git](https://git-scm
     cd processing4
     ```
 
-2. **Install Temurin JDK 25:**
+2. **Install Temurin JDK 17:**
    
 Processing requires the Temurin distribution of OpenJDK. 
 
-You can download it from [Adoptium](https://adoptium.net/), from [GitHub releases](https://github.com/adoptium/temurin25-binaries/releases),
+You can download it from [Adoptium](https://adoptium.net/), from [GitHub releases](https://github.com/adoptium/temurin17-binaries/releases),
 or find it in the package manager for your platform.
 
 ### macOS:
 ```bash
-brew install --cask temurin@25
+brew install --cask temurin@17
 ````
 
 ### Windows (using winget):
 ```bash
-winget install --id=EclipseAdoptium.Temurin.25.JDK  -e
+winget install --id=EclipseAdoptium.Temurin.17.JDK  -e
 ```
 
 ### SDKMAN!
 
 [SDKMAN!](https://sdkman.io/) is a useful tool for developers working on multiple versions of the JVM.
 
-## Install `jextract`
+## WebGPU Support (Optional)
 
-`jextract` is a tool included in the JDK that generates Java bindings from C header files. 
-It is required to build Processing when using WebGPU. You can download it [here](https://jdk.java.net/jextract/)
-or install it using SDKMAN!:
+To build Processing with the experimental WebGPU renderer, you need JDK 24+, Rust, and jextract.
+
+### Install Temurin JDK 24
+
+```bash
+brew install --cask temurin@24    # macOS
+```
+
+### Install `jextract`
+
+`jextract` generates Java bindings from C header files.
+You can download it [here](https://jdk.java.net/jextract/) or install it using SDKMAN!:
 
 ```bash
 sdk install jextract
 ````
 
+### Build with WebGPU
+
+```bash
+./gradlew build -PenableWebGPU=true
+```
+
 3. **Set the `JAVA_HOME` environment variable:**
 
-It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK 25 installation.
+It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
 
     ```bash
-    export JAVA_HOME=/path/to/temurin/jdk-25/
+    export JAVA_HOME=/path/to/temurin/jdk-17/
     ```
 
 ### Build, Run, and Package Processing
@@ -161,18 +176,18 @@ If you are specifically trying to run the `Processing CLI`, you can test command
 
 If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
 
-### Use the Correct JDK (temurin-25)
+### Use the Correct JDK (temurin-17)
 
-Make sure IntelliJ is using **temurin-25**, not another version.
+Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-24** instead.
 
 1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-25"`
+2. Set the **Project SDK** to:    `temurin-17`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
 If it is not already installed, you can download it by:
 1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
-2. Select Version: `25`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
 
 ![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
