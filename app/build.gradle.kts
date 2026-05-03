@@ -438,7 +438,7 @@ tasks.register<Copy>("includeJavaMode") {
 val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
 
 tasks.register<Copy>("includeJdk") {
-    val jdkVersion = if (enableWebGPU) 24 else 17
+    val jdkVersion = if (enableWebGPU) 25 else 17
     val jdkHome = project.the<JavaToolchainService>().launcherFor {
         languageVersion.set(JavaLanguageVersion.of(jdkVersion))
     }.map { it.metadata.installationPath.asFile }

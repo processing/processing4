@@ -69,12 +69,12 @@ winget install --id=EclipseAdoptium.Temurin.17.JDK  -e
 
 ## WebGPU Support (Optional)
 
-To build Processing with the experimental WebGPU renderer, you need JDK 24+, Rust, and jextract.
+To build Processing with the experimental WebGPU renderer, you need JDK 25, Rust, and jextract.
 
-### Install Temurin JDK 24
+### Install Temurin JDK 25
 
 ```bash
-brew install --cask temurin@24    # macOS
+brew install --cask temurin@25    # macOS
 ```
 
 ### Install `jextract`
@@ -178,7 +178,7 @@ If you’re building Processing using IntelliJ IDEA and something’s not workin
 
 ### Use the Correct JDK (temurin-17)
 
-Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-24** instead.
+Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-25** instead.
 
 1. Go to **File > Project Structure > Project**
 2. Set the **Project SDK** to:    `temurin-17`
