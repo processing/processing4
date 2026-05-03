@@ -12,23 +12,31 @@ plugins {
 // Can be deleted after the migration to Gradle is complete
 layout.buildDirectory = file(".build")
 
-val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: true
+val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
+val javaVersion = if (enableWebGPU) "24" else "17"
+val kotlinJvmTarget = if (enableWebGPU) {
+    org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
+} else {
+    org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+}
 
 allprojects {
     tasks.withType<JavaCompile>().configureEach {
-        val javaVersion = if (enableWebGPU) "24" else "17"
         sourceCompatibility = javaVersion
         targetCompatibility = javaVersion
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
         compilerOptions {
-            val kotlinTarget = if (enableWebGPU) {
-                org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
-            } else {
-                org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+            jvmTarget.set(kotlinJvmTarget)
+        }
+    }
+
+    plugins.withType<JavaPlugin> {
+        extensions.configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(javaVersion.toInt()))
             }
-            jvmTarget.set(kotlinTarget)
         }
     }
 }

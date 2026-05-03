@@ -5,7 +5,9 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
-import processing.gradle.SignResourcesTask
+import java.io.FileOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 // TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
 
@@ -433,8 +435,15 @@ tasks.register<Copy>("includeJavaMode") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dirPermissions { unix("rwx------") }
 }
+val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
+
 tasks.register<Copy>("includeJdk") {
-    from(Jvm.current().javaHome.absolutePath)
+    val jdkVersion = if (enableWebGPU) 24 else 17
+    val jdkHome = project.the<JavaToolchainService>().launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(jdkVersion))
+    }.map { it.metadata.installationPath.asFile }
+
+    from(jdkHome)
     destinationDir = composeResources("jdk").get().asFile
 
     fileTree(destinationDir).files.forEach { file ->
@@ -517,7 +526,7 @@ tasks.register("includeProcessingResources"){
     finalizedBy("signResources")
 }
 
-tasks.register<SignResourcesTask>("signResources") {
+tasks.register("signResources") {
     onlyIf {
         OperatingSystem.current().isMacOsX
             &&
@@ -562,10 +571,11 @@ tasks.register<SignResourcesTask>("signResources") {
             exclude("*.jar")
             exclude("*.so")
             exclude("*.dll")
-        }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
-            }
+        }.forEach{ f ->
+            ProcessBuilder("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--sign", "Developer ID Application", f.absolutePath)
+                .inheritIO()
+                .start()
+                .waitFor()
         }
         jars.forEach { file ->
             FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->

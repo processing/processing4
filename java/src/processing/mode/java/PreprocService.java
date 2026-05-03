@@ -667,7 +667,7 @@ public class PreprocService {
 
     if (resolveBindings) {
       parser.setUnitName(className);
-      parser.setEnvironment(classPathArray, null, null, false);
+      parser.setEnvironment(classPathArray, null, null, true);
       parser.setResolveBindings(true);
     }
   }

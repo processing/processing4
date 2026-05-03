@@ -66,6 +66,7 @@ public class JavaBuild {
   private boolean foundMain = false;
   private String classPath;
   protected String sketchClassName;
+  protected String sketchRenderer;
 
   /**
    * This will include the code folder, any library folders, etc. that might
@@ -118,6 +119,7 @@ public class JavaBuild {
     // that will bubble up to whomever called build().
     if (Compiler.compile(this)) {
       sketchClassName = classNameFound;
+      sketchRenderer = result.getSketchRenderer();
       return classNameFound;
     }
     return null;
@@ -126,6 +128,10 @@ public class JavaBuild {
 
   public String getSketchClassName() {
     return sketchClassName;
+  }
+
+  public String getSketchRenderer() {
+    return sketchRenderer;
   }
 
 

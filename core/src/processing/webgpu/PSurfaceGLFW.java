@@ -394,7 +394,7 @@ public class PSurfaceGLFW implements PSurface {
 
         sketch.start();
 
-        while (running && !sketch.finished) {
+        while (running) {
             checkPause();
 
             GLFW.glfwPollEvents();
@@ -405,7 +405,9 @@ public class PSurfaceGLFW implements PSurface {
                 break;
             }
 
-            sketch.handleDraw();
+            if (!sketch.finished) {
+                sketch.handleDraw();
+            }
 
             long afterTime = System.nanoTime();
             long timeDiff = afterTime - beforeTime;

@@ -343,8 +343,9 @@ public class Runner implements MessageConsumer {
       //params.append("-Dcom.apple.mrj.application.apple.menu.about.name=" +
       //              build.getSketchClassName());
 
-      // required for GLFW and Metal when using WebGPU
-      params.append("-XstartOnFirstThread");
+      if ("WEBGPU".equals(build.getSketchRenderer())) {
+        params.append("-XstartOnFirstThread");
+      }
     }
     /*
     if (Platform.isWindows()) {
