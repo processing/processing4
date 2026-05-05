@@ -9,8 +9,11 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.JavaExec
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.compose.ComposeExtension
 import org.jetbrains.compose.desktop.DesktopExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.net.Socket
 import javax.inject.Inject
@@ -35,11 +38,25 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val settings = project.findProperty("processing.settings") as String?
         val root = project.findProperty("processing.root") as String?
 
+        val webgpu = (project.findProperty("processing.webgpu") as String?)?.toBoolean() ?: false
+        val javaVersion = if (webgpu) 25 else 17
+
         // Apply the Java plugin to the Project, equivalent of
         // plugins {
         //     java
         // }
         project.plugins.apply(JavaPlugin::class.java)
+
+        if (webgpu) {
+            project.extensions.configure(JavaPluginExtension::class.java) { ext ->
+                ext.toolchain { spec ->
+                    spec.languageVersion.set(JavaLanguageVersion.of(javaVersion))
+                }
+            }
+            project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
+                task.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
+            }
+        }
 
         if(isProcessing){
             // Set the build directory to a temp file so it doesn't clutter up the sketch folder
@@ -98,6 +115,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 // Set the class to be executed initially
                 application.mainClass = sketchName
                 application.nativeDistributions.includeAllModules = true
+                application.jvmArgs("--enable-native-access=ALL-UNNAMED")
                 if(debugPort != null) {
                     application.jvmArgs("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=$debugPort")
                 }
@@ -150,6 +168,8 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             project.properties
                 .filterKeys { it.startsWith("processing") }
                 .forEach { (key, value) -> task.systemProperty(key, value) }
+
+            task.jvmArgs("--enable-native-access=ALL-UNNAMED")
 
             // Connect the stdio to the PDE if ports are specified
             if(logPort != null) task.standardOutput =  Socket("localhost", logPort.toInt()).outputStream

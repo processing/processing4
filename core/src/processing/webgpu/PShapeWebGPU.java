@@ -1,5 +1,6 @@
 package processing.webgpu;
 
+import processing.core.PGraphics;
 import processing.core.PShape;
 import processing.core.PVector;
 
@@ -248,6 +249,13 @@ public class PShapeWebGPU extends PShape {
         }
     }
 
+    @Override
+    protected void drawImpl(PGraphics g) {
+        if (geometryId != 0 && g instanceof PGraphicsWebGPU webgpu) {
+            webgpu.model(geometryId);
+        }
+    }
+
     /**
      * Release native resources.
      */
@@ -268,6 +276,15 @@ public class PShapeWebGPU extends PShape {
     public static PShapeWebGPU createBox(PGraphicsWebGPU pg, float width, float height, float depth) {
         PShapeWebGPU shape = new PShapeWebGPU(pg, GEOMETRY);
         shape.geometryId = PWebGPU.geometryBox(width, height, depth);
+        return shape;
+    }
+
+    /**
+     * Create a sphere geometry.
+     */
+    public static PShapeWebGPU createSphere(PGraphicsWebGPU pg, float radius, int sectors, int stacks) {
+        PShapeWebGPU shape = new PShapeWebGPU(pg, GEOMETRY);
+        shape.geometryId = PWebGPU.geometrySphere(radius, sectors, stacks);
         return shape;
     }
 }

@@ -249,7 +249,8 @@ public class PGraphicsWebGPU extends PGraphics {
         if (graphicsId == 0) {
             return;
         }
-        PWebGPU.ellipse(graphicsId, a, b, c, d);
+        // ellipseImpl receives corner-form; native expects center.
+        PWebGPU.ellipse(graphicsId, a + c / 2f, b + d / 2f, c, d);
     }
 
     @Override
@@ -482,7 +483,29 @@ public class PGraphicsWebGPU extends PGraphics {
             return;
         }
         PWebGPU.mode3d(graphicsId);
-        // TODO: camera up vector is not yet exposed by libprocessing FFI
+        PWebGPU.transformSetPosition(graphicsId, eyeX, eyeY, eyeZ);
+        PWebGPU.transformLookAt(graphicsId, centerX, centerY, centerZ);
+    }
+
+    public void cameraPosition(float x, float y, float z) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.transformSetPosition(graphicsId, x, y, z);
+    }
+
+    public void cameraLookAt(float x, float y, float z) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.transformLookAt(graphicsId, x, y, z);
+    }
+
+    public void mode3d() {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.mode3d(graphicsId);
     }
 
     @Override
@@ -500,6 +523,46 @@ public class PGraphicsWebGPU extends PGraphics {
             return;
         }
         PWebGPU.ortho(graphicsId, left, right, bottom, top, near, far);
+    }
+
+    // ── Lights ───────────────────────────────────────────────────────────
+
+    @Override
+    public void directionalLight(float r, float g, float b,
+                                 float nx, float ny, float nz) {
+        if (graphicsId == 0) return;
+        long light = PWebGPU.lightCreateDirectional(graphicsId, r, g, b, 1.0f, 600.0f);
+        PWebGPU.transformSetRotation(light, nx, ny, nz);
+    }
+
+    @Override
+    public void pointLight(float r, float g, float b,
+                           float x, float y, float z) {
+        if (graphicsId == 0) return;
+        long light = PWebGPU.lightCreatePoint(graphicsId, r, g, b, 1.0f, 100000.0f, 800.0f, 0.0f);
+        PWebGPU.transformSetPosition(light, x, y, z);
+    }
+
+    public long directionalLight(float r, float g, float b, float illuminance) {
+        if (graphicsId == 0) return 0;
+        return PWebGPU.lightCreateDirectional(graphicsId, r, g, b, 1.0f, illuminance);
+    }
+
+    public long pointLight(float r, float g, float b,
+                           float intensity, float range, float radius,
+                           float x, float y, float z) {
+        if (graphicsId == 0) return 0;
+        long light = PWebGPU.lightCreatePoint(graphicsId, r, g, b, 1.0f, intensity, range, radius);
+        PWebGPU.transformSetPosition(light, x, y, z);
+        return light;
+    }
+
+    public long spotLight(float r, float g, float b,
+                          float intensity, float range, float radius,
+                          float innerAngle, float outerAngle) {
+        if (graphicsId == 0) return 0;
+        return PWebGPU.lightCreateSpot(graphicsId, r, g, b, 1.0f,
+                intensity, range, radius, innerAngle, outerAngle);
     }
 
     // ── Images / shapes ─────────────────────────────────────────────────
@@ -523,6 +586,15 @@ public class PGraphicsWebGPU extends PGraphics {
             return;
         }
         PWebGPU.model(graphicsId, geometryId);
+    }
+
+    // ── Materials ───────────────────────────────────────────────────────
+
+    public void useMaterial(Material mat) {
+        if (graphicsId == 0) {
+            return;
+        }
+        PWebGPU.material(graphicsId, mat.id());
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────
