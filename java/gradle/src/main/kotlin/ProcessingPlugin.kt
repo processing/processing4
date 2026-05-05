@@ -47,15 +47,13 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         // }
         project.plugins.apply(JavaPlugin::class.java)
 
-        if (webgpu) {
-            project.extensions.configure(JavaPluginExtension::class.java) { ext ->
-                ext.toolchain { spec ->
-                    spec.languageVersion.set(JavaLanguageVersion.of(javaVersion))
-                }
+        project.extensions.configure(JavaPluginExtension::class.java) { ext ->
+            ext.toolchain { spec ->
+                spec.languageVersion.set(JavaLanguageVersion.of(javaVersion))
             }
-            project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
-                task.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
-            }
+        }
+        project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
+            task.compilerOptions.jvmTarget.set(JvmTarget.fromTarget(javaVersion.toString()))
         }
 
         if(isProcessing){
@@ -151,6 +149,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             }
         }
 
+        val javaToolchains = project.extensions.getByType(org.gradle.jvm.toolchain.JavaToolchainService::class.java)
+        val launcher = javaToolchains.launcherFor { it.languageVersion.set(JavaLanguageVersion.of(javaVersion)) }
+
         project.afterEvaluate {
             // Copy the result of create distributable to the project directory
             project.tasks.named("createDistributable") { task ->
@@ -159,6 +160,13 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                         it.from(project.tasks.named("createDistributable").get().outputs.files)
                         it.into(project.layout.projectDirectory)
                     }
+                }
+            }
+            project.tasks.withType(JavaExec::class.java).configureEach { task ->
+                task.executable(launcher.get().executablePath.asFile.absolutePath)
+                task.jvmArgs("--enable-native-access=ALL-UNNAMED")
+                if (System.getProperty("os.name").lowercase().contains("mac")) {
+                    task.jvmArgs("-XstartOnFirstThread")
                 }
             }
         }
@@ -170,6 +178,9 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 .forEach { (key, value) -> task.systemProperty(key, value) }
 
             task.jvmArgs("--enable-native-access=ALL-UNNAMED")
+            if (System.getProperty("os.name").lowercase().contains("mac")) {
+                task.jvmArgs("-XstartOnFirstThread")
+            }
 
             // Connect the stdio to the PDE if ports are specified
             if(logPort != null) task.standardOutput =  Socket("localhost", logPort.toInt()).outputStream
@@ -200,13 +211,6 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 include("/*.java")
             }
 
-            // Scan the libraries before compiling the sketches
-            val librariesTaskName = sourceSet.getTaskName("scanLibraries", "PDE")
-            val librariesScan = project.tasks.register(librariesTaskName, LibrariesTask::class.java) { task ->
-                task.description = "Scans the libraries in the sketchbook"
-                task.libraryDirectories.from(sketchbook?.let { File(it, "libraries") }, root?.let { File(it).resolve("modes/java/libraries") })
-            }
-
             // Create a task to process the .pde files before compiling the java sources
             val pdeTaskName = sourceSet.getTaskName("preprocess", "PDE")
             val pdeTask = project.tasks.register(pdeTaskName, PDETask::class.java) { task ->
@@ -218,19 +222,68 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                 sourceSet.java.srcDir(task.outputDirectory)
             }
 
-            val depsTaskName = sourceSet.getTaskName("addLegacyDependencies", "PDE")
-            project.tasks.register(depsTaskName, DependenciesTask::class.java){ task ->
-                // Link the output of the libraries task to the dependencies task
-                task.librariesMetaData.set(librariesScan.get().librariesMetaData)
-                task.dependsOn(pdeTask, librariesScan)
-            }
+            // Resolve sketch+library deps at config time. Adding deps from a
+            // TaskAction fails once a downstream task has already resolved
+            // runtimeClasspath (e.g. Compose's `run`).
+            addLegacyDependencies(project, pdeSourceSet.srcDirs,
+                listOfNotNull(sketchbook?.let { File(it, "libraries") },
+                              root?.let { File(it).resolve("modes/java/libraries") }))
 
             // Make sure that the PDE tasks runs before the java compilation task
             project.tasks.named(sourceSet.compileJavaTaskName) { task ->
-                task.dependsOn(pdeTaskName, depsTaskName)
+                task.dependsOn(pdeTaskName)
             }
         }
     }
+    private fun addLegacyDependencies(project: Project, sketchDirs: Set<File>, libraryRoots: List<File>) {
+        project.dependencies.add("runtimeOnly", "org.jogamp.jogl:jogl-all-main:2.6.0")
+        project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.6.0")
+
+        val os = System.getProperty("os.name").lowercase()
+        val arch = System.getProperty("os.arch").lowercase()
+        val variant = when {
+            os.contains("mac") -> "macosx-universal"
+            os.contains("win") && arch.contains("64") -> "windows-amd64"
+            os.contains("linux") && arch.contains("aarch64") -> "linux-aarch64"
+            os.contains("linux") && arch.contains("arm") -> "linux-arm"
+            os.contains("linux") && arch.contains("amd64") -> "linux-amd64"
+            else -> null
+        }
+        if (variant != null) {
+            project.dependencies.add("runtimeOnly", "org.jogamp.gluegen:gluegen-rt:2.6.0:natives-$variant")
+            project.dependencies.add("runtimeOnly", "org.jogamp.jogl:nativewindow:2.6.0:natives-$variant")
+            project.dependencies.add("runtimeOnly", "org.jogamp.jogl:newt:2.6.0:natives-$variant")
+        }
+
+        val imports = sketchDirs
+            .flatMap { dir -> dir.walkTopDown().filter { it.extension == "pde" }.toList() }
+            .flatMap { Regex("""^\s*import\s+([\w.]+)\s*;""", RegexOption.MULTILINE).findAll(it.readText()).map { m -> m.groupValues[1] } }
+            .toSet()
+        if (imports.isEmpty()) return
+
+        val libraryJars = libraryRoots
+            .filter { it.exists() }
+            .flatMap { it.listFiles { f -> f.isDirectory }?.toList() ?: emptyList() }
+            .mapNotNull { folder -> folder.resolve("library").takeIf { it.isDirectory } }
+            .flatMap { it.listFiles { f -> f.extension == "jar" }?.toList() ?: emptyList() }
+
+        val matched = mutableSetOf<File>()
+        imports.forEach { import ->
+            libraryJars.forEach { jar ->
+                java.util.jar.JarFile(jar).use { jf ->
+                    val hit = jf.entries().asSequence()
+                        .filter { it.name.endsWith(".class") }
+                        .map { it.name.substringBeforeLast('/').replace('/', '.') }
+                        .any { it.startsWith(import) }
+                    if (hit) matched.add(jar)
+                }
+            }
+        }
+        if (matched.isNotEmpty()) {
+            project.dependencies.add("implementation", project.files(matched))
+        }
+    }
+
     abstract class DefaultPDESourceDirectorySet @Inject constructor(
         sourceDirectorySet: SourceDirectorySet,
         taskDependencyFactory: TaskDependencyFactory
