@@ -204,12 +204,15 @@ public class UpdateCheck {
   */
 
 
-  protected int readInt(String filename) throws IOException {
+  protected static int readInt(String filename) throws IOException {
     URL url = new URL(filename);
-    InputStream stream = url.openStream();
+
+    // try-with-resources auto closes things of type "Closeable" even the code throws an error
+    try(InputStream stream = url.openStream();
     InputStreamReader isr = new InputStreamReader(stream);
-    BufferedReader reader = new BufferedReader(isr);
-    return Integer.parseInt(reader.readLine());
+    BufferedReader reader = new BufferedReader(isr)) {
+      return Integer.parseInt(reader.readLine().trim());
+    }
   }
 
 
