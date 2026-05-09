@@ -27,13 +27,11 @@ package processing.app;
 import processing.app.ui.Editor;
 import processing.app.ui.Recent;
 import processing.app.ui.Toolkit;
-import processing.core.*;
+import processing.core.PApplet;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.EventQueue;
-import java.awt.FileDialog;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -41,9 +39,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
 
 /**
@@ -1314,7 +1309,7 @@ public class Sketch {
    * Because the default mode will be the first in the list, this will always
    * prefer that one over the others.
    */
-  static protected File findMain(File folder, List<Mode> modeList) {
+  static public File findMain(File folder, List<Mode> modeList) {
     try {
       Settings props = Sketch.loadProperties(folder);
       String main = props.get("main");
