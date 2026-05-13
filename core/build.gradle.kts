@@ -32,6 +32,9 @@ sourceSets{
     test{
         java{
             srcDirs("test")
+            if (!enableWebGPU) {
+                exclude("processing/webgpu/**")
+            }
         }
     }
 }
