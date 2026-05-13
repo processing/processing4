@@ -42,22 +42,62 @@ If you don't have them installed, you will need to install [Git](https://git-scm
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/processing/processing4.git
+    git clone --recursive https://github.com/processing/processing4.git
     cd processing4
     ```
 
 2. **Install Temurin JDK 17:**
-    
-    Download and install the appropriate version for your platform:
+   
+Processing requires the Temurin distribution of OpenJDK. 
 
-    - [Linux (x86)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz)
-    - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
-    - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
+You can download it from [Adoptium](https://adoptium.net/), from [GitHub releases](https://github.com/adoptium/temurin17-binaries/releases),
+or find it in the package manager for your platform.
+
+### macOS:
+```bash
+brew install --cask temurin@17
+````
+
+### Windows (using winget):
+```bash
+winget install --id=EclipseAdoptium.Temurin.17.JDK  -e
+```
+
+### SDKMAN!
+
+[SDKMAN!](https://sdkman.io/) is a useful tool for developers working on multiple versions of the JVM.
+
+## WebGPU Support (Optional)
+
+To build Processing with the experimental WebGPU renderer, you need JDK 25, Rust, and jextract.
+
+### Install Temurin JDK 25
+
+```bash
+brew install --cask temurin@25    # macOS
+```
+
+### Install `jextract`
+
+`jextract` generates Java bindings from C header files.
+You can download it [here](https://jdk.java.net/jextract/) or install it using SDKMAN!:
+
+```bash
+sdk install jextract
+````
+
+### Build with WebGPU
+
+```bash
+./gradlew build -PenableWebGPU=true
+```
 
 3. **Set the `JAVA_HOME` environment variable:**
 
+It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
+
     ```bash
-    export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
+    export JAVA_HOME=/path/to/temurin/jdk-17/
     ```
 
 ### Build, Run, and Package Processing
@@ -138,10 +178,10 @@ If you’re building Processing using IntelliJ IDEA and something’s not workin
 
 ### Use the Correct JDK (temurin-17)
 
-Make sure IntelliJ is using **temurin-17**, not another version. Some users have reported issues with ms-17.
+Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-25** instead.
 
 1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+2. Set the **Project SDK** to:    `temurin-17`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
@@ -154,7 +194,6 @@ If it is not already installed, you can download it by:
 
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
-
 
 ### “Duplicate content roots detected”
 

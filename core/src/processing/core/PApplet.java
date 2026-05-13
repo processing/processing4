@@ -2008,8 +2008,8 @@ public class PApplet implements PConstants {
    * @see PGraphics
    */
   public PImage createImage(int w, int h, int format) {
-    PImage image = new PImage(w, h, format);
-    image.parent = this;  // make save() work
+    PImage image = (g != null) ? g.createImage(w, h, format) : new PImage(w, h, format);
+    image.parent = this;
     return image;
   }
 
@@ -9983,10 +9983,6 @@ public class PApplet implements PConstants {
             }
             break;
 
-          case ARGS_DISABLE_AWT:
-            disableAWT = true;
-            break;
-
           case ARGS_WINDOW_COLOR:
             if (value.charAt(0) == '#' && value.length() == 7) {
               value = value.substring(1);
@@ -10036,6 +10032,10 @@ public class PApplet implements PConstants {
 
           case ARGS_FULL_SCREEN:
             fullScreen = true;
+            break;
+
+          case ARGS_DISABLE_AWT:
+            disableAWT = true;
             break;
 
           default:
