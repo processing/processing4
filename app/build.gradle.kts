@@ -359,12 +359,12 @@ tasks.register<Zip>("zipDistributable"){
     dependsOn("createDistributable", "setExecutablePermissions")
     group = "compose desktop"
 
-    val dir = distributable().destinationDir.get()
-    val packageName = distributable().packageName.get()
+    val dir = provider { distributable().destinationDir.get() }
+    val packageName = provider { distributable().packageName.get() }
 
     from(dir){ eachFile{ permissions{ unix("755") } } }
     archiveBaseName.set(packageName)
-    destinationDirectory.set(dir.file("../").asFile)
+    destinationDirectory.set(layout.dir(provider { dir.get().file("../").asFile }))
 }
 
 afterEvaluate{
