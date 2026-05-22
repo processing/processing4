@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.SonatypeHost
+import processing.gradle.*
 
 plugins {
     id("java")
@@ -11,11 +12,17 @@ repositories {
     maven { url = uri("https://jogamp.org/deployment/maven") }
 }
 
+val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
+
 sourceSets{
     main{
         java{
             srcDirs("src")
             exclude("**/*.jnilib")
+            if (!enableWebGPU) {
+                exclude("processing/webgpu/**")
+                exclude("processing/ffi/**")
+            }
         }
         resources{
             srcDirs("src")
@@ -25,6 +32,9 @@ sourceSets{
     test{
         java{
             srcDirs("test")
+            if (!enableWebGPU) {
+                exclude("processing/webgpu/**")
+            }
         }
     }
 }
@@ -33,7 +43,167 @@ dependencies {
     implementation(libs.jogl)
     implementation(libs.gluegen)
 
+    if (enableWebGPU) {
+        val lwjglVersion = "3.3.6"
+        val lwjglNatives = when {
+            System.getProperty("os.name").lowercase().contains("mac") -> {
+                if (System.getProperty("os.arch").contains("aarch64")) {
+                    "natives-macos-arm64"
+                } else {
+                    "natives-macos"
+                }
+            }
+            System.getProperty("os.name").lowercase().contains("win") -> "natives-windows"
+            System.getProperty("os.name").lowercase().contains("linux") -> "natives-linux"
+            else -> "natives-linux"
+        }
+
+        implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+        implementation("org.lwjgl", "lwjgl")
+        implementation("org.lwjgl", "lwjgl-glfw")
+        runtimeOnly("org.lwjgl", "lwjgl", classifier = lwjglNatives)
+        runtimeOnly("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
+    }
+
     testImplementation(libs.junit)
+}
+
+if (enableWebGPU) {
+    val currentPlatform = PlatformUtils.detect()
+    val libprocessingDir = file("${project.rootDir}/libprocessing")
+
+    if (!libprocessingDir.exists()) {
+        throw GradleException(
+            "libprocessing submodule directory not found at: ${libprocessingDir.absolutePath}\n" +
+            "Please initialize the submodule with: git submodule update --init --recursive"
+        )
+    }
+
+    val rustTargetDir = file("$libprocessingDir/target")
+    val nativeOutputDir = file("${layout.buildDirectory.get()}/native/${currentPlatform.target}")
+
+    val ffiManifestPath = fileTree(libprocessingDir) {
+        include("**/processing_ffi/Cargo.toml")
+    }.files.firstOrNull()?.let { it.relativeTo(libprocessingDir).path }
+        ?: throw GradleException(
+            "Could not find processing_ffi Cargo.toml in libprocessing.\n" +
+            "Searched in: ${libprocessingDir.absolutePath}\n" +
+            "The libprocessing structure may have changed."
+        )
+
+    val buildRustRelease by tasks.registering(CargoBuildTask::class) {
+        cargoWorkspaceDir.set(libprocessingDir)
+        manifestPath.set(ffiManifestPath)
+        release.set(true)
+        cargoPath.set(PlatformUtils.getCargoPath())
+        outputLibrary.set(file("$rustTargetDir/release/${currentPlatform.libName}"))
+
+        inputs.files(fileTree("$libprocessingDir/crates") {
+            include("**/src/**/*.rs")
+            include("**/Cargo.toml")
+            include("**/build.rs")
+            include("**/cbindgen.toml")
+        })
+        inputs.file("$libprocessingDir/Cargo.toml")
+        inputs.file("$libprocessingDir/Cargo.lock")
+
+        val headerDir = file("$libprocessingDir/${ffiManifestPath}").parentFile.resolve("include")
+        outputs.file("$headerDir/processing.h")
+    }
+
+    val copyNativeLibs by tasks.registering(Copy::class) {
+        group = "rust"
+        description = "Copy processing library to build directory"
+
+        dependsOn(buildRustRelease)
+
+        from("$rustTargetDir/release") {
+            include(currentPlatform.libName)
+        }
+
+        into(nativeOutputDir)
+    }
+
+    val bundleNativeLibs by tasks.registering(Copy::class) {
+        group = "rust"
+        description = "Bundle native library into resources"
+
+        dependsOn(copyNativeLibs)
+
+        from(nativeOutputDir)
+        into("${sourceSets.main.get().output.resourcesDir}/native/${currentPlatform.target}")
+    }
+
+    val cleanRust by tasks.registering(CargoCleanTask::class) {
+        cargoWorkspaceDir.set(libprocessingDir)
+        manifestPath.set(ffiManifestPath)
+        cargoPath.set(PlatformUtils.getCargoPath())
+
+        mustRunAfter(buildRustRelease)
+    }
+
+    tasks.named("clean") {
+        dependsOn(cleanRust)
+    }
+
+    val generatedJavaDir = file("${layout.buildDirectory.get()}/generated/sources/jextract/java")
+
+    sourceSets.main {
+        java.srcDirs(generatedJavaDir)
+    }
+
+    val jextractVersionString = "22-jextract+6-47"
+    val jextractDirectory = file("${gradle.gradleUserHomeDir}/jextract-22")
+    val jextractTarballFile = file("${gradle.gradleUserHomeDir}/jextract-$jextractVersionString.tar.gz")
+
+    val downloadJextract by tasks.registering(DownloadJextractTask::class) {
+        jextractVersion.set(jextractVersionString)
+        platform.set(currentPlatform.jextractPlatform)
+        jextractDir.set(jextractDirectory)
+        downloadTarball.set(jextractTarballFile)
+
+        onlyIf { !jextractDirectory.exists() }
+    }
+
+    val makeJextractExecutable by tasks.registering(Exec::class) {
+        group = "rust"
+        description = "Make jextract binary executable on Unix systems"
+
+        dependsOn(downloadJextract)
+        onlyIf { !System.getProperty("os.name").lowercase().contains("windows") }
+
+        val jextractBin = file("$jextractDirectory/bin/jextract")
+        commandLine("chmod", "+x", jextractBin.absolutePath)
+    }
+
+    val generateJavaBindings by tasks.registering(GenerateJextractBindingsTask::class) {
+        dependsOn(buildRustRelease)
+
+        val userJextract = JextractUtils.findUserJextract()
+        if (userJextract == null) {
+            dependsOn(downloadJextract, makeJextractExecutable)
+        }
+
+        // Find header file dynamically based on FFI manifest location
+        val headerDir = file("$libprocessingDir/${ffiManifestPath}").parentFile.resolve("include")
+        headerFile.set(file("$headerDir/processing.h"))
+        outputDirectory.set(generatedJavaDir)
+        targetPackage.set("processing.ffi")
+
+        jextractPath.set(userJextract ?: "$jextractDirectory/bin/${JextractUtils.getExecutableName()}")
+    }
+
+    tasks.named("compileJava") {
+        dependsOn(generateJavaBindings)
+    }
+
+    tasks.named("compileKotlin") {
+        dependsOn(generateJavaBindings)
+    }
+
+    tasks.named("processResources") {
+        dependsOn(bundleNativeLibs)
+    }
 }
 
 mavenPublishing{

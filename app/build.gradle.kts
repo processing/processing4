@@ -51,14 +51,17 @@ compose.desktop {
     application {
         mainClass = "processing.app.ProcessingKt"
 
-        jvmArgs(*listOf(
-            Pair("processing.version", rootProject.version),
-            Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
-            Pair("processing.download.page", "https://processing.org/download/"),
-            Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
-            Pair("processing.tutorials", "https://processing.org/tutorials/"),
-        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+        jvmArgs(
+            "--enable-native-access=ALL-UNNAMED",  // Required for Java 25 native library access
+            *listOf(
+                Pair("processing.version", rootProject.version),
+                Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
+                Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
+                Pair("processing.download.page", "https://processing.org/download/"),
+                Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
+                Pair("processing.tutorials", "https://processing.org/tutorials/"),
+            ).map { "-D${it.first}=${it.second}" }.toTypedArray()
+        )
 
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi", "java.scripting", "jdk.httpserver")
@@ -432,8 +435,15 @@ tasks.register<Copy>("includeJavaMode") {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dirPermissions { unix("rwx------") }
 }
+val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
+
 tasks.register<Copy>("includeJdk") {
-    from(Jvm.current().javaHome.absolutePath)
+    val jdkVersion = if (enableWebGPU) 25 else 17
+    val jdkHome = project.the<JavaToolchainService>().launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(jdkVersion))
+    }.map { it.metadata.installationPath.asFile }
+
+    from(jdkHome)
     destinationDir = composeResources("jdk").get().asFile
 
     fileTree(destinationDir).files.forEach { file ->
@@ -516,7 +526,7 @@ tasks.register("includeProcessingResources"){
     finalizedBy("signResources")
 }
 
-tasks.register("signResources"){
+tasks.register("signResources") {
     onlyIf {
         OperatingSystem.current().isMacOsX
             &&
@@ -561,10 +571,11 @@ tasks.register("signResources"){
             exclude("*.jar")
             exclude("*.so")
             exclude("*.dll")
-        }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
-            }
+        }.forEach{ f ->
+            ProcessBuilder("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--sign", "Developer ID Application", f.absolutePath)
+                .inheritIO()
+                .start()
+                .waitFor()
         }
         jars.forEach { file ->
             FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->

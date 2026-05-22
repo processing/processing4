@@ -72,6 +72,8 @@ public interface PConstants {
   // Experimental JavaFX renderer; even better 2D performance
   String FX2D = "processing.javafx.PGraphicsFX2D";
 
+  String WEBGPU = "processing.webgpu.PGraphicsWebGPU";
+
   String PDF = "processing.pdf.PGraphicsPDF";
   String SVG = "processing.svg.PGraphicsSVG";
   String DXF = "processing.dxf.RawDXF";

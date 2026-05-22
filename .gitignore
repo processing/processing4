@@ -139,6 +139,8 @@ generated/
 /java/gradle/build
 /core/examples/build
 /java/gradle/example/.processing
+
+libprocessing/ffi/include/*
 /app/windows/obj
 /java/android/example/build
 /java/android/example/.processing

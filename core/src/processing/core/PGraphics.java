@@ -3830,6 +3830,11 @@ public class PGraphics extends PImage implements PConstants {
   // IMAGE
 
 
+  public PImage createImage(int w, int h, int format) {
+    return new PImage(w, h, format);
+  }
+
+
   /**
    *
    * Modifies the location from which images are drawn by changing the way in
