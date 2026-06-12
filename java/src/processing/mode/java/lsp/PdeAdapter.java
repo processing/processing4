@@ -318,11 +318,15 @@ class PdeAdapter {
       for (char ch : chs) {
         if (ch == ',') {
           n += 1;
-          //insert += ",$" + n;
-          newInsert.append(",$").append(n);
+          /*
+          Append the comma and the LSP tabstop identifier, 
+          then skip appending the duplicate 'ch' character
+          */
+          newInsert.append(", $").append(n); 
+        } else {
+          //Only append the original character if it wasn't a comma
+          newInsert.append(ch);
         }
-        //insert += ch;
-        newInsert.append(ch);
       }
       insert = newInsert.toString();
     }
