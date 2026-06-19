@@ -111,8 +111,29 @@ public class WindowsPlatform extends DefaultPlatform {
 //    { Base.CONTRIB_BUNDLE_EXT, "Processing Contribution Bundle" }
 //  };
 
-  static final String REG_APP_DIR =
-    System.getProperty("user.dir").replace('/', '\\');
+  static boolean exeFileExists(File folder) {
+    File exeFile = new File(folder, APP_NAME.toLowerCase() + ".exe");
+    return exeFile.exists();
+  }
+
+  static String getRegAppDir() {
+    try {
+      // Get the JAR file containing this class (WindowsPlatform)
+      File jarFile = new File(WindowsPlatform.class.getProtectionDomain().
+                              getCodeSource().getLocation().toURI());
+      // Get the JAR folder ("app" in the standard jpackage layout)
+      File jarDir = jarFile.getParentFile();
+      // Get the processing.exe folder (parent of "app" in the standard layout)
+      File exeDir = jarDir.getParentFile();
+
+      if (exeFileExists(exeDir)) return exeDir.getAbsolutePath(); // standard folder layout
+      if (exeFileExists(jarDir)) return jarDir.getAbsolutePath(); // fallback if exe is inside "app"
+    } catch (java.net.URISyntaxException e) {
+    }
+    return System.getProperty("user.dir");
+  }
+
+  static final String REG_APP_DIR = getRegAppDir().replace('/', '\\');
   static final String REG_OPEN_COMMAND =
     REG_APP_DIR + "\\" + APP_NAME.toLowerCase() + ".exe \"%1\"";
   static final String[] APP_SCHEMES = { "pde" };  // use pde://
