@@ -127,7 +127,7 @@ public class WindowsPlatform extends DefaultPlatform {
       File exeDir = jarDir.getParentFile();
 
       if (exeFileExists(exeDir)) return exeDir.getAbsolutePath(); // standard folder layout
-      if (exeFileExists(jarDir)) return jarDir.getAbsolutePath(); // if exe and jar is in same folder
+      if (exeFileExists(jarDir)) return jarDir.getAbsolutePath(); // if exe and jar are in same folder
     } catch (java.net.URISyntaxException e) {
     }
     return System.getProperty("user.dir"); // processing.exe not found
