@@ -442,6 +442,7 @@ jobs:
   publish-release:
     name: Publish release
     runs-on: ubuntu-latest
+    environment: release
     needs:
       - version
       - create-draft
