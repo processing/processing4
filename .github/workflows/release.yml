@@ -52,7 +52,7 @@ jobs:
   publish-maven:
     name: Publish Processing Libraries to Maven Central
     runs-on: ubuntu-latest
-    needs: version
+    needs: [version, release-windows, release-macos, release-linux]
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -78,7 +78,7 @@ jobs:
   publish-gradle:
     name: Publish Processing Plugins to Gradle Plugin Portal
     runs-on: ubuntu-latest
-    needs: version
+    needs: [version, release-windows, release-macos, release-linux]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
