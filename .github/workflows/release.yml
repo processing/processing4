@@ -1,7 +1,8 @@
 name: Releases
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'processing-*'
 
 jobs:
   version:
@@ -21,12 +22,36 @@ jobs:
           # Set outputs for use in later jobs or steps
           echo "revision=$REVISION" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  create-draft:
+    name: Create draft release
+    runs-on: ubuntu-latest
+    needs: version
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - name: Create draft release
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release for $TAG already exists; leaving it as-is."
+          else
+            gh release create "$TAG" \
+              --draft \
+              --title "Processing $VERSION" \
+              --generate-notes
+          fi
+
   reference:
     name: Publish Processing Reference to release
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    needs: version
+    needs: [version, create-draft]
     steps:
     - name: Checkout Website Repository
       uses: actions/checkout@v4
@@ -42,12 +67,18 @@ jobs:
       run: npm run build
     - name: Make reference.zip
       run: npm run zip
+    - name: Stage reference asset
+      env:
+        VERSION: ${{ needs.version.outputs.version }}
+      run: |
+        mkdir -p release-assets
+        cp reference.zip "release-assets/processing-${VERSION}-reference.zip"
     - name: Upload reference to release
-      uses: svenstaro/upload-release-action@v2
+      uses: softprops/action-gh-release@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        asset_name: processing-${{ needs.version.outputs.version }}-reference.zip
-        file: reference.zip
+        draft: true
+        tag_name: ${{ github.ref_name }}
+        files: release-assets/processing-${{ needs.version.outputs.version }}-reference.zip
 
   publish-maven:
     name: Publish Processing Libraries to Maven Central
@@ -97,7 +128,7 @@ jobs:
 
           ORG_GRADLE_PROJECT_version: ${{ needs.version.outputs.version }}
           ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
-                
+
       - name: Publish internal plugins to Gradle Plugin Portal
         run: ./gradlew -c gradle/plugins/settings.gradle.kts publishPlugins
         env:
@@ -114,7 +145,7 @@ jobs:
   release-windows:
     name: (windows/${{ matrix.arch }}) Create Processing Release
     runs-on: ${{ matrix.os }}
-    needs: version
+    needs: [version, create-draft]
     permissions:
       contents: write
     strategy:
@@ -154,24 +185,27 @@ jobs:
           timestamp-rfc3161: http://timestamp.acs.microsoft.com
           timestamp-digest: SHA256
 
-      - name: Upload portable version
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-windows-${{ matrix.arch }}-portable.zip
-          file: app/build/compose/binaries/main/Processing-${{ needs.version.outputs.version }}.zip
+      - name: Stage release assets
+        shell: bash
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p release-assets
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-windows-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/msi/Processing-${VERSION}.msi" "release-assets/processing-${VERSION}-windows-${ARCH}.msi"
 
-      - name: Upload installer
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-windows-${{ matrix.arch }}.msi
-          file: app/build/compose/binaries/main/msi/Processing-${{ needs.version.outputs.version }}.msi
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/*
 
   release-macos:
     name: (macOS/${{ matrix.arch }}) Create Processing Release
     runs-on: macos-latest
-    needs: version
+    needs: [version, create-draft]
     permissions:
       contents: write
     strategy:
@@ -209,24 +243,26 @@ jobs:
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.password: ${{ secrets.PROCESSING_APP_PASSWORD }}
           ORG_GRADLE_PROJECT_compose.desktop.mac.notarization.teamID: ${{ secrets.PROCESSING_TEAM_ID }}
 
-      - name: Upload portables to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-macos-${{ matrix.arch }}-portable.zip
-          file: app/build/compose/binaries/main/Processing-${{ needs.version.outputs.version }}.zip
+      - name: Stage release assets
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p release-assets
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-macos-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/dmg/Processing-${VERSION}.dmg" "release-assets/processing-${VERSION}-macos-${ARCH}.dmg"
 
-      - name: Upload installers to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-macos-${{ matrix.arch }}.dmg
-          file: app/build/compose/binaries/main/dmg/Processing-${{ needs.version.outputs.version }}.dmg
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/*
 
   release-linux:
     name: (linux/${{ matrix.arch }}) Create Processing Release
     runs-on: ${{ matrix.os }}
-    needs: version
+    needs: [version, create-draft]
     permissions:
       contents: write
     strategy:
@@ -254,19 +290,22 @@ jobs:
           ORG_GRADLE_PROJECT_revision: ${{ needs.version.outputs.revision }}
           ORG_GRADLE_PROJECT_compose.desktop.verbose: true
 
-      - name: Upload portable to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}-portable.zip
-          file: app/build/compose/binaries/main/Processing-${{ needs.version.outputs.version }}.zip
+      - name: Stage release assets
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+          DEB: ${{ matrix.deb }}
+        run: |
+          mkdir -p release-assets
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-linux-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/deb/processing_${VERSION}-1_${DEB}.deb" "release-assets/processing-${VERSION}-linux-${ARCH}.deb"
 
-      - name: Upload installer to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.deb
-          file: app/build/compose/binaries/main/deb/processing_${{ needs.version.outputs.version }}-1_${{ matrix.deb }}.deb
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/*
 
       - name: Add artifact
         uses: actions/upload-artifact@v4
@@ -278,7 +317,7 @@ jobs:
   release-linux-snap:
     name: (linux/${{ matrix.arch }}) Create Processing Snap Release
     runs-on: ${{ matrix.os }}
-    needs: [version, release-linux]
+    needs: [version, create-draft, release-linux]
     permissions:
       contents: write
     strategy:
@@ -316,12 +355,22 @@ jobs:
           ORG_GRADLE_PROJECT_snapname: ${{ vars.SNAP_NAME }}
           ORG_GRADLE_PROJECT_snapconfinement: ${{ vars.SNAP_CONFINEMENT }}
 
+      - name: Stage release assets
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+          DEB: ${{ matrix.deb }}
+          SNAP_NAME: ${{ vars.SNAP_NAME }}
+        run: |
+          mkdir -p release-assets
+          cp "app/build/compose/binaries/main/${SNAP_NAME}_${VERSION}_${DEB}.snap" "release-assets/processing-${VERSION}-linux-${ARCH}.snap"
+
       - name: Upload snap to release
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.snap
-          file: app/build/compose/binaries/main/${{ vars.SNAP_NAME }}_${{ needs.version.outputs.version }}_${{ matrix.deb }}.snap
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.snap
 
       - name: Upload snap to Snap Store
         run: snapcraft upload --release=beta app/build/compose/binaries/main/${{ vars.SNAP_NAME }}_${{ needs.version.outputs.version }}_${{ matrix.deb }}.snap
@@ -330,7 +379,7 @@ jobs:
   release-linux-flatpak:
     name: (linux/${{ matrix.arch }}) Create Processing Flatpak Release
     runs-on: ${{ matrix.os }}
-    needs: [ version, release-linux ]
+    needs: [version, create-draft, release-linux]
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
@@ -375,9 +424,41 @@ jobs:
           cache-key: flatpak-builder-${{ github.sha }}
           arch: ${{ matrix.farch }}
 
+      - name: Stage release assets
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          mkdir -p release-assets
+          cp processing.flatpak "release-assets/processing-${VERSION}-linux-${ARCH}.flatpak"
+
       - name: Upload Flatpak to release
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          asset_name: processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.flatpak
-          file: processing.flatpak
+          draft: true
+          tag_name: ${{ github.ref_name }}
+          files: release-assets/processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.flatpak
+
+  publish-release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs:
+      - version
+      - create-draft
+      - reference
+      - publish-maven
+      - publish-gradle
+      - release-windows
+      - release-macos
+      - release-linux
+      - release-linux-snap
+      - release-linux-flatpak
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Mark release as published
+        run: gh release edit "$TAG" --draft=false --latest
