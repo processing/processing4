@@ -524,6 +524,7 @@ tasks.register("signResources"){
     }
     group = "compose desktop"
     val resourcesPath = composeResources("")
+    val entitlements = file("macos/entitlements.plist").absolutePath
 
     // find jars in the resources directory
     val jars = mutableListOf<File>()
@@ -563,7 +564,7 @@ tasks.register("signResources"){
             exclude("*.dll")
         }.forEach{ file ->
             exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
+                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file)
             }
         }
         jars.forEach { file ->
@@ -615,6 +616,7 @@ tasks.register<Exec>("signApp"){
         "--force",
         "--deep",
         "--options=runtime",
+        "--entitlements", file("macos/entitlements.plist").absolutePath,
         "--sign", "Developer ID Application",
         app)
 }
