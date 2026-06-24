@@ -1155,6 +1155,7 @@ public class Base {
       // use the front-most window frame for placing file dialog
       FileDialog openDialog =
         new FileDialog(activeEditor, prompt, FileDialog.LOAD);
+        openDialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
 
       // Only show .pde files as eligible bachelors
       openDialog.setFilenameFilter((dir, name) -> {
