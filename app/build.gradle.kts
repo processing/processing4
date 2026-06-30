@@ -563,9 +563,7 @@ tasks.register("signResources"){
             exclude("*.so")
             exclude("*.dll")
         }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file)
-            }
+            Runtime.getRuntime().exec(arrayOf("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file.absolutePath))
         }
         jars.forEach { file ->
             FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->
