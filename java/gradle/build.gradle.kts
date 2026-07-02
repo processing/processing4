@@ -48,6 +48,7 @@ publishing{
 val testGroup = group.toString()
 tasks.withType<Test>().configureEach {
     systemProperty("project.group", testGroup)
+    dependsOn(project(":core").tasks.named("publishToMavenLocal"))
 }
 
 tasks.register("writeVersion") {
