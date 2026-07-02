@@ -3274,15 +3274,16 @@ public class PGraphicsOpenGL extends PGraphics {
     }
   }
 
-
+ */
   @Override
   public void noSmooth() {
     if (smoothDisabled) return;
 
-    smooth = false;
+    smooth = 0;
     textureSampling = Texture.POINT;
 
-    if (1 < quality) {
+    restartPGL();
+    if (0 < smooth) {
       smoothCallCount++;
       if (parent.frameCount - lastSmoothCall < 30 && 5 < smoothCallCount) {
         smoothDisabled = true;
@@ -3290,14 +3291,12 @@ public class PGraphicsOpenGL extends PGraphics {
       }
       lastSmoothCall = parent.frameCount;
 
-      quality = 0;
+      smooth = 0;
 
-      // This will trigger a surface restart next time
-      // requestDraw() is called.
-      restartPGL();
+
     }
   }
-  */
+ 
 
 
   //////////////////////////////////////////////////////////////
