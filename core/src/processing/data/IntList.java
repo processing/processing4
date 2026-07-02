@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.jetbrains.annotations.TestOnly;
 import processing.core.PApplet;
 
 
@@ -164,11 +165,12 @@ public class IntList implements Iterable<Integer> {
    * @webBrief Get an entry at a particular index
    */
   public int get(int index) {
-    if (index >= this.count) {
+    if (index >= this.count || index < 0) {
       throw new ArrayIndexOutOfBoundsException(index);
     }
     return data[index];
   }
+
 
 
   /**

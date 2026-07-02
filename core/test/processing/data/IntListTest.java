@@ -152,6 +152,16 @@ public class IntListTest {
     }
 
     @Test
+    public void testGetOnNegativeIndexIntListThrowsException() {
+        IntList testedList = new IntList();
+        ArrayIndexOutOfBoundsException exception = assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
+            testedList.get(-1);
+        });
+
+        assertEquals("Array index out of range: -1", exception.getMessage());
+    }
+
+    @Test
     public void testRemoveWithIndexGreaterThanSize() {
         IntList testedList = new IntList();
         assertThrows(ArrayIndexOutOfBoundsException.class,
