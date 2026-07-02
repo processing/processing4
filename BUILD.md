@@ -4,20 +4,24 @@ Great to see you are interested in contributing to Processing. To get started yo
 
 ## IntelliJ IDEA (recommended)
 
-First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. 
+_**Note:** A paid subscription is **not** required. Everything needed to build and work on Processing is available for free in IntelliJ IDEA._
+
+1. [Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/) and install it.
+1. Clone the `Processing4` repository locally.
+1. Open the cloned repository in **IntelliJ IDEA**.
+1. When prompted, select **Trust Project**. (You can preview the project in Safe Mode, but you will not be able to build Processing.)
+1. If IntelliJ asks whether to import the Gradle project, select **Load Gradle Project**.
+1. Make sure IntelliJ and Gradle are both using **JDK 17**:
+   * Go to **`File > Project Structure > Project`**
+   * Set **Project SDK** to **JDK 17** (we recommend **Eclipse Temurin**)
+   * If needed, choose **Download JDK…** and install **Version 17**
+   * Then go to **`Settings > Build, Execution, Deployment > Build Tools > Gradle`**
+   * Set **Gradle JVM** to the same **JDK 17**
+1. Wait for Gradle sync to finish.
+1. Click the green **Run** button in the top right to build and launch Processing. You can also use this menu to start a debug session.
 
 > [!TIP]
 > If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
-
-1. Clone the Processing4 repository to your machine locally
-1. Open the cloned repository in IntelliJ IDEA CE
-1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
-1. In the main menu, go to File > Project Structure > Project Settings > Project.
-1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
-1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
-1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
-
 
 ## VSCode
 1. Clone the Processing4 repository to your machine locally
@@ -138,23 +142,32 @@ If you’re building Processing using IntelliJ IDEA and something’s not workin
 
 ### Use the Correct JDK (temurin-17)
 
-Make sure IntelliJ is using **temurin-17**, not another version. Some users have reported issues with ms-17.
+Make sure IntelliJ is using **temurin-17**. Some users have reported issues with other distributions.
 
-1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+#### 1. Set the Project SDK
+
+1. Go to **`File > Project Structure > Project`**
+1. Set the **`Project SDK`** to **`temurin-17`**
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
-If it is not already installed, you can download it by:
-1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
-2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+If Temurin 17 is not on the list, you should install it first:
 
+1. Select the **`Download JDK...`** option from the menu  
+1. Pick **Version**: **`17`**, **Vendor**: **`Eclipse Temurin (AdoptOpenJDK HotSpot)`**
 
-![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
+<img width="400" alt="JDK Download" src="https://github.com/user-attachments/assets/503a03a4-3e53-4406-9641-2c93e4b45d51" />
 
-Now go back to your main window and
-1. Click the green Run Icon in the top right of the window.
+#### 2. Set the Gradle JVM
 
+Make sure Gradle also uses Temurin 17:
+
+1. Go to **`Settings > Build, Execution, Deployment > Build Tools > Gradle`**
+1. Set **`Gradle JVM`** to **`temurin-17`**
+
+_Note: the exact path in settings may vary depending on your version of IntelliJ._
+
+<img width="800" alt="Gradle JVM" src="https://github.com/user-attachments/assets/ba620114-e663-4887-89e9-8f26fbfefbb2" />
 
 ### “Duplicate content roots detected”
 

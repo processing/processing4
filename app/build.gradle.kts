@@ -186,7 +186,7 @@ tasks.register<Exec>("packageCustomDmg"){
     onlyIf { OperatingSystem.current().isMacOsX }
     group = "compose desktop"
 
-    dependsOn(distributable(), "installCreateDmg")
+    dependsOn("signApp", "installCreateDmg")
 
     val packageName = distributable().packageName.get()
     val dir = distributable().destinationDir.get()
@@ -359,12 +359,12 @@ tasks.register<Zip>("zipDistributable"){
     dependsOn("createDistributable", "setExecutablePermissions")
     group = "compose desktop"
 
-    val dir = distributable().destinationDir.get()
-    val packageName = distributable().packageName.get()
+    val dir = provider { distributable().destinationDir.get() }
+    val packageName = provider { distributable().packageName.get() }
 
     from(dir){ eachFile{ permissions{ unix("755") } } }
     archiveBaseName.set(packageName)
-    destinationDirectory.set(dir.file("../").asFile)
+    destinationDirectory.set(layout.dir(provider { dir.get().file("../").asFile }))
 }
 
 afterEvaluate{
@@ -390,6 +390,25 @@ afterEvaluate{
     }
 }
 
+val verifySignedMacApp = tasks.register<Exec>("verifySignedMacApp") {
+    onlyIf { OperatingSystem.current().isMacOsX }
+    dependsOn("createDistributable")
+    group = "compose desktop"
+
+    commandLine(
+        "codesign",
+        "-vvv",
+        "--deep",
+        "--strict",
+        layout.buildDirectory.dir("compose/binaries/main/app/Processing.app").get().asFile.absolutePath
+    )
+}
+
+afterEvaluate {
+    tasks.named("notarizeDmg").configure {
+        dependsOn(verifySignedMacApp)
+    }
+}
 
 // LEGACY TASKS
 // Most of these are shims to be compatible with the old build system
@@ -505,6 +524,7 @@ tasks.register("signResources"){
     }
     group = "compose desktop"
     val resourcesPath = composeResources("")
+    val entitlements = file("macos/entitlements.plist").absolutePath
 
     // find jars in the resources directory
     val jars = mutableListOf<File>()
@@ -543,9 +563,7 @@ tasks.register("signResources"){
             exclude("*.so")
             exclude("*.dll")
         }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
-            }
+            Runtime.getRuntime().exec(arrayOf("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file.absolutePath))
         }
         jars.forEach { file ->
             FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->
@@ -571,9 +589,36 @@ tasks.register("signResources"){
         }
         file(composeResources("Info.plist")).delete()
     }
-
-
 }
+
+/* for mac, perform one final signature of the whole app before submitting
+ * the app for notarization.
+ */
+tasks.register<Exec>("signApp"){
+    onlyIf {
+        OperatingSystem.current().isMacOsX
+            &&
+        compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
+    }
+
+    group = "compose desktop"
+    dependsOn("createDistributable", "setExecutablePermissions")
+
+    val packageName = distributable().packageName.get()
+    val dir = distributable().destinationDir.get()
+    val app = dir.file("$packageName.app").asFile
+
+    commandLine(
+        "codesign",
+        "--timestamp",
+        "--force",
+        "--deep",
+        "--options=runtime",
+        "--entitlements", file("macos/entitlements.plist").absolutePath,
+        "--sign", "Developer ID Application",
+        app)
+}
+
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
     group = "compose desktop"
