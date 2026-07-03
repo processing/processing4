@@ -26,7 +26,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val processingVersion = project.findProperty("processing.version") as String?
             ?: javaClass.classLoader.getResourceAsStream("version.properties")?.use { stream ->
                 java.util.Properties().apply { load(stream) }.getProperty("version")
-            } ?: "4.3.4"
+            }?.takeIf { it != "unspecified" } ?: "4.5.5"
         val processingGroup = project.findProperty("processing.group") as String? ?: "org.processing"
         val workingDir = project.findProperty("processing.workingDir") as String?
         val debugPort = project.findProperty("processing.debugPort") as String?

@@ -4,7 +4,21 @@ Great to see you are interested in contributing to Processing. To get started yo
 
 ## IntelliJ IDEA (recommended)
 
-First, [download the IntelliJ IDEA Community Edition](https://www.jetbrains.com/idea/download/). Make sure to select the "Community Edition", not "Ultimate". The Community Edition is free and built on open-source software. You may need to scroll down to find the download link. 
+_**Note:** A paid subscription is **not** required. Everything needed to build and work on Processing is available for free in IntelliJ IDEA._
+
+1. [Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/) and install it.
+1. Clone the `Processing4` repository locally.
+1. Open the cloned repository in **IntelliJ IDEA**.
+1. When prompted, select **Trust Project**. (You can preview the project in Safe Mode, but you will not be able to build Processing.)
+1. If IntelliJ asks whether to import the Gradle project, select **Load Gradle Project**.
+1. Make sure IntelliJ and Gradle are both using **JDK 17**:
+   * Go to **`File > Project Structure > Project`**
+   * Set **Project SDK** to **JDK 17** (we recommend **Eclipse Temurin**)
+   * If needed, choose **Download JDK…** and install **Version 17**
+   * Then go to **`Settings > Build, Execution, Deployment > Build Tools > Gradle`**
+   * Set **Gradle JVM** to the same **JDK 17**
+1. Wait for Gradle sync to finish.
+1. Click the green **Run** button in the top right to build and launch Processing. You can also use this menu to start a debug session.
 
 > [!TIP]
 > If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
@@ -47,11 +61,12 @@ If you don't have them installed, you will need to install [Git](https://git-scm
     ```
 
 2. **Install Temurin JDK 17:**
-   
-Processing requires the Temurin distribution of OpenJDK. 
+    
+    Download and install the appropriate version for your platform:
 
-You can download it from [Adoptium](https://adoptium.net/), from [GitHub releases](https://github.com/adoptium/temurin17-binaries/releases),
-or find it in the package manager for your platform.
+    - [Linux (x86)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz)
+    - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
+    - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
 
 ### macOS:
 ```bash
@@ -97,7 +112,7 @@ sdk install jextract
 It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
 
     ```bash
-    export JAVA_HOME=/path/to/temurin/jdk-17/
+    export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
     ```
 
 ### Build, Run, and Package Processing
@@ -181,7 +196,7 @@ If you’re building Processing using IntelliJ IDEA and something’s not workin
 Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-25** instead.
 
 1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-17`
+2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
@@ -189,11 +204,13 @@ If it is not already installed, you can download it by:
 1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
 2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
+<img width="400" alt="JDK Download" src="https://github.com/user-attachments/assets/503a03a4-3e53-4406-9641-2c93e4b45d51" />
 
 ![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
 
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
+
 
 ### “Duplicate content roots detected”
 
