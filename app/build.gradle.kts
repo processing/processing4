@@ -140,6 +140,7 @@ dependencies {
 }
 
 tasks.test {
+    systemProperty("java.awt.headless", "true")
     useJUnitPlatform()
     workingDir = file("build/test")
     workingDir.mkdirs()
