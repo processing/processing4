@@ -255,9 +255,12 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
             project.dependencies.add("runtimeOnly", "org.jogamp.jogl:newt:2.6.0:natives-$variant")
         }
 
+        // Reduce each import to its package prefix: `a.b.*` and `a.b.C` both become `a.b`,
+        // mirroring how the PDE preprocessor normalizes import statements
         val imports = sketchDirs
             .flatMap { dir -> dir.walkTopDown().filter { it.extension == "pde" }.toList() }
-            .flatMap { Regex("""^\s*import\s+([\w.]+)\s*;""", RegexOption.MULTILINE).findAll(it.readText()).map { m -> m.groupValues[1] } }
+            .flatMap { Regex("""^\s*import\s+(?:static\s+)?([\w.]+(?:\.\*)?)\s*;""", RegexOption.MULTILINE).findAll(it.readText()).map { m -> m.groupValues[1] } }
+            .map { it.removeSuffix(".*") }
             .toSet()
         if (imports.isEmpty()) return
 
@@ -274,7 +277,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
                     val hit = jf.entries().asSequence()
                         .filter { it.name.endsWith(".class") }
                         .map { it.name.substringBeforeLast('/').replace('/', '.') }
-                        .any { it.startsWith(import) }
+                        .any { pkg -> pkg == import || pkg.startsWith("$import.") || import.startsWith("$pkg.") }
                     if (hit) matched.add(jar)
                 }
             }

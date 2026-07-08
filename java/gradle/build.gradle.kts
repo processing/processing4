@@ -1,3 +1,5 @@
+import org.gradle.api.internal.tasks.testing.junit.JUnitTestFramework
+
 plugins{
     `java-gradle-plugin`
     alias(libs.plugins.gradlePublish)
