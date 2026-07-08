@@ -44,6 +44,9 @@ sourceSets{
         kotlin{
             srcDirs("test")
         }
+        java{
+            srcDirs("test")
+        }
     }
 }
 
