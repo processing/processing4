@@ -342,6 +342,10 @@ public class Runner implements MessageConsumer {
       // No longer needed / doesn't seem to do anything differently
       //params.append("-Dcom.apple.mrj.application.apple.menu.about.name=" +
       //              build.getSketchClassName());
+
+      if ("WEBGPU".equals(build.getSketchRenderer())) {
+        params.append("-XstartOnFirstThread");
+      }
     }
     /*
     if (Platform.isWindows()) {
@@ -379,6 +383,10 @@ public class Runner implements MessageConsumer {
     // enable assertions
     // http://processing.org/bugs/bugzilla/1188.html
     params.append("-ea");
+
+    // we need to open up access to internal jdk modules for libraries that use reflection
+    // this will break at some point in the future when these modules are removed from the jdk :(
+    params.append("--enable-native-access=ALL-UNNAMED");
 
     return params;
   }
@@ -507,6 +515,9 @@ public class Runner implements MessageConsumer {
         params.append(PApplet.ARGS_UI_SCALE + "=" + uiScale);
       }
       */
+
+      // TODO: excise AWT to make webgpu work properly
+      params.append(PApplet.ARGS_DISABLE_AWT);
 
       params.append(build.getSketchClassName());
     }

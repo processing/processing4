@@ -23,6 +23,16 @@ _**Note:** A paid subscription is **not** required. Everything needed to build a
 > [!TIP]
 > If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
 
+1. Clone the Processing4 repository to your machine locally
+1. Open the cloned repository in IntelliJ IDEA CE
+1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
+1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
+1. In the main menu, go to File > Project Structure > Project Settings > Project.
+1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
+1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
+1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
+
+
 ## VSCode
 1. Clone the Processing4 repository to your machine locally
 1. Open the cloned repository in VScode
@@ -46,7 +56,7 @@ If you don't have them installed, you will need to install [Git](https://git-scm
 
 1. **Clone the repository:**
     ```bash
-    git clone https://github.com/processing/processing4.git
+    git clone --recursive https://github.com/processing/processing4.git
     cd processing4
     ```
 
@@ -58,7 +68,48 @@ If you don't have them installed, you will need to install [Git](https://git-scm
     - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
     - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
 
+### macOS:
+```bash
+brew install --cask temurin@17
+````
+
+### Windows (using winget):
+```bash
+winget install --id=EclipseAdoptium.Temurin.17.JDK  -e
+```
+
+### SDKMAN!
+
+[SDKMAN!](https://sdkman.io/) is a useful tool for developers working on multiple versions of the JVM.
+
+## WebGPU Support (Optional)
+
+To build Processing with the experimental WebGPU renderer, you need JDK 25, Rust, and jextract.
+
+### Install Temurin JDK 25
+
+```bash
+brew install --cask temurin@25    # macOS
+```
+
+### Install `jextract`
+
+`jextract` generates Java bindings from C header files.
+You can download it [here](https://jdk.java.net/jextract/) or install it using SDKMAN!:
+
+```bash
+sdk install jextract
+````
+
+### Build with WebGPU
+
+```bash
+./gradlew build -PenableWebGPU=true
+```
+
 3. **Set the `JAVA_HOME` environment variable:**
+
+It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
 
     ```bash
     export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
@@ -142,32 +193,24 @@ If you’re building Processing using IntelliJ IDEA and something’s not workin
 
 ### Use the Correct JDK (temurin-17)
 
-Make sure IntelliJ is using **temurin-17**. Some users have reported issues with other distributions.
+Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-25** instead.
 
-#### 1. Set the Project SDK
-
-1. Go to **`File > Project Structure > Project`**
-1. Set the **`Project SDK`** to **`temurin-17`**
+1. Go to **File > Project Structure > Project**
+2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
-If Temurin 17 is not on the list, you should install it first:
-
-1. Select the **`Download JDK...`** option from the menu  
-1. Pick **Version**: **`17`**, **Vendor**: **`Eclipse Temurin (AdoptOpenJDK HotSpot)`**
+If it is not already installed, you can download it by:
+1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
+2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
 <img width="400" alt="JDK Download" src="https://github.com/user-attachments/assets/503a03a4-3e53-4406-9641-2c93e4b45d51" />
 
-#### 2. Set the Gradle JVM
+![JDK Download](.github/media/troubleshooting-Intellij-download-jdk.png)
 
-Make sure Gradle also uses Temurin 17:
+Now go back to your main window and
+1. Click the green Run Icon in the top right of the window.
 
-1. Go to **`Settings > Build, Execution, Deployment > Build Tools > Gradle`**
-1. Set **`Gradle JVM`** to **`temurin-17`**
-
-_Note: the exact path in settings may vary depending on your version of IntelliJ._
-
-<img width="800" alt="Gradle JVM" src="https://github.com/user-attachments/assets/ba620114-e663-4887-89e9-8f26fbfefbb2" />
 
 ### “Duplicate content roots detected”
 

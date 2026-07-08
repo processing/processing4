@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.2.20"
+kotlin = "2.3.21"
 compose-plugin = "1.9.1"
 jogl = "2.6.0"
 antlr = "4.13.2"
