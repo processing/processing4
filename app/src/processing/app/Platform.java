@@ -371,7 +371,7 @@ public class Platform extends processing.utils.Platform {
   }
 
   static public File getJavaHome() {
-    // Get the build in JDK location from the Jetpack Compose resources
+    // Get the built-in JDK location from the Jetpack Compose resources
     var resourcesDir = System.getProperty("compose.application.resources.dir");
     if(resourcesDir != null) {
       var jdkFolder = new File(resourcesDir,"jdk");
@@ -381,6 +381,16 @@ public class Platform extends processing.utils.Platform {
     }
 
     // If the JDK is set in the environment, use that.
+    // if not, fall back to the java.home system property.
+    for (String envKey : new String[] { "JAVA_HOME", "JDK_HOME" }) {
+      String envPath = System.getenv(envKey);
+      if (envPath != null && !envPath.isEmpty()) {
+        File envHome = new File(envPath);
+        if (new File(envHome, "bin/java" + (Platform.isWindows() ? ".exe" : "")).canExecute()) {
+          return envHome;
+        }
+      }
+    }
     var home = System.getProperty("java.home");
     if(home != null){
       return new File(home);
