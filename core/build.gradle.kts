@@ -96,6 +96,9 @@ if (enableWebGPU) {
         manifestPath.set(ffiManifestPath)
         release.set(true)
         cargoPath.set(PlatformUtils.getCargoPath())
+        if (currentPlatform.os == "linux") {
+            features.set(listOf("x11", "wayland"))
+        }
         outputLibrary.set(file("$rustTargetDir/release/${currentPlatform.libName}"))
 
         inputs.files(fileTree("$libprocessingDir/crates") {

@@ -3,6 +3,7 @@ package processing.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.process.ExecOperations
@@ -25,6 +26,9 @@ abstract class CargoBuildTask : DefaultTask() {
     @get:Input
     abstract val cargoPath: Property<String>
 
+    @get:Input
+    abstract val features: ListProperty<String>
+
     @get:OutputFile
     abstract val outputLibrary: RegularFileProperty
 
@@ -34,6 +38,7 @@ abstract class CargoBuildTask : DefaultTask() {
 
         // release by default
         release.convention(true)
+        features.convention(emptyList())
     }
 
     @TaskAction
@@ -45,8 +50,13 @@ abstract class CargoBuildTask : DefaultTask() {
         if (release.get()) {
             args.add("--release")
         }
+        if (features.get().isNotEmpty()) {
+            args.add("--features")
+            args.add(features.get().joinToString(","))
+        }
         args.add("--manifest-path")
         args.add(manifestPath.get())
+
 
         execOperations.exec {
             workingDir = cargoWorkspaceDir.get().asFile
