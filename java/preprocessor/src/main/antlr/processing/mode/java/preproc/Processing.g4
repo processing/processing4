@@ -53,7 +53,7 @@ warnMixedModes
 
 variableDeclaratorId
     : warnTypeAsVariableName
-    | IDENTIFIER ('[' ']')*
+    | identifier ('[' ']')*
     ;
 
 // bug #93
@@ -68,7 +68,7 @@ warnTypeAsVariableName
 // catch special API function calls that we are interested in
 methodCall
     : functionWithPrimitiveTypeName
-    | IDENTIFIER '(' expressionList? ')'
+    | identifier '(' expressionList? ')'
     | THIS '(' expressionList? ')'
     | SUPER '(' expressionList? ')'
     ;
@@ -103,7 +103,7 @@ colorPrimitiveType
     ;
 
 qualifiedName
-    : (IDENTIFIER | colorPrimitiveType) ('.' (IDENTIFIER | colorPrimitiveType))*
+    : (identifier | colorPrimitiveType) ('.' (identifier | colorPrimitiveType))*
     ;
 
 // added HexColorLiteral
