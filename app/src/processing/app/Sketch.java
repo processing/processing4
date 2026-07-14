@@ -34,6 +34,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
+import java.awt.Dialog;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -866,6 +867,7 @@ public class Sketch {
     if (useNative) {
       // get new name for folder
       FileDialog fd = new FileDialog(editor, PROMPT, FileDialog.SAVE);
+      fd.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
       if (isReadOnly() || isUntitled()) {
         // default to the sketchbook folder
         fd.setDirectory(Preferences.getSketchbookPath());
@@ -1387,6 +1389,7 @@ public class Sketch {
     String prompt = Language.text("file");
     //FileDialog fd = new FileDialog(new Frame(), prompt, FileDialog.LOAD);
     FileDialog fd = new FileDialog(editor, prompt, FileDialog.LOAD);
+    fd.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
     fd.setVisible(true);
 
     String directory = fd.getDirectory();
