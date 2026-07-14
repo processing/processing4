@@ -1210,8 +1210,8 @@ public class PShader implements PConstants {
     }
 
     if (-1 < resolutionLoc) {
-      float w = currentPG.viewport.get(2);
-      float h = currentPG.viewport.get(3);
+      float w = currentPG.viewport.get(2) * currentPG.pixelDensity;
+      float h = currentPG.viewport.get(3) * currentPG.pixelDensity;
       setUniformValue(resolutionLoc, w, h);
     }
 
