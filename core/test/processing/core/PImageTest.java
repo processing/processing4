@@ -231,11 +231,12 @@ public class PImageTest {
     img1.updatePixels();
     img2.updatePixels();
 
-    int[] modes = {
-        PConstants.BLEND, PConstants.ADD, PConstants.SUBTRACT, PConstants.LIGHTEST,
-        PConstants.DARKEST, PConstants.DIFFERENCE, PConstants.EXCLUSION,
-        PConstants.MULTIPLY, PConstants.SCREEN, PConstants.REPLACE
-    };
+      int[] modes = {
+              PConstants.BLEND, PConstants.ADD, PConstants.SUBTRACT, PConstants.LIGHTEST,
+              PConstants.DARKEST, PConstants.DIFFERENCE, PConstants.EXCLUSION,
+              PConstants.MULTIPLY, PConstants.SCREEN, PConstants.REPLACE,
+              PConstants.OVERLAY, PConstants.HARD_LIGHT, PConstants.SOFT_LIGHT
+      };
 
     for (int mode : modes) {
         PImage out = img1.copy();
