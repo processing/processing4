@@ -5,9 +5,11 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
+import org.gradle.process.ExecOperations
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 
 // TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
 
@@ -531,6 +533,11 @@ tasks.register("includeProcessingResources"){
     finalizedBy("signResources")
 }
 
+// Project.exec was removed in Gradle 9; an injected ExecOperations is the replacement
+interface ExecOps {
+    @get:Inject val execOps: ExecOperations
+}
+
 tasks.register("signResources") {
     onlyIf {
         OperatingSystem.current().isMacOsX
@@ -539,6 +546,9 @@ tasks.register("signResources") {
     }
     group = "compose desktop"
     val resourcesPath = composeResources("")
+    val entitlements = file("macos/entitlements.plist").absolutePath
+
+    val execOps = objects.newInstance<ExecOps>().execOps
 
     // find jars in the resources directory
     val jars = mutableListOf<File>()
@@ -576,11 +586,10 @@ tasks.register("signResources") {
             exclude("*.jar")
             exclude("*.so")
             exclude("*.dll")
-        }.forEach{ f ->
-            ProcessBuilder("codesign", "--timestamp", "--force", "--deep", "--options=runtime", "--sign", "Developer ID Application", f.absolutePath)
-                .inheritIO()
-                .start()
-                .waitFor()
+        }.forEach{ file ->
+            execOps.exec {
+                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file)
+            }
         }
         jars.forEach { file ->
             FileOutputStream(File(file.parentFile, file.nameWithoutExtension)).use { fos ->
@@ -631,6 +640,7 @@ tasks.register<Exec>("signApp"){
         "--force",
         "--deep",
         "--options=runtime",
+        "--entitlements", file("macos/entitlements.plist").absolutePath,
         "--sign", "Developer ID Application",
         app)
 }
