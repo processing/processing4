@@ -146,7 +146,7 @@ dependencies {
     testImplementation(libs.junitJupiterParams)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    
+
 }
 
 tasks.test {
@@ -453,9 +453,18 @@ tasks.register<Copy>("includeJdk") {
     from(jdkHome)
     destinationDir = composeResources("jdk").get().asFile
 
-    fileTree(destinationDir).files.forEach { file ->
-        file.setWritable(true, false)
-        file.setReadable(true, false)
+    doLast {
+        val sourceJdkHome = jdkHome.get()
+        fileTree(destinationDir).files.forEach { file ->
+            // Copy preserves the source exec bit, but some environments strip it.
+            // Re-apply exec on files that should be executable.
+            val sourceFile = File(sourceJdkHome, file.relativeTo(destinationDir).path)
+            if (sourceFile.canExecute()) {
+                file.setExecutable(true, false)
+            }
+            file.setWritable(true, false)
+            file.setReadable(true, false)
+        }
     }
 }
 tasks.register<Copy>("includeSharedAssets"){
@@ -658,6 +667,10 @@ tasks.register("setExecutablePermissions") {
             include("**/resources/**/*.dylib")
             include("**/resources/**/*.so")
             include("**/resources/**/*.exe")
+            // Also cover the IDE runtime (jspawnhelper, jexec, bin/*) — same issue
+            // https://github.com/processing/processing4/issues/1537
+            include("**/runtime/**/bin/**")
+            include("**/runtime/**/lib/**")
         }.forEach { file ->
             if (file.isFile) {
                 file.setExecutable(true, false)
