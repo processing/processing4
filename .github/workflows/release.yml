@@ -130,7 +130,7 @@ jobs:
           ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
 
       - name: Publish internal plugins to Gradle Plugin Portal
-        run: ./gradlew -c gradle/plugins/settings.gradle.kts publishPlugins
+        run: ./gradlew -p gradle/plugins publishPlugins
         env:
           GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
           GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
