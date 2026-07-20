@@ -440,7 +440,6 @@ tasks.register<Copy>("includeJavaMode") {
     from(java.configurations.runtimeClasspath)
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dirPermissions { unix("rwx------") }
 }
 val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
 
@@ -453,6 +452,7 @@ tasks.register<Copy>("includeJdk") {
     from(jdkHome)
     destinationDir = composeResources("jdk").get().asFile
 
+    dirPermissions { unix("rwx------") }
     fileTree(destinationDir).files.forEach { file ->
         file.setWritable(true, false)
         file.setReadable(true, false)
