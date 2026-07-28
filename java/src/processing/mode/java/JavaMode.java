@@ -328,7 +328,7 @@ public class JavaMode extends Mode {
       "processing.event.KeyEvent",
       "processing.event.MouseEvent",
       "processing.event.TouchEvent",
-      "processing.opengl.PShader",
+      "processing.core.PShader",
       "processing.opengl.PGL",
 
       "java.util.ArrayList",

@@ -5475,7 +5475,7 @@ public class PShapeOpenGL extends PShape {
     Texture tex = textureImage != null ? g.getTexture(textureImage) : null;
 
     boolean renderingFill = false, renderingStroke = false;
-    PShader shader = null;
+    PShaderOpenGL shader = null;
     IndexCache cache = tessGeo.polyIndexCache;
     for (int n = firstPolyIndexCache; n <= lastPolyIndexCache; n++) {
       if (is3D() || (tex != null && (firstLineIndexCache == -1 ||
@@ -5658,7 +5658,7 @@ public class PShapeOpenGL extends PShape {
 
 
   protected void renderLines(PGraphicsOpenGL g) {
-    PShader shader = g.getLineShader();
+    PShaderOpenGL shader = g.getLineShader();
     shader.bind();
 
     IndexCache cache = tessGeo.lineIndexCache;
@@ -5755,7 +5755,7 @@ public class PShapeOpenGL extends PShape {
 
 
   protected void renderPoints(PGraphicsOpenGL g) {
-    PShader shader = g.getPointShader();
+    PShaderOpenGL shader = g.getPointShader();
     shader.bind();
 
     IndexCache cache = tessGeo.pointIndexCache;
