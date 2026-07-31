@@ -5512,8 +5512,11 @@ public class PGraphicsOpenGL extends PGraphics {
                          int targetX, int targetY) {
     updatePixelSize();
 
-    // Copies the pixels
+    // make sure pixel arrays are available
     loadPixels();
+    sourceImage.loadPixels();
+
+    // Copies the pixels
     int sourceOffset = sourceY * sourceImage.pixelWidth + sourceX;
     int targetOffset = targetY * pixelWidth + targetX;
     for (int y = sourceY; y < sourceY + sourceHeight; y++) {
