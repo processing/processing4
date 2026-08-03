@@ -33,7 +33,10 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -75,6 +78,45 @@ public class Preferences {
   static Map<String, String> table = new HashMap<>();
   static File preferencesFile;
   static private boolean initialized = false;
+
+  static private final List<ChangeListener> listeners =
+    new CopyOnWriteArrayList<>();
+
+
+  /**
+   * Callback for preference changes made through set() or unset().
+   * Loading (init or otherwise) does not fire events: listeners are for
+   * reacting to changes, not for observing startup.
+   */
+  public interface ChangeListener {
+    /**
+     * @param key the preference that changed
+     * @param value the new value, or null if the key was removed
+     */
+    void preferenceChanged(String key, String value);
+  }
+
+
+  static public void addChangeListener(ChangeListener listener) {
+    listeners.add(listener);
+  }
+
+
+  static public void removeChangeListener(ChangeListener listener) {
+    listeners.remove(listener);
+  }
+
+
+  static private void fireChange(String key, String value) {
+    for (ChangeListener listener : listeners) {
+      try {
+        listener.preferenceChanged(key, value);
+      } catch (Exception e) {
+        // one broken listener shouldn't prevent the change (or the others)
+        e.printStackTrace();
+      }
+    }
+  }
 
 
   /**
@@ -323,12 +365,17 @@ public class Preferences {
 
 
   static public void set(String attribute, String value) {
-    table.put(attribute, value);
+    String previous = table.put(attribute, value);
+    if (!Objects.equals(previous, value)) {
+      fireChange(attribute, value);
+    }
   }
 
 
   static public void unset(String attribute) {
-    table.remove(attribute);
+    if (table.remove(attribute) != null) {
+      fireChange(attribute, null);
+    }
   }
 
 
