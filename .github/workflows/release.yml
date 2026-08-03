@@ -10,18 +10,38 @@ jobs:
     outputs:
       revision: ${{ steps.tag_info.outputs.revision }}
       version: ${{ steps.tag_info.outputs.version }}
+      is_prerelease: ${{ steps.tag_info.outputs.is_prerelease }}
+      asset_version: ${{ steps.tag_info.outputs.asset_version }}
+      release_title: ${{ steps.tag_info.outputs.release_title }}
     steps:
       - name: Extract version and revision
         id: tag_info
         shell: bash
         run: |
+          # Tags are shaped processing-<revision>-<version>[-rc<N>].
+          # A trailing -rc<N> marks a release candidate (a public GitHub
+          # prerelease); without it the tag is a final release.
           TAG_NAME="${GITHUB_REF#refs/tags/}"
           REVISION=$(echo "$TAG_NAME" | cut -d'-' -f2)
           VERSION=$(echo "$TAG_NAME" | cut -d'-' -f3)
+          RC=$(echo "$TAG_NAME" | cut -d'-' -f4)
 
           # Set outputs for use in later jobs or steps
           echo "revision=$REVISION" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          # The packaged version stays numeric (installer formats require it);
+          # the RC marker only rides along in the release title and asset names.
+          if [ -n "$RC" ]; then
+            RC_UPPER=$(echo "$RC" | tr '[:lower:]' '[:upper:]')
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "asset_version=${VERSION}-${RC}" >> $GITHUB_OUTPUT
+            echo "release_title=Processing ${VERSION} ${RC_UPPER}" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "asset_version=${VERSION}" >> $GITHUB_OUTPUT
+            echo "release_title=Processing ${VERSION}" >> $GITHUB_OUTPUT
+          fi
 
   create-draft:
     name: Create draft release
@@ -33,7 +53,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
-      VERSION: ${{ needs.version.outputs.version }}
+      TITLE: ${{ needs.version.outputs.release_title }}
     steps:
       - name: Create draft release
         run: |
@@ -42,7 +62,7 @@ jobs:
           else
             gh release create "$TAG" \
               --draft \
-              --title "Processing $VERSION" \
+              --title "$TITLE" \
               --generate-notes
           fi
 
@@ -69,21 +89,23 @@ jobs:
       run: npm run zip
     - name: Stage reference asset
       env:
-        VERSION: ${{ needs.version.outputs.version }}
+        ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
       run: |
         mkdir -p release-assets
-        cp reference.zip "release-assets/processing-${VERSION}-reference.zip"
+        cp reference.zip "release-assets/processing-${ASSET_VERSION}-reference.zip"
     - name: Upload reference to release
       uses: softprops/action-gh-release@v2
       with:
         draft: true
         tag_name: ${{ github.ref_name }}
-        files: release-assets/processing-${{ needs.version.outputs.version }}-reference.zip
+        files: release-assets/processing-${{ needs.version.outputs.asset_version }}-reference.zip
 
   publish-maven:
     name: Publish Processing Libraries to Maven Central
     runs-on: ubuntu-latest
     needs: [version, release-windows, release-macos, release-linux]
+    # Release candidates must not notify Maven Central.
+    if: ${{ needs.version.outputs.is_prerelease != 'true' }}
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -110,6 +132,8 @@ jobs:
     name: Publish Processing Plugins to Gradle Plugin Portal
     runs-on: ubuntu-latest
     needs: [version, release-windows, release-macos, release-linux]
+    # Release candidates must not notify the Gradle Plugin Portal.
+    if: ${{ needs.version.outputs.is_prerelease != 'true' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -189,11 +213,12 @@ jobs:
         shell: bash
         env:
           VERSION: ${{ needs.version.outputs.version }}
+          ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
           ARCH: ${{ matrix.arch }}
         run: |
           mkdir -p release-assets
-          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-windows-${ARCH}-portable.zip"
-          cp "app/build/compose/binaries/main/msi/Processing-${VERSION}.msi" "release-assets/processing-${VERSION}-windows-${ARCH}.msi"
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${ASSET_VERSION}-windows-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/msi/Processing-${VERSION}.msi" "release-assets/processing-${ASSET_VERSION}-windows-${ARCH}.msi"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -246,11 +271,12 @@ jobs:
       - name: Stage release assets
         env:
           VERSION: ${{ needs.version.outputs.version }}
+          ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
           ARCH: ${{ matrix.arch }}
         run: |
           mkdir -p release-assets
-          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-macos-${ARCH}-portable.zip"
-          cp "app/build/compose/binaries/main/dmg/Processing-${VERSION}.dmg" "release-assets/processing-${VERSION}-macos-${ARCH}.dmg"
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${ASSET_VERSION}-macos-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/dmg/Processing-${VERSION}.dmg" "release-assets/processing-${ASSET_VERSION}-macos-${ARCH}.dmg"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -293,12 +319,13 @@ jobs:
       - name: Stage release assets
         env:
           VERSION: ${{ needs.version.outputs.version }}
+          ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
           ARCH: ${{ matrix.arch }}
           DEB: ${{ matrix.deb }}
         run: |
           mkdir -p release-assets
-          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${VERSION}-linux-${ARCH}-portable.zip"
-          cp "app/build/compose/binaries/main/deb/processing_${VERSION}-1_${DEB}.deb" "release-assets/processing-${VERSION}-linux-${ARCH}.deb"
+          cp "app/build/compose/binaries/main/Processing-${VERSION}.zip" "release-assets/processing-${ASSET_VERSION}-linux-${ARCH}-portable.zip"
+          cp "app/build/compose/binaries/main/deb/processing_${VERSION}-1_${DEB}.deb" "release-assets/processing-${ASSET_VERSION}-linux-${ARCH}.deb"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
@@ -358,21 +385,24 @@ jobs:
       - name: Stage release assets
         env:
           VERSION: ${{ needs.version.outputs.version }}
+          ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
           ARCH: ${{ matrix.arch }}
           DEB: ${{ matrix.deb }}
           SNAP_NAME: ${{ vars.SNAP_NAME }}
         run: |
           mkdir -p release-assets
-          cp "app/build/compose/binaries/main/${SNAP_NAME}_${VERSION}_${DEB}.snap" "release-assets/processing-${VERSION}-linux-${ARCH}.snap"
+          cp "app/build/compose/binaries/main/${SNAP_NAME}_${VERSION}_${DEB}.snap" "release-assets/processing-${ASSET_VERSION}-linux-${ARCH}.snap"
 
       - name: Upload snap to release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           tag_name: ${{ github.ref_name }}
-          files: release-assets/processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.snap
+          files: release-assets/processing-${{ needs.version.outputs.asset_version }}-linux-${{ matrix.arch }}.snap
 
       - name: Upload snap to Snap Store
+        # Release candidates must not push to the Snap Store.
+        if: ${{ needs.version.outputs.is_prerelease != 'true' }}
         run: snapcraft upload --release=beta app/build/compose/binaries/main/${{ vars.SNAP_NAME }}_${{ needs.version.outputs.version }}_${{ matrix.deb }}.snap
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.PROCESSING_SNAPCRAFT_TOKEN }}
@@ -426,18 +456,18 @@ jobs:
 
       - name: Stage release assets
         env:
-          VERSION: ${{ needs.version.outputs.version }}
+          ASSET_VERSION: ${{ needs.version.outputs.asset_version }}
           ARCH: ${{ matrix.arch }}
         run: |
           mkdir -p release-assets
-          cp processing.flatpak "release-assets/processing-${VERSION}-linux-${ARCH}.flatpak"
+          cp processing.flatpak "release-assets/processing-${ASSET_VERSION}-linux-${ARCH}.flatpak"
 
       - name: Upload Flatpak to release
         uses: softprops/action-gh-release@v2
         with:
           draft: true
           tag_name: ${{ github.ref_name }}
-          files: release-assets/processing-${{ needs.version.outputs.version }}-linux-${{ matrix.arch }}.flatpak
+          files: release-assets/processing-${{ needs.version.outputs.asset_version }}-linux-${{ matrix.arch }}.flatpak
 
   publish-release:
     name: Publish release
@@ -454,12 +484,24 @@ jobs:
       - release-linux
       - release-linux-snap
       - release-linux-flatpak
+    # Run once nothing has failed. publish-maven/publish-gradle are skipped for
+    # release candidates, and a skipped dependency would otherwise skip this job.
+    if: ${{ !failure() && !cancelled() }}
     permissions:
       contents: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
+      IS_PRERELEASE: ${{ needs.version.outputs.is_prerelease }}
     steps:
       - name: Mark release as published
-        run: gh release edit "$TAG" --draft=false --latest
+        run: |
+          # Release candidates go out as a public prerelease (downloadable, but
+          # not marked "latest" so package-manager watchers ignore them); final
+          # releases are marked latest.
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            gh release edit "$TAG" --draft=false --prerelease
+          else
+            gh release edit "$TAG" --draft=false --latest
+          fi
