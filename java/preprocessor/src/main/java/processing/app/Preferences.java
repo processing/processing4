@@ -21,47 +21,44 @@
 
 package processing.app;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.Properties;
+import java.io.IOException;
+
 
 /**
- * Storage class for user preferences and environment settings.
- * <P>
- * This class does not use the Properties class because .properties files use
- * ISO 8859-1 encoding, which is highly likely to be a problem when trying to
- * save sketch folders and locations. Like the rest of Processing, we use UTF8.
- * <p>
- * We don't use the Java Preferences API because it would entail writing to
- * the registry (on Windows), or an obscure file location (on Mac OS X) and
- * make it far more difficult (impossible) to remove the preferences.txt to
- * reset them (when they become corrupt), or to find the the file to make
- * edits for numerous obscure preferences that are not part of the preferences
- * window. If we added a generic editor (e.g. about:config in Mozilla) for
- * such things, we could start using the Java Preferences API. But wow, that
- * sounds like a lot of work. Not unlike writing this paragraph.
+ * Minimal stand-in for the app's Preferences so the preprocessor can be
+ * used without the PDE. Delegates to the standalone
+ * {@link processing.utils.Preferences}, which bundles the default settings,
+ * so preferences resolve even when no preferences.txt exists yet.
  */
 public class Preferences {
-    static public String get(String attribute /*, String defaultValue */) {
-        try {
-            var settingsFile = Base.getSettingsFile("preferences.txt");
-            var reader = new BufferedReader(new FileReader(settingsFile));
 
-            var settings = new Properties();
-            settings.load(reader);
-            reader.close();
+  static private void ensureInitialized() {
+    if (!processing.utils.Preferences.isInitialized()) {
+      try {
+        processing.utils.Preferences.init();
+      } catch (IOException e) {
+        // The bundled defaults are enough to preprocess with; an unreadable
+        // preferences.txt shouldn't stop a build.
+        System.err.println("Could not read preferences: " + e.getMessage());
+      }
+    }
+  }
 
-            return settings.getProperty(attribute);
-        }catch (Exception e) {
-            return null;
-        }
-    }
-    static public boolean getBoolean(String attribute) {
-        String value = get(attribute);
-        return Boolean.parseBoolean(value);
-    }
-    static public int getInteger(String attribute /*, int defaultValue*/) {
-        return Integer.parseInt(get(attribute));
-    }
+
+  static public String get(String attribute) {
+    ensureInitialized();
+    return processing.utils.Preferences.get(attribute);
+  }
+
+
+  static public boolean getBoolean(String attribute) {
+    ensureInitialized();
+    return processing.utils.Preferences.getBoolean(attribute);
+  }
+
+
+  static public int getInteger(String attribute) {
+    ensureInitialized();
+    return processing.utils.Preferences.getInteger(attribute);
+  }
 }
