@@ -223,6 +223,18 @@ public class Preferences {
 
 
   /**
+   * For testing, forget all state so the next test starts clean.
+   */
+  static void reset() {
+    table.clear();
+    defaults = null;
+    preferencesFile = null;
+    initialized = false;
+    listeners.clear();
+  }
+
+
+  /**
    * Check whether init() has been called. If not, we are probably not
    * running the full application.
    * @return true if Preferences has been initialized
