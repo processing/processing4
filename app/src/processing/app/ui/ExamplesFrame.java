@@ -22,11 +22,20 @@
 
 package processing.app.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Point;
+import processing.app.*;
+import processing.app.contrib.Contribution;
+import processing.app.contrib.ContributionManager;
+import processing.app.contrib.ContributionType;
+import processing.app.contrib.ExamplesContribution;
+import processing.core.PApplet;
+import processing.data.StringDict;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
+import javax.swing.tree.*;
+import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -36,36 +45,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
-
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeExpansionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
-import processing.app.Base;
-import processing.app.Language;
-import processing.app.Library;
-import processing.app.Mode;
-import processing.app.Platform;
-import processing.app.Preferences;
-import processing.app.SketchReference;
-import processing.app.contrib.Contribution;
-import processing.app.contrib.ContributionManager;
-import processing.app.contrib.ContributionType;
-import processing.app.contrib.ExamplesContribution;
-
-import processing.core.PApplet;
-import processing.data.StringDict;
 
 
 public class ExamplesFrame extends JFrame {
@@ -283,7 +262,7 @@ public class ExamplesFrame extends JFrame {
     }
   }
 
-
+    @Deprecated
   protected DefaultMutableTreeNode buildTree() {
     DefaultMutableTreeNode root = new DefaultMutableTreeNode(); //"Examples");
 

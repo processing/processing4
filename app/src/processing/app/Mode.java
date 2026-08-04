@@ -23,24 +23,20 @@
 
 package processing.app;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
-import java.util.List;
-
-import javax.swing.*;
-
 import processing.app.contrib.ContributionManager;
-import processing.app.syntax.*;
-import processing.app.ui.Editor;
-import processing.app.ui.EditorException;
-import processing.app.ui.EditorState;
-import processing.app.ui.ExamplesFrame;
-import processing.app.ui.Recent;
+import processing.app.syntax.PdeTokenMarker;
+import processing.app.syntax.TokenMarker;
+import processing.app.ui.*;
 import processing.app.ui.Toolkit;
 import processing.core.PApplet;
 import processing.utils.SketchException;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.*;
+import java.util.List;
 
 
 public abstract class Mode {
@@ -87,9 +83,12 @@ public abstract class Mode {
    */
   protected ClassLoader classLoader;
 
+    public Mode(Base base, File folder) {
+        this(folder);
+        this.base = base;
+    }
 
-  public Mode(Base base, File folder) {
-    this.base = base;
+    public Mode(File folder) {
     this.folder = folder;
     tokenMarker = createTokenMarker();
 
@@ -605,10 +604,7 @@ public abstract class Mode {
 
 
   public void showExamplesFrame() {
-    if (examplesFrame == null) {
-      examplesFrame = new ExamplesFrame(base, this);
-    }
-    examplesFrame.setVisible();
+      PDEExamplesKt.show(this, base);
   }
 
 
