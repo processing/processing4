@@ -104,7 +104,8 @@ compose.desktop {
                 iconFile = rootProject.file("build/linux/processing.png")
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
-
+                // Enable access to restricted methods; see initBase in LinuxPlatform.java
+                jvmArgs("--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED")
             }
         }
     }
