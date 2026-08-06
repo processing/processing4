@@ -47,7 +47,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import processing.opengl.PGL;
-import processing.opengl.PShader;
 
 /**
  *
