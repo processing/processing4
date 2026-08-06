@@ -324,6 +324,10 @@ public class Preferences {
     // prefs for the open sketch before init() has been called.
     if (preferencesFile != null) {
       File dir = preferencesFile.getParentFile();
+      // standalone callers may pass a settings folder that doesn't exist yet
+      if (!dir.exists() && !dir.mkdirs()) {
+        throw new IOException("Could not create " + dir);
+      }
       File preferencesTemp = File.createTempFile("preferences", ".txt", dir);
       if (!preferencesTemp.setWritable(true, false)) {
         throw new IOException("Could not set " + preferencesTemp + " writable");

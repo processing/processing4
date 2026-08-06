@@ -212,6 +212,20 @@ public class PreferencesTest {
 
 
     /**
+     * A settings folder that doesn't exist yet is created on first save,
+     * so standalone callers can point at any location.
+     */
+    @Test
+    public void testInitCreatesMissingSettingsFolder() throws IOException {
+        var missing = new File(settingsFolder, "nested/settings");
+        assertFalse(missing.exists());
+
+        Preferences.init(missing);
+        assertTrue(new File(missing, "preferences.txt").exists());
+    }
+
+
+    /**
      * A 3.x sketchbook location is migrated to the 4.0 key on init,
      * and the migrated preference is written back out right away.
      */
