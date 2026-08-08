@@ -32,7 +32,8 @@ sourceSets {
 
 mavenPublishing {
     publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    signAllPublications()
+    if (project.hasProperty("signing.signMavenPackages"))
+        signAllPublications()
     coordinates("$group.core", name, version.toString())
 
     pom {

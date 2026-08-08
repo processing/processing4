@@ -23,7 +23,21 @@ class ProcessingPluginTest{
                 id("${System.getProperty("project.group")}.java")
             }
         """.trimIndent())
-        directory.newFile("sketch/settings.gradle.kts")
+        directory.newFile("sketch/settings.gradle.kts").writeText(
+            """
+            pluginManagement {
+                repositories {
+                    mavenLocal()
+                    gradlePluginPortal()
+                }
+            }
+        """.trimIndent()
+        )
+        directory.newFile("sketch/gradle.properties").writeText(
+            """
+            processing.group=${System.getProperty("project.group").replace(".java", "")}
+            """.trimIndent()
+        )
         configure(sketchFolder)
 
         val buildResult = GradleRunner.create()
@@ -218,6 +232,7 @@ class ProcessingPluginTest{
             """.trimIndent())
             sketchFolder.resolve("gradle.properties").writeText(""")
                 processing.workingDir = ${sketchFolder.parentFile.absolutePath}
+                processing.group=${System.getProperty("project.group").replace(".java", "")}
             """.trimIndent())
         }
         val sketchClass = classLoader.loadClass("sketch")
@@ -250,9 +265,12 @@ class ProcessingPluginTest{
                     println("Hello World");
                 }
             """.trimIndent())
-            sketchFolder.resolve("gradle.properties").writeText(""")
+            sketchFolder.resolve("gradle.properties").writeText(
+                """
                 processing.sketchbook = ${libraryResult.libraryFolder.parentFile.parentFile.absolutePath}
-            """.trimIndent())
+                processing.group=${System.getProperty("project.group").replace(".java", "")}
+                """.trimIndent()
+            )
         }
 
         val sketchClass = classLoader.loadClass("sketch")
