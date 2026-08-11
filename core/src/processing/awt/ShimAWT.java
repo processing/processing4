@@ -818,6 +818,7 @@ public class ShimAWT implements PConstants {
 
         if (PApplet.useNativeSelect) {
             FileDialog dialog = new FileDialog(parentFrame, prompt, mode);
+            dialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
             if (defaultSelection != null) {
                 dialog.setDirectory(defaultSelection.getParent());
                 dialog.setFile(defaultSelection.getName());
@@ -910,6 +911,7 @@ public class ShimAWT implements PConstants {
     if (PApplet.platform == PConstants.MACOS && PApplet.useNativeSelect) {
       FileDialog fileDialog =
         new FileDialog(parentFrame, prompt, FileDialog.LOAD);
+      fileDialog.setModalityType(Dialog.ModalityType.DOCUMENT_MODAL);
       if (defaultSelection != null) {
         fileDialog.setDirectory(defaultSelection.getAbsolutePath());
       }
