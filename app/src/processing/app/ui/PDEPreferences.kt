@@ -10,8 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -36,9 +34,10 @@ import processing.app.ui.theme.*
 import java.awt.Dimension
 import java.awt.event.WindowEvent
 import java.awt.event.WindowListener
-import java.util.*
+import java.util.Properties
 import javax.swing.SwingUtilities
 import javax.swing.WindowConstants
+import javax.xml.catalog.CatalogFeatures.defaults
 
 
 fun show() {
@@ -186,51 +185,14 @@ class PDEPreferences {
                         /**
                          * Header
                          */
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 36.dp, top = 48.dp, end = 24.dp, bottom = 24.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                            ) {
-                                Text(
-                                    text = locale["preferences"],
-                                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Medium),
-                                )
-                                Text(
-                                    text = locale["preferences.description"],
-                                    style = MaterialTheme.typography.bodySmall,
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(96.dp))
-                            SearchBar(
-                                modifier = Modifier
-                                    .widthIn(max = 250.dp),
-                                inputField = {
-                                    SearchBarDefaults.InputField(
-                                        query = preferencesQuery,
-                                        onQueryChange = {
-                                            preferencesQuery = it
-                                        },
-                                        onSearch = {
-
-                                        },
-                                        trailingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                                        expanded = false,
-                                        onExpandedChange = { },
-                                        placeholder = { Text("Search") }
-                                    )
-                                },
-                                expanded = false,
-                                onExpandedChange = {},
-                            ) {
-
-                            }
-                        }
+                        Header(
+                            searchable = SearchState(
+                                query = preferencesQuery,
+                                onQueryChange = { preferencesQuery = it }
+                            ),
+                            headlineKey = "preferences",
+                            descriptionKey = "preferences.description"
+                        )
                         HorizontalDivider()
                         Box {
                             Row(
