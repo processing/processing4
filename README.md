@@ -1,5 +1,5 @@
-<!-- Uncomment the shield below once the repo is made public -->
-<!-- [![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors) -->
+[![Maven Central Version](https://img.shields.io/maven-central/v/org.processing/core)](https://mvnrepository.com/artifact/org.processing/core/latest)
+[![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors)
 
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
