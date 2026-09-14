@@ -343,7 +343,7 @@ public class Runner implements MessageConsumer {
       //params.append("-Dcom.apple.mrj.application.apple.menu.about.name=" +
       //              build.getSketchClassName());
 
-      if ("WEBGPU".equals(build.getSketchRenderer())) {
+      if (PConstants.WEBGPU.equals(build.getSketchRenderer())) {
         params.append("-XstartOnFirstThread");
       }
     }
@@ -515,10 +515,13 @@ public class Runner implements MessageConsumer {
         params.append(PApplet.ARGS_UI_SCALE + "=" + uiScale);
       }
       */
-
-      // TODO: excise AWT to make webgpu work properly
-      params.append(PApplet.ARGS_DISABLE_AWT);
-
+      // Only disable AWT for the WebGPU renderer, which uses GLFW and
+      // cannot coexist with AWT. All other renderers still depend on AWT
+      // for display detection, displayWidth/displayHeight, pixelDensity(), etc.
+      if (PConstants.WEBGPU.equals(build.getSketchRenderer())) {
+        params.append(PApplet.ARGS_DISABLE_AWT);
+      }
+      
       params.append(build.getSketchClassName());
     }
     // Add command-line arguments to be given to the sketch itself
