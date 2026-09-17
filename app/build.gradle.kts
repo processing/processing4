@@ -667,6 +667,37 @@ tasks.register("setExecutablePermissions") {
     }
 }
 
+tasks.register("fixDebPermissions") {
+    description = "Rebuilds the .deb so binaries under opt/processing/lib/app/resources keep their executable bit " +
+        "(jpackage's own deb assembly does not reliably preserve it for arbitrary resource files)"
+    group = "compose desktop"
+    onlyIf { OperatingSystem.current().isLinux }
+
+    val execOps = objects.newInstance<ExecOps>().execOps
+
+    doLast {
+        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val deb = debDir.listFiles { f -> f.name.startsWith("processing") && f.name.endsWith(".deb") }
+            ?.singleOrNull()
+            ?: throw GradleException("Expected exactly one processing*.deb in $debDir")
+
+        val extractDir = debDir.resolve("${deb.nameWithoutExtension}-fixperms")
+        extractDir.deleteRecursively()
+
+        execOps.exec {
+            commandLine(
+                "fakeroot", "bash", "-c",
+                "dpkg-deb -R '${deb.absolutePath}' '${extractDir.absolutePath}' && " +
+                    "find '${extractDir.absolutePath}/opt/processing/lib/app/resources' " +
+                    "-path '*/bin/*' -type f -exec chmod +x {} + && " +
+                    "dpkg-deb -b '${extractDir.absolutePath}' '${deb.absolutePath}'"
+            )
+        }
+
+        extractDir.deleteRecursively()
+    }
+}
+
 afterEvaluate {
     tasks.named("prepareAppResources").configure {
         dependsOn("includeProcessingResources")
@@ -681,5 +712,9 @@ afterEvaluate {
     // app image before permissions are restored on it.
     tasks.named("packageDeb").configure {
         dependsOn("setExecutablePermissions")
+        // jpackage's own --type deb assembly doesn't reliably preserve the
+        // executable bit on arbitrary resource binaries (java, windres, ...);
+        // rebuild the .deb afterward via dpkg-deb to force it back on.
+        finalizedBy("fixDebPermissions")
     }
 }
