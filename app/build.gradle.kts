@@ -675,4 +675,11 @@ afterEvaluate {
         dependsOn("includeJdk")
         finalizedBy("setExecutablePermissions")
     }
+    // finalizedBy above only guarantees setExecutablePermissions runs after
+    // createDistributable, not before packageDeb, which merely depends on
+    // createDistributable transitively - without this, jpackage can read the
+    // app image before permissions are restored on it.
+    tasks.named("packageDeb").configure {
+        dependsOn("setExecutablePermissions")
+    }
 }

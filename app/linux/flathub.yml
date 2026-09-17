@@ -19,7 +19,7 @@ modules:
         - ar x processing.deb
         - tar --zstd -xf data.tar.zst
         - mv opt/processing/* /app/
-        - find /app/lib/app/resources/jdk/bin -type f -exec chmod +x {} +
+        - find /app/lib/app/resources -path "*/bin/*" -type f -exec chmod +x {} +
 
         # Install the desktop file and icon
         - install -D /app/lib/processing-Processing.desktop /app/share/applications/$identifier.desktop

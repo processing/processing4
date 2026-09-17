@@ -39,4 +39,4 @@ parts:
     override-prime: |
       snapcraftctl prime
       rm -vf usr/lib/jvm/java-17-openjdk-*/lib/security/cacerts
-      chmod -R +x opt/processing/lib/app/resources/jdk
+      find opt/processing/lib/app/resources -path "*/bin/*" -type f -exec chmod +x {} +

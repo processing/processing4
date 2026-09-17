@@ -77,6 +77,14 @@ jobs:
       - name: Package Processing with Gradle
         run: ./gradlew packageDistributionForCurrentOS
 
+      - name: Verify binary permissions in .deb
+        if: matrix.os_prefix == 'linux'
+        run: |
+          DEB=$(ls app/build/compose/binaries/main/deb/processing*.deb)
+          dpkg-deb -x "$DEB" /tmp/debcheck
+          test -x /tmp/debcheck/opt/processing/lib/app/resources/jdk/bin/java
+          test -x /tmp/debcheck/opt/processing/lib/app/resources/modes/java/application/launch4j/bin/windres
+
       - name: Add artifact
         uses: actions/upload-artifact@v4
         if: ${{ github.event_name != 'pull_request' }}
