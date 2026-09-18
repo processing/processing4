@@ -204,17 +204,17 @@ public class PGraphicsOpenGL extends PGraphics {
   static protected URL maskShaderFragURL =
     PGraphicsOpenGL.class.getResource("/processing/opengl/shaders/MaskFrag.glsl");
 
-  protected PShader defColorShader;
-  protected PShader defTextureShader;
-  protected PShader defLightShader;
-  protected PShader defTexlightShader;
-  protected PShader defLineShader;
-  protected PShader defPointShader;
-  protected PShader maskShader;
+  protected PShaderOpenGL defColorShader;
+  protected PShaderOpenGL defTextureShader;
+  protected PShaderOpenGL defLightShader;
+  protected PShaderOpenGL defTexlightShader;
+  protected PShaderOpenGL defLineShader;
+  protected PShaderOpenGL defPointShader;
+  protected PShaderOpenGL maskShader;
 
-  protected PShader polyShader;
-  protected PShader lineShader;
-  protected PShader pointShader;
+  protected PShaderOpenGL polyShader;
+  protected PShaderOpenGL lineShader;
+  protected PShaderOpenGL pointShader;
 
   // ........................................................
 
@@ -984,7 +984,7 @@ public class PGraphicsOpenGL extends PGraphics {
   }
 
 
-  protected static class GLResourceShader extends Disposable<PShader> {
+  protected static class GLResourceShader extends Disposable<PShaderOpenGL> {
     int glProgram;
     int glVertex;
     int glFragment;
@@ -992,7 +992,7 @@ public class PGraphicsOpenGL extends PGraphics {
     private PGL pgl;
     final private int context;
 
-    public GLResourceShader(PShader sh) {
+    public GLResourceShader(PShaderOpenGL sh) {
       super(sh);
 
       this.pgl = sh.pgl.graphics.getPrimaryPGL();
@@ -2341,7 +2341,7 @@ public class PGraphicsOpenGL extends PGraphics {
 
       // If the renderer is 2D, then lights should always be false,
       // so no need to worry about that.
-      PShader shader = getPolyShader(lights, tex != null);
+      PShaderOpenGL shader = getPolyShader(lights, tex != null);
       shader.bind();
 
       int first = texCache.firstCache[i];
@@ -2442,7 +2442,7 @@ public class PGraphicsOpenGL extends PGraphics {
 
       // If the renderer is 2D, then lights should always be false,
       // so no need to worry about that.
-      PShader shader = getPolyShader(lights, tex != null);
+      PShaderOpenGL shader = getPolyShader(lights, tex != null);
       shader.bind();
 
       shader.setVertexAttribute(bufPolyVertex.glId, 4, PGL.FLOAT, 0,
@@ -2704,7 +2704,7 @@ public class PGraphicsOpenGL extends PGraphics {
   protected void flushLines() {
     updateLineBuffers();
 
-    PShader shader = getLineShader();
+    PShaderOpenGL shader = getLineShader();
     shader.bind();
 
     IndexCache cache = tessGeo.lineIndexCache;
@@ -2804,7 +2804,7 @@ public class PGraphicsOpenGL extends PGraphics {
   protected void flushPoints() {
     updatePointBuffers();
 
-    PShader shader = getPointShader();
+    PShaderOpenGL shader = getPointShader();
     shader.bind();
 
     IndexCache cache = tessGeo.pointIndexCache;
@@ -6005,7 +6005,7 @@ public class PGraphicsOpenGL extends PGraphics {
 
     PGraphicsOpenGL ppg = getPrimaryPG();
     if (ppg.maskShader == null) {
-      ppg.maskShader = new PShader(parent, defTextureShaderVertURL,
+      ppg.maskShader = new PShaderOpenGL(parent, defTextureShaderVertURL,
                                            maskShaderFragURL);
     }
     ppg.maskShader.set("mask", alpha);
@@ -6047,7 +6047,8 @@ public class PGraphicsOpenGL extends PGraphics {
 
   @Override
   public void filter(PShader shader) {
-    if (!shader.isPolyShader()) {
+    PShaderOpenGL glShader = (PShaderOpenGL) shader;
+    if (!glShader.isPolyShader()) {
       PGraphics.showWarning(INVALID_FILTER_SHADER_ERROR);
       return;
     }
@@ -6090,8 +6091,8 @@ public class PGraphicsOpenGL extends PGraphics {
     stroke = false;
     int prevBlendMode = blendMode;
     blendMode(REPLACE);
-    PShader prevShader = polyShader;
-    polyShader = shader;
+    PShaderOpenGL prevShader = polyShader;
+    polyShader = glShader;
 
     beginShape(QUADS);
     texture(filterImage);
@@ -6913,27 +6914,27 @@ public class PGraphicsOpenGL extends PGraphics {
       return null;
     }
 
-    int type = PShader.getShaderType(parent.loadStrings(fragFilename),
-                                     PShader.POLY);
-    PShader shader = new PShader(parent);
+    int type = PShaderOpenGL.getShaderType(parent.loadStrings(fragFilename),
+                                     PShaderOpenGL.POLY);
+    PShaderOpenGL shader = new PShaderOpenGL(parent);
     shader.setType(type);
     shader.setFragmentShader(fragFilename);
-    if (type == PShader.POINT) {
+    if (type == PShaderOpenGL.POINT) {
       String[] vertSource = pgl.loadVertexShader(defPointShaderVertURL);
       shader.setVertexShader(vertSource);
-    } else if (type == PShader.LINE) {
+    } else if (type == PShaderOpenGL.LINE) {
       String[] vertSource = pgl.loadVertexShader(defLineShaderVertURL);
       shader.setVertexShader(vertSource);
-    } else if (type == PShader.TEXLIGHT) {
+    } else if (type == PShaderOpenGL.TEXLIGHT) {
       String[] vertSource = pgl.loadVertexShader(defTexlightShaderVertURL);
       shader.setVertexShader(vertSource);
-    } else if (type == PShader.LIGHT) {
+    } else if (type == PShaderOpenGL.LIGHT) {
       String[] vertSource = pgl.loadVertexShader(defLightShaderVertURL);
       shader.setVertexShader(vertSource);
-    } else if (type == PShader.TEXTURE) {
+    } else if (type == PShaderOpenGL.TEXTURE) {
       String[] vertSource = pgl.loadVertexShader(defTextureShaderVertURL);
       shader.setVertexShader(vertSource);
-    } else if (type == PShader.COLOR) {
+    } else if (type == PShaderOpenGL.COLOR) {
       String[] vertSource = pgl.loadVertexShader(defColorShaderVertURL);
       shader.setVertexShader(vertSource);
     } else {
@@ -6946,13 +6947,13 @@ public class PGraphicsOpenGL extends PGraphics {
 
   @Override
   public PShader loadShader(String fragFilename, String vertFilename) {
-    PShader shader = null;
+    PShaderOpenGL shader = null;
     if (fragFilename == null || fragFilename.equals("")) {
       PGraphics.showWarning(MISSING_FRAGMENT_SHADER);
     } else if (vertFilename == null || vertFilename.equals("")) {
       PGraphics.showWarning(MISSING_VERTEX_SHADER);
     } else {
-      shader = new PShader(parent, vertFilename, fragFilename);
+      shader = new PShaderOpenGL(parent, vertFilename, fragFilename);
     }
     return shader;
   }
@@ -6960,24 +6961,26 @@ public class PGraphicsOpenGL extends PGraphics {
 
   @Override
   public void shader(PShader shader) {
+    PShaderOpenGL glShader = (PShaderOpenGL) shader;
     flush(); // Flushing geometry drawn with a different shader.
 
-    if (shader != null) shader.init();
-    if (shader.isPolyShader()) polyShader = shader;
-    else if (shader.isLineShader()) lineShader = shader;
-    else if (shader.isPointShader()) pointShader = shader;
+    if (glShader != null) glShader.init();
+    if (glShader.isPolyShader()) polyShader = glShader;
+    else if (glShader.isLineShader()) lineShader = glShader;
+    else if (glShader.isPointShader()) pointShader = glShader;
     else PGraphics.showWarning(UNKNOWN_SHADER_KIND_ERROR);
   }
 
 
   @Override
   public void shader(PShader shader, int kind) {
+    PShaderOpenGL glShader = (PShaderOpenGL) shader;
     flush(); // Flushing geometry drawn with a different shader.
 
-    if (shader != null) shader.init();
-    if (kind == TRIANGLES) polyShader = shader;
-    else if (kind == LINES) lineShader = shader;
-    else if (kind == POINTS) pointShader = shader;
+    if (glShader != null) glShader.init();
+    if (kind == TRIANGLES) polyShader = glShader;
+    else if (kind == LINES) lineShader = glShader;
+    else if (kind == POINTS) pointShader = glShader;
     else PGraphics.showWarning(UNKNOWN_SHADER_KIND_ERROR);
   }
 
@@ -7004,8 +7007,8 @@ public class PGraphicsOpenGL extends PGraphics {
   }
 
 
-  protected PShader getPolyShader(boolean lit, boolean tex) {
-    PShader shader;
+  protected PShaderOpenGL getPolyShader(boolean lit, boolean tex) {
+    PShaderOpenGL shader;
     PGraphicsOpenGL ppg = getPrimaryPG();
     boolean useDefault = polyShader == null;
     if (polyShader != null) {
@@ -7015,22 +7018,22 @@ public class PGraphicsOpenGL extends PGraphics {
     }
     if (lit) {
       if (tex) {
-        if (useDefault || !polyShader.checkPolyType(PShader.TEXLIGHT)) {
+        if (useDefault || !polyShader.checkPolyType(PShaderOpenGL.TEXLIGHT)) {
           if (ppg.defTexlightShader == null) {
             String[] vertSource = pgl.loadVertexShader(defTexlightShaderVertURL);
             String[] fragSource = pgl.loadFragmentShader(defTexlightShaderFragURL);
-            ppg.defTexlightShader = new PShader(parent, vertSource, fragSource);
+            ppg.defTexlightShader = new PShaderOpenGL(parent, vertSource, fragSource);
           }
           shader = ppg.defTexlightShader;
         } else {
           shader = polyShader;
         }
       } else {
-        if (useDefault || !polyShader.checkPolyType(PShader.LIGHT)) {
+        if (useDefault || !polyShader.checkPolyType(PShaderOpenGL.LIGHT)) {
           if (ppg.defLightShader == null) {
             String[] vertSource = pgl.loadVertexShader(defLightShaderVertURL);
             String[] fragSource = pgl.loadFragmentShader(defLightShaderFragURL);
-            ppg.defLightShader = new PShader(parent, vertSource, fragSource);
+            ppg.defLightShader = new PShaderOpenGL(parent, vertSource, fragSource);
           }
           shader = ppg.defLightShader;
         } else {
@@ -7044,22 +7047,22 @@ public class PGraphicsOpenGL extends PGraphics {
       }
 
       if (tex) {
-        if (useDefault || !polyShader.checkPolyType(PShader.TEXTURE)) {
+        if (useDefault || !polyShader.checkPolyType(PShaderOpenGL.TEXTURE)) {
           if (ppg.defTextureShader == null) {
             String[] vertSource = pgl.loadVertexShader(defTextureShaderVertURL);
             String[] fragSource = pgl.loadFragmentShader(defTextureShaderFragURL);
-            ppg.defTextureShader = new PShader(parent, vertSource, fragSource);
+            ppg.defTextureShader = new PShaderOpenGL(parent, vertSource, fragSource);
           }
           shader = ppg.defTextureShader;
         } else {
           shader = polyShader;
         }
       } else {
-        if (useDefault || !polyShader.checkPolyType(PShader.COLOR)) {
+        if (useDefault || !polyShader.checkPolyType(PShaderOpenGL.COLOR)) {
           if (ppg.defColorShader == null) {
             String[] vertSource = pgl.loadVertexShader(defColorShaderVertURL);
             String[] fragSource = pgl.loadFragmentShader(defColorShaderFragURL);
-            ppg.defColorShader = new PShader(parent, vertSource, fragSource);
+            ppg.defColorShader = new PShaderOpenGL(parent, vertSource, fragSource);
           }
           shader = ppg.defColorShader;
         } else {
@@ -7076,14 +7079,14 @@ public class PGraphicsOpenGL extends PGraphics {
   }
 
 
-  protected PShader getLineShader() {
-    PShader shader;
+  protected PShaderOpenGL getLineShader() {
+    PShaderOpenGL shader;
     PGraphicsOpenGL ppg = getPrimaryPG();
     if (lineShader == null) {
       if (ppg.defLineShader == null) {
         String[] vertSource = pgl.loadVertexShader(defLineShaderVertURL);
         String[] fragSource = pgl.loadFragmentShader(defLineShaderFragURL);
-        ppg.defLineShader = new PShader(parent, vertSource, fragSource);
+        ppg.defLineShader = new PShaderOpenGL(parent, vertSource, fragSource);
       }
       shader = ppg.defLineShader;
     } else {
@@ -7096,14 +7099,14 @@ public class PGraphicsOpenGL extends PGraphics {
   }
 
 
-  protected PShader getPointShader() {
-    PShader shader;
+  protected PShaderOpenGL getPointShader() {
+    PShaderOpenGL shader;
     PGraphicsOpenGL ppg = getPrimaryPG();
     if (pointShader == null) {
       if (ppg.defPointShader == null) {
         String[] vertSource = pgl.loadVertexShader(defPointShaderVertURL);
         String[] fragSource = pgl.loadFragmentShader(defPointShaderFragURL);
-        ppg.defPointShader = new PShader(parent, vertSource, fragSource);
+        ppg.defPointShader = new PShaderOpenGL(parent, vertSource, fragSource);
       }
       shader = ppg.defPointShader;
     } else {
@@ -7279,7 +7282,7 @@ public class PGraphicsOpenGL extends PGraphics {
       pgl.disableVertexAttribArray(glLoc);
     }
 
-    boolean active(PShader shader) {
+    boolean active(PShaderOpenGL shader) {
       if (active) {
         if (glLoc == -1) {
           glLoc = shader.getAttributeLoc(name);
