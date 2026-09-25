@@ -1,6 +1,14 @@
 <!-- Uncomment the shield below once the repo is made public -->
 <!-- [![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors) -->
 
+> [!NOTE]
+> **Processing 5.0 development is underway on `main`.**
+>
+> - **New features and 5.0 work:** open pull requests against `main`.
+> - **Bug fixes for Processing 4:** open pull requests against the [`4.x`](https://github.com/processing/processing4/tree/4.x) branch. It starts from the [`processing-1435-4.5.7`](https://github.com/processing/processing4/releases/tag/processing-1435-4.5.7) release, and all 4.x patch releases will come from it.
+>
+> Not sure which branch to use? Ask in the issue thread or on [Discord](https://discord.processing.org).
+
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
 Processing is a flexible software sketchbook and a programming language designed for learning how to code.
