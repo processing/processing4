@@ -4,10 +4,10 @@
 > [!NOTE]
 > **Processing 5.0 development is underway on `main`.**
 >
-> - **New features and 5.0 work:** open pull requests against `main`.
-> - **Bug fixes for Processing 4:** open pull requests against the [`4.x`](https://github.com/processing/processing4/tree/4.x) branch. It starts from the [`processing-1435-4.5.7`](https://github.com/processing/processing4/releases/tag/processing-1435-4.5.7) release, and all 4.x patch releases will come from it.
+> - **New features and 5.0 work:** Open pull requests against `main`.
+> - **Bug fixes for Processing 4:** Open pull requests against the [`4.x`](https://github.com/processing/processing4/tree/4.x) branch. 
 >
-> Not sure which branch to use? Ask in the issue thread or on [Discord](https://discord.processing.org).
+> Not sure which branch to use? Ask in the issue thread or on [Discord](https://discord.processing.org) in #devs-chat.
 
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
