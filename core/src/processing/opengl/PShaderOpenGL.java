@@ -33,20 +33,16 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 
 /**
- * This class encapsulates a GLSL shader program, including a vertex
- * and a fragment shader. It is compatible with P2D and P3D, but not
- * with the default renderer.
+ * The OpenGL (GLSL) implementation of {@link processing.core.PShader}. It
+ * encapsulates a GLSL shader program, including a vertex and a fragment
+ * shader. It is compatible with P2D and P3D, but not with the default
+ * renderer.
  *
  * Use the <b>loadShader()</b> function to load your shader code.
  * Note: It's strongly encouraged to use <b>loadShader()</b> to create
- * a <b>PShader</b> object, rather than calling the <b>PShader</b>
- * constructor manually.
- *
- * @webref rendering:shaders
- * @webBrief This class encapsulates a GLSL shader program,
- *           including a vertex and a fragment shader
+ * a <b>PShader</b> object, rather than calling this constructor manually.
  */
-public class PShader implements PConstants {
+public class PShaderOpenGL implements PShader, PConstants {
   static protected final int POINT    = 0;
   static protected final int LINE     = 1;
   static protected final int POLY     = 2;
@@ -169,7 +165,7 @@ public class PShader implements PConstants {
   protected int emissiveLoc;
   protected int shininessLoc;
 
-  public PShader() {
+  public PShaderOpenGL() {
     parent = null;
     pgl = null;
     context = -1;
@@ -192,7 +188,7 @@ public class PShader implements PConstants {
   }
 
 
-  public PShader(PApplet parent) {
+  public PShaderOpenGL(PApplet parent) {
     this();
     this.parent = parent;
     primaryPG = (PGraphicsOpenGL)parent.g;
@@ -209,7 +205,7 @@ public class PShader implements PConstants {
    * @param vertFilename name of the vertex shader
    * @param fragFilename name of the fragment shader
    */
-  public PShader(PApplet parent, String vertFilename, String fragFilename) {
+  public PShaderOpenGL(PApplet parent, String vertFilename, String fragFilename) {
     this.parent = parent;
     primaryPG = (PGraphicsOpenGL)parent.g;
     pgl = primaryPG.pgl;
@@ -231,7 +227,7 @@ public class PShader implements PConstants {
     int vertType = getShaderType(vertexShaderSource, -1);
     int fragType = getShaderType(fragmentShaderSource, -1);
     if (vertType == -1 && fragType == -1) {
-      type = PShader.POLY;
+      type = PShaderOpenGL.POLY;
     } else if (vertType == -1) {
       type = fragType;
     } else if (fragType == -1) {
@@ -248,7 +244,7 @@ public class PShader implements PConstants {
    * @param vertURL network location of the vertex shader
    * @param fragURL network location of the fragment shader
    */
-  public PShader(PApplet parent, URL vertURL, URL fragURL) {
+  public PShaderOpenGL(PApplet parent, URL vertURL, URL fragURL) {
     this.parent = parent;
     primaryPG = (PGraphicsOpenGL)parent.g;
     pgl = primaryPG.pgl;
@@ -270,7 +266,7 @@ public class PShader implements PConstants {
     int vertType = getShaderType(vertexShaderSource, -1);
     int fragType = getShaderType(fragmentShaderSource, -1);
     if (vertType == -1 && fragType == -1) {
-      type = PShader.POLY;
+      type = PShaderOpenGL.POLY;
     } else if (vertType == -1) {
       type = fragType;
     } else if (fragType == -1) {
@@ -282,7 +278,7 @@ public class PShader implements PConstants {
     }
   }
 
-  public PShader(PApplet parent, String[] vertSource, String[] fragSource) {
+  public PShaderOpenGL(PApplet parent, String[] vertSource, String[] fragSource) {
     this.parent = parent;
     primaryPG = (PGraphicsOpenGL)parent.g;
     pgl = primaryPG.pgl;
@@ -304,7 +300,7 @@ public class PShader implements PConstants {
     int vertType = getShaderType(vertexShaderSource, -1);
     int fragType = getShaderType(fragmentShaderSource, -1);
     if (vertType == -1 && fragType == -1) {
-      type = PShader.POLY;
+      type = PShaderOpenGL.POLY;
     } else if (vertType == -1) {
       type = fragType;
     } else if (fragType == -1) {
@@ -1025,31 +1021,31 @@ public class PShader implements PConstants {
       String line = s.trim();
 
       if (PApplet.match(line, colorShaderDefRegexp) != null)
-        return PShader.COLOR;
+        return PShaderOpenGL.COLOR;
       else if (PApplet.match(line, lightShaderDefRegexp) != null)
-        return PShader.LIGHT;
+        return PShaderOpenGL.LIGHT;
       else if (PApplet.match(line, texShaderDefRegexp) != null)
-        return PShader.TEXTURE;
+        return PShaderOpenGL.TEXTURE;
       else if (PApplet.match(line, texlightShaderDefRegexp) != null)
-        return PShader.TEXLIGHT;
+        return PShaderOpenGL.TEXLIGHT;
       else if (PApplet.match(line, polyShaderDefRegexp) != null)
-        return PShader.POLY;
+        return PShaderOpenGL.POLY;
       else if (PApplet.match(line, triShaderAttrRegexp) != null)
-        return PShader.POLY;
+        return PShaderOpenGL.POLY;
       else if (PApplet.match(line, quadShaderAttrRegexp) != null)
-        return PShader.POLY;
+        return PShaderOpenGL.POLY;
       else if (PApplet.match(line, pointShaderDefRegexp) != null)
-        return PShader.POINT;
+        return PShaderOpenGL.POINT;
       else if (PApplet.match(line, lineShaderDefRegexp) != null)
-        return PShader.LINE;
+        return PShaderOpenGL.LINE;
       else if (PApplet.match(line, pointShaderAttrRegexp) != null)
-        return PShader.POINT;
+        return PShaderOpenGL.POINT;
       else if (PApplet.match(line, pointShaderInRegexp) != null)
-        return PShader.POINT;
+        return PShaderOpenGL.POINT;
       else if (PApplet.match(line, lineShaderAttrRegexp) != null)
-        return PShader.LINE;
+        return PShaderOpenGL.LINE;
       else if (PApplet.match(line, lineShaderInRegexp) != null)
-        return PShader.LINE;
+        return PShaderOpenGL.LINE;
     }
     return defaultType;
   }
@@ -1091,7 +1087,7 @@ public class PShader implements PConstants {
 
 
   protected boolean checkPolyType(int type) {
-    if (getType() == PShader.POLY) return true;
+    if (getType() == PShaderOpenGL.POLY) return true;
 
     if (getType() != type) {
       if (type == TEXLIGHT) {
