@@ -294,6 +294,18 @@ public class Runner implements MessageConsumer {
   }
 
 
+  // the results of `build.sketchRunner()` returns a string without being checked so this is actually a code-smell.
+  // This function should not exist.
+  // In a better world as I understand it now, we should be making some fixes in the PreProcessor
+  // There are two things to consider at this moment:
+  // When we use the constant P2D or P3D there is actually no check for converting this into the PConstant.* value.
+  // So it doesn't actually do anything. WEBGPU actually does do something which led to this function.
+  // TODO: Lets try to remove this function, or create something that considers P2D and P3D
+  // This will lead to cleaning up the PreProcessor and help us learn its architecture so we can move towards a healthy refactor.
+  static private boolean isWebGPU(String renderer) {
+    return "WEBGPU".equals(renderer) || PConstants.WEBGPU.equals(renderer);
+  }
+
   protected StringList getMachineParams() {
     StringList params = new StringList();
 
@@ -343,7 +355,7 @@ public class Runner implements MessageConsumer {
       //params.append("-Dcom.apple.mrj.application.apple.menu.about.name=" +
       //              build.getSketchClassName());
 
-      if (PConstants.WEBGPU.equals(build.getSketchRenderer())) {
+      if (isWebGPU(build.getSketchRenderer())) {
         params.append("-XstartOnFirstThread");
       }
     }
@@ -518,7 +530,7 @@ public class Runner implements MessageConsumer {
       // Only disable AWT for the WebGPU renderer, which uses GLFW and
       // cannot coexist with AWT. All other renderers still depend on AWT
       // for display detection, displayWidth/displayHeight, pixelDensity(), etc.
-      if (PConstants.WEBGPU.equals(build.getSketchRenderer())) {
+      if (isWebGPU(build.getSketchRenderer())) {
         params.append(PApplet.ARGS_DISABLE_AWT);
       }
       
