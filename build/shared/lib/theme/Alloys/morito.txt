@@ -1,6 +1,6 @@
 ## Look-and-Feel Entries ##
 
-laf.mode = light
+laf.mode = dark
 laf.accent.color = #EA9EFF
 
 # global color used in dialog boxes that have text links
