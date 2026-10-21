@@ -7,7 +7,7 @@
 
 
 import processing.dxf.*;
-boolean record = false;
+boolean isRecording = false;
 
 void setup() {
   size(400, 400, P3D);
@@ -16,7 +16,7 @@ void setup() {
 }
 
 void draw() {
-  if (record == true) {
+  if (isRecording == true) {
     beginRaw(DXF, "output.dxf"); // Start recording to the file
   }
   lights();
@@ -34,15 +34,15 @@ void draw() {
       }
     }
   }
-  if (record == true) {
+  if (isRecording == true) {
     endRaw();
-    record = false; // Stop recording to the file
+    isRecording = false; // Stop recording to the file
   }
 }
 
 void keyPressed() {
   if (key == 'R' || key == 'r') { // Press R to save the file
-    record = true;
+    isRecording = true;
   }
 }
 
