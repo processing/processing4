@@ -221,6 +221,13 @@ public class Base {
     // theme.txt file in the user's sketchbook folder is picked up.
     Theme.init();
 
+    // Set the look and feel before any window is constructed, so that the
+    // correct theme look and feel preferences are applied to the UI
+    FlatLaf laf = "dark".equals(Theme.get("laf.mode")) ?
+      new FlatDarkLaf() : new FlatLightLaf();
+    laf.setExtraDefaults(Collections.singletonMap("@accentColor", Theme.get("laf.accent.color")));
+    FlatLaf.setup(laf);
+
     // Create a location for untitled sketches
     setupUntitleSketches();
 
