@@ -7,30 +7,24 @@ Great to see you are interested in contributing to Processing. To get started yo
 _**Note:** A paid subscription is **not** required. Everything needed to build and work on Processing is available for free in IntelliJ IDEA._
 
 1. [Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/) and install it.
-1. Clone the `Processing4` repository locally.
+1. Install [Rust](https://rustup.rs/). It is needed to build `libprocessing`, the native library behind the WebGPU renderer.
+1. Clone the `processing4` repository locally, including its submodules (`git clone --recursive`, or `git submodule update --init --recursive` in an existing clone).
 1. Open the cloned repository in **IntelliJ IDEA**.
 1. When prompted, select **Trust Project**. (You can preview the project in Safe Mode, but you will not be able to build Processing.)
 1. If IntelliJ asks whether to import the Gradle project, select **Load Gradle Project**.
-1. Make sure IntelliJ and Gradle are both using **JDK 17**:
+1. Make sure IntelliJ and Gradle are both using **JDK 25**:
    * Go to **`File > Project Structure > Project`**
-   * Set **Project SDK** to **JDK 17** (we recommend **Eclipse Temurin**)
-   * If needed, choose **Download JDK…** and install **Version 17**
+   * Set **Project SDK** to **JDK 25** (we recommend **Eclipse Temurin**)
+   * If needed, choose **Download JDK…** and install **Version 25**
    * Then go to **`Settings > Build, Execution, Deployment > Build Tools > Gradle`**
-   * Set **Gradle JVM** to the same **JDK 17**
+   * Set **Gradle JVM** to the same **JDK 25** (the project requests 25 in `gradle/gradle-daemon-jvm.properties`, so this is usually picked automatically)
 1. Wait for Gradle sync to finish.
 1. Click the green **Run** button in the top right to build and launch Processing. You can also use this menu to start a debug session.
 
 > [!TIP]
 > If you encounter any issues with this process, Read the [Troubleshooting and Setup Tips for IntelliJ IDEA](#troubleshooting-and-setup-tips-intellij-idea)
 
-1. Clone the Processing4 repository to your machine locally
-1. Open the cloned repository in IntelliJ IDEA CE
-1. When prompted, select **Trust Project**. You can preview the project in Safe Mode but you won't be able to build Processing.
-1. IntelliJ may ask if you want to load Gradle project. If you allow this, make sure you are using JDK version 17.
-1. In the main menu, go to File > Project Structure > Project Settings > Project.
-1. In the SDK Dropdown option, select a JDK version 17 or Download the jdk
-1. Click the green Run Icon in the top right of the window. This is also where you can find the option to debug Processing. 
-1. Logs can be found in the `Build` or `Debug` pane on the bottom left of the window
+Logs can be found in the `Build` or `Debug` pane on the bottom left of the window.
 
 
 ## VSCode
@@ -52,7 +46,7 @@ If you prefer not to use an IDE, you can also build Processing directly from the
 
 ### Set Up the Environment
 
-If you don't have them installed, you will need to install [Git](https://git-scm.com/downloads) and [Gradle](https://gradle.org/install/) first. Then follow these steps:
+If you don't have them installed, you will need to install [Git](https://git-scm.com/downloads), [Gradle](https://gradle.org/install/) and [Rust](https://rustup.rs/) first. Then follow these steps:
 
 1. **Clone the repository:**
     ```bash
@@ -60,60 +54,28 @@ If you don't have them installed, you will need to install [Git](https://git-scm
     cd processing4
     ```
 
-2. **Install Temurin JDK 17:**
+2. **Install Temurin JDK 25:**
     
-    Download and install the appropriate version for your platform:
+    Download and install the appropriate version for your platform from [Adoptium](https://adoptium.net/temurin/releases/?package=jdk&version=25&os=any&arch=any), or use a package manager:
 
-    - [Linux (x86)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_x64_linux_hotspot_17.0.15_6.tar.gz)
-    - [macOS (Apple Silicon)](https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.15%2B6/OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.15_6.pkg)
-    - [Other platforms](https://adoptium.net/temurin/releases/?package=jdk&version=17&os=any&arch=any)
+    ```bash
+    brew install --cask temurin@25                         # macOS
+    winget install --id=EclipseAdoptium.Temurin.25.JDK -e  # Windows
+    ```
 
-### macOS:
-```bash
-brew install --cask temurin@17
-````
-
-### Windows (using winget):
-```bash
-winget install --id=EclipseAdoptium.Temurin.17.JDK  -e
-```
-
-### SDKMAN!
-
-[SDKMAN!](https://sdkman.io/) is a useful tool for developers working on multiple versions of the JVM.
-
-## WebGPU Support (Optional)
-
-To build Processing with the experimental WebGPU renderer, you need JDK 25, Rust, and jextract.
-
-### Install Temurin JDK 25
-
-```bash
-brew install --cask temurin@25    # macOS
-```
-
-### Install `jextract`
-
-`jextract` generates Java bindings from C header files.
-You can download it [here](https://jdk.java.net/jextract/) or install it using SDKMAN!:
-
-```bash
-sdk install jextract
-````
-
-### Build with WebGPU
-
-```bash
-./gradlew build -PenableWebGPU=true
-```
+    [SDKMAN!](https://sdkman.io/) is also a useful tool for developers working on multiple versions of the JVM.
 
 3. **Set the `JAVA_HOME` environment variable:**
 
-It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
+    It may be necessary to set the `JAVA_HOME` environment variable to point to your Temurin JDK installation.
 
     ```bash
-    export JAVA_HOME=/path/to/temurin/jdk-17.0.15+6/
+    export JAVA_HOME=/path/to/temurin/jdk-25/
     ```
+
+4. **(Optional) Install `jextract`:**
+
+    `jextract` generates the Java bindings for `libprocessing`. The build downloads it automatically, but if you already have it installed (for example with `sdk install jextract`), that copy will be used instead.
 
 ### Build, Run, and Package Processing
 
@@ -191,18 +153,18 @@ If you are specifically trying to run the `Processing CLI`, you can test command
 
 If you’re building Processing using IntelliJ IDEA and something’s not working, here are a few things that might help:
 
-### Use the Correct JDK (temurin-17)
+### Use the Correct JDK (temurin-25)
 
-Make sure IntelliJ is using **temurin-17**, not another version. If building with WebGPU (`-PenableWebGPU=true`), use **temurin-25** instead.
+Make sure IntelliJ is using **temurin-25**, not another version.
 
 1. Go to **File > Project Structure > Project**
-2. Set the **Project SDK** to:    `temurin-17 java version "17.0.15"`
+2. Set the **Project SDK** to:    `temurin-25 java version "25"`
 
 ![JDK Selection](.github/media/troubleshooting-Intellij-setting-djk-version-manually.png)
 
 If it is not already installed, you can download it by:
 1. Clicking the SDK input field and then selecting the `Download JDK...` option from the menu
-2. Select Version: `17`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
+2. Select Version: `25`, Vendor: `Eclipse Temurin (AdoptOpenJDK HotSpot)`
 
 <img width="400" alt="JDK Download" src="https://github.com/user-attachments/assets/503a03a4-3e53-4406-9641-2c93e4b45d51" />
 
@@ -210,6 +172,15 @@ If it is not already installed, you can download it by:
 
 Now go back to your main window and
 1. Click the green Run Icon in the top right of the window.
+
+
+### “libprocessing submodule directory not found”
+
+The `libprocessing` submodule hasn't been checked out. Run:
+
+```bash
+git submodule update --init --recursive
+```
 
 
 ### “Duplicate content roots detected”
