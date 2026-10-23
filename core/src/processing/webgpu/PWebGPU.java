@@ -204,17 +204,17 @@ public class PWebGPU {
     }
 
     public static void translate(long graphicsId, float x, float y) {
-        processing_translate(graphicsId, x, y);
+        processing_translate(graphicsId, x, y, 0);
         checkError();
     }
 
     public static void rotate(long graphicsId, float angle) {
-        processing_rotate(graphicsId, angle);
+        processing_rotate(graphicsId, angle, 0, 0, 1);
         checkError();
     }
 
     public static void scale(long graphicsId, float x, float y) {
-        processing_scale(graphicsId, x, y);
+        processing_scale(graphicsId, x, y, 1);
         checkError();
     }
 
