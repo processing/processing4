@@ -142,6 +142,7 @@ dependencies {
     @OptIn(ExperimentalComposeLibrary::class)
     testImplementation(compose.uiTest)
     testImplementation(kotlin("test"))
+    testImplementation(libs.mockito)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
@@ -442,10 +443,8 @@ tasks.register<Copy>("includeJavaMode") {
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-val enableWebGPU = findProperty("enableWebGPU")?.toString()?.toBoolean() ?: false
-
 tasks.register<Copy>("includeJdk") {
-    val jdkVersion = if (enableWebGPU) 25 else 17
+    val jdkVersion = 25
     val jdkHome = project.the<JavaToolchainService>().launcherFor {
         languageVersion.set(JavaLanguageVersion.of(jdkVersion))
     }.map { it.metadata.installationPath.asFile }
