@@ -23,4 +23,16 @@ public class Platform {
     static public boolean isLinux() {
         return System.getProperty("os.name").contains("Linux"); //$NON-NLS-1$ //$NON-NLS-2$
     }
+
+
+    /**
+     * Platform name for the current OS, mirroring core's
+     * PConstants.platformNames: "windows", "macos", "linux", or "other".
+     */
+    static public String getName() {
+        if (isWindows()) return "windows"; //$NON-NLS-1$
+        if (isMacOS())   return "macos";   //$NON-NLS-1$
+        if (isLinux())   return "linux";   //$NON-NLS-1$
+        return "other";                    //$NON-NLS-1$
+    }
 }
