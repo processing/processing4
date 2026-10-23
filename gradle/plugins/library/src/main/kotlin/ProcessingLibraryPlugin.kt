@@ -36,9 +36,8 @@ class ProcessingLibraryPlugin : Plugin<Project> {
                 target.dependencies.add("compileOnly", "org.processing:core:$processingVersion")
             }
         }
-        val javaVersionOverride = target.findProperty("enableWebGPU")?.toString()?.toBoolean()?.let { if (it) 25 else 17 } ?: 17
         target.extensions.configure(JavaPluginExtension::class.java) { extension ->
-            extension.toolchain.languageVersion.set(JavaLanguageVersion.of(javaVersionOverride))
+            extension.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
         }
 
         target.plugins.withType(JavaPlugin::class.java) {
