@@ -70,7 +70,7 @@ compose.desktop {
 
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi", "java.scripting", "jdk.httpserver")
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "Processing"
 
 
