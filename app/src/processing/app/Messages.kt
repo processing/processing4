@@ -48,6 +48,19 @@ import javax.swing.UIManager
 
 class Messages {
     companion object {
+
+        /**
+         * Shows a modal dialog that only blocks its parent window,
+         * not all windows in the application.
+         */
+        private fun showModalDialog(message: Any, title: String, messageType: Int) {
+            val activeWindow = java.awt.KeyboardFocusManager
+                .getCurrentKeyboardFocusManager().activeWindow
+            val pane = JOptionPane(message, messageType)
+            val dialog = pane.createDialog(activeWindow, title)
+            dialog.modalityType = java.awt.Dialog.ModalityType.DOCUMENT_MODAL
+            dialog.isVisible = true
+        }
         /**
          * "No cookie for you" type messages. Nothing fatal or all that
          * much of a bummer, but something to notify the user about.
@@ -57,10 +70,7 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.INFORMATION_MESSAGE
-                )
+                showModalDialog(message, title, JOptionPane.INFORMATION_MESSAGE)
             }
         }
 
@@ -77,10 +87,7 @@ class Messages {
             if (Base.isCommandLine()) {
                 println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.WARNING_MESSAGE
-                )
+                showModalDialog(message, title, JOptionPane.WARNING_MESSAGE)
             }
             e?.printStackTrace()
         }
@@ -101,11 +108,7 @@ class Messages {
                 println("$title: $primary\n$secondary")
             } else {
                 EventQueue.invokeLater {
-                    JOptionPane.showMessageDialog(
-                        JFrame(),
-                        Toolkit.formatMessage(primary, secondary),
-                        title, JOptionPane.WARNING_MESSAGE
-                    )
+                    showModalDialog(Toolkit.formatMessage(primary, secondary), title, JOptionPane.WARNING_MESSAGE)
                 }
             }
             e?.printStackTrace()
@@ -122,10 +125,7 @@ class Messages {
             if (Base.isCommandLine()) {
                 System.err.println("$title: $message")
             } else {
-                JOptionPane.showMessageDialog(
-                    Frame(), message, title,
-                    JOptionPane.ERROR_MESSAGE
-                )
+                showModalDialog(message, title, JOptionPane.ERROR_MESSAGE)
             }
             e?.printStackTrace()
             System.exit(1)
@@ -151,9 +151,7 @@ class Messages {
                 val sw = StringWriter()
                 t!!.printStackTrace(PrintWriter(sw))
 
-                JOptionPane.showMessageDialog(
-                    Frame(),  // first <br/> clears to the next line
-                    // second <br/> is a shorter height blank space before the trace
+                showModalDialog(
                     Toolkit.formatMessage("$message<br/><tt><br/>$sw</tt>"),
                     title,
                     if (fatal) JOptionPane.ERROR_MESSAGE else JOptionPane.WARNING_MESSAGE
