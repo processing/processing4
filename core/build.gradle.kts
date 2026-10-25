@@ -192,7 +192,8 @@ tasks.named("processResources") {
 
 mavenPublishing{
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    signAllPublications()
+    if (project.hasProperty("signMavenPackages"))
+        signAllPublications()
 
     pom{
         name.set("Processing Core")
