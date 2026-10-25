@@ -38,8 +38,7 @@ class ProcessingPlugin @Inject constructor(private val objectFactory: ObjectFact
         val settings = project.findProperty("processing.settings") as String?
         val root = project.findProperty("processing.root") as String?
 
-        val webgpu = (project.findProperty("processing.webgpu") as String?)?.toBoolean() ?: false
-        val javaVersion = if (webgpu) 25 else 17
+        val javaVersion = 25
 
         // Apply the Java plugin to the Project, equivalent of
         // plugins {
