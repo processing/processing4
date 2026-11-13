@@ -26,11 +26,13 @@ public class PdeLanguageServer implements LanguageServer, LanguageClientAware {
   LanguageClient client = null;
   PdeTextDocumentService textDocumentService = new PdeTextDocumentService(this);
   PdeWorkspaceService workspaceService = new PdeWorkspaceService(this);
+  volatile boolean shutdownReceived = false;
 
 
   @Override
   public void exit() {
     System.out.println("exit");
+    System.exit(shutdownReceived ? 0 : 1);
   }
 
 
@@ -87,6 +89,7 @@ public class PdeLanguageServer implements LanguageServer, LanguageClientAware {
   @Override
   public CompletableFuture<Object> shutdown() {
     System.out.println("shutdown");
+    shutdownReceived = true;
     return CompletableFuture.completedFuture(null);
   }
 
@@ -97,7 +100,7 @@ public class PdeLanguageServer implements LanguageServer, LanguageClientAware {
   }
 
 
-  static public void main(String[] args) {
+  static public void main(String[] args) throws Exception {
     var input = System.in;
     var output = System.out;
     System.setOut(System.err);
@@ -111,6 +114,10 @@ public class PdeLanguageServer implements LanguageServer, LanguageClientAware {
       );
     var client = launcher.getRemoteProxy();
     server.connect(client);
-    launcher.startListening();
+    try {
+      launcher.startListening().get();
+    } finally {
+      System.exit(0);
+    }
   }
 }
