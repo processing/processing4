@@ -41,6 +41,8 @@ import java.io.InputStream;
  */
 public class Preferences {
 
+//  /** @return true if the sketchbook file did not exist */
+//  static public boolean init() {
   static public void init() {
     // start by loading the defaults, in case something
     // important was deleted from the user prefs
@@ -181,6 +183,19 @@ public class Preferences {
   static public boolean getBoolean(String attribute) {
     String value = get(attribute); //, null);
     return Boolean.parseBoolean(value);
+
+    /*
+      supposedly not needed, because anything besides 'true'
+      (ignoring case) will just be false.. so if malformed -> false
+    if (value == null) return defaultValue;
+
+    try {
+      return (new Boolean(value)).booleanValue();
+    } catch (NumberFormatException e) {
+      System.err.println("expecting an integer: " + attribute + " = " + value);
+    }
+    return defaultValue;
+    */
   }
 
 
