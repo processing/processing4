@@ -188,6 +188,43 @@ public class PreferencesTest {
 
 
     /**
+     * Loading the user prefs never writes: on a first run it only reports
+     * that a save is needed. A settings folder that can't be written to
+     * therefore fails in save(), not in the load, and the preferences
+     * stay usable from the defaults.
+     */
+    @Test
+    public void testLoadUserPrefsDoesNotSave() throws IOException {
+        // a regular file where the parent folder should be, so the settings
+        // folder can never be created (works on every platform, and as root)
+        var notAFolder = new File(settingsFolder, "not-a-folder");
+        Files.writeString(notAFolder.toPath(), "");
+        var unwritable = new File(notAFolder, "settings");
+
+        Preferences.loadDefaults();
+        assertTrue(Preferences.loadUserPrefs(unwritable));
+        assertFalse(unwritable.exists());
+        assertNotNull(Preferences.get("editor.tabs.size"));
+
+        assertThrows(IOException.class, Preferences::save);
+    }
+
+
+    /**
+     * An existing preferences.txt with nothing to migrate needs no save.
+     */
+    @Test
+    public void testLoadUserPrefsReportsNoSaveNeeded() throws IOException {
+        var file = new File(settingsFolder, "preferences.txt");
+        Files.writeString(file.toPath(),
+                          "sketchbook.path.four=/tmp/sketchbook\n");
+
+        Preferences.loadDefaults();
+        assertFalse(Preferences.loadUserPrefs(settingsFolder));
+    }
+
+
+    /**
      * preferences.txt is written with its keys sorted.
      */
     @Test

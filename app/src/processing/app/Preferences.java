@@ -60,14 +60,22 @@ public class Preferences {
     }
 
     // next load user preferences file over the defaults
+    boolean needsSave = false;
     try {
-      processing.utils.Preferences.loadUserPrefs(Base.getSettingsFolder());
+      needsSave =
+        processing.utils.Preferences.loadUserPrefs(Base.getSettingsFolder());
     } catch (IOException ex) {
       Messages.showError("Error reading preferences",
                          "Error reading the preferences file. " +
                          "Please delete (or move)\n" +
                          processing.utils.Preferences.getPreferencesPath() +
                          " and restart Processing.", ex);
+    }
+
+    if (needsSave) {
+      // create a new preferences file if none exists
+      // saves the defaults out to the file
+      save();
     }
 
     PApplet.useNativeSelect =

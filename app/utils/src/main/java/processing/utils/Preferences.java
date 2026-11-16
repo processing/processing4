@@ -138,7 +138,11 @@ public class Preferences {
    */
   static public void init(File settingsFolder) throws IOException {
     loadDefaults();
-    loadUserPrefs(settingsFolder);
+    if (loadUserPrefs(settingsFolder)) {
+      // create a new preferences file if none exists
+      // saves the defaults out to the file
+      save();
+    }
   }
 
 
@@ -167,13 +171,16 @@ public class Preferences {
 
 
   /**
-   * Second init stage: read the user's preferences.txt over the defaults,
-   * and write the file out if it did not exist yet (or a 3.x sketchbook
-   * location was migrated).
+   * Second init stage: read the user's preferences.txt over the defaults.
+   * Does not write anything. Saving is left to the caller so that a failed
+   * read and a failed save stay separate errors: the app treats the first
+   * as fatal and the second as a warning.
    * @param settingsFolder folder containing preferences.txt, or null to
    *   resolve the standard location for this platform
+   * @return true if the preferences should be saved right away, because
+   *   the file did not exist yet or a 3.x sketchbook location was migrated
    */
-  static public void loadUserPrefs(File settingsFolder) throws IOException {
+  static public boolean loadUserPrefs(File settingsFolder) throws IOException {
     preferencesFile = resolvePreferencesFile(settingsFolder);
     boolean firstRun = !preferencesFile.exists();
     if (!firstRun) {
@@ -185,11 +192,7 @@ public class Preferences {
       }
     }
 
-    if (checkSketchbookPref() || firstRun) {
-      // create a new preferences file if none exists
-      // saves the defaults out to the file
-      save();
-    }
+    return checkSketchbookPref() || firstRun;
   }
 
 
