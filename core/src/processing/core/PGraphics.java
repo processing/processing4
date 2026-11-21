@@ -47,7 +47,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import processing.opengl.PGL;
-import processing.opengl.PShader;
 
 /**
  *
@@ -3828,6 +3827,11 @@ public class PGraphics extends PImage implements PConstants {
   //////////////////////////////////////////////////////////////
 
   // IMAGE
+
+
+  public PImage createImage(int w, int h, int format) {
+    return new PImage(w, h, format);
+  }
 
 
   /**

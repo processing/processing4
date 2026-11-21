@@ -5,9 +5,11 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.compose.desktop.application.tasks.AbstractJPackageTask
 import org.jetbrains.compose.internal.de.undercouch.gradle.tasks.download.Download
+import org.gradle.process.ExecOperations
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import javax.inject.Inject
 
 // TODO: Update to 2.10.20 and add hot-reloading: https://github.com/JetBrains/compose-hot-reload
 
@@ -44,6 +46,9 @@ sourceSets{
         kotlin{
             srcDirs("test")
         }
+        java{
+            srcDirs("test")
+        }
     }
 }
 
@@ -51,14 +56,17 @@ compose.desktop {
     application {
         mainClass = "processing.app.ProcessingKt"
 
-        jvmArgs(*listOf(
-            Pair("processing.version", rootProject.version),
-            Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
-            Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
-            Pair("processing.download.page", "https://processing.org/download/"),
-            Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
-            Pair("processing.tutorials", "https://processing.org/tutorials/"),
-        ).map { "-D${it.first}=${it.second}" }.toTypedArray())
+        jvmArgs(
+            "--enable-native-access=ALL-UNNAMED",  // Required for Java 25 native library access
+            *listOf(
+                Pair("processing.version", rootProject.version),
+                Pair("processing.revision", findProperty("revision") ?: Int.MAX_VALUE),
+                Pair("processing.contributions.source", "https://contributions.processing.org/contribs"),
+                Pair("processing.download.page", "https://processing.org/download/"),
+                Pair("processing.download.latest", "https://processing.org/download/latest.txt"),
+                Pair("processing.tutorials", "https://processing.org/tutorials/"),
+            ).map { "-D${it.first}=${it.second}" }.toTypedArray()
+        )
 
         nativeDistributions{
             modules("jdk.jdi", "java.compiler", "jdk.accessibility", "jdk.zipfs", "java.management.rmi", "java.scripting", "jdk.httpserver")
@@ -96,7 +104,8 @@ compose.desktop {
                 iconFile = rootProject.file("build/linux/processing.png")
                 // Fix fonts on some Linux distributions
                 jvmArgs("-Dawt.useSystemAAFontSettings=on")
-
+                // Enable access to restricted methods; see initBase in LinuxPlatform.java
+                jvmArgs("--add-opens=java.desktop/sun.awt.X11=ALL-UNNAMED")
             }
         }
     }
@@ -133,9 +142,12 @@ dependencies {
     @OptIn(ExperimentalComposeLibrary::class)
     testImplementation(compose.uiTest)
     testImplementation(kotlin("test"))
+    testImplementation(libs.mockito)
     testImplementation(libs.mockitoKotlin)
     testImplementation(libs.junitJupiter)
     testImplementation(libs.junitJupiterParams)
+
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
 }
 
@@ -186,7 +198,7 @@ tasks.register<Exec>("packageCustomDmg"){
     onlyIf { OperatingSystem.current().isMacOsX }
     group = "compose desktop"
 
-    dependsOn(distributable(), "installCreateDmg")
+    dependsOn("signApp", "installCreateDmg")
 
     val packageName = distributable().packageName.get()
     val dir = distributable().destinationDir.get()
@@ -359,12 +371,12 @@ tasks.register<Zip>("zipDistributable"){
     dependsOn("createDistributable", "setExecutablePermissions")
     group = "compose desktop"
 
-    val dir = distributable().destinationDir.get()
-    val packageName = distributable().packageName.get()
+    val dir = provider { distributable().destinationDir.get() }
+    val packageName = provider { distributable().packageName.get() }
 
     from(dir){ eachFile{ permissions{ unix("755") } } }
     archiveBaseName.set(packageName)
-    destinationDirectory.set(dir.file("../").asFile)
+    destinationDirectory.set(layout.dir(provider { dir.get().file("../").asFile}))
 }
 
 afterEvaluate{
@@ -390,6 +402,25 @@ afterEvaluate{
     }
 }
 
+val verifySignedMacApp = tasks.register<Exec>("verifySignedMacApp") {
+    onlyIf { OperatingSystem.current().isMacOsX }
+    dependsOn("createDistributable")
+    group = "compose desktop"
+
+    commandLine(
+        "codesign",
+        "-vvv",
+        "--deep",
+        "--strict",
+        layout.buildDirectory.dir("compose/binaries/main/app/Processing.app").get().asFile.absolutePath
+    )
+}
+
+afterEvaluate {
+    tasks.named("notarizeDmg").configure {
+        dependsOn(verifySignedMacApp)
+    }
+}
 
 // LEGACY TASKS
 // Most of these are shims to be compatible with the old build system
@@ -411,12 +442,17 @@ tasks.register<Copy>("includeJavaMode") {
     from(java.configurations.runtimeClasspath)
     into(composeResources("modes/java/mode"))
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dirPermissions { unix("rwx------") }
 }
 tasks.register<Copy>("includeJdk") {
-    from(Jvm.current().javaHome.absolutePath)
+    val jdkVersion = 25
+    val jdkHome = project.the<JavaToolchainService>().launcherFor {
+        languageVersion.set(JavaLanguageVersion.of(jdkVersion))
+    }.map { it.metadata.installationPath.asFile }
+
+    from(jdkHome)
     destinationDir = composeResources("jdk").get().asFile
 
+    dirPermissions { unix("rwx------") }
     fileTree(destinationDir).files.forEach { file ->
         file.setWritable(true, false)
         file.setReadable(true, false)
@@ -497,7 +533,12 @@ tasks.register("includeProcessingResources"){
     finalizedBy("signResources")
 }
 
-tasks.register("signResources"){
+// Project.exec was removed in Gradle 9; an injected ExecOperations is the replacement
+interface ExecOps {
+    @get:Inject val execOps: ExecOperations
+}
+
+tasks.register("signResources") {
     onlyIf {
         OperatingSystem.current().isMacOsX
             &&
@@ -505,6 +546,9 @@ tasks.register("signResources"){
     }
     group = "compose desktop"
     val resourcesPath = composeResources("")
+    val entitlements = file("macos/entitlements.plist").absolutePath
+
+    val execOps = objects.newInstance<ExecOps>().execOps
 
     // find jars in the resources directory
     val jars = mutableListOf<File>()
@@ -543,8 +587,8 @@ tasks.register("signResources"){
             exclude("*.so")
             exclude("*.dll")
         }.forEach{ file ->
-            exec {
-                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--sign", "Developer ID Application", file)
+            execOps.exec {
+                commandLine("codesign", "--timestamp", "--force", "--deep","--options=runtime", "--entitlements", entitlements, "--sign", "Developer ID Application", file)
             }
         }
         jars.forEach { file ->
@@ -571,9 +615,36 @@ tasks.register("signResources"){
         }
         file(composeResources("Info.plist")).delete()
     }
-
-
 }
+
+/* for mac, perform one final signature of the whole app before submitting
+ * the app for notarization.
+ */
+tasks.register<Exec>("signApp"){
+    onlyIf {
+        OperatingSystem.current().isMacOsX
+            &&
+        compose.desktop.application.nativeDistributions.macOS.signing.sign.get()
+    }
+
+    group = "compose desktop"
+    dependsOn("createDistributable", "setExecutablePermissions")
+
+    val packageName = distributable().packageName.get()
+    val dir = distributable().destinationDir.get()
+    val app = dir.file("$packageName.app").asFile
+
+    commandLine(
+        "codesign",
+        "--timestamp",
+        "--force",
+        "--deep",
+        "--options=runtime",
+        "--entitlements", file("macos/entitlements.plist").absolutePath,
+        "--sign", "Developer ID Application",
+        app)
+}
+
 tasks.register("setExecutablePermissions") {
     description = "Sets executable permissions on binaries in Processing.app resources"
     group = "compose desktop"
@@ -595,6 +666,37 @@ tasks.register("setExecutablePermissions") {
     }
 }
 
+tasks.register("fixDebPermissions") {
+    description = "Rebuilds the .deb so binaries under opt/processing/lib/app/resources keep their executable bit " +
+        "(jpackage's own deb assembly does not reliably preserve it for arbitrary resource files)"
+    group = "compose desktop"
+    onlyIf { OperatingSystem.current().isLinux }
+
+    val execOps = objects.newInstance<ExecOps>().execOps
+
+    doLast {
+        val debDir = layout.buildDirectory.dir("compose/binaries/main/deb").get().asFile
+        val deb = debDir.listFiles { f -> f.name.startsWith("processing") && f.name.endsWith(".deb") }
+            ?.singleOrNull()
+            ?: throw GradleException("Expected exactly one processing*.deb in $debDir")
+
+        val extractDir = debDir.resolve("${deb.nameWithoutExtension}-fixperms")
+        extractDir.deleteRecursively()
+
+        execOps.exec {
+            commandLine(
+                "fakeroot", "bash", "-c",
+                "dpkg-deb -R '${deb.absolutePath}' '${extractDir.absolutePath}' && " +
+                    "find '${extractDir.absolutePath}/opt/processing/lib/app/resources' " +
+                    "-path '*/bin/*' -type f -exec chmod +x {} + && " +
+                    "dpkg-deb -b '${extractDir.absolutePath}' '${deb.absolutePath}'"
+            )
+        }
+
+        extractDir.deleteRecursively()
+    }
+}
+
 afterEvaluate {
     tasks.named("prepareAppResources").configure {
         dependsOn("includeProcessingResources")
@@ -602,5 +704,16 @@ afterEvaluate {
     tasks.named("createDistributable").configure {
         dependsOn("includeJdk")
         finalizedBy("setExecutablePermissions")
+    }
+    // finalizedBy above only guarantees setExecutablePermissions runs after
+    // createDistributable, not before packageDeb, which merely depends on
+    // createDistributable transitively - without this, jpackage can read the
+    // app image before permissions are restored on it.
+    tasks.named("packageDeb").configure {
+        dependsOn("setExecutablePermissions")
+        // jpackage's own --type deb assembly doesn't reliably preserve the
+        // executable bit on arbitrary resource binaries (java, windres, ...);
+        // rebuild the .deb afterward via dpkg-deb to force it back on.
+        finalizedBy("fixDebPermissions")
     }
 }

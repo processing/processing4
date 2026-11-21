@@ -1,0 +1,3 @@
+[submodule "libprocessing"]
+	path = libprocessing
+	url = https://github.com/processing/libprocessing

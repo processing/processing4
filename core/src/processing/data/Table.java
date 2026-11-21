@@ -224,22 +224,27 @@ public class Table {
 
         int type = rsmd.getColumnType(col + 1);
         switch (type) {  // TODO these aren't tested. nor are they complete.
-        case Types.INTEGER:
-        case Types.TINYINT:
-        case Types.SMALLINT:
-          setColumnType(col, INT);
-          break;
-        case Types.BIGINT:
-          setColumnType(col, LONG);
-          break;
-        case Types.FLOAT:
-          setColumnType(col, FLOAT);
-          break;
-        case Types.DECIMAL:
-        case Types.DOUBLE:
-        case Types.REAL:
-          setColumnType(col, DOUBLE);
-          break;
+            case Types.VARCHAR:
+            case Types.CHAR:
+            case Types.BLOB:
+                setColumnType(col, STRING);
+                break;
+            case Types.INTEGER:
+            case Types.TINYINT:
+            case Types.SMALLINT:
+                setColumnType(col, INT);
+                break;
+            case Types.BIGINT:
+                setColumnType(col, LONG);
+                break;
+            case Types.FLOAT:
+                setColumnType(col, FLOAT);
+                 break;
+            case Types.DECIMAL:
+            case Types.DOUBLE:
+            case Types.REAL:
+                setColumnType(col, DOUBLE);
+                break;
         }
       }
 
@@ -4819,7 +4824,7 @@ public class Table {
     for (int row = 0; row < getRowCount(); row++) {
       for (int col = 0; col < getColumnCount(); col++) {
         float value = getFloat(row, col);
-        if (!Float.isNaN(value)) {  // TODO no, this should be comparing to the missing value
+        if (Float.compare(value, missingFloat) != 0) { //value now compares to missingFloat variable
           if (!found) {
             max = value;
             found = true;

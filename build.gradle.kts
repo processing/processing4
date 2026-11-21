@@ -12,6 +12,30 @@ plugins {
 // Can be deleted after the migration to Gradle is complete
 layout.buildDirectory = file(".build")
 
+val javaVersion = "25"
+val kotlinJvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
+
+allprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(kotlinJvmTarget)
+        }
+    }
+
+    plugins.withType<JavaPlugin> {
+        extensions.configure<JavaPluginExtension> {
+            toolchain {
+                languageVersion.set(JavaLanguageVersion.of(javaVersion.toInt()))
+            }
+        }
+    }
+}
+
 // Configure the dependencyUpdates task
 tasks {
     dependencyUpdates {

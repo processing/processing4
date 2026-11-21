@@ -7,12 +7,41 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # Mirrors libprocessing/.github/actions/setup, needed to build the Rust core on Linux
+    - name: Install Linux system dependencies
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        if ! command -v apt-get >/dev/null; then
+          echo "apt-get not available, skipping system dependencies"
+          exit 0
+        fi
+        sudo apt-get update
+        sudo apt-get install -y g++ cmake pkg-config libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libasound2-dev libudev-dev libxkbcommon-x11-0 libwayland-dev libwayland-bin libxkbcommon-dev wayland-protocols libdecor-0-dev libegl1-mesa-dev libwayland-egl1-mesa libfontconfig1-dev
+
+    - name: Build and install GLFW 3.4
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        if ! command -v apt-get >/dev/null; then
+          exit 0
+        fi
+        git clone --depth 1 --branch 3.4 https://github.com/glfw/glfw.git /tmp/glfw
+        cd /tmp/glfw
+        cmake -B build -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_BUILD_WAYLAND=ON -DGLFW_BUILD_X11=ON
+        cmake --build build
+        sudo cmake --install build
+        sudo ldconfig
+
     - name: Install Java
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: 'temurin'
         architecture: ${{ inputs.arch }}
+
+    - name: Install Rust
+      uses: dtolnay/rust-toolchain@stable
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4

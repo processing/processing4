@@ -1,6 +1,14 @@
 <!-- Uncomment the shield below once the repo is made public -->
 <!-- [![All Contributors](https://img.shields.io/github/all-contributors/processing/processing4?color=ee8449)](#contributors) -->
 
+> [!NOTE]
+> **Processing 5.0 development is underway on `main`.**
+>
+> - **New features and 5.0 work:** Open pull requests against `main`.
+> - **Bug fixes for Processing 4:** Open pull requests against the [`4.x`](https://github.com/processing/processing4/tree/4.x) branch. 
+>
+> Not sure which branch to use? Ask in the issue thread or on [Discord](https://discord.processing.org) in #devs-chat.
+
 <img alt="Processing Logo" src="https://processing.org/favicon.svg" width="250">
 
 Processing is a flexible software sketchbook and a programming language designed for learning how to code.
@@ -67,6 +75,8 @@ For licensing information about the Processing website see the [processing-websi
 Copyright (c) 2015-now The Processing Foundation
 
 ## Contributors
+![Grid of avatars representing contributors to the Processing4 project](contributors.png)
+
 See [CONTRIBUTORS.md](./CONTRIBUTORS.md) for a list of all contributors to the project.
 
 This project follows the [all-contributors specification](https://github.com/all-contributors/all-contributors) and the [Emoji Key](https://all-contributors.github.io/emoji-key/) ✨ for contribution types. Detailed instructions on how to add yourself or add contribution emojis to your name are [here](https://github.com/processing/processing4/issues/839). You can also post an issue or comment on a pull request with the text: `@all-contributors please add @YOUR-USERNAME for THINGS` (where `THINGS` is a comma-separated list of entries from the [list of possible contribution types](https://all-contributors.github.io/emoji-key/)) and our nice bot will add you to [CONTRIBUTORS.md](./CONTRIBUTORS.md) automatically!

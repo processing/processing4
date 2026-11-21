@@ -37,7 +37,7 @@ class ProcessingLibraryPlugin : Plugin<Project> {
             }
         }
         target.extensions.configure(JavaPluginExtension::class.java) { extension ->
-            extension.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+            extension.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
         }
 
         target.plugins.withType(JavaPlugin::class.java) {

@@ -18,7 +18,9 @@ more advanced workflows.
 ## What is Gradle
 
 Gradle is a build tool commonly used in the Java ecosystem. It is responsible for tasks like compiling code, managing
-dependencies, and running applications. You do not need to learn Gradle to use Processing in the P
+dependencies, and running applications. You do not need to learn Gradle to use Processing in the PDE, but if you feel 
+ready to take your sketches beyond the PDE and into development environments such as IntelliJ or Eclipse, this plugin 
+helps bridge the gap between Processing and standard Java workflows.
 
 ## Usage
 

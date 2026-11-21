@@ -1733,6 +1733,24 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "kjhollen",
+      "name": "Kate Hollenbach",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78966?v=4",
+      "profile": "https://github.com/kjhollen",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "pepc84",
+      "name": "Pep",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57294729?v=4",
+      "profile": "http://pepc84.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "repoType": "github",

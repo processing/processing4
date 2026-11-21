@@ -39,6 +39,7 @@ import processing.app.*
 import processing.app.api.Contributions.ExamplesList.Companion.listAllExamples
 import processing.app.api.Sketch.Companion.Sketch
 import processing.app.ui.theme.*
+import java.awt.GraphicsEnvironment
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.exists
@@ -554,10 +555,14 @@ fun Sketch.card(onOpen: () -> Unit = {}) {
 }
 
 fun noBaseWarning() {
-    Messages.showWarning(
-        "No Base",
-        "No Base instance provided, this ui is likely being previewed."
-    )
+    if (Base.isCommandLine() || GraphicsEnvironment.isHeadless()) {
+        System.err.println("No Base instance provided, this ui is likely being previewed");
+    } else {
+        Messages.showWarning(
+            "No Base",
+            "No Base instance provided, this ui is likely being previewed."
+        )
+    }
 }
 
 val size = DpSize(970.dp, 600.dp)
