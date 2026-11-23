@@ -200,14 +200,14 @@ jobs:
           ORG_GRADLE_PROJECT_group: ${{ vars.GRADLE_GROUP }}
           ORG_GRADLE_PROJECT_revision: ${{ needs.version.outputs.revision }}
 
-      - name: Sign files with Trusted Signing
-        uses: azure/trusted-signing-action@v0
+      - name: Sign files with Artifact Signing
+        uses: azure/artifact-signing-action@v2
         with:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
           azure-client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           endpoint: https://eus.codesigning.azure.net/
-          trusted-signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT_NAME }}
+          signing-account-name: ${{ secrets.AZURE_SIGNING_ACCOUNT_NAME }}
           certificate-profile-name: ${{ secrets.AZURE_CERTIFICATE_PROFILE_NAME }}
           files-folder: app/build/compose/binaries/main/msi
           files-folder-filter: msi
