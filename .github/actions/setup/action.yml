@@ -10,7 +10,8 @@ runs:
     - name: Install Java
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        # Temurin jdk-17.0.21.1+2 (setup-java matches on the Adoptium semver)
+        java-version: '17.0.21+100000002'
         distribution: 'temurin'
         architecture: ${{ inputs.arch }}
 
