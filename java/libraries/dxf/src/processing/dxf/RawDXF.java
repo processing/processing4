@@ -42,7 +42,7 @@ import processing.core.*;
  * <PRE>
  * import processing.dxf.*;
  *
- * boolean record;
+ * boolean isRecording;
  *
  * void setup() {
  *   size(500, 500, P3D);
@@ -50,19 +50,19 @@ import processing.core.*;
  *
  * void keyPressed() {
  *   // use a key press so that it doesn't make a million files
- *   if (key == 'r') record = true;
+ *   if (key == 'r') isRecording = true;
  * }
  *
  * void draw() {
- *   if (record) {
+ *   if (isRecording) {
  *     beginRaw(DXF, "output.dxf");
  *   }
  *
  *   // do all your drawing here
  *
- *   if (record) {
+ *   if (isRecording) {
  *     endRaw();
- *     record = false;
+ *     isRecording = false;
  *   }
  * }
  * </PRE>
@@ -70,7 +70,7 @@ import processing.core.*;
  * <PRE>
  * import processing.dxf.*;
  *
- * boolean record;
+ * boolean isRecording;
  * RawDXF dxf;
  *
  * void setup() {
@@ -79,25 +79,25 @@ import processing.core.*;
  *
  * void keyPressed() {
  *   // use a key press so that it doesn't make a million files
- *   if (key == 'r') record = true;
+ *   if (key == 'r') isRecording = true;
  * }
  *
  * void draw() {
- *   if (record) {
+ *   if (isRecording) {
  *     dxf = (RawDXF) createGraphics(width, height, DXF, "output.dxf");
  *     beginRaw(dxf);
  *   }
  *
  *   // do all your drawing here, and to set the layer, call:
- *   // if (record) {
+ *   // if (isRecording) {
  *   //   dxf.setLayer(num);
  *   // }
  *   // where 'num' is an integer.
  *   // the default is zero, or you can set it to whatever.
  *
- *   if (record) {
+ *   if (isRecording) {
  *     endRaw();
- *     record = false;
+ *     isRecording = false;
  *     dxf = null;
  *   }
  * }
