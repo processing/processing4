@@ -1929,4 +1929,10 @@ public class Sketch {
     }
     return false;
   }
+
+
+  @Override
+  public int hashCode(){
+      return getMainPath().hashCode();
+  }
 }
