@@ -59,6 +59,8 @@ import java.util.*;
 import java.util.List;
 import java.util.Timer;
 import java.util.stream.Collectors;
+import androidx.compose.ui.awt.ComposePanel;
+import processing.app.ui.ComposeTopBarBridge;
 
 
 /**
@@ -226,8 +228,15 @@ public abstract class Editor extends JFrame implements RunnerListener {
 
 
     rebuildModePopup();
+   ComposePanel composeTopBar = new ComposePanel();
+   ComposeTopBarBridge.mountTopBar(composeTopBar, base, this);
+
+
+
     toolbar = createToolbar();
-    upper.add(toolbar);
+      upper.add(composeTopBar);
+      upper.add(toolbar);
+
 
     header = createHeader();
     upper.add(header);
@@ -655,18 +664,15 @@ public abstract class Editor extends JFrame implements RunnerListener {
     repaint();  // for good measure
   }
 
-
-  // . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-
-
   protected void buildMenuBar() {
     JMenuBar menubar = new JMenuBar();
-    fileMenu = buildFileMenu();
+    fileMenu = buildFileMenu();  //here is the file menu call
     menubar.add(fileMenu);
-    menubar.add(buildEditMenu());
-    menubar.add(buildSketchMenu());
+    menubar.add(buildEditMenu());  //here is the edit menu call
+    menubar.add(buildSketchMenu()); //here is the sketch menu call
 
     // For 3.0a4 move mode menu to the left of the Tool menu
+
     JMenu modeMenu = buildModeMenu();
     if (modeMenu != null) {
       menubar.add(modeMenu);
@@ -691,8 +697,11 @@ public abstract class Editor extends JFrame implements RunnerListener {
     updateDevelopMenu(menubar);
 
     Toolkit.setMenuMnemonics(menubar);
-    setJMenuBar(menubar);
+      //setJMenuBar(menubar);
+    setJMenuBar(null);
   }
+
+
 
 
   abstract public JMenu buildFileMenu();
@@ -1067,7 +1076,9 @@ public abstract class Editor extends JFrame implements RunnerListener {
   }
 
 
-  abstract public JMenu buildHelpMenu();
+  public JMenu buildHelpMenu(){
+      return null;
+  }
 
   public void buildDevelopMenu(){
     developMenu = new JMenu(Language.text("menu.develop"));
@@ -2004,7 +2015,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
     sketch.setModified(true);
   }
 
-  
+
   /**
    * Moves the selected lines up or down in the text editor.
    *
@@ -2854,7 +2865,7 @@ public abstract class Editor extends JFrame implements RunnerListener {
           int stopOffset = p.getStopOffset();
           int pEndOffset = lineOffset + (stopOffset == -1 ? 0 : stopOffset);
           int pEndLine = textarea.getLineOfOffset(pEndOffset);
-          
+
           return line >= pStartLine && line <= pEndLine;
         })
         .collect(Collectors.toList());
