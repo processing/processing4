@@ -53,7 +53,8 @@ mavenPublishing {
     coordinates("$group.core", name, version.toString())
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
 
-    signAllPublications()
+    if (project.hasProperty("signMavenPackages"))
+        signAllPublications()
 
     pom {
         name.set("Processing Net")
